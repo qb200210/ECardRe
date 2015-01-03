@@ -1,0 +1,53 @@
+<com.warpspace.ecardv4.utils.MyScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:scrollbars="none"
+    android:id="@+id/scroll_view">
+    <LinearLayout
+        android:id="@+id/welcome_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:animateLayoutChanges="true"
+        android:orientation="vertical"
+        android:paddingBottom="@dimen/padding_zero"
+        android:paddingLeft="@dimen/padding_zero"
+        android:paddingRight="@dimen/padding_zero"
+        android:paddingTop="@dimen/padding_zero" >
+
+        <!-- QR code LinearLayout will be dynamically added here -->
+
+        <LinearLayout android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="@dimen/padding_zero"
+            android:paddingLeft="@dimen/padding_zero"
+            android:paddingRight="@dimen/padding_zero"
+            android:paddingTop="@dimen/padding_zero"
+            >
+            <include layout="@layout/layout_maincard" />
+
+        </LinearLayout>
+        <LinearLayout android:id="@+id/extra_info_container1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="@dimen/padding_zero"
+            android:paddingLeft="@dimen/padding_zero"
+            android:paddingRight="@dimen/padding_zero"
+            android:paddingTop="@dimen/padding_zero"
+            android:orientation="vertical"
+            />
+
+        <LinearLayout android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="@dimen/padding_zero"
+            android:paddingLeft="@dimen/padding_zero"
+            android:paddingRight="@dimen/padding_zero"
+            android:paddingTop="@dimen/padding_zero"
+            >
+            <include layout="@layout/list_footer" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+</com.warpspace.ecardv4.utils.MyScrollView>

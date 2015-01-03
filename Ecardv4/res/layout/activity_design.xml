@@ -1,0 +1,37 @@
+    <com.warpspace.ecardv4.utils.MyScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/scroll_view2"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/background_gradient"
+        android:scrollbars="none" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical" >
+
+            <com.warpspace.ecardv4.utils.SquareLayout
+                android:id="@+id/main_card_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="0dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:paddingTop="10dp" >
+
+                <include layout="@layout/layout_maincard" />
+            </com.warpspace.ecardv4.utils.SquareLayout>
+            
+            <com.warpspace.ecardv4.utils.ExpandableHeightGridView
+                            android:id="@+id/gridView1"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:padding="20dp"
+                            android:horizontalSpacing="10dp"
+                            android:verticalSpacing="10dp"
+                            android:isScrollContainer="false"
+                            android:numColumns="4"
+                            android:stretchMode="columnWidth" />
+        </LinearLayout>
+    </com.warpspace.ecardv4.utils.MyScrollView>

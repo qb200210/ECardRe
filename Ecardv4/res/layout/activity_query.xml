@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/query_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/black"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/myrect"
+            android:orientation="vertical" >
+
+            <ImageView
+                android:id="@+id/down_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:padding="5dp"
+                android:src="@drawable/ic_action_down" />
+
+            <RelativeLayout
+                android:id="@+id/query_content_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:padding="@dimen/query_margin" >
+
+                <com.warpspace.ecardv4.utils.RobotoTextView
+                    android:id="@+id/text1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="@dimen/text_bottom_margin"
+                    android:paddingLeft="@dimen/query_first_left_margin"
+                    android:text="I want to find "
+                    android:textSize="@dimen/query_textview_size"
+                    app:robotoFont="Roboto-Regular.ttf" />
+
+                <com.warpspace.ecardv4.utils.RobotoEditText
+                    android:id="@+id/query_name"
+                    android:layout_width="200dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBaseline="@id/text1"
+                    android:layout_toRightOf="@id/text1"
+                    android:background="@drawable/apptheme_edit_text_holo_light"
+                    android:gravity="center"
+                    android:hint="Everyone"
+                    android:saveEnabled="false"
+                    android:singleLine="true"
+                    android:textSize="@dimen/query_edittext_size" 
+                    app:robotoFont="Roboto-Regular.ttf"
+                    android:textColor="@android:color/black"/>              
+                
+
+                <com.warpspace.ecardv4.utils.RobotoTextView
+                    android:id="@+id/text2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/text1"
+                    android:paddingBottom="@dimen/text_bottom_margin"
+                    android:paddingLeft="@dimen/query_text_left_margin"
+                    android:text="that I met in "
+                    android:textSize="@dimen/query_textview_size"
+                    app:robotoFont="Roboto-Regular.ttf" />
+
+                <com.warpspace.ecardv4.utils.RobotoTextView
+                    android:id="@+id/query_event_met"
+                    android:layout_width="200dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBaseline="@id/text2"
+                    android:layout_alignParentRight="true"
+                    android:layout_toRightOf="@id/text2"
+                    android:background="@drawable/apptheme_edit_text_holo_light"
+                    android:clickable="true"
+                    android:gravity="center"
+                    android:hint="Every event"
+                    android:saveEnabled="false"
+                    android:singleLine="true"
+                    android:textSize="@dimen/query_edittext_size" 
+                    app:robotoFont="Roboto-Regular.ttf"
+                    android:textColor="@android:color/black"/>
+
+                <com.warpspace.ecardv4.utils.RobotoTextView
+                    android:id="@+id/text3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_below="@id/text2"
+                    android:paddingBottom="@dimen/text_bottom_margin"
+                    android:paddingLeft="@dimen/query_text_left_margin"
+                    android:text="at "
+                    android:textSize="@dimen/query_textview_size"
+                    app:robotoFont="Roboto-Regular.ttf" />
+
+                <com.warpspace.ecardv4.utils.RobotoTextView
+                    android:id="@+id/query_where_met"
+                    android:layout_width="200dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBaseline="@id/text3"
+                    android:layout_alignParentRight="true"
+                    android:layout_toRightOf="@id/text3"
+                    android:background="@drawable/apptheme_edit_text_holo_light"
+                    android:clickable="true"
+                    android:gravity="center"
+                    android:hint="Anywhere"
+                    android:saveEnabled="false"
+                    android:singleLine="true"
+                    android:textSize="@dimen/query_edittext_size" 
+                    app:robotoFont="Roboto-Regular.ttf"
+                    android:textColor="@android:color/black"/>
+
+                <com.warpspace.ecardv4.utils.RobotoTextView
+                    android:id="@+id/text4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_below="@id/text3"
+                    android:paddingBottom="@dimen/text_bottom_margin"
+                    android:paddingLeft="@dimen/query_text_left_margin"
+                    android:text="after "
+                    android:textSize="@dimen/query_textview_size"
+                    app:robotoFont="Roboto-Regular.ttf" />
+
+                <com.warpspace.ecardv4.utils.RobotoTextView
+                    android:id="@+id/query_when_met"
+                    android:layout_width="200dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBaseline="@id/text4"
+                    android:layout_alignParentRight="true"
+                    android:layout_toRightOf="@id/text4"
+                    android:background="@drawable/apptheme_edit_text_holo_light"
+                    android:clickable="true"
+                    android:gravity="center"
+                    android:hint="Any time"
+                    android:onClick="showDatePickerDialog"
+                    android:saveEnabled="false"
+                    android:singleLine="true"
+                    android:textSize="@dimen/query_edittext_size" 
+                    app:robotoFont="Roboto-Regular.ttf"
+                    android:textColor="@android:color/black"/>
+
+                <com.warpspace.ecardv4.utils.RobotoTextView
+                    android:id="@+id/text5"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_below="@id/text4"
+                    android:paddingBottom="@dimen/text_bottom_margin"
+                    android:paddingLeft="@dimen/query_text_left_margin"
+                    android:text="who is "
+                    android:textSize="@dimen/query_textview_size"
+                    app:robotoFont="Roboto-Regular.ttf" />
+
+                <com.warpspace.ecardv4.utils.RobotoEditText
+                    android:id="@+id/query_job_title"
+                    android:layout_width="200dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBaseline="@id/text5"
+                    android:layout_alignParentRight="true"
+                    android:layout_toRightOf="@id/text5"
+                    android:background="@drawable/apptheme_edit_text_holo_light"
+                    android:gravity="center"
+                    android:hint="Any position"
+                    android:saveEnabled="false"
+                    android:singleLine="true"
+                    android:textSize="@dimen/query_edittext_size" 
+                    app:robotoFont="Roboto-Regular.ttf"
+                    android:textColor="@android:color/black"/>
+
+                <com.warpspace.ecardv4.utils.RobotoTextView
+                    android:id="@+id/text6"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_below="@id/text5"
+                    android:paddingBottom="@dimen/text_bottom_margin"
+                    android:paddingLeft="@dimen/query_text_left_margin"
+                    android:text="at "
+                    android:textSize="@dimen/query_textview_size"
+                    app:robotoFont="Roboto-Regular.ttf" />
+
+                <com.warpspace.ecardv4.utils.RobotoTextView
+                    android:id="@+id/query_company_name"
+                    android:layout_width="200dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBaseline="@id/text6"
+                    android:layout_alignParentRight="true"
+                    android:layout_toRightOf="@id/text6"
+                    android:background="@drawable/apptheme_edit_text_holo_light"
+                    android:clickable="true"
+                    android:gravity="center"
+                    android:hint="Any company"
+                    android:saveEnabled="false"
+                    android:singleLine="true"
+                    android:textSize="@dimen/query_edittext_size" 
+                    app:robotoFont="Roboto-Regular.ttf"
+                    android:textColor="@android:color/black"/>
+
+                <com.warpspace.ecardv4.utils.RobotoTextView
+                    android:id="@+id/text7"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_below="@id/text6"
+                    android:paddingBottom="@dimen/text_bottom_margin"
+                    android:paddingLeft="@dimen/query_text_left_margin"
+                    android:text="in "
+                    android:textSize="@dimen/query_textview_size"
+                    app:robotoFont="Roboto-Regular.ttf" />
+
+                <com.warpspace.ecardv4.utils.RobotoTextView
+                    android:id="@+id/query_where_work"
+                    android:layout_width="200dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBaseline="@id/text7"
+                    android:layout_alignParentRight="true"
+                    android:layout_toRightOf="@id/text7"
+                    android:background="@drawable/apptheme_edit_text_holo_light"
+                    android:clickable="true"
+                    android:gravity="center"
+                    android:hint="Anywhere"
+                    android:paddingRight="@dimen/query_first_left_margin"
+                    android:saveEnabled="false"
+                    android:singleLine="true"
+                    android:textSize="@dimen/query_edittext_size" 
+                    app:robotoFont="Roboto-Regular.ttf"
+                    android:textColor="@android:color/black"/>
+            </RelativeLayout>
+
+            <LinearLayout
+                android:id="@+id/query_search_container"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_alignParentBottom="true"
+                android:background="@drawable/mybuttonbanner"
+                android:gravity="center" >
+
+                <Button
+                    android:id="@+id/search_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:background="@drawable/apptheme_btn_default_holo_light"
+                    android:paddingBottom="0dp"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:paddingTop="0dp"
+                    android:text="SEARCH"
+                    android:textColor="@android:color/white"
+                    android:textSize="20sp" />
+            </LinearLayout>
+            
+            
+            <ImageView 
+                android:id="@+id/clear_query"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_action_remove"
+                    android:layout_centerHorizontal="true"
+                    android:layout_above="@id/query_search_container"
+                    android:paddingBottom="@dimen/text_top_margin"/>
+            
+        </RelativeLayout>
+    </LinearLayout>
+
+</RelativeLayout>
