@@ -13,7 +13,7 @@ public class CustomQRScanner extends CaptureActivity {
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    setContentView(R.layout.qr_scanner);
+    setContentView(R.layout.activity_qrscanner);
 
     Button scan_return = (Button) findViewById(R.id.btn_scanner_exit);
     scan_return.setOnClickListener(new OnClickListener() {
