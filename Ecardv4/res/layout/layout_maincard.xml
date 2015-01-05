@@ -10,61 +10,88 @@
         android:layout_height="wrap_content"
     	android:background="@drawable/glass_background"  >
     
-    	<RelativeLayout 
-	        android:layout_width="match_parent"
-		    android:layout_height="match_parent"
-		    android:padding="10dp"
-		    android:orientation="vertical" >
-	    
-    	    <com.warpspace.ecardv4.utils.RobotoTextView
-    	        android:id="@+id/my_first_name"
-    	        android:layout_width="wrap_content"
-    	        android:layout_height="wrap_content"
-    	        android:layout_alignParentLeft="true"
-    	        android:textSize="14sp"
-    	        app:robotoFont="Roboto-Bold.ttf"
-    	        android:text="Carlfrankstein Alan Kimberly" />
-    	    
-    	    <com.warpspace.ecardv4.utils.RobotoTextView
-    	        android:id="@+id/my_last_name"
-    	        android:layout_width="wrap_content"
-    	        android:layout_height="wrap_content"
-    	        android:layout_toRightOf="@id/my_first_name"
-    	        android:textSize="14sp"
-    	        android:paddingLeft="5dp"
-    	        app:robotoFont="Roboto-Bold.ttf"
-    	        android:text="Leonhart" />
-    	    
-    	    <com.warpspace.ecardv4.utils.RobotoTextView
-    	        android:id="@+id/my_company"
-    	        android:layout_width="wrap_content"
-    	        android:layout_height="wrap_content"
-    	        android:layout_below="@id/my_first_name"
-    	        android:textSize="14sp"
-    	        app:robotoFont="Roboto-Regular.ttf"
-    	        android:text="Intel Corporation at Middle-Eastern-MIT joint institute" />
-    	    
-    	    <com.warpspace.ecardv4.utils.RobotoTextView
-    	        android:id="@+id/my_job_title"
-    	        android:layout_width="wrap_content"
-    	        android:layout_height="wrap_content"
-    	        android:layout_below="@id/my_company"
-    	        android:textSize="14sp"
-    	        app:robotoFont="Roboto-Regular.ttf"
-    	        android:text="Senior Staff Electrical Engineer and Techical Consultant" />
-    	    
-    	    <com.warpspace.ecardv4.utils.RobotoTextView
-    	        android:id="@+id/my_work_phone"
-    	        android:layout_width="wrap_content"
-    	        android:layout_height="wrap_content"
-    	        android:layout_below="@id/my_job_title"
-    	        android:textSize="14sp"
-    	        app:robotoFont="Roboto-Regular.ttf"
-    	        android:text="800-999-9999" />
-    	    
-    	        
-    	        
-        </RelativeLayout>
+    	<RelativeLayout
+    android:id="@+id/relativeLayout1"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+>
+		    
+        <ImageButton
+            android:id="@+id/design_PortraitButton"
+            android:layout_width="128dp"
+            android:layout_height="128dp" 
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="20dp"/>
+
+        <EditText android:text="FirstName"
+            android:id="@+id/design_first_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@+id/design_PortraitButton"
+            android:layout_toRightOf="@+id/design_PortraitButton"
+            android:layout_marginTop="20dp"
+            android:gravity="center"
+            android:padding="5dp"
+            android:textColor="#0a0a0a"
+            android:textSize="20sp" />
+        
+        <EditText android:text="LastName"
+            android:id="@+id/design_last_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@+id/design_PortraitButton"
+            android:layout_toRightOf="@+id/design_PortraitButton"
+            android:layout_below="@+id/design_first_name"
+            android:gravity="center"
+            android:padding="5dp"
+            android:textColor="#0a0a0a"
+            android:textSize="20sp" />
+        
+        <EditText android:text="Title"
+            android:id="@+id/design_job_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@+id/design_PortraitButton"
+            android:layout_toRightOf="@+id/design_PortraitButton"
+            android:layout_below="@+id/design_last_name"
+            android:gravity="center"
+            android:padding="5dp"
+            android:textColor="#0a0a0a"
+            android:textSize="15sp" />
+        
+         <EditText android:text="Company"
+            android:id="@+id/design_company"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/design_PortraitButton"
+            android:layout_marginLeft="15dp"
+            android:layout_marginStart="15dp"
+            android:padding="5dp"
+            android:textColor="#0a0a0a"
+            android:textSize="20sp" />
+         
+        <EditText android:text="Address"
+            android:id="@+id/design_address"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/design_company"
+            android:layout_marginLeft="15dp"
+            android:layout_marginStart="15dp"
+            android:padding="5dp"
+            android:textColor="#0a0a0a"
+            android:textSize="15sp" />
+        
+        <ImageButton
+            android:id="@+id/design_CompanyLogo"
+            android:layout_width="96dp"
+            android:layout_height="96dp" 
+            android:layout_alignParentRight="true"
+      		android:layout_alignParentBottom="true" 
+      		android:layout_marginRight="20dp"
+      		android:layout_marginBottom="20dp"
+            />
+        
+    </RelativeLayout>
     
     
     </com.warpspace.ecardv4.utils.SquareLayout>

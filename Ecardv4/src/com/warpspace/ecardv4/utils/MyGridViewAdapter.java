@@ -14,12 +14,15 @@ import android.widget.ImageView;
 public class MyGridViewAdapter extends BaseAdapter {
 
   private Context context;
+
+  private ArrayList<String> gridKeys = new ArrayList<String>();
   private ArrayList<String> gridValues = new ArrayList<String>();
   private ArrayList<Integer> gridResources = new ArrayList<Integer>();
 
-  public MyGridViewAdapter(Context context, ArrayList<String> gridValues,
+  public MyGridViewAdapter(Context context, ArrayList<String> gridKeys, ArrayList<String> gridValues,
     ArrayList<Integer> gridResources) {
     this.context = context;
+    this.gridKeys = gridKeys;
     this.gridValues = gridValues;
     this.gridResources = gridResources;
   }
@@ -43,8 +46,7 @@ public class MyGridViewAdapter extends BaseAdapter {
         .findViewById(R.id.grid_item_image);
 
       imageView.setImageResource(gridResources.get(position));
-      gridView.setTag(gridValues.get(position));
-
+      gridView.setTag(new MyTag(gridKeys.get(position), gridValues.get(position)));
       // imageView.setImageResource(R.drawable.ic_launcher);
 
     } else {
@@ -71,5 +73,7 @@ public class MyGridViewAdapter extends BaseAdapter {
     // TODO Auto-generated method stub
     return 0;
   }
+  
+  
 
 }

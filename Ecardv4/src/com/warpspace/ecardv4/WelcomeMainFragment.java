@@ -265,19 +265,19 @@ public class WelcomeMainFragment extends Fragment {
               // }
 
               TextView name = (TextView) rootView
-                .findViewById(R.id.my_first_name);
+                .findViewById(R.id.design_first_name);
               String tmpString = object.getString("firstName");
               if (tmpString != null)
                 name.setText(tmpString);
-              name = (TextView) rootView.findViewById(R.id.my_last_name);
+              name = (TextView) rootView.findViewById(R.id.design_last_name);
               tmpString = object.getString("lastName");
               if (tmpString != null)
                 name.setText(tmpString);
-              name = (TextView) rootView.findViewById(R.id.my_company);
+              name = (TextView) rootView.findViewById(R.id.design_company);
               tmpString = object.getString("company");
               if (tmpString != null)
                 name.setText(tmpString);
-              name = (TextView) rootView.findViewById(R.id.my_job_title);
+              name = (TextView) rootView.findViewById(R.id.design_job_title);
               tmpString = object.getString("title");
               if (tmpString != null)
                 name.setText(tmpString);

@@ -34,6 +34,7 @@ public class ActivityScanned extends ActionBarActivity {
   static final ArrayList<Integer> infoIcon = new ArrayList<Integer>();
   static final ArrayList<String> infoLink = new ArrayList<String>();
   static final ArrayList<String> infoItemsList = new ArrayList<String>();
+  static final ArrayList<String> shownArrayList = new ArrayList<String>();
 
   ExpandableHeightGridView gridView;
 
@@ -50,6 +51,13 @@ public class ActivityScanned extends ActionBarActivity {
 
     // dummy array, will be replaced by extrainfo items
     infoIcon.clear();
+
+    shownArrayList.clear();
+
+    shownArrayList.add("facebook");
+    shownArrayList.add("linkedin");
+    shownArrayList.add("twitter");
+    shownArrayList.add("googleplus");
     infoIcon.add(R.drawable.facebook);
     infoIcon.add(R.drawable.linkedin);
     infoIcon.add(R.drawable.twitter);
@@ -83,7 +91,7 @@ public class ActivityScanned extends ActionBarActivity {
     // This is because this gridView is part of the welcome page that is already
     // scrollable
     gridView = (ExpandableHeightGridView) findViewById(R.id.gridView1);
-    gridView.setAdapter(new MyGridViewAdapter(this, infoLink, infoIcon));
+    gridView.setAdapter(new MyGridViewAdapter(this, shownArrayList, infoLink, infoIcon));
     gridView.setOnItemClickListener(new OnItemClickListener() {
 
       @Override
@@ -145,9 +153,10 @@ public class ActivityScanned extends ActionBarActivity {
       public void onClick(DialogInterface dialog, int which) {
         infoLink.add(infoLink.size() - 1, "http://www." + "xxxxxx" + ".com");
         infoIcon.add(infoIcon.size() - 1, infoIcon.get(which));
+        shownArrayList.add("facebook");
         // make a new adapter with one more item included
         MyGridViewAdapter updatedAdapter = new MyGridViewAdapter(
-          getBaseContext(), infoLink, infoIcon);
+          getBaseContext(), shownArrayList, infoLink, infoIcon);
         gridView.setAdapter(updatedAdapter);
         // Refresh the gridView to display the new item
         updatedAdapter.notifyDataSetChanged();
@@ -214,28 +223,22 @@ public class ActivityScanned extends ActionBarActivity {
               // Toast.LENGTH_SHORT).show();
               // }
 
-              TextView name = (TextView) findViewById(R.id.my_first_name);
+              TextView name = (TextView) findViewById(R.id.design_first_name);
               String tmpString = object.getString("firstName");
               if (tmpString != null)
                 name.setText(tmpString);
-              name = (TextView) findViewById(R.id.my_last_name);
+              name = (TextView) findViewById(R.id.design_last_name);
               tmpString = object.getString("lastName");
               if (tmpString != null)
                 name.setText(tmpString);
-              name = (TextView) findViewById(R.id.my_company);
+              name = (TextView) findViewById(R.id.design_company);
               tmpString = object.getString("company");
               if (tmpString != null)
                 name.setText(tmpString);
-              name = (TextView) findViewById(R.id.my_job_title);
+              name = (TextView) findViewById(R.id.design_job_title);
               tmpString = object.getString("title");
               if (tmpString != null)
                 name.setText(tmpString);
-              // name = (TextView) findViewById(R.id.tel);
-              // name.setText(object.getString("tel"));
-              // name = (TextView) findViewById(R.id.email);
-              // name.setText(object.getString("email"));
-              // name = (TextView) findViewById(R.id.link);
-              // name.setText(object.getString("link"));
             } else {
               Toast.makeText(getBaseContext(),
                 "Self Ecardinfo not found locally!", Toast.LENGTH_SHORT).show();

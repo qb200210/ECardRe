@@ -16,12 +16,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Window;
+import android.widget.Toast;
 
 public class ActivityBufferOpening extends Activity {
-
-  ParseUser currentUser;
-  ParseFile file;
-  boolean firstTimeLogin = false;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -97,8 +94,7 @@ public class ActivityBufferOpening extends Activity {
             // object.saveInBackground();
             // }
             object.pinInBackground();
-            // Toast.makeText(getBaseContext(), "Local copy created!",
-            // Toast.LENGTH_SHORT).show();
+            Toast.makeText(getBaseContext(), "Local copy created!",Toast.LENGTH_SHORT).show();
           } else {
             // If no internet connection, no local copy can be saved
             Log.d("BufferOpening", "Cannot save self copy");
