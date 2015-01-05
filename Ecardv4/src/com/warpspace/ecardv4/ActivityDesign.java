@@ -20,7 +20,13 @@ import com.warpspace.ecardv4.utils.SquareLayout;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Editable;
 import android.view.Menu;
@@ -29,6 +35,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,6 +43,8 @@ public class ActivityDesign extends ActionBarActivity {
 
   ParseUser currentUser;
   private MyScrollView scrollView;
+  private static final int SELECT_PORTRAIT = 100;
+  private static final int SELECT_LOGO = 200;
   // dummy array, will be replaced by extra info items
   private ArrayList<Integer> infoIcon = new ArrayList<Integer>();
   private ArrayList<String> infoLink = new ArrayList<String>();
@@ -236,6 +245,61 @@ public class ActivityDesign extends ActionBarActivity {
     // below is to re-scroll to the first view in the LinearLayout
     SquareLayout mainCardContainer = (SquareLayout) findViewById(R.id.main_card_container);
     scrollView.requestChildFocus(mainCardContainer, null);
+    
+    ImageButton pbPortrait = (ImageButton) findViewById(R.id.design_PortraitButton);
+    pbPortrait.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                    Toast.makeText(ActivityDesign.this, "Select Image",
+                                    Toast.LENGTH_LONG).show();
+                    Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+                   photoPickerIntent.setType("image/*");
+                    startActivityForResult(photoPickerIntent, SELECT_PORTRAIT);
+            }
+    });
+	ImageButton pbLogo = (ImageButton) findViewById(R.id.design_CompanyLogo);
+    pbLogo.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                    Toast.makeText(ActivityDesign.this, "Select Image",
+                                    Toast.LENGTH_LONG).show();
+                    Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+                   photoPickerIntent.setType("image/*");
+                    startActivityForResult(photoPickerIntent, SELECT_LOGO);
+            }
+    });
+  }
+  
+  @Override
+  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+      super.onActivityResult(requestCode, resultCode, data);
+       
+      if (resultCode == RESULT_OK && null != data) {
+          Uri selectedImage = data.getData();
+          String[] filePathColumn = { MediaStore.Images.Media.DATA };
+
+          Cursor cursor = getContentResolver().query(selectedImage,
+                  filePathColumn, null, null, null);
+          cursor.moveToFirst();
+
+          int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+          String picturePath = cursor.getString(columnIndex);
+          cursor.close();
+          
+          BitmapFactory.Options options = new BitmapFactory.Options();
+          options.inJustDecodeBounds = true;
+    
+          if (requestCode == SELECT_PORTRAIT) {
+        	  ImageButton imageButton = (ImageButton) findViewById(R.id.design_PortraitButton);
+        	  imageButton.setImageBitmap(decodeSampledBitmapFromFile(picturePath, 128, 128));
+
+          }
+          if (requestCode == SELECT_LOGO) {
+        	  ImageButton imageButton = (ImageButton) findViewById(R.id.design_CompanyLogo);
+        	  imageButton.setImageBitmap(decodeSampledBitmapFromFile(picturePath, 96, 96));
+  
+          }
+       
+      }
+   
   }
 
   private Integer iconSelector(String key) {
@@ -456,4 +520,40 @@ public class ActivityDesign extends ActionBarActivity {
 
       });
   }
+  public static Bitmap decodeSampledBitmapFromFile(String picturePath, int reqWidth, int reqHeight) {
+
+      // First decode with inJustDecodeBounds=true to check dimensions
+      final BitmapFactory.Options options = new BitmapFactory.Options();
+      options.inJustDecodeBounds = true;
+      BitmapFactory.decodeFile(picturePath, options);
+
+      // Calculate inSampleSize
+      options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+
+      // Decode bitmap with inSampleSize set
+      options.inJustDecodeBounds = false;
+      return BitmapFactory.decodeFile(picturePath, options);
+  }
+  public static int calculateInSampleSize(
+          BitmapFactory.Options options, int reqWidth, int reqHeight) {
+  // Raw height and width of image
+  final int height = options.outHeight;
+  final int width = options.outWidth;
+  int inSampleSize = 1;
+
+  if (height > reqHeight || width > reqWidth) {
+
+      final int halfHeight = height / 2;
+      final int halfWidth = width / 2;
+
+      // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+      // height and width larger than the requested height and width.
+      while ((halfHeight / inSampleSize) > reqHeight
+              && (halfWidth / inSampleSize) > reqWidth) {
+          inSampleSize *= 2;
+      }
+  }
+
+  return inSampleSize;
+}
 }
