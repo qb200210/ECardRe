@@ -1,16 +1,11 @@
 package com.warpspace.ecardv4;
 
-import java.util.HashMap;
-
 import com.google.zxing.client.android.Intents;
-import com.parse.GetCallback;
-import com.parse.ParseException;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.viewpagerindicator.CirclePageIndicator;
 import com.viewpagerindicator.PageIndicator;
 import com.warpspace.ecardv4.R;
+import com.warpspace.ecardv4.infrastructure.UserInfo;
 import com.warpspace.ecardv4.utils.CurvedAndTiled;
 import com.warpspace.ecardv4.utils.CustomQRScanner;
 import com.warpspace.ecardv4.utils.MyPagerAdapter;
@@ -26,7 +21,6 @@ import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -125,7 +119,11 @@ public class ActivityMain extends ActionBarActivity {
       // The user picked a contact.
       // The Intent's data Uri identifies which contact was selected.
 
-      // Do something with the contact here (bigger example below)
+      String contents = data.getStringExtra("SCAN_RESULT");
+
+      UserInfo uInfo = UserInfo.getUserInfoFromQRString(
+        getApplicationContext(), contents);
+      Bitmap qrMap = uInfo.getQRCode();
     }
   }
 }

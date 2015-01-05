@@ -91,7 +91,8 @@ public class ActivityScanned extends ActionBarActivity {
     // This is because this gridView is part of the welcome page that is already
     // scrollable
     gridView = (ExpandableHeightGridView) findViewById(R.id.gridView1);
-    gridView.setAdapter(new MyGridViewAdapter(this, shownArrayList, infoLink, infoIcon));
+    gridView.setAdapter(new MyGridViewAdapter(this, shownArrayList, infoLink,
+      infoIcon));
     gridView.setOnItemClickListener(new OnItemClickListener() {
 
       @Override
@@ -103,11 +104,12 @@ public class ActivityScanned extends ActionBarActivity {
           // When the last item in the gridView is clicked, show the dialog
           actions.show();
         } else {
-        	String tag = (String) view.getTag();
-            if(tag != null){
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(tag));
-                startActivity(browserIntent);
-            }
+          String tag = (String) view.getTag();
+          if (tag != null) {
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri
+              .parse(tag));
+            startActivity(browserIntent);
+          }
         }
       }
 
@@ -119,28 +121,28 @@ public class ActivityScanned extends ActionBarActivity {
     SquareLayout mainCardContainer = (SquareLayout) findViewById(R.id.main_card_container);
     scrollView.requestChildFocus(mainCardContainer, null);
   }
-  
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.design_actionbar, menu);
-		return true;
-	}
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		// this function is called when either action bar icon is tapped
-		switch (item.getItemId()) {
-		case R.id.design_discard:
-			Toast.makeText(this, "Discarded Ecard!", Toast.LENGTH_SHORT).show();
-			this.finish();
-			return true;
-		case R.id.design_save:
-			Toast.makeText(this, "Save Ecard!", Toast.LENGTH_SHORT).show();
-			this.finish();
-			return true;
-		default:
-			return super.onOptionsItemSelected(item);
-		}
-	}
+  public boolean onCreateOptionsMenu(Menu menu) {
+    getMenuInflater().inflate(R.menu.design_actionbar, menu);
+    return true;
+  }
+
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    // this function is called when either action bar icon is tapped
+    switch (item.getItemId()) {
+    case R.id.design_discard:
+      Toast.makeText(this, "Discarded Ecard!", Toast.LENGTH_SHORT).show();
+      this.finish();
+      return true;
+    case R.id.design_save:
+      Toast.makeText(this, "Save Ecard!", Toast.LENGTH_SHORT).show();
+      this.finish();
+      return true;
+    default:
+      return super.onOptionsItemSelected(item);
+    }
+  }
 
   DialogInterface.OnClickListener listenerBuilder(final String[] records) {
     // This is the listener wrapper

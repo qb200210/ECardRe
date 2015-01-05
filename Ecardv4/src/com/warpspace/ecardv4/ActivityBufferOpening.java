@@ -5,7 +5,6 @@ import java.util.TimerTask;
 
 import com.parse.GetCallback;
 import com.parse.ParseException;
-import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
@@ -94,7 +93,8 @@ public class ActivityBufferOpening extends Activity {
             // object.saveInBackground();
             // }
             object.pinInBackground();
-            Toast.makeText(getBaseContext(), "Local copy created!",Toast.LENGTH_SHORT).show();
+            Toast.makeText(getBaseContext(), "Local copy created!",
+              Toast.LENGTH_SHORT).show();
           } else {
             // If no internet connection, no local copy can be saved
             Log.d("BufferOpening", "Cannot save self copy");
