@@ -4,7 +4,12 @@ import java.util.Locale;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
 import com.warpspace.ecardv4.R;
 
 /**
@@ -30,6 +35,25 @@ public class UserInfo {
     this.lastName = lastName;
   }
 
+  /**
+   * Writes the given Matrix on a new Bitmap object.
+   *
+   * @param matrix
+   *          the matrix to write.
+   * @return the new {@link Bitmap}-object.
+   */
+  private static Bitmap toBitmap(BitMatrix matrix) {
+    int height = matrix.getHeight();
+    int width = matrix.getWidth();
+    Bitmap bmp = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
+    for (int x = 0; x < width; x++) {
+      for (int y = 0; y < height; y++) {
+        bmp.setPixel(x, y, matrix.get(x, y) ? Color.BLACK : Color.WHITE);
+      }
+    }
+    return bmp;
+  }
+
   public static Bitmap getQRCode(Context context, String objId,
     String firstName, String lastName) {
     String website = context.getString(R.string.base_website_user);
@@ -40,8 +64,17 @@ public class UserInfo {
     qrString.append(firstName);
     qrString.append(".");
     qrString.append(lastName);
-    Bitmap qrCode = null; // TODO: encode qrcode.
-    return qrCode;
+
+    QRCodeWriter writer = new QRCodeWriter();
+    BitMatrix matrix = null;
+    try {
+      matrix = writer.encode(qrString.toString(), BarcodeFormat.QR_CODE, 400,
+        400);
+    } catch (WriterException e) {
+      e.printStackTrace();
+    }
+
+    return toBitmap(matrix);
   }
 
   public static UserInfo getUserInfoFromQRString(Context context,
