@@ -71,8 +71,8 @@ public class ActivityMain extends ActionBarActivity {
 
       @Override
       public void onClick(View v) {
-        Toast.makeText(getApplicationContext(), "lala", Toast.LENGTH_SHORT)
-          .show();
+    	  Intent intent = new Intent(v.getContext(), ActivityPostScanBuffer.class);
+          startActivity(intent);
       }
 
     });

@@ -1,111 +1,257 @@
 package com.warpspace.ecardv4.infrastructure;
 
+import java.util.ArrayList;
 import java.util.Locale;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-
+import android.os.Parcel;
+import android.os.Parcelable;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.warpspace.ecardv4.R;
 
 /**
  * Created by Udayan on 12/13/2014.
  */
-public class UserInfo {
-  String objId;
-  String firstName;
-  String lastName;
+public class UserInfo implements Parcelable {
+	
+	// Centralized space for ecard, should make a similar one for ecardNote
+	// This is made Parcelable so a UserInfo object can be passed among activities
+	
+	String objId;
+	String firstName;
+	String lastName;
+	String company;
+	String title;
+	Context context;
 
-  String company;
-  Context context;
+	ArrayList<String> shownArrayList = new ArrayList<String>();
+	ArrayList<Integer> infoIcon = new ArrayList<Integer>();
+	ArrayList<String> infoLink = new ArrayList<String>();
+	String[] allowedArray = { "facebook", "linkedin", "twitter", "googleplus", "phone", "about", "email" };
 
-  // Private.
-  UserInfo() {
+	public UserInfo(Context context, String objId, String firstName, String lastName, boolean networkAvailable) {
+		this.context = context;
+		this.objId = objId;
+		this.firstName = firstName;
+		this.lastName = lastName;
+		if (networkAvailable) {
+			populateUserInfoWithParseData(objId);
+		}
+	}
 
-  }
+	public UserInfo(Parcel source) {
+		this.objId = source.readString();
+		this.firstName = source.readString();
+		this.lastName = source.readString();
+		this.company = source.readString();
+		this.title = source.readString();
+		source.readStringList(this.shownArrayList);
+		source.readStringList(this.infoLink);
+		source.readList(this.infoIcon, Integer.class.getClassLoader());
+	}
 
-  UserInfo(Context context, String objId, String firstName, String lastName) {
-    this.context = context;
-    this.objId = objId;
-    this.firstName = firstName;
-    this.lastName = lastName;
-  }
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeString(objId);
+		dest.writeString(firstName);
+		dest.writeString(lastName);
+		dest.writeString(company);
+		dest.writeString(title);
+		dest.writeStringList(shownArrayList);
+		dest.writeStringList(infoLink);
+		dest.writeList(infoIcon);
+	}
 
-  /**
-   * Writes the given Matrix on a new Bitmap object.
-   *
-   * @param matrix
-   *          the matrix to write.
-   * @return the new {@link Bitmap}-object.
-   */
-  private static Bitmap toBitmap(BitMatrix matrix) {
-    int height = matrix.getHeight();
-    int width = matrix.getWidth();
-    Bitmap bmp = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
-    for (int x = 0; x < width; x++) {
-      for (int y = 0; y < height; y++) {
-        bmp.setPixel(x, y, matrix.get(x, y) ? Color.BLACK : Color.WHITE);
-      }
-    }
-    return bmp;
-  }
+	private void populateUserInfoWithParseData(String objId2) {
+		ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardInfo");
+		try {
+			// Must not use the getinbackground() thread method, 
+			// otherwise data won't be back before the UserInfo object is built
+			// may want to implement a loading screen if taking too long?
+			ParseObject object = query.get(objId2);
+			if (object != null) {
+				// main card info
+				firstName = object.getString("firstName");
+				lastName = object.getString("lastName");
+				company = object.getString("company");
+				title = object.getString("title");
+				// extra info
+				infoIcon.clear();
+				infoLink.clear();
+				shownArrayList.clear();
+				for (int i = 0; i < allowedArray.length; i++) {
+					// the extra info item
+					String item = allowedArray[i];
+					// the value of this extra info item
+					Object value = object.get(item);
+					if (value != null && value.toString() != "") {
+						infoIcon.add(iconSelector(item));
+						infoLink.add(value.toString());
+						// note down the existing extra info items
+						shownArrayList.add(item);
+					}
+				}
+			}
+		} catch (ParseException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+	}
 
-  public static Bitmap getQRCode(Context context, String objId,
-    String firstName, String lastName) {
-    String website = context.getString(R.string.base_website_user);
-    StringBuffer qrString = new StringBuffer(website);
-    qrString.append("=");
-    qrString.append(objId);
-    qrString.append(".");
-    qrString.append(firstName);
-    qrString.append(".");
-    qrString.append(lastName);
+	private Integer iconSelector(String key) {
+		// input key to select corresponding icon to display on button
+		switch (key) {
+		case "email":
+			return R.drawable.email;
+		case "facebook":
+			return R.drawable.facebook;
+		case "linkedin":
+			return R.drawable.linkedin;
+		case "twitter":
+			return R.drawable.twitter;
+		case "phone":
+			return R.drawable.ic_action_discard;
+		case "about":
+			return R.drawable.ic_action_discard;
+		case "googleplus":
+			return R.drawable.googleplus;
+		default:
+			return R.drawable.ic_action_discard;
+		}
+	}
 
-    QRCodeWriter writer = new QRCodeWriter();
-    BitMatrix matrix = null;
-    try {
-      matrix = writer.encode(qrString.toString(), BarcodeFormat.QR_CODE, 400,
-        400);
-    } catch (WriterException e) {
-      e.printStackTrace();
-    }
+	/**
+	 * Writes the given Matrix on a new Bitmap object.
+	 * 
+	 * @param matrix
+	 *            the matrix to write.
+	 * @return the new {@link Bitmap}-object.
+	 */
+	private static Bitmap toBitmap(BitMatrix matrix) {
+		int height = matrix.getHeight();
+		int width = matrix.getWidth();
+		Bitmap bmp = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
+		for (int x = 0; x < width; x++) {
+			for (int y = 0; y < height; y++) {
+				bmp.setPixel(x, y, matrix.get(x, y) ? Color.BLACK : Color.WHITE);
+			}
+		}
+		return bmp;
+	}
 
-    return toBitmap(matrix);
-  }
+	public static Bitmap getQRCode(Context context, String objId, String firstName, String lastName) {
+		String website = context.getString(R.string.base_website_user);
+		StringBuffer qrString = new StringBuffer(website);
+		qrString.append("=");
+		qrString.append(objId);
+		qrString.append(".");
+		qrString.append(firstName);
+		qrString.append(".");
+		qrString.append(lastName);
 
-  public static UserInfo getUserInfoFromQRString(Context context,
-    String qrString) {
-    String website = context.getString(R.string.base_website_user);
+		QRCodeWriter writer = new QRCodeWriter();
+		BitMatrix matrix = null;
+		try {
+			matrix = writer.encode(qrString.toString(), BarcodeFormat.QR_CODE, 400, 400);
+		} catch (WriterException e) {
+			e.printStackTrace();
+		}
 
-    // Always compare in lower case.
-    String qrStringLower = qrString.toLowerCase(Locale.getDefault());
+		return toBitmap(matrix);
+	}
 
-    int index = qrStringLower.indexOf(website);
+	public static UserInfo getUserInfoFromQRString(Context context, String qrString) {
+		String website = context.getString(R.string.base_website_user);
 
-    // We require the website to be in the beginning. Otherwise,
-    // the string is invalid.
-    if (index != 0) {
-      return null;
-    }
+		// Always compare in lower case.
+		String qrStringLower = qrString.toLowerCase(Locale.getDefault());
 
-    String restOfString = qrStringLower.substring(website.length());
+		int index = qrStringLower.indexOf(website);
 
-    String[] values = restOfString.split(".");
+		// We require the website to be in the beginning. Otherwise,
+		// the string is invalid.
+		if (index != 0) {
+			return null;
+		}
 
-    // We should get 3 values.
-    if (values.length != 3) {
-      return null;
-    }
+		String restOfString = qrStringLower.substring(website.length());
 
-    return new UserInfo(context, values[0], values[1], values[2]);
-  }
+		String[] values = restOfString.split(".");
 
-  public Bitmap getQRCode() {
-    return getQRCode(context, objId, firstName, lastName);
-  }
+		// We should get 3 values.
+		if (values.length != 3) {
+			return null;
+		}
+		
+		// Udayan::: 
+		// error tolerant: 1. if input string isn't ecard link, 2. if input objectId doesn't exist
+		// 3. if input objectId already collected, 4. if no network
+		return new UserInfo(context, values[0], values[1], values[2], true);
+	}
+
+	public Bitmap getQRCode() {
+		return getQRCode(context, objId, firstName, lastName);
+	}
+
+	@Override
+	public int describeContents() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	public String getObjId() {
+		return objId;
+	}
+
+	public String getFirstName() {
+		return firstName;
+	}
+
+	public String getLastName() {
+		return lastName;
+	}
+
+	public String getCompany() {
+		return company;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public ArrayList<String> getShownArrayList() {
+		return shownArrayList;
+	}
+
+	public ArrayList<Integer> getInfoIcon() {
+		return infoIcon;
+	}
+
+	public ArrayList<String> getInfoLink() {
+		return infoLink;
+	}
+
+	public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+
+		@Override
+		public UserInfo createFromParcel(Parcel source) {
+			return new UserInfo(source);
+		}
+
+		@Override
+		public UserInfo[] newArray(int size) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+	};
 
 }
