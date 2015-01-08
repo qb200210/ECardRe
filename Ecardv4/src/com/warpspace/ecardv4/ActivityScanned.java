@@ -11,6 +11,8 @@ import com.warpspace.ecardv4.utils.MyScrollView;
 import com.warpspace.ecardv4.utils.MyTag;
 import com.warpspace.ecardv4.utils.SquareLayout;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -20,6 +22,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -60,8 +63,36 @@ public class ActivityScanned extends ActionBarActivity {
 
 				MyTag tag = (MyTag) view.getTag();
 				if (tag != null) {
-					Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(((MyTag) view.getTag()).getValue().toString()));
-					startActivity(browserIntent);
+					Intent intent;
+					switch(((MyTag) view.getTag()).getKey().toString()){
+						case "phone":
+							intent = new Intent(Intent.ACTION_VIEW, Uri.parse("tel:"+((MyTag) view.getTag()).getValue().toString()));
+							startActivity(intent);
+							break;
+						case "email":
+							intent = new Intent(Intent.ACTION_VIEW, Uri.parse("mailto:"+((MyTag) view.getTag()).getValue().toString()));
+							startActivity(intent);
+							break;
+						case "about":
+							final TextView tv = new TextView(ActivityScanned.this);
+							tv.setText(((MyTag) view.getTag()).getValue().toString());
+							new AlertDialog.Builder(ActivityScanned.this)
+								.setTitle("About Me")
+								.setView(tv)
+								.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+									public void onClick(DialogInterface dialog, int whichButton) {
+										
+									}
+								}).show();
+							break;
+						default:
+							String url = ((MyTag) view.getTag()).getValue().toString();
+							if(! url.startsWith("http://") && !url.startsWith("https://") && !url.startsWith("ftp://")){	
+								url= "http://www.google.com/#q="+url;
+							}
+							intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+							startActivity(intent);
+					}
 				}
 
 			}

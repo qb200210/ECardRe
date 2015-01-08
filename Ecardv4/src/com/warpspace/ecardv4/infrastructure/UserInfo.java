@@ -35,7 +35,7 @@ public class UserInfo implements Parcelable {
 	ArrayList<String> shownArrayList = new ArrayList<String>();
 	ArrayList<Integer> infoIcon = new ArrayList<Integer>();
 	ArrayList<String> infoLink = new ArrayList<String>();
-	String[] allowedArray = { "facebook", "linkedin", "twitter", "googleplus", "phone", "about", "email" };
+	String[] allowedArray = { "about", "linkedin", "phone",  "email", "facebook",  "twitter", "googleplus", "web" };
 
 	public UserInfo(Context context, String objId, String firstName, String lastName, boolean networkAvailable) {
 		this.context = context;
@@ -110,7 +110,7 @@ public class UserInfo implements Parcelable {
 		// input key to select corresponding icon to display on button
 		switch (key) {
 		case "email":
-			return R.drawable.email;
+			return R.drawable.mail;
 		case "facebook":
 			return R.drawable.facebook;
 		case "linkedin":
@@ -118,11 +118,13 @@ public class UserInfo implements Parcelable {
 		case "twitter":
 			return R.drawable.twitter;
 		case "phone":
-			return R.drawable.ic_action_discard;
+			return R.drawable.phone;
 		case "about":
-			return R.drawable.ic_action_discard;
+			return R.drawable.me;
 		case "googleplus":
 			return R.drawable.googleplus;
+		case "web":
+			return R.drawable.web;
 		default:
 			return R.drawable.ic_action_discard;
 		}
