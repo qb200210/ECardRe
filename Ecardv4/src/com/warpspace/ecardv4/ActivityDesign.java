@@ -74,8 +74,7 @@ public class ActivityDesign extends ActionBarActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_design);
-
-		scrollView = (MyScrollView) findViewById(R.id.scroll_view2);
+		scrollView = (MyScrollView) findViewById(R.id.design_scroll_view);
 		scrollView.setmScrollable(true);
 
 		currentUser = ParseUser.getCurrentUser();

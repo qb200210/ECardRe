@@ -20,7 +20,7 @@
                 android:paddingRight="10dp"
                 android:paddingTop="10dp" >
 
-                <include layout="@layout/layout_maincard" />
+                <include layout="@layout/layout_maincard_display" />
             </com.warpspace.ecardv4.utils.SquareLayout>
             
             <com.warpspace.ecardv4.utils.ExpandableHeightGridView
