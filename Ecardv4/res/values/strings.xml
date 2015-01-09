@@ -18,6 +18,6 @@
     <string name="parse_app_id">"eXr5eE3ff6vTMkTqsWe373eVZbuOLtafn7mFwlI2"</string>
     <string name="parse_client_key">"Ud799nz6KKXZNqWS6LBgCZ2QDiKx894SpVcskkfj"</string>
     <string name="com_parse_ui_name_input_hint">Name: George Washington</string>
-    <string name="base_website_user">www.ecard.com/user</string>
+    <string name="base_website_user">http://ecard.parseapp.com/search?</string>
 
 </resources>

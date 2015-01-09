@@ -61,8 +61,7 @@ public class ActivityMain extends ActionBarActivity {
         Intent intent = new Intent(v.getContext(), CustomQRScanner.class);
         intent.setAction(Intents.Scan.ACTION);
         intent.putExtra(Intents.Scan.FORMATS, "QR_CODE");
-        startActivityForResult(intent, 0);
-        setResult(Activity.RESULT_OK, intent);
+        startActivity(intent);
       }
 
     });
@@ -109,21 +108,6 @@ public class ActivityMain extends ActionBarActivity {
       return true;
     default:
       return super.onOptionsItemSelected(item);
-    }
-  }
-
-  @Override
-  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-    // Check which request we're responding to
-    if (resultCode == RESULT_OK) {
-      // The user picked a contact.
-      // The Intent's data Uri identifies which contact was selected.
-
-      String contents = data.getStringExtra("SCAN_RESULT");
-
-      UserInfo uInfo = UserInfo.getUserInfoFromQRString(
-        getApplicationContext(), contents);
-      Bitmap qrMap = uInfo.getQRCode();
     }
   }
 }
