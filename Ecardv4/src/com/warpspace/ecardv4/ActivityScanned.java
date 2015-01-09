@@ -5,24 +5,31 @@ import java.util.ArrayList;
 import com.parse.ParseUser;
 import com.warpspace.ecardv4.R;
 import com.warpspace.ecardv4.infrastructure.UserInfo;
+import com.warpspace.ecardv4.utils.CurvedAndTiled;
 import com.warpspace.ecardv4.utils.ExpandableHeightGridView;
 import com.warpspace.ecardv4.utils.MyGridViewAdapter;
 import com.warpspace.ecardv4.utils.MyScrollView;
 import com.warpspace.ecardv4.utils.MyTag;
 import com.warpspace.ecardv4.utils.SquareLayout;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -58,6 +65,7 @@ public class ActivityScanned extends ActionBarActivity {
 		gridView.setAdapter(new MyGridViewAdapter(ActivityScanned.this, shownArrayList, infoLink, infoIcon));
 		gridView.setOnItemClickListener(new OnItemClickListener() {
 
+			@SuppressLint("NewApi")
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
@@ -74,11 +82,24 @@ public class ActivityScanned extends ActionBarActivity {
 							startActivity(intent);
 							break;
 						case "about":
-							final TextView tv = new TextView(ActivityScanned.this);
-							tv.setText(((MyTag) view.getTag()).getValue().toString());
+							
+							// Get the layout inflater
+						    LayoutInflater inflater = getLayoutInflater();
+						    View dialogView = inflater.inflate(R.layout.layout_dialog_scanned, null);
+						    LinearLayout dialogHeader = (LinearLayout) dialogView.findViewById(R.id.dialog_header);
+						    final TextView dialogText = (TextView) dialogView.findViewById(R.id.dialog_text);
+						    TextView dialogTitle = (TextView) dialogView.findViewById(R.id.dialog_title);
+						    // Set dialog header background with rounded corner
+						    Bitmap bm = BitmapFactory
+						    	      .decodeResource(getResources(), R.drawable.striped);
+				    	    BitmapDrawable bmDrawable = new BitmapDrawable(getResources(), bm);
+				    	    dialogHeader.setBackground(new CurvedAndTiled(bmDrawable.getBitmap(), 5));
+				    	    // Set dialog title and main EditText
+				    	    dialogTitle.setText("About Me");
+				    	    dialogText.setText(((MyTag) view.getTag()).getValue().toString());
+				    	    
 							new AlertDialog.Builder(ActivityScanned.this)
-								.setTitle("About Me")
-								.setView(tv)
+								.setView(dialogView)
 								.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
 									public void onClick(DialogInterface dialog, int whichButton) {
 										
