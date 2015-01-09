@@ -15,6 +15,7 @@ import com.warpspace.ecardv4.R;
 import com.warpspace.ecardv4.utils.CurvedAndTiled;
 import com.warpspace.ecardv4.utils.ExpandableHeightGridView;
 import com.warpspace.ecardv4.utils.MyGridViewAdapter;
+import com.warpspace.ecardv4.utils.MySimpleListViewAdapter;
 import com.warpspace.ecardv4.utils.MyTag;
 import com.warpspace.ecardv4.utils.MyScrollView;
 import com.warpspace.ecardv4.utils.SquareLayout;
@@ -123,139 +124,15 @@ public class ActivityDesign extends ActionBarActivity {
 						selectionArray = (String[]) selectionTreeSet.toArray(new String[0]);
 						selectionDisplayArray = (String[]) selectionDisplayTreeSet.toArray(new String[0]);
 						
-						// Get the layout inflater
-					    LayoutInflater inflater = getLayoutInflater();
-					    View dialogListView = inflater.inflate(R.layout.layout_dialog_listview, null);
-					    LinearLayout dialogHeader = (LinearLayout) dialogListView.findViewById(R.id.dialog_header);
-					    TextView dialogTitle = (TextView) dialogListView.findViewById(R.id.dialog_title);
-					    // Set dialog header background with rounded corner
-					    Bitmap bm = BitmapFactory
-					    	      .decodeResource(getResources(), R.drawable.striped);
-			    	    BitmapDrawable bmDrawable = new BitmapDrawable(getResources(), bm);
-			    	    dialogHeader.setBackground(new CurvedAndTiled(bmDrawable.getBitmap(), 5));
-			    	    // Set dialog title and main EditText
-			    	    dialogTitle.setText("Add Info");
-			    	    
-			    	    
-			    	    AlertDialog.Builder builder = new AlertDialog.Builder(ActivityDesign.this);
-						builder.setView(dialogListView);
-						// builder.setAdapter(new ArrayAdapter<String>(ActivityDesign.this, R.layout.layout_dialog_perrow, selectionDisplayArray), listenerBuilder());
-						builder.setNegativeButton("Cancel", null);
-						// actions now links to the dialog
-						actions = builder.create();
-						
-						ListView jobList         =   (ListView)dialogListView.findViewById(R.id.dialog_listview);
-			    	    jobList.setAdapter(new ArrayAdapter<String>(ActivityDesign.this, R.layout.layout_dialog_perrow, selectionDisplayArray));
-						jobList.setOnItemClickListener(itemClickListenerBuilder());
+						// Upon initialization, build dialogAddMore for the first time
+						buildAddMoreButtonDialog();
 
-						// The reason to use expandableHeightGridView is to remove the
-						// scroll bar
-						// that comes with GridView
-						// This is because this gridView is part of the welcome page that
-						// is already
-						// scrollable
+						// The gridView to display extra info items
 						gridView = (ExpandableHeightGridView) findViewById(R.id.gridView1);
 						gridView.setAdapter(new MyGridViewAdapter(getBaseContext(), shownArrayList, infoLink, infoIcon));
-						gridView.setOnItemClickListener(new OnItemClickListener() {
-
-							@SuppressLint("NewApi")
-							@Override
-							public void onItemClick(AdapterView<?> parent, final View view, final int position, long id) {
-								if (position == infoLink.size() - 1) {
-									// This is the link to open selection candidate dialog.
-									// actions is defined above, linking to the just-built
-									// dialog
-									// When the last item in the gridView is clicked, show the
-									// dialog
-									actions.show();
-								} else {
-									String item = shownArrayList.get(position);
-									int loc = allowedArrayList.indexOf(item);
-									// Get the layout inflater
-								    LayoutInflater inflater = getLayoutInflater();
-								    View dialogView = inflater.inflate(R.layout.layout_dialog, null);
-								    LinearLayout dialogHeader = (LinearLayout) dialogView.findViewById(R.id.dialog_header);
-								    final EditText dialogText = (EditText) dialogView.findViewById(R.id.dialog_text);
-								    TextView dialogTitle = (TextView) dialogView.findViewById(R.id.dialog_title);
-								    // Set dialog header background with rounded corner
-								    Bitmap bm = BitmapFactory
-								    	      .decodeResource(getResources(), R.drawable.striped);
-						    	    BitmapDrawable bmDrawable = new BitmapDrawable(getResources(), bm);
-						    	    dialogHeader.setBackground(new CurvedAndTiled(bmDrawable.getBitmap(), 5));
-						    	    // Set dialog title and main EditText
-						    	    dialogTitle.setText("Edit " + allowedDisplayArray[loc].toString());
-						    	    dialogText.setText(((MyTag) view.getTag()).getValue().toString());
-						    	    // display the actual dialog
-									new AlertDialog.Builder(ActivityDesign.this)
-											.setView(dialogView)
-											.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-												public void onClick(DialogInterface dialog, int whichButton) {
-
-													Editable value = dialogText.getText();
-													// update the tag of the view with updated values
-													view.setTag(new MyTag(((MyTag) view.getTag()).getKey().toString(), value.toString()));
-													// update the link contents
-													infoLink.remove(position);
-													infoLink.add(position, value.toString());
-												}
-											}).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-												public void onClick(DialogInterface dialog, int whichButton) {
-													// Do nothing.
-												}
-											}).setNeutralButton("Delete", new DialogInterface.OnClickListener() {
-												public void onClick(DialogInterface dialog, int whichButton) {
-													// remove the button from gridview
-													infoLink.remove(position);
-													infoIcon.remove(position);
-													String item = shownArrayList.get(position);
-													shownArrayList.remove(position);
-													// add the removed option to selection candidate
-													// list
-													selectionTreeSet.add(item);
-													int loc = allowedArrayList.indexOf(item);
-													selectionDisplayTreeSet.add(allowedDisplayArray[loc]);
-													// convert ordered TreeSet into array to be used by
-													// dialogbuilder
-													selectionArray = (String[]) selectionTreeSet.toArray(new String[0]);
-													selectionDisplayArray = (String[]) selectionDisplayTreeSet.toArray(new String[0]);
-
-													// Get the layout inflater
-												    LayoutInflater inflater = getLayoutInflater();
-												    View dialogListView = inflater.inflate(R.layout.layout_dialog_listview, null);
-												    LinearLayout dialogHeader = (LinearLayout) dialogListView.findViewById(R.id.dialog_header);
-												    TextView dialogTitle = (TextView) dialogListView.findViewById(R.id.dialog_title);
-												    // Set dialog header background with rounded corner
-												    Bitmap bm = BitmapFactory
-												    	      .decodeResource(getResources(), R.drawable.striped);
-										    	    BitmapDrawable bmDrawable = new BitmapDrawable(getResources(), bm);
-										    	    dialogHeader.setBackground(new CurvedAndTiled(bmDrawable.getBitmap(), 5));
-										    	    // Set dialog title and main EditText
-										    	    dialogTitle.setText("Add Info");
-										    	    
-										    	    
-										    	    AlertDialog.Builder builder = new AlertDialog.Builder(ActivityDesign.this);
-													builder.setView(dialogListView);
-													// builder.setAdapter(new ArrayAdapter<String>(ActivityDesign.this, R.layout.layout_dialog_perrow, selectionDisplayArray), listenerBuilder());
-													builder.setNegativeButton("Cancel", null);
-													// actions now links to the dialog
-													actions = builder.create();
-													
-													ListView jobList         =   (ListView)dialogListView.findViewById(R.id.dialog_listview);
-										    	    jobList.setAdapter(new ArrayAdapter<String>(ActivityDesign.this, R.layout.layout_dialog_perrow, selectionDisplayArray));
-													jobList.setOnItemClickListener(itemClickListenerBuilder());
-
-													// make a new adapter with one less item
-													MyGridViewAdapter updatedAdapter = new MyGridViewAdapter(getBaseContext(), shownArrayList, infoLink,
-															infoIcon);
-													gridView.setAdapter(updatedAdapter);
-													// Refresh the gridView to display the new item
-													updatedAdapter.notifyDataSetChanged();
-												}
-											}).show();
-								}
-							}
-
-						});
+						// magically the onItemClickListener on gridView only needs to be specified once
+						// Even upon gridView items changes, this listener still works well
+						gridView.setOnItemClickListener(gridViewItemClickListenerBuilder());
 					}
 				}
 			}
@@ -396,32 +273,100 @@ public class ActivityDesign extends ActionBarActivity {
 		}
 	}
 	
-	OnItemClickListener itemClickListenerBuilder(){
-		OnItemClickListener listener = new OnItemClickListener(){
+	OnItemClickListener gridViewItemClickListenerBuilder(){
+		OnItemClickListener listener = new OnItemClickListener() {
 
 			@SuppressLint("NewApi")
 			@Override
-			public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
-				// Get the layout inflater
-			    LayoutInflater inflater = getLayoutInflater();
-			    View dialogView = inflater.inflate(R.layout.layout_dialog, null);
-			    LinearLayout dialogHeader = (LinearLayout) dialogView.findViewById(R.id.dialog_header);
-			    final EditText dialogText = (EditText) dialogView.findViewById(R.id.dialog_text);
-			    TextView dialogTitle = (TextView) dialogView.findViewById(R.id.dialog_title);
-			    // Set dialog header background with rounded corner
-			    Bitmap bm = BitmapFactory
-			    	      .decodeResource(getResources(), R.drawable.striped);
-	    	    BitmapDrawable bmDrawable = new BitmapDrawable(getResources(), bm);
-	    	    dialogHeader.setBackground(new CurvedAndTiled(bmDrawable.getBitmap(), 5));
-	    	    // Set dialog title and main EditText
-	    	    dialogTitle.setText("Edit " + selectionDisplayArray[position].toString());
+			public void onItemClick(AdapterView<?> parent, final View view, final int position, long id) {
+				if (position == infoLink.size() - 1) {
+					// This is the last item in the gridView, representing "addmore" button 
+					// Upon click, opens dialogAddMore
+					// actions defined in buildAddMoreButtonDialog();
+					actions.show();
+				} else {
+					String item = shownArrayList.get(position);
+					int loc = allowedArrayList.indexOf(item);
+					
+					// setup dialog Views, which is the actual layout
+					
+					final View dialogPerItemView = setupDialogView(allowedDisplayArray[loc].toString(), ((MyTag) view.getTag()).getValue().toString());
+					
+		    	    // display the actual dialog
+					new AlertDialog.Builder(ActivityDesign.this)
+							.setView(dialogPerItemView)
+							.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog, int whichButton) {
+									EditText dialogText = (EditText) dialogPerItemView.findViewById(R.id.dialog_text);
+									Editable value = dialogText.getText();
+									// update the tag of the view with updated values
+									view.setTag(new MyTag(((MyTag) view.getTag()).getKey().toString(), value.toString()));
+									// update the link contents
+									infoLink.remove(position);
+									infoLink.add(position, value.toString());
+								}
+							}).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog, int whichButton) {
+									// Do nothing.
+								}
+							}).setNeutralButton("Delete", new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog, int whichButton) {
+									// remove the button from gridview
+									infoLink.remove(position);
+									infoIcon.remove(position);
+									String item = shownArrayList.get(position);
+									shownArrayList.remove(position);
+									// add the removed option to selection candidate
+									// list
+									selectionTreeSet.add(item);
+									int loc = allowedArrayList.indexOf(item);
+									selectionDisplayTreeSet.add(allowedDisplayArray[loc]);
+									// convert ordered TreeSet into array to be used by
+									// dialogbuilder
+									selectionArray = (String[]) selectionTreeSet.toArray(new String[0]);
+									selectionDisplayArray = (String[]) selectionDisplayTreeSet.toArray(new String[0]);
 
+									buildAddMoreButtonDialog();													
+
+									// make a new adapter with one less item
+									MyGridViewAdapter updatedAdapter = new MyGridViewAdapter(getBaseContext(), shownArrayList, infoLink,
+											infoIcon);
+									gridView.setAdapter(updatedAdapter);
+									// Refresh the gridView to display the new item
+									updatedAdapter.notifyDataSetChanged();
+								}
+
+								
+							}).show();
+				}
+			}
+
+		};
+		return listener;
+	
+	}
+
+	OnItemClickListener dialogAddMoreListItemClickListenerBuilder(){
+		OnItemClickListener listener = new OnItemClickListener(){
+			// This is the Listener that listens to the item selection in dialogAddMore
+			// Upon selection, pop up a new dialog to edit initial info of the to be added item
+			
+			@SuppressLint("NewApi")
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
+				// Upon dialogAddMore item selection, it can be closed
 				actions.dismiss();
+				
+				// setup dialog Views, which is the actual layout				
+				final View dialogPerItemView = setupDialogView(selectionDisplayArray[position].toString(), "");
+	    	    
+	    	    // Build the actual peritem dialog
 				new AlertDialog.Builder(ActivityDesign.this)
-					.setView(dialogView)
+					.setView(dialogPerItemView)
 					.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
 						@SuppressLint("NewApi")
 						public void onClick(DialogInterface dialog, int whichButton) {
+							EditText dialogText = (EditText) dialogPerItemView.findViewById(R.id.dialog_text);
 							Editable value = dialogText.getText();
 							infoLink.add(infoLink.size() - 1, value.toString());
 							// The reason array instead of TreeSet must be used: TreeSet has no get()
@@ -437,31 +382,10 @@ public class ActivityDesign extends ActionBarActivity {
 							selectionDisplayTreeSet.remove(list.get(position));
 							list.remove(position);
 							selectionDisplayArray = list.toArray(new String[0]);
-
-							// Get the layout inflater
-						    LayoutInflater inflater = getLayoutInflater();
-						    View dialogListView = inflater.inflate(R.layout.layout_dialog_listview, null);
-						    LinearLayout dialogHeader = (LinearLayout) dialogListView.findViewById(R.id.dialog_header);
-						    TextView dialogTitle = (TextView) dialogListView.findViewById(R.id.dialog_title);
-						    // Set dialog header background with rounded corner
-						    Bitmap bm = BitmapFactory
-						    	      .decodeResource(getResources(), R.drawable.striped);
-				    	    BitmapDrawable bmDrawable = new BitmapDrawable(getResources(), bm);
-				    	    dialogHeader.setBackground(new CurvedAndTiled(bmDrawable.getBitmap(), 5));
-				    	    // Set dialog title and main EditText
-				    	    dialogTitle.setText("Add Info");
-				    	    
-				    	    
-				    	    AlertDialog.Builder builder = new AlertDialog.Builder(ActivityDesign.this);
-							builder.setView(dialogListView);
-							// builder.setAdapter(new ArrayAdapter<String>(ActivityDesign.this, R.layout.layout_dialog_perrow, selectionDisplayArray), listenerBuilder());
-							builder.setNegativeButton("Cancel", null);
-							// actions now links to the dialog
-							actions = builder.create();
 							
-							ListView jobList         =   (ListView)dialogListView.findViewById(R.id.dialog_listview);
-				    	    jobList.setAdapter(new ArrayAdapter<String>(ActivityDesign.this, R.layout.layout_dialog_perrow, selectionDisplayArray));
-							jobList.setOnItemClickListener(itemClickListenerBuilder());
+							// When this new item is added, the available items list is changed, 
+							// this should be reflected in the change of dialogAddMore
+							buildAddMoreButtonDialog();
 
 							// make a new adapter with one more item included
 							MyGridViewAdapter updatedAdapter = new MyGridViewAdapter(getBaseContext(), shownArrayList, infoLink, infoIcon);
@@ -481,85 +405,24 @@ public class ActivityDesign extends ActionBarActivity {
 		
 		return listener;
 	}
-
-	DialogInterface.OnClickListener listenerBuilder() {
-		// This is the listener wrapper
-
-		DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
-			// This is the listener for dialog
-			// Basically, it listens for selection event from the poped up dialog
-
-			@SuppressLint("NewApi")
-			@Override
-			public void onClick(DialogInterface dialog, final int which) {
-
-				// Get the layout inflater
-			    LayoutInflater inflater = getLayoutInflater();
-			    View dialogView = inflater.inflate(R.layout.layout_dialog, null);
-			    LinearLayout dialogHeader = (LinearLayout) dialogView.findViewById(R.id.dialog_header);
-			    final EditText dialogText = (EditText) dialogView.findViewById(R.id.dialog_text);
-			    TextView dialogTitle = (TextView) dialogView.findViewById(R.id.dialog_title);
-			    // Set dialog header background with rounded corner
-			    Bitmap bm = BitmapFactory
-			    	      .decodeResource(getResources(), R.drawable.striped);
-	    	    BitmapDrawable bmDrawable = new BitmapDrawable(getResources(), bm);
-	    	    dialogHeader.setBackground(new CurvedAndTiled(bmDrawable.getBitmap(), 5));
-	    	    // Set dialog title and main EditText
-	    	    dialogTitle.setText("Edit " + selectionDisplayArray[which].toString());
-				
-				new AlertDialog.Builder(ActivityDesign.this)
-					.setView(dialogView)
-					.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int whichButton) {
-							Editable value = dialogText.getText();
-							infoLink.add(infoLink.size() - 1, value.toString());
-							// The reason array instead of TreeSet must be used: TreeSet has no get()
-							infoIcon.add(infoIcon.size() - 1, iconSelector(selectionArray[which]));
-							// add to exiting list
-							shownArrayList.add(shownArrayList.size() - 1, selectionArray[which]);
-
-							List<String> list = new ArrayList<String>(Arrays.asList(selectionArray));
-							selectionTreeSet.remove(list.get(which));
-							list.remove(which);
-							selectionArray = list.toArray(new String[0]);
-							list = new ArrayList<String>(Arrays.asList(selectionDisplayArray));
-							selectionDisplayTreeSet.remove(list.get(which));
-							list.remove(which);
-							selectionDisplayArray = list.toArray(new String[0]);
-
-							// Get the layout inflater
-						    LayoutInflater inflater = getLayoutInflater();
-						    View dialogView = inflater.inflate(R.layout.layout_dialog, null);
-						    LinearLayout dialogHeader = (LinearLayout) dialogView.findViewById(R.id.dialog_header);
-						    TextView dialogTitle = (TextView) dialogView.findViewById(R.id.dialog_title);
-						    // Set dialog header background with rounded corner
-						    Bitmap bm = BitmapFactory
-						    	      .decodeResource(getResources(), R.drawable.striped);
-				    	    BitmapDrawable bmDrawable = new BitmapDrawable(getResources(), bm);
-				    	    dialogHeader.setBackground(new CurvedAndTiled(bmDrawable.getBitmap(), 5));
-				    	    
-							// Re-Build the dialog for selection of available info items
-							AlertDialog.Builder builder = new AlertDialog.Builder(ActivityDesign.this);
-							builder.setView(dialogView);
-							builder.setItems(selectionDisplayArray, listenerBuilder());
-							builder.setNegativeButton("Cancel", null);
-							actions = builder.create();
-
-							// make a new adapter with one more item included
-							MyGridViewAdapter updatedAdapter = new MyGridViewAdapter(getBaseContext(), shownArrayList, infoLink, infoIcon);
-							gridView.setAdapter(updatedAdapter);
-							// Refresh the gridView to display the new item
-							updatedAdapter.notifyDataSetChanged();
-						}
-					}).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int whichButton) {
-							// Do nothing.
-						}
-					}).show();
-
-			}
-		};
-		return listener;
+	
+	@SuppressLint("NewApi")
+	protected View setupDialogView(String title, String text) {
+		// Get the layout inflater
+	    LayoutInflater inflater = getLayoutInflater();
+	    View dialogView = inflater.inflate(R.layout.layout_dialog_design_peritem, null);
+	    LinearLayout dialogHeader = (LinearLayout) dialogView.findViewById(R.id.dialog_header);
+	    final EditText dialogText = (EditText) dialogView.findViewById(R.id.dialog_text);
+	    TextView dialogTitle = (TextView) dialogView.findViewById(R.id.dialog_title);
+	    // Set dialog header background with rounded corner
+	    Bitmap bm = BitmapFactory
+	    	      .decodeResource(getResources(), R.drawable.striped);
+	    BitmapDrawable bmDrawable = new BitmapDrawable(getResources(), bm);
+	    dialogHeader.setBackground(new CurvedAndTiled(bmDrawable.getBitmap(), 5));
+	    // Set dialog title and main EditText
+	    dialogTitle.setText("Edit " + title);
+	    dialogText.setText(text);
+		return dialogView;
 	}
 
 	public void displayMyCard() {
@@ -680,5 +543,31 @@ public class ActivityDesign extends ActionBarActivity {
 		}
 
 		return inSampleSize;
+	}
+	
+	@SuppressLint("NewApi")
+	private void buildAddMoreButtonDialog() {
+		// Get the layout inflater
+	    LayoutInflater inflater = getLayoutInflater();
+	    View dialogAddMoreView = inflater.inflate(R.layout.layout_dialog_addmore, null);
+	    LinearLayout dialogHeader = (LinearLayout) dialogAddMoreView.findViewById(R.id.dialog_header);
+	    TextView dialogTitle = (TextView) dialogAddMoreView.findViewById(R.id.dialog_title);
+	    // Set dialog header background with rounded corner
+	    Bitmap bm = BitmapFactory
+	    	      .decodeResource(getResources(), R.drawable.striped);
+	    BitmapDrawable bmDrawable = new BitmapDrawable(getResources(), bm);
+	    dialogHeader.setBackground(new CurvedAndTiled(bmDrawable.getBitmap(), 5));
+	    // Set dialog title and main EditText
+	    dialogTitle.setText("Add Info");
+	    	    
+	    AlertDialog.Builder builder = new AlertDialog.Builder(ActivityDesign.this);
+		builder.setView(dialogAddMoreView);
+		builder.setNegativeButton("Cancel", null);
+		// actions now links to the dialog
+		actions = builder.create();
+		
+		ListView listViewInDialog = (ListView)dialogAddMoreView.findViewById(R.id.dialog_listview);
+	    listViewInDialog.setAdapter(new MySimpleListViewAdapter(ActivityDesign.this, selectionDisplayArray));
+		listViewInDialog.setOnItemClickListener(dialogAddMoreListItemClickListenerBuilder());
 	}
 }

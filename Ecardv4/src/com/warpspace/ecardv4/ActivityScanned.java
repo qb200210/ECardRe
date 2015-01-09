@@ -85,7 +85,7 @@ public class ActivityScanned extends ActionBarActivity {
 							
 							// Get the layout inflater
 						    LayoutInflater inflater = getLayoutInflater();
-						    View dialogView = inflater.inflate(R.layout.layout_dialog_scanned, null);
+						    View dialogView = inflater.inflate(R.layout.layout_dialog_scanned_peritem, null);
 						    LinearLayout dialogHeader = (LinearLayout) dialogView.findViewById(R.id.dialog_header);
 						    final TextView dialogText = (TextView) dialogView.findViewById(R.id.dialog_text);
 						    TextView dialogTitle = (TextView) dialogView.findViewById(R.id.dialog_title);
