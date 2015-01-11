@@ -2,18 +2,17 @@ package com.warpspace.ecardv4.utils;
 
 import java.util.HashMap;
 
-import android.app.ActionBar;
-import android.content.Context;
+import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.Window;
 import android.widget.Button;
-import android.widget.Toast;
-
+import android.widget.ImageView;
+import android.widget.TextView;
 import com.google.zxing.Result;
 import com.google.zxing.client.android.CaptureActivity;
 import com.warpspace.ecardv4.ActivityScanned;
@@ -34,23 +33,52 @@ public class CustomQRScanner extends CaptureActivity {
         finish();
       }
     });
-
-    ActionBar actionBar = getActionBar();
-    // actionBar.show();
   }
 
   @Override
   public void handleDecode(Result rawResult, Bitmap barcode, float scaleFactor) {
     super.handleDecode(rawResult, barcode, scaleFactor);
 
+    // Create an instance of the dialog fragment and show it
+    final Dialog dialog = new Dialog(this);
+    dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+    dialog.setContentView(R.layout.layout_dialog_scanned_process);
+    TextView dialog_text = (TextView) dialog.findViewById(R.id.dialog_status);
+    ImageView progress_image = (ImageView) dialog
+      .findViewById(R.id.process_dialog_image);
+    progress_image.setBackgroundResource(R.drawable.progress);
+
+    // Start with the Processing status.
+    dialog_text.setText("Processing");
+
+    dialog.show();
+
     HashMap<String, String> valuesMap = ECardUtils.parseQRString(
       getApplicationContext(), rawResult.toString());
 
     if (valuesMap == null) {
-      Toast.makeText(this, "UInfo is null", Toast.LENGTH_SHORT).show();
-      return;
+      dialog_text.setText("The scanned QR is invalid");
+      progress_image.setBackgroundResource(R.drawable.ic_action_cancel);
+
+      onPause();
+      dialog.show();
+      onResume();
+
+      // Hide after some seconds
+      final Handler handler = new Handler();
+      final Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+          if (dialog.isShowing()) {
+            dialog.dismiss();
+          }
+        }
+      };
+
+      handler.postDelayed(runnable, 2000);
     } else {
-      Toast.makeText(this, valuesMap.get("ln"), Toast.LENGTH_SHORT).show();
+      dialog_text.setText("Successfully Identified QR Code. Processing...");
+      progress_image.setBackgroundResource(R.drawable.ic_action_done);
     }
 
     String scannedID = valuesMap.get("id");
