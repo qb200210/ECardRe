@@ -70,7 +70,7 @@ public class ActivityMain extends ActionBarActivity {
 
       @Override
       public void onClick(View v) {
-    	  Intent intent = new Intent(v.getContext(), ActivityPostScanBuffer.class);
+    	  Intent intent = new Intent(v.getContext(), ActivitySearch.class);
           startActivity(intent);
       }
 
