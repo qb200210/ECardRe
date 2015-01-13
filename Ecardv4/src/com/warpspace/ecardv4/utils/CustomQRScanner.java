@@ -60,9 +60,7 @@ public class CustomQRScanner extends CaptureActivity {
       dialog_text.setText("The scanned QR is invalid");
       progress_image.setBackgroundResource(R.drawable.ic_action_cancel);
 
-      onPause();
       dialog.show();
-      onResume();
 
       // Hide after some seconds
       final Handler handler = new Handler();
@@ -72,6 +70,9 @@ public class CustomQRScanner extends CaptureActivity {
           if (dialog.isShowing()) {
             dialog.dismiss();
           }
+
+          onPause();
+          onResume();
         }
       };
 
@@ -79,23 +80,23 @@ public class CustomQRScanner extends CaptureActivity {
     } else {
       dialog_text.setText("Successfully Identified QR Code. Processing...");
       progress_image.setBackgroundResource(R.drawable.ic_action_done);
+
+      String scannedID = valuesMap.get("id");
+      String firstName = valuesMap.get("fn");
+      String lastName = valuesMap.get("ln");
+
+      // Create new userInfo class based on the scannedId. Will pull info from
+      // Parse
+      // Will be hanging if cannot pull from Parse, since this is not done in
+      // background thread
+      UserInfo newUser = new UserInfo(this, scannedID, firstName, lastName,
+        ECardUtils.isNetworkAvailable(this));
+
+      Intent intent = new Intent(getBaseContext(), ActivityScanned.class);
+      // passing UserInfo is made possible through Parcelable
+      intent.putExtra("userinfo", newUser);
+      startActivity(intent);
+      finish();
     }
-
-    String scannedID = valuesMap.get("id");
-    String firstName = valuesMap.get("fn");
-    String lastName = valuesMap.get("ln");
-
-    // Create new userInfo class based on the scannedId. Will pull info from
-    // Parse
-    // Will be hanging if cannot pull from Parse, since this is not done in
-    // background thread
-    UserInfo newUser = new UserInfo(this, scannedID, firstName, lastName,
-      ECardUtils.isNetworkAvailable(this));
-
-    Intent intent = new Intent(getBaseContext(), ActivityScanned.class);
-    // passing UserInfo is made possible through Parcelable
-    intent.putExtra("userinfo", newUser);
-    startActivity(intent);
-    finish();
   }
 }
