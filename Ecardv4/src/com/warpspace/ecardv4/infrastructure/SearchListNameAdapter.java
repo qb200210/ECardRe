@@ -26,6 +26,7 @@ import android.widget.TextView;
 import com.nhaarman.listviewanimations.ArrayAdapter;
 import com.nhaarman.listviewanimations.itemmanipulation.swipedismiss.undo.UndoAdapter;
 import com.warpspace.ecardv4.R;
+import com.warpspace.ecardv4.utils.SquareLayoutSpecial;
 
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 
@@ -52,31 +53,33 @@ public class SearchListNameAdapter extends ArrayAdapter<String> implements
   }
 
   @Override
-  public View getView(final int position, final View convertView,
+  public View getView(final int position, View convertView,
     final ViewGroup parent) {
-    TextView view = (TextView) convertView;
-    if (view == null) {
-      view = (TextView) LayoutInflater.from(mContext).inflate(
+    if (convertView == null) {
+      convertView = LayoutInflater.from(mContext).inflate(
         R.layout.search_result_card, parent, false);
     }
 
-    view.setText(getItem(position));
+    TextView tv = (TextView) convertView
+      .findViewById(R.id.list_row_draganddrop_textview);
 
-    return view;
+    tv.setText(getItem(position));
+
+    return convertView;
   }
 
   @Override
-  public View getHeaderView(final int position, final View convertView,
+  public View getHeaderView(final int position, View convertView,
     final ViewGroup parent) {
-    TextView view = (TextView) convertView;
-    if (view == null) {
-      view = (TextView) LayoutInflater.from(mContext).inflate(
+    if (convertView == null) {
+      convertView = LayoutInflater.from(mContext).inflate(
         R.layout.search_result_header, parent, false);
     }
 
-    view.setText("Hello");
+    TextView headerText = (TextView) convertView.findViewById(R.id.text_header);
+    headerText.setText(String.valueOf(getHeaderId(position)));
 
-    return view;
+    return convertView;
   }
 
   @Override
