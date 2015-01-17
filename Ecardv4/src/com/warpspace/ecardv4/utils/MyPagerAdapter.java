@@ -7,6 +7,7 @@ package com.warpspace.ecardv4.utils;
 
 import java.util.Locale;
 
+import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -18,7 +19,8 @@ import com.warpspace.ecardv4.FragmentQrcode;
 public class MyPagerAdapter extends FragmentPagerAdapter implements
     IconPagerAdapter {
 
-  public MyPagerAdapter(FragmentManager fm) {
+
+public MyPagerAdapter(FragmentManager fm) {
     super(fm);
   }
 
@@ -29,11 +31,11 @@ public class MyPagerAdapter extends FragmentPagerAdapter implements
     // below).
     switch (position) {
     case 0:
-      return FragmentQrcode.newInstance(1);
+      return FragmentMaincard.newInstance(1);
     case 1:
-      return FragmentMaincard.newInstance(2);
+      return FragmentQrcode.newInstance(2);
     default:
-      return FragmentMaincard.newInstance(2);
+      return FragmentQrcode.newInstance(2);
     }
   }
 

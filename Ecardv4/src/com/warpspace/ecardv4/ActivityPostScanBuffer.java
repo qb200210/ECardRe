@@ -32,7 +32,7 @@ public class ActivityPostScanBuffer extends Activity {
 
 		// Create new userInfo class based on the scannedId. Will pull info from Parse
 		// Will be hanging if cannot pull from Parse, since this is not done in background thread
-		UserInfo newUser = new UserInfo(this, scannedID, firstName, lastName, isNetworkAvailable());
+		UserInfo newUser = new UserInfo(this, scannedID, firstName, lastName, false, isNetworkAvailable());
 
 		Intent intent = new Intent(getBaseContext(), ActivityScanned.class);
 		// passing UserInfo is made possible through Parcelable

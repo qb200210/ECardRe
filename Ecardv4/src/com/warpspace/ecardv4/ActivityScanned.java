@@ -77,6 +77,10 @@ public class ActivityScanned extends ActionBarActivity {
 							intent = new Intent(Intent.ACTION_VIEW, Uri.parse("tel:"+((MyTag) view.getTag()).getValue().toString()));
 							startActivity(intent);
 							break;
+						case "message":
+							intent = new Intent(Intent.ACTION_VIEW, Uri.parse("smsto:"+((MyTag) view.getTag()).getValue().toString()));
+							startActivity(intent);
+							break;
 						case "email":
 							intent = new Intent(Intent.ACTION_VIEW, Uri.parse("mailto:"+((MyTag) view.getTag()).getValue().toString()));
 							startActivity(intent);

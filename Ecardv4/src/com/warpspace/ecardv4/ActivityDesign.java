@@ -57,8 +57,8 @@ public class ActivityDesign extends ActionBarActivity {
 	private ArrayList<Integer> infoIcon = new ArrayList<Integer>();
 	private ArrayList<String> infoLink = new ArrayList<String>();
 	ArrayList<String> shownArrayList = new ArrayList<String>();
-	String[] allowedArray = { "about", "linkedin", "phone", "email", "facebook", "twitter", "googleplus", "web" };
-	String[] allowedDisplayArray = { "About Me", "LinkedIn", "Phone", "Email", "Facebook", "Twitter", "Google +", "Web Link" };
+	String[] allowedArray = { "about", "linkedin", "phone", "message", "email", "facebook", "twitter", "googleplus", "web" };
+	String[] allowedDisplayArray = { "About Me", "LinkedIn", "Phone", "Message", "Email", "Facebook", "Twitter", "Google +", "Web Link" };
 	ArrayList<String> allowedArrayList = new ArrayList<String>(Arrays.asList(allowedArray));
 	ArrayList<String> selectionArrayList = new ArrayList<String>(Arrays.asList(allowedArray));
 	ArrayList<String> selectionDisplayArrayList = new ArrayList<String>(Arrays.asList(allowedDisplayArray));
@@ -209,6 +209,8 @@ public class ActivityDesign extends ActionBarActivity {
 			return R.drawable.twitter;
 		case "phone":
 			return R.drawable.phone;
+		case "message":
+			return R.drawable.message;
 		case "about":
 			return R.drawable.me;
 		case "googleplus":

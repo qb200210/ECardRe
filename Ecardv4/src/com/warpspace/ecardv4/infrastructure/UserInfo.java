@@ -40,18 +40,16 @@ public class UserInfo implements Parcelable {
   ArrayList<String> shownArrayList = new ArrayList<String>();
   ArrayList<Integer> infoIcon = new ArrayList<Integer>();
   ArrayList<String> infoLink = new ArrayList<String>();
-  String[] allowedArray = { "about", "linkedin", "phone", "email", "facebook",
+  String[] allowedArray = { "about", "linkedin", "phone", "message", "email", "facebook",
     "twitter", "googleplus", "web" };
 
   public UserInfo(Context context, String objId, String firstName,
-    String lastName, boolean networkAvailable) {
+    String lastName, boolean localData, boolean networkAvailable) {
     this.context = context;
     this.objId = objId;
     this.firstName = firstName;
     this.lastName = lastName;
-    if (networkAvailable) {
-      populateUserInfoWithParseData(objId);
-    }
+    populateUserInfoWithParseData(objId, localData, networkAvailable);
   }
 
   public UserInfo(Parcel source) {
@@ -77,39 +75,48 @@ public class UserInfo implements Parcelable {
     dest.writeList(infoIcon);
   }
 
-  private void populateUserInfoWithParseData(String objId) {
-    ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardInfo");
-    try {
-      // Must not use the getinbackground() thread method,
-      // otherwise data won't be back before the UserInfo object is built
-      // may want to implement a loading screen if taking too long?
-      ParseObject object = query.get(objId);
-      if (object != null) {
-        // main card info
-        firstName = object.getString("firstName");
-        lastName = object.getString("lastName");
-        company = object.getString("company");
-        title = object.getString("title");
-        // extra info
-        infoIcon.clear();
-        infoLink.clear();
-        shownArrayList.clear();
-        for (int i = 0; i < allowedArray.length; i++) {
-          // the extra info item
-          String item = allowedArray[i];
-          // the value of this extra info item
-          Object value = object.get(item);
-          if (value != null && value.toString() != "") {
-            infoIcon.add(iconSelector(item));
-            infoLink.add(value.toString());
-            // note down the existing extra info items
-            shownArrayList.add(item);
-          }
-        }
-      }
-    } catch (ParseException e1) {
-      // TODO Auto-generated catch block
-      e1.printStackTrace();
+  private void populateUserInfoWithParseData(String objId, boolean localData, boolean networkAvailable) {
+    if(localData || networkAvailable) {
+    	// If either this request is to build userInfo from localData
+    	// Or the request is to build userInfo from pulling data online, proceed
+    	// Otherwise do nothing
+		ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardInfo");
+		if(localData){
+			// if flag true, means this is to pull data from localDataStore. Not likely in the event of scanning new cards
+			query.fromLocalDatastore();
+		}
+	    try {
+	      // Must not use the getinbackground() thread method,
+	      // otherwise data won't be back before the UserInfo object is built
+	      // may want to implement a loading screen if taking too long?
+	      ParseObject object = query.get(objId);
+	      if (object != null) {
+	        // main card info
+	        firstName = object.getString("firstName");
+	        lastName = object.getString("lastName");
+	        company = object.getString("company");
+	        title = object.getString("title");
+	        // extra info
+	        infoIcon.clear();
+	        infoLink.clear();
+	        shownArrayList.clear();
+	        for (int i = 0; i < allowedArray.length; i++) {
+	          // the extra info item
+	          String item = allowedArray[i];
+	          // the value of this extra info item
+	          Object value = object.get(item);
+	          if (value != null && value.toString() != "") {
+	            infoIcon.add(iconSelector(item));
+	            infoLink.add(value.toString());
+	            // note down the existing extra info items
+	            shownArrayList.add(item);
+	          }
+	        }
+	      }
+	    } catch (ParseException e1) {
+	      // TODO Auto-generated catch block
+	      e1.printStackTrace();
+	    }
     }
   }
 
@@ -126,6 +133,8 @@ public class UserInfo implements Parcelable {
       return R.drawable.twitter;
     case "phone":
       return R.drawable.phone;
+    case "message":
+        return R.drawable.message;
     case "about":
       return R.drawable.me;
     case "googleplus":
@@ -180,7 +189,7 @@ public class UserInfo implements Parcelable {
   }
 
   public static UserInfo getUserInfoFromQRString(Context context,
-    String qrString) {
+    String qrString, boolean networkAvailable) {
 
     HashMap<String, String> valuesMap = ECardUtils.parseQRString(context,
       qrString);
@@ -201,7 +210,7 @@ public class UserInfo implements Parcelable {
     // error tolerant: 1. if input string isn't ecard link, 2. if input objectId
     // doesn't exist
     // 3. if input objectId already collected, 4. if no network
-    return new UserInfo(context, id, fname, lname, true);
+    return new UserInfo(context, id, fname, lname, false, networkAvailable);
   }
 
   public Bitmap getQRCode() {
