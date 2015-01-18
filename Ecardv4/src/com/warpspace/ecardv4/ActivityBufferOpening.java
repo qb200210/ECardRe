@@ -74,7 +74,7 @@ public class ActivityBufferOpening extends Activity {
     // Refresh local copies of records upon login EACH TIME app opens
 
     ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardInfo");
-    query.getInBackground(currentUser.get("EcardID").toString(),
+    query.getInBackground(currentUser.get("ecardId").toString(),
       new GetCallback<ParseObject>() {
 
         @Override

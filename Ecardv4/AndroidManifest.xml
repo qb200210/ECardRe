@@ -84,7 +84,9 @@
         </activity>
         <activity android:name="com.google.zxing.client.android.HelpActivity"></activity>
         <activity android:name="com.warpspace.ecardv4.utils.CustomQRScanner"></activity>
-        <activity android:name="ActivitySearch"></activity>
+        <activity android:name="ActivitySearch"  
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop"></activity>
         
     </application>
 

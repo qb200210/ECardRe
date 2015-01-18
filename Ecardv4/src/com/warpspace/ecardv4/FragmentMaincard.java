@@ -34,7 +34,7 @@ public class FragmentMaincard extends Fragment {
       false);
     
     currentUser = ParseUser.getCurrentUser();
-    UserInfo myself = new UserInfo(getActivity().getApplicationContext(), currentUser.get("EcardID").toString(), "", "", true, true);
+    UserInfo myself = new UserInfo(getActivity().getApplicationContext(), currentUser.get("ecardId").toString(), "", "", true, true);
 	// display the main card
 	displayCard(rootView, myself);
     setHasOptionsMenu(true);

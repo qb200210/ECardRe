@@ -86,7 +86,7 @@ public class ActivityDesign extends ActionBarActivity {
 
 		ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardInfo");
 		query.fromLocalDatastore();
-		query.getInBackground(currentUser.get("EcardID").toString(), new GetCallback<ParseObject>() {
+		query.getInBackground(currentUser.get("ecardId").toString(), new GetCallback<ParseObject>() {
 
 			@SuppressLint("NewApi")
 			@Override
@@ -238,7 +238,7 @@ public class ActivityDesign extends ActionBarActivity {
 		case R.id.design_save:
 			ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardInfo");
 			query.fromLocalDatastore();
-			query.getInBackground(currentUser.get("EcardID").toString(), new GetCallback<ParseObject>() {
+			query.getInBackground(currentUser.get("ecardId").toString(), new GetCallback<ParseObject>() {
 
 				@Override
 				public void done(ParseObject object, ParseException e) {
@@ -429,7 +429,7 @@ public class ActivityDesign extends ActionBarActivity {
 	public void displayMyCard() {
 		ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardInfo");
 		query.fromLocalDatastore();
-		query.getInBackground(currentUser.get("EcardID").toString(), new GetCallback<ParseObject>() {
+		query.getInBackground(currentUser.get("ecardId").toString(), new GetCallback<ParseObject>() {
 
 			@Override
 			public void done(ParseObject object, ParseException e) {
@@ -567,6 +567,7 @@ public class ActivityDesign extends ActionBarActivity {
 		// actions now links to the dialog
 		actions = builder.create();
 		
+		// Below is to build the listener for items listed inside the poped up "addmorebutton dialog"
 		ListView listViewInDialog = (ListView)dialogAddMoreView.findViewById(R.id.dialog_listview);
 	    listViewInDialog.setAdapter(new MySimpleListViewAdapter(ActivityDesign.this, selectionDisplayArray));
 		listViewInDialog.setOnItemClickListener(dialogAddMoreListItemClickListenerBuilder());

@@ -7,6 +7,7 @@
     <string name="logout">Logout</string>
     <string name="action_qr">QRcode</string>
     <string name="edit_item">Edit</string>
+    <string name="sort_results">Sort</string>
     <string name="refresh">Refresh</string>
     <string name="row_number">This is row number %d</string>
     <string name="itemdeleted">Item deleted</string>
