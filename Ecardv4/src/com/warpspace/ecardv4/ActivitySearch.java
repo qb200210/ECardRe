@@ -15,21 +15,25 @@ import com.warpspace.ecardv4.utils.MyTag;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Editable;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -44,7 +48,11 @@ public class ActivitySearch extends ActionBarActivity {
   @Override
   protected void onCreate(final Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+
+    // show custom action bar (on top of standard action bar)
+    showActionBar();
     setContentView(R.layout.activity_search);
+    
 
     // build dialog for sorting selection options
     buildSortDialog();
@@ -70,6 +78,29 @@ public class ActivitySearch extends ActionBarActivity {
     
   }
   
+  private void showActionBar() {
+      LayoutInflater inflator = (LayoutInflater) this
+          .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+	  View v = inflator.inflate(R.layout.layout_actionbar_search, null);
+	  ImageView btnBack = (ImageView) v.findViewById(R.id.btn_back);
+	  btnBack.setOnClickListener(new OnClickListener(){
+
+		@Override
+		public void onClick(View v) {
+			onBackPressed();
+		}
+		  
+	  });
+	  if (getSupportActionBar() != null) {
+		  ActionBar actionBar = getSupportActionBar();
+		  actionBar.setDisplayHomeAsUpEnabled(false);
+		  actionBar.setDisplayShowHomeEnabled (false);
+		  actionBar.setDisplayShowCustomEnabled(true);
+		  actionBar.setDisplayShowTitleEnabled(false);
+		  actionBar.setCustomView(v);
+	  }
+  }
+  
   public boolean onCreateOptionsMenu(Menu menu) {
     getMenuInflater().inflate(R.menu.search_actionbar, menu);
     return true;
@@ -79,18 +110,17 @@ public class ActivitySearch extends ActionBarActivity {
   public boolean onOptionsItemSelected(MenuItem item) {
     // this function is called when either action bar icon is tapped
     switch (item.getItemId()) {
-    case R.id.sort_results:
-    	actions.show();
-	
-      return true;
-    case R.id.log_out:
-      ParseUser.logOut();
-      Intent intent = new Intent(this, ActivityPreLogin.class);
-      startActivity(intent);
-      this.finish();
-      return true;
-    default:
-      return super.onOptionsItemSelected(item);
+	    case R.id.sort_results:
+	      actions.show();		
+	      return true;
+	    case R.id.log_out:
+	      ParseUser.logOut();
+	      Intent intent = new Intent(this, ActivityPreLogin.class);
+	      startActivity(intent);
+	      this.finish();
+	      return true;
+	    default:
+	      return super.onOptionsItemSelected(item);
     }
   }
   
