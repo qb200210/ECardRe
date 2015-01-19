@@ -1,5 +1,5 @@
-    <com.warpspace.ecardv4.utils.MyScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<com.warpspace.ecardv4.utils.MyScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    	xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/design_scroll_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

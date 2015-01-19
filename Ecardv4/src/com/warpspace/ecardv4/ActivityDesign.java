@@ -1,7 +1,11 @@
 package com.warpspace.ecardv4;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TreeSet;
@@ -22,14 +26,17 @@ import com.warpspace.ecardv4.utils.SquareLayout;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Editable;
@@ -51,8 +58,13 @@ public class ActivityDesign extends ActionBarActivity {
 
 	ParseUser currentUser;
 	private MyScrollView scrollView;
+	private static final int CROP_FROM_CAMERA = 2;
 	private static final int SELECT_PORTRAIT = 100;
+	private static final int TAKE_IMAGE=250;
 	private static final int SELECT_LOGO = 200;
+	private static int currentSource=0;
+	private Uri selectedImage;
+	
 	// dummy array, will be replaced by extra info items
 	private ArrayList<Integer> infoIcon = new ArrayList<Integer>();
 	private ArrayList<String> infoLink = new ArrayList<String>();
@@ -146,10 +158,7 @@ public class ActivityDesign extends ActionBarActivity {
 		ImageButton pbPortrait = (ImageButton) findViewById(R.id.design_PortraitButton);
 		pbPortrait.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				Toast.makeText(ActivityDesign.this, "Select Image", Toast.LENGTH_LONG).show();
-				Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
-				photoPickerIntent.setType("image/*");
-				startActivityForResult(photoPickerIntent, SELECT_PORTRAIT);
+				displaySourceDialog();
 			}
 		});
 		ImageButton pbLogo = (ImageButton) findViewById(R.id.design_CompanyLogo);
@@ -166,9 +175,29 @@ public class ActivityDesign extends ActionBarActivity {
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-
+		
+		if(requestCode == TAKE_IMAGE){
+			Bundle extras = data.getExtras();
+			Bitmap imageBitmap =(Bitmap) extras.get("data");
+			ImageButton imageButton = (ImageButton) findViewById(R.id.design_PortraitButton);
+			imageButton.setImageBitmap(imageBitmap);
+			//selectedImage = (Uri) extras.get("Uri");
+			
+	        //doCrop();
+		}
+		else if(requestCode == CROP_FROM_CAMERA){
+			Bundle extras = data.getExtras();
+			if (extras != null) {
+				Bitmap photo = extras.getParcelable("data");
+				ImageButton imageButton1 = (ImageButton) findViewById(R.id.design_PortraitButton);
+				imageButton1.setImageBitmap(photo);
+			}
+			File f = new File(selectedImage.getPath());
+			if (f.exists()) f.delete();
+		}
+		else {
 		if (resultCode == RESULT_OK && null != data) {
-			Uri selectedImage = data.getData();
+			selectedImage = data.getData();
 			String[] filePathColumn = { MediaStore.Images.Media.DATA };
 
 			Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
@@ -180,18 +209,19 @@ public class ActivityDesign extends ActionBarActivity {
 
 			BitmapFactory.Options options = new BitmapFactory.Options();
 			options.inJustDecodeBounds = true;
-
-			if (requestCode == SELECT_PORTRAIT) {
-				ImageButton imageButton = (ImageButton) findViewById(R.id.design_PortraitButton);
-				imageButton.setImageBitmap(decodeSampledBitmapFromFile(picturePath, 128, 128));
-
+			
+			switch(requestCode){
+			case SELECT_PORTRAIT:
+				doCrop();
+				break;
+			
+			case SELECT_LOGO:
+				ImageButton imageButton2 = (ImageButton) findViewById(R.id.design_CompanyLogo);
+				imageButton2.setImageBitmap(decodeSampledBitmapFromFile(picturePath, 96, 96));
+				break;
+				
 			}
-			if (requestCode == SELECT_LOGO) {
-				ImageButton imageButton = (ImageButton) findViewById(R.id.design_CompanyLogo);
-				imageButton.setImageBitmap(decodeSampledBitmapFromFile(picturePath, 96, 96));
-
-			}
-
+		}
 		}
 
 	}
@@ -510,6 +540,7 @@ public class ActivityDesign extends ActionBarActivity {
 		});
 	}
 
+	@SuppressWarnings("deprecation")
 	public static Bitmap decodeSampledBitmapFromFile(String picturePath, int reqWidth, int reqHeight) {
 
 		// First decode with inJustDecodeBounds=true to check dimensions
@@ -518,33 +549,164 @@ public class ActivityDesign extends ActionBarActivity {
 		BitmapFactory.decodeFile(picturePath, options);
 
 		// Calculate inSampleSize
-		options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+	    int photoW = options.outWidth;
+	    int photoH = options.outHeight;
+	    
+	    int scaleFactor = Math.min(photoW/reqWidth, photoH/reqHeight);
 
-		// Decode bitmap with inSampleSize set
+	    options.inJustDecodeBounds = false;
+	    options.inSampleSize = scaleFactor;
+	    options.inPurgeable = true;
 		options.inJustDecodeBounds = false;
 		return BitmapFactory.decodeFile(picturePath, options);
 	}
 
-	public static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
-		// Raw height and width of image
-		final int height = options.outHeight;
-		final int width = options.outWidth;
-		int inSampleSize = 1;
+private void displaySourceDialog() {
+    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+    String source[] = { "Gallary", "Camera" };
 
-		if (height > reqHeight || width > reqWidth) {
+    builder.setTitle("Select Image From:")
+            .setSingleChoiceItems(source, currentSource,
+                    new DialogInterface.OnClickListener() {
 
-			final int halfHeight = height / 2;
-			final int halfWidth = width / 2;
+                        @Override
+                        public void onClick(DialogInterface dialog,
+                                int which) {
+                            currentSource = which;
+                            
+                            switch (currentSource){
+                            case 0:
+                				Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+                				photoPickerIntent.setType("image/*");
+                				startActivityForResult(photoPickerIntent, SELECT_PORTRAIT);
+                				
+                				break;
+                				
+                            case 1:
+                            	Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                            	//selectedImage = Uri.fromFile(new File(Environment.getExternalStorageDirectory(),"tmp_avatar_" + String.valueOf(System.currentTimeMillis()) + ".jpg"));
+                            	//takePicture.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, selectedImage);
+                            	//takePicture.putExtra("Uri", selectedImage);
+                            	//takePicture.putExtra("return-data", true);
+                            	//startActivityForResult(takePicture, TAKE_IMAGE);
+                            	// if (takePicture.resolveActivity(getPackageManager()) != null) {
+                            	//        startActivityForResult(takePicture, TAKE_IMAGE);
+                            	//    }
+                            	 
+                            	 if (takePicture.resolveActivity(getPackageManager()) != null) {
+                            	        // Create the File where the photo should go
+                            	        File photoFile = null;
+                            	        try {
+                            	            photoFile = createImageFile();
+                            	        } catch (IOException ex) {
+                            	            // Error occurred while creating the File
+                            	            //...
+                            	        }
+                            	        // Continue only if the File was successfully created
+                            	        if (photoFile != null) {
+                            	            takePicture.putExtra(MediaStore.EXTRA_OUTPUT,
+                            	                    Uri.fromFile(photoFile));
+                            	            startActivityForResult(takePicture, TAKE_IMAGE);
+                            	        }
+                            	    }
+                            	break;
+                            
+                            }
+                            
 
-			// Calculate the largest inSampleSize value that is a power of 2 and keeps both
-			// height and width larger than the requested height and width.
-			while ((halfHeight / inSampleSize) > reqHeight && (halfWidth / inSampleSize) > reqWidth) {
-				inSampleSize *= 2;
-			}
-		}
+                            dialog.dismiss();
+                        }
+                    }).show();
+}
+String mCurrentPhotoPath;
+private File createImageFile() throws IOException {
+    // Create an image file name
+    String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+    String imageFileName = "JPEG_" + timeStamp + "_";
+    File storageDir = Environment.getExternalStoragePublicDirectory(
+            Environment.DIRECTORY_PICTURES);
+    File image = File.createTempFile(
+        imageFileName,  /* prefix */
+        ".jpg",         /* suffix */
+        storageDir      /* directory */
+    );
 
-		return inSampleSize;
-	}
+    // Save a file: path for use with ACTION_VIEW intents
+    mCurrentPhotoPath = "file:" + image.getAbsolutePath();
+    return image;
+}
+
+private void doCrop() {
+	final ArrayList<CropOption> cropOptions = new ArrayList<CropOption>();
+	
+	Intent intent = new Intent("com.android.camera.action.CROP");
+    intent.setType("image/*");
+    
+    List<ResolveInfo> list = getPackageManager().queryIntentActivities( intent, 0 );
+    
+    int size = list.size();
+    
+    if (size == 0) {	        
+    	Toast.makeText(this, "Can not find image crop app", Toast.LENGTH_SHORT).show();
+    	
+        return;
+    } else {
+    	intent.setData(selectedImage);
+        
+        intent.putExtra("outputX", 200);
+        intent.putExtra("outputY", 200);
+        intent.putExtra("aspectX", 1);
+        intent.putExtra("aspectY", 1);
+        intent.putExtra("scale", true);
+        intent.putExtra("return-data", true);
+        
+    	if (size == 1) {
+    		Intent i 		= new Intent(intent);
+        	ResolveInfo res	= list.get(0);
+        	
+        	i.setComponent( new ComponentName(res.activityInfo.packageName, res.activityInfo.name));
+        	
+        	startActivityForResult(i, CROP_FROM_CAMERA);
+    	} else {
+	        for (ResolveInfo res : list) {
+	        	final CropOption co = new CropOption();
+	        	
+	        	co.title 	= getPackageManager().getApplicationLabel(res.activityInfo.applicationInfo);
+	        	co.icon		= getPackageManager().getApplicationIcon(res.activityInfo.applicationInfo);
+	        	co.appIntent= new Intent(intent);
+	        	
+	        	co.appIntent.setComponent( new ComponentName(res.activityInfo.packageName, res.activityInfo.name));
+	        	
+	            cropOptions.add(co);
+	        }
+        
+	        CropOptionAdapter adapter = new CropOptionAdapter(getApplicationContext(), cropOptions);
+	        
+	        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+	        builder.setTitle("Choose Crop App");
+	        builder.setAdapter( adapter, new DialogInterface.OnClickListener() {
+	            public void onClick( DialogInterface dialog, int item ) {
+	                startActivityForResult( cropOptions.get(item).appIntent, CROP_FROM_CAMERA);
+	            }
+	        });
+        
+	        builder.setOnCancelListener( new DialogInterface.OnCancelListener() {
+	            @Override
+	            public void onCancel( DialogInterface dialog ) {
+	               
+	                if (selectedImage != null ) {
+	                    getContentResolver().delete(selectedImage, null, null );
+	                    selectedImage = null;
+	                }
+	            }
+	        } );
+	        
+	        AlertDialog alert = builder.create();
+	        
+	        alert.show();
+    	}
+    }
+}
 	
 	@SuppressLint("NewApi")
 	private void buildAddMoreButtonDialog() {
