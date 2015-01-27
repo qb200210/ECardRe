@@ -2,10 +2,16 @@ package com.warpspace.ecardv4;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 
 import com.nhaarman.listviewanimations.appearance.StickyListHeadersAdapterDecorator;
 import com.nhaarman.listviewanimations.appearance.simple.AlphaInAnimationAdapter;
 import com.nhaarman.listviewanimations.util.StickyListHeadersListViewWrapper;
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.warpspace.ecardv4.infrastructure.SearchListNameAdapter;
 import com.warpspace.ecardv4.utils.CurvedAndTiled;
@@ -43,6 +49,7 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 public class ActivitySearch extends ActionBarActivity {
 	
 	AlertDialog actions;
+	ParseUser currentUser;
 	String[] sortMethodArray = { "A-Z", "Z-A", "New-Old", "Old-New" };
 	
   @Override
@@ -52,7 +59,7 @@ public class ActivitySearch extends ActionBarActivity {
     // show custom action bar (on top of standard action bar)
     showActionBar();
     setContentView(R.layout.activity_search);
-    
+    currentUser = ParseUser.getCurrentUser();
 
     // build dialog for sorting selection options
     buildSortDialog();
@@ -119,10 +126,62 @@ public class ActivitySearch extends ActionBarActivity {
 	      startActivity(intent);
 	      this.finish();
 	      return true;
+	    case R.id.download_cards:
+	    	pinAllCollectedEcardsAndNotes();
+	    	return true;
 	    default:
 	      return super.onOptionsItemSelected(item);
     }
   }
+  
+	private void pinAllCollectedEcardsAndNotes() {
+		// first search all notes matching currentUser's id, pin all notes
+		// then search all ecards matching ecardId in EcardInfo, pin all ecards
+		ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardNote");
+		query.whereEqualTo("userId", currentUser.getObjectId());
+		query.findInBackground(new FindCallback<ParseObject>(){
+
+			@Override
+			public void done(List<ParseObject> objects, ParseException e) {
+				if (e == null) {
+					if(objects !=null){
+						// these objects are notes
+						// download all notes to background
+						ParseObject.pinAllInBackground(objects);
+						ArrayList<String> ecardList = new ArrayList<String>();
+						for(Iterator<ParseObject> iter = objects.iterator(); iter.hasNext();){
+							ParseObject obj = iter.next();
+							// store the Id's of all collected ecards
+							ecardList.add(obj.get("ecardId").toString());
+						}
+						ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardInfo");
+						query.whereContainedIn("objectId", ecardList);
+						query.findInBackground(new FindCallback<ParseObject>(){
+
+							@Override
+							public void done(List<ParseObject> objects, ParseException e) {
+								if (e == null) {
+									if(objects !=null){
+										// download all collected cards to background
+										ParseObject.pinAllInBackground(objects);											
+									}									
+								} else {
+									Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+								}	
+							}
+							
+						});
+					}
+					Toast.makeText(getBaseContext(), "Sync completed", Toast.LENGTH_SHORT).show();	
+				} else {
+					Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+				}	
+			}
+			
+		});
+		
+		
+	}
   
   //
   @SuppressLint("NewApi")

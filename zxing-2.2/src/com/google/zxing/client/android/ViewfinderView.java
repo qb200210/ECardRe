@@ -101,21 +101,21 @@ public final class ViewfinderView extends View {
     float thickness2 = 5;
     int px1 = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, thickness1, r.getDisplayMetrics());
     int px2 = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, thickness2, r.getDisplayMetrics());
-
+// QB
  // 画出四个角
     paint.setColor(getResources().getColor(R.color.blue_extra));
     // 左上角
-    canvas.drawRect(frame.left, frame.top, frame.left + px1,frame.top + px2, paint);
-    canvas.drawRect(frame.left, frame.top, frame.left + px2,frame.top + px1, paint);
+    canvas.drawRect(frame.left - px2, frame.top -px2, frame.left + px1,frame.top + px2, paint);
+    canvas.drawRect(frame.left - px2, frame.top -px2, frame.left + px2,frame.top + px1, paint);
     // 右上角
-    canvas.drawRect(frame.right - px1, frame.top, frame.right,frame.top + px2, paint);
-    canvas.drawRect(frame.right - px2, frame.top, frame.right,frame.top + px1, paint);
+    canvas.drawRect(frame.right - px1, frame.top - px2, frame.right + px2,frame.top + px2, paint);
+    canvas.drawRect(frame.right - px2, frame.top - px2, frame.right + px2,frame.top + px1, paint);
     // 左下角
-    canvas.drawRect(frame.left, frame.bottom - px2, frame.left + px1,frame.bottom, paint);
-    canvas.drawRect(frame.left, frame.bottom - px1, frame.left + px2,frame.bottom, paint);
+    canvas.drawRect(frame.left - px2, frame.bottom - px2, frame.left + px1,frame.bottom + px2, paint);
+    canvas.drawRect(frame.left - px2, frame.bottom - px1, frame.left + px2,frame.bottom + px2, paint);
     // 右下角
-    canvas.drawRect(frame.right - px1, frame.bottom - px2, frame.right,frame.bottom, paint);
-    canvas.drawRect(frame.right - px2, frame.bottom - px1, frame.right,frame.bottom, paint);
+    canvas.drawRect(frame.right - px1, frame.bottom - px2, frame.right + px2,frame.bottom + px2, paint);
+    canvas.drawRect(frame.right - px2, frame.bottom - px1, frame.right + px2,frame.bottom + px2, paint);
 
     if (resultBitmap != null) {
       // Draw the opaque result bitmap over the scanning rectangle

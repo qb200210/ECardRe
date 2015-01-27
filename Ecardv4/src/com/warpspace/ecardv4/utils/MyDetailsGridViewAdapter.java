@@ -5,13 +5,15 @@ import java.util.ArrayList;
 import com.warpspace.ecardv4.R;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.Toast;
 
-public class MyGridViewAdapter extends BaseAdapter {
+public class MyDetailsGridViewAdapter extends BaseAdapter {
 
   private Context context;
 
@@ -19,7 +21,7 @@ public class MyGridViewAdapter extends BaseAdapter {
   private ArrayList<String> gridValues = new ArrayList<String>();
   private ArrayList<Integer> gridResources = new ArrayList<Integer>();
 
-  public MyGridViewAdapter(Context context, ArrayList<String> gridKeys,
+  public MyDetailsGridViewAdapter(Context context, ArrayList<String> gridKeys,
     ArrayList<String> gridValues, ArrayList<Integer> gridResources) {
     this.context = context;
     this.gridKeys = gridKeys;
@@ -36,7 +38,11 @@ public class MyGridViewAdapter extends BaseAdapter {
 
     if (convertView == null) {
       gridView = new View(context);
-      gridView = inflater.inflate(R.layout.layout_info_item, null);
+      if(position == getCount()-1){
+    	  gridView = inflater.inflate(R.layout.layout_note_item, null);
+      } else{
+    	  gridView = inflater.inflate(R.layout.layout_info_item, null);
+      }
 
       ImageView imageView = (ImageView) gridView
         .findViewById(R.id.grid_item_image);

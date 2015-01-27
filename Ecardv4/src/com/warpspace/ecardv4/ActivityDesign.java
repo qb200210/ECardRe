@@ -584,6 +584,9 @@ private void displaySourceDialog() {
                 				
                             case 1:
                             	Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                            	// Peng: By default, the taken image will be stored in Gallery. Can we directly use it
+                            	// instead of creating photoFile?
+                            	startActivityForResult(takePicture, TAKE_IMAGE);
                             	//selectedImage = Uri.fromFile(new File(Environment.getExternalStorageDirectory(),"tmp_avatar_" + String.valueOf(System.currentTimeMillis()) + ".jpg"));
                             	//takePicture.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, selectedImage);
                             	//takePicture.putExtra("Uri", selectedImage);
@@ -593,22 +596,22 @@ private void displaySourceDialog() {
                             	//        startActivityForResult(takePicture, TAKE_IMAGE);
                             	//    }
                             	 
-                            	 if (takePicture.resolveActivity(getPackageManager()) != null) {
-                            	        // Create the File where the photo should go
-                            	        File photoFile = null;
-                            	        try {
-                            	            photoFile = createImageFile();
-                            	        } catch (IOException ex) {
-                            	            // Error occurred while creating the File
-                            	            //...
-                            	        }
-                            	        // Continue only if the File was successfully created
-                            	        if (photoFile != null) {
-                            	            takePicture.putExtra(MediaStore.EXTRA_OUTPUT,
-                            	                    Uri.fromFile(photoFile));
-                            	            startActivityForResult(takePicture, TAKE_IMAGE);
-                            	        }
-                            	    }
+//                            	 if (takePicture.resolveActivity(getPackageManager()) != null) {
+//                            	        // Create the File where the photo should go
+//                            	        File photoFile = null;
+//                            	        try {
+//                            	            photoFile = createImageFile();
+//                            	        } catch (IOException ex) {
+//                            	            // Error occurred while creating the File
+//                            	            //...
+//                            	        }
+//                            	        // Continue only if the File was successfully created
+//                            	        if (photoFile != null) {
+//                            	            takePicture.putExtra(MediaStore.EXTRA_OUTPUT,
+//                            	                    Uri.fromFile(photoFile));
+//                            	            startActivityForResult(takePicture, TAKE_IMAGE);
+//                            	        }
+//                            	    }
                             	break;
                             
                             }

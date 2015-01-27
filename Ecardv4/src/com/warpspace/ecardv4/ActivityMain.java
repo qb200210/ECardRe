@@ -106,6 +106,17 @@ public class ActivityMain extends ActionBarActivity {
       startActivity(intent);
       this.finish();
       return true;
+    case R.id.test_details:
+    	String scannedId = "zD4jrl4o9l";
+    	// String scannedId = "CRuumzPcTN";
+		String firstName = "Jack";
+		String lastName = "Rose";
+		UserInfo newUser = new UserInfo(this, scannedId, firstName, lastName, true, false);
+
+		intent = new Intent(getBaseContext(), ActivityDetails.class);
+		// passing UserInfo is made possible through Parcelable
+		intent.putExtra("userinfo", newUser);
+		startActivity(intent);
     default:
       return super.onOptionsItemSelected(item);
     }
