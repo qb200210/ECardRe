@@ -1,22 +1,64 @@
-<?xml version="1.0" encoding="utf-8"?>
-<com.warpspace.ecardv4.utils.SquareLayoutSpecial
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@drawable/shadow_153254"
-    android:gravity="center"
-    android:padding="9dp" >
+<!-- <?xml version="1.0" encoding="utf-8"?> -->
+<!-- <com.warpspace.ecardv4.utils.SquareLayoutSpecial -->
+<!-- xmlns:android="http://schemas.android.com/apk/res/android" -->
+<!-- xmlns:tools="http://schemas.android.com/tools" -->
+<!-- android:layout_width="match_parent" -->
+<!-- android:layout_height="wrap_content" -->
+<!-- android:background="@drawable/shadow_153254" -->
+<!-- android:gravity="center" -->
+<!-- android:padding="9dp" > -->
 
-    <TextView
-        android:id="@+id/list_row_draganddrop_textview"
-        android:layout_width="match_parent"
+
+<!-- <TextView -->
+<!-- android:id="@+id/list_row_draganddrop_textview" -->
+<!-- android:layout_width="match_parent" -->
+<!-- android:layout_height="wrap_content" -->
+<!-- android:fontFamily="sans-serif-light" -->
+<!-- android:minHeight="24dp" -->
+<!-- android:padding="10dp" -->
+<!-- android:textColor="?android:attr/textColorSecondary" -->
+<!-- android:textSize="20sp" -->
+<!-- tools:ignore="UnusedAttribute" /> -->
+
+
+<!-- </com.warpspace.ecardv4.utils.SquareLayoutSpecial> -->
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:padding="8dp" >
+
+    <LinearLayout
+        android:id="@+id/Text"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="sans-serif-light"
-        android:minHeight="48dp"
-        android:padding="10dp"
-        android:textColor="?android:attr/textColorSecondary"
-        android:textSize="20sp"
-        tools:ignore="UnusedAttribute" />
+        android:orientation="vertical"
+        android:paddingLeft="10dip" >
 
-</com.warpspace.ecardv4.utils.SquareLayoutSpecial>
+        <TextView
+            android:id="@+id/list_row_draganddrop_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#FF7F3300"
+            android:textSize="20dip"
+            android:textStyle="italic" />
+
+        <TextView
+            android:id="@+id/Text2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="100dip"
+            android:textColor="#FF267F00"
+            android:textSize="14dip" />
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/Image"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:padding="5dp"
+        android:src="@drawable/ic_launcher" />
+
+</RelativeLayout>

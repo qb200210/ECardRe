@@ -16,6 +16,9 @@ package com.warpspace.ecardv4.infrastructure;
  * limitations under the License.
  */
 
+import java.util.ArrayList;
+import java.util.Collections;
+
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
@@ -30,26 +33,36 @@ import com.warpspace.ecardv4.utils.SquareLayoutSpecial;
 
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 
-public class SearchListNameAdapter extends ArrayAdapter<String> implements
+public class SearchListNameAdapter extends ArrayAdapter<UserInfo> implements
     UndoAdapter, StickyListHeadersAdapter {
 
   private final Context mContext;
+  ArrayList<UserInfo> localUserList;
 
-  public SearchListNameAdapter(final Context context) {
+  public SearchListNameAdapter(final Context context, ArrayList<UserInfo> names) {
     mContext = context;
-    for (int i = 0; i < 1000; i++) {
-      add(mContext.getString(R.string.row_number, i));
+    localUserList = names;
+    for (int i = 0; i < localUserList.size(); i++) {
+      add(localUserList.get(i));
     }
   }
 
   @Override
   public long getItemId(final int position) {
-    return getItem(position).hashCode();
+    return localUserList.get(position).hashCode();
   }
 
   @Override
   public boolean hasStableIds() {
-    return true;
+    return false;
+  }
+
+  public void reSortName(boolean ascending) {
+    Collections.sort(localUserList, new UserNameComparator());
+
+    if (ascending == false) {
+      Collections.reverse(localUserList);
+    }
   }
 
   @Override
@@ -63,7 +76,7 @@ public class SearchListNameAdapter extends ArrayAdapter<String> implements
     TextView tv = (TextView) convertView
       .findViewById(R.id.list_row_draganddrop_textview);
 
-    tv.setText(getItem(position));
+    tv.setText(localUserList.get(position).getFirstName());
 
     return convertView;
   }
@@ -77,14 +90,16 @@ public class SearchListNameAdapter extends ArrayAdapter<String> implements
     }
 
     TextView headerText = (TextView) convertView.findViewById(R.id.text_header);
-    headerText.setText(String.valueOf(getHeaderId(position)));
+    int position2 = (int) getHeaderId(position);
+    String first = Character.toString((char) position2);
+    headerText.setText(first.toCharArray(), 0, 1);
 
     return convertView;
   }
 
   @Override
   public long getHeaderId(final int position) {
-    return position / 10;
+    return localUserList.get(position).getFirstName().charAt(0);
   }
 
   @Override
