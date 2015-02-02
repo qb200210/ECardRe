@@ -38,6 +38,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -124,6 +125,15 @@ public class ActivityScanned extends ActionBarActivity {
 		// below is to re-scroll to the first view in the LinearLayout
 		SquareLayout mainCardContainer = (SquareLayout) findViewById(R.id.main_card_container);
 		scrollView.requestChildFocus(mainCardContainer, null);
+		
+		//notes button listener
+		Button noteButton = (Button) findViewById(R.id.button_note);
+		noteButton.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				Intent intent= new Intent(v.getContext(), ActivityNotes.class);
+				startActivity(intent);;
+			}
+		});
 	}
 
 	@SuppressLint("NewApi")

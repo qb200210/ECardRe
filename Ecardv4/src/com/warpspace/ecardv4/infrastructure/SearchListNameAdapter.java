@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,7 +28,6 @@ import android.widget.TextView;
 import com.nhaarman.listviewanimations.ArrayAdapter;
 import com.nhaarman.listviewanimations.itemmanipulation.swipedismiss.undo.UndoAdapter;
 import com.warpspace.ecardv4.R;
-import com.warpspace.ecardv4.utils.SquareLayoutSpecial;
 
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 
@@ -49,7 +47,12 @@ public class SearchListNameAdapter extends ArrayAdapter<UserInfo> implements
 
   @Override
   public long getItemId(final int position) {
-    return localUserList.get(position).hashCode();
+	  return getItem(position).hashCode();
+  }
+
+  @Override
+  public UserInfo getItem(final int position) {
+    return localUserList.get(position);
   }
 
   @Override

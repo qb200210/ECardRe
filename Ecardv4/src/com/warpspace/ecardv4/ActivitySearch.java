@@ -83,7 +83,7 @@ public class ActivitySearch extends ActionBarActivity {
     // build dialog for sorting selection options
     buildSortDialog();
 
-    StickyListHeadersListView listView = (StickyListHeadersListView) findViewById(R.id.activity_stickylistheaders_listview);
+    final StickyListHeadersListView listView = (StickyListHeadersListView) findViewById(R.id.activity_stickylistheaders_listview);
 
     adapter = new SearchListNameAdapter(this, userNames);
     animationAdapter = new AlphaInAnimationAdapter(adapter);
@@ -100,6 +100,20 @@ public class ActivitySearch extends ActionBarActivity {
       500);
 
     listView.setAdapter(stickyListHeadersAdapterDecorator);
+    
+    listView.setOnItemClickListener(new OnItemClickListener() {
+
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position,
+          long id) {
+          UserInfo selectedUser = (UserInfo) listView.getItemAtPosition(position);
+
+          Intent intent = new Intent(getBaseContext(), ActivityDetails.class);
+          // passing UserInfo is made possible through Parcelable
+          intent.putExtra("userinfo", selectedUser);
+          startActivity(intent);
+        }
+      });
   }
 
   private void showActionBar() {
