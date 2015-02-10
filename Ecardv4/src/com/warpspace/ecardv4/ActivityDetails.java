@@ -98,7 +98,8 @@ public class ActivityDetails extends ActionBarActivity {
 							buildAboutMeDialog(view);
 							break;
 						case "note":
-							intent = new Intent(ActivityDetails.this, ActivityNote.class);
+							intent = new Intent(ActivityDetails.this, ActivityNotes.class);
+							intent.putExtra("whereMet",	"nolocation");
 							startActivity(intent);
 							break;
 						default:

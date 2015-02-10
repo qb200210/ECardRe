@@ -3,12 +3,15 @@ package com.warpspace.ecardv4;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import com.parse.ParseUser;
 import com.warpspace.ecardv4.R;
 import com.warpspace.ecardv4.infrastructure.UserInfo;
+import com.warpspace.ecardv4.utils.AsyncResponse;
 import com.warpspace.ecardv4.utils.CurvedAndTiled;
 import com.warpspace.ecardv4.utils.ExpandableHeightGridView;
+import com.warpspace.ecardv4.utils.GeocoderHelper;
 import com.warpspace.ecardv4.utils.MyGridViewAdapter;
 import com.warpspace.ecardv4.utils.MyScrollView;
 import com.warpspace.ecardv4.utils.MyTag;
@@ -16,17 +19,21 @@ import com.warpspace.ecardv4.utils.SquareLayout;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
+import android.location.Location;
+import android.location.LocationManager;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -49,12 +56,18 @@ public class ActivityNotes extends ActionBarActivity {
 	private MediaRecorder recorder = null;
 	private String mostrecentfile;
 	private static final String AUDIO_RECORDER_FOLDER = "AudioRecorder";
-
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.layout_note);
 		currentUser = ParseUser.getCurrentUser();
+		
+		Bundle data = getIntent().getExtras();
+		String whereMet =(String) data.get("whereMet");
+		if(whereMet !=null && whereMet !="nolocation"){
+		  Toast.makeText(getBaseContext(), "Location: "+whereMet, Toast.LENGTH_SHORT).show();
+		}
 		
 		Button recorderButton = (Button) findViewById(R.id.recordButton);
 		Button replayButton = (Button) findViewById(R.id.replayButton);
@@ -171,4 +184,6 @@ public class ActivityNotes extends ActionBarActivity {
 	        Toast.makeText(ActivityNotes.this, "Warning: " + what + ", " + extra, Toast.LENGTH_SHORT).show();
 	    }
 	};
+	
+	
 }

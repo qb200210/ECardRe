@@ -12,10 +12,13 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.warpspace.ecardv4.R;
 import com.warpspace.ecardv4.infrastructure.UserInfo;
+import com.warpspace.ecardv4.utils.AsyncResponse;
 import com.warpspace.ecardv4.utils.CurvedAndTiled;
 import com.warpspace.ecardv4.utils.ECardSQLHelper;
 import com.warpspace.ecardv4.utils.ECardUtils;
 import com.warpspace.ecardv4.utils.ExpandableHeightGridView;
+import com.warpspace.ecardv4.utils.GeocoderHelper;
+import com.warpspace.ecardv4.utils.MyDetailsGridViewAdapter;
 import com.warpspace.ecardv4.utils.MyGridViewAdapter;
 import com.warpspace.ecardv4.utils.MyScrollView;
 import com.warpspace.ecardv4.utils.MyTag;
@@ -24,14 +27,18 @@ import com.warpspace.ecardv4.utils.SquareLayout;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
+import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -44,7 +51,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class ActivityScanned extends ActionBarActivity {
+public class ActivityScanned extends ActionBarActivity implements AsyncResponse {
 
 	private MyScrollView scrollView;
 	ArrayList<String> shownArrayList = new ArrayList<String>();
@@ -55,6 +62,11 @@ public class ActivityScanned extends ActionBarActivity {
 	private ECardSQLHelper db = null;
 	ParseUser currentUser;
 	private UserInfo scannedUser;
+	
+	// need to use this to hold the interface to be passed to GeocoderHelper
+	// constructor, otherwise NullPoint
+	AsyncResponse delegate = null;
+	private String whereMet = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -70,7 +82,20 @@ public class ActivityScanned extends ActionBarActivity {
 		Bundle data = getIntent().getExtras();
 		scannedUser = (UserInfo) data.getParcelable("userinfo");
 		
-		
+		// getting "where met" city info
+		// this will be used later -- where "this" is ambiguous, so directly
+	    // storing delegate for later use
+	    delegate = this;
+		// if there is network, start a thread to get location name
+    	Location location = getLocation();
+    	if(location != null){
+    	  Log.i("ActScan", "location not null");
+          new GeocoderHelper(delegate).fetchCityName(getBaseContext(),location);
+    	} else {
+    		// if getting location fails, will bypass the processFinish() function
+    		Toast.makeText(getBaseContext(), "Cannot determine location...", Toast.LENGTH_SHORT).show();
+    		whereMet = null;
+    	}		
 
 		// display the main card
 		displayCard(scannedUser);
@@ -78,9 +103,10 @@ public class ActivityScanned extends ActionBarActivity {
 		infoIcon = scannedUser.getInfoIcon();
 		infoLink = scannedUser.getInfoLink();
 		shownArrayList = scannedUser.getShownArrayList();
+		addNoteButton();
 
 		gridView = (ExpandableHeightGridView) findViewById(R.id.gridView1);
-		gridView.setAdapter(new MyGridViewAdapter(ActivityScanned.this, shownArrayList, infoLink, infoIcon));
+		gridView.setAdapter(new MyDetailsGridViewAdapter(ActivityScanned.this, shownArrayList, infoLink, infoIcon));
 		gridView.setOnItemClickListener(new OnItemClickListener() {
 
 			@SuppressLint("NewApi")
@@ -106,6 +132,11 @@ public class ActivityScanned extends ActionBarActivity {
 					case "about":
 						buildAboutMeDialog(view);
 						break;
+					case "note":
+						intent = new Intent(ActivityScanned.this, ActivityNotes.class);
+						intent.putExtra("whereMet",	whereMet);
+						startActivity(intent);
+						break;
 					default:
 						String url = ((MyTag) view.getTag()).getValue().toString();
 						if (!url.startsWith("http://") && !url.startsWith("https://") && !url.startsWith("ftp://")) {
@@ -125,15 +156,14 @@ public class ActivityScanned extends ActionBarActivity {
 		// below is to re-scroll to the first view in the LinearLayout
 		SquareLayout mainCardContainer = (SquareLayout) findViewById(R.id.main_card_container);
 		scrollView.requestChildFocus(mainCardContainer, null);
+
+	}
+	
+	private void addNoteButton() {
+		infoLink.add("");
+		infoIcon.add(R.drawable.note);
+		shownArrayList.add("note");
 		
-		//notes button listener
-		Button noteButton = (Button) findViewById(R.id.button_note);
-		noteButton.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				Intent intent= new Intent(v.getContext(), ActivityNotes.class);
-				startActivity(intent);;
-			}
-		});
 	}
 
 	@SuppressLint("NewApi")
@@ -296,4 +326,26 @@ public class ActivityScanned extends ActionBarActivity {
 			name.setText(tmpString);
 
 	}
+	
+	private Location getLocation() {
+	    LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+	    List<String> providers = lm.getProviders(true);
+
+	    Location location = null;
+
+	    for (int i = providers.size() - 1; i >= 0; i--) {
+	      location = lm.getLastKnownLocation(providers.get(i));
+	      if (location != null)
+	        break;
+	    }
+
+	    return location;
+	  }
+	
+	@Override
+	  public void processFinish(String output) {
+	    Log.i("GeocoderHelperAdd", output);
+	    // save the obtained cityName to global variable to be passed to ActivityNotes
+	    whereMet = output;
+	  }
 }
