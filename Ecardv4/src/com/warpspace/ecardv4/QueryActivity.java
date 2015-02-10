@@ -439,7 +439,7 @@ public class QueryActivity extends FragmentActivity {
                 public void done(List<ParseObject> objects, ParseException e) {
                   if (e == null) {
                     if (objects.size() != 0) {
-                      // there are some EcardInfo rcords matching all search
+                      // there are some EcardInfo records matching all search
                       // criteria
                       // find out the corresponding EcardNote by doing one last
                       // search

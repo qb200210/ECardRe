@@ -2,16 +2,12 @@ package com.warpspace.ecardv4.infrastructure;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Locale;
-import java.util.StringTokenizer;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
-
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
@@ -35,16 +31,32 @@ public class UserInfo implements Parcelable {
   String lastName;
   String company;
   String title;
+  String whereMet;
+  String eventMet;
+  String createdAt;
   Context context;
 
   ArrayList<String> shownArrayList = new ArrayList<String>();
   ArrayList<Integer> infoIcon = new ArrayList<Integer>();
   ArrayList<String> infoLink = new ArrayList<String>();
-  String[] allowedArray = { "about", "linkedin", "phone", "message", "email", "facebook",
-    "twitter", "googleplus", "web" };
+  String[] allowedArray = { "about", "linkedin", "phone", "message", "email",
+    "facebook", "twitter", "googleplus", "web" };
+
+  private void setDefaults() {
+    this.objId = "Unspecified";
+    this.firstName = "Unspecified";
+    this.lastName = "Unspecified";
+    this.company = "Unspecified";
+    this.title = "Unspecified";
+    this.whereMet = "Unspecified";
+    this.eventMet = "Unspecified";
+    this.createdAt = "Unspecified";
+    this.context = null;
+  }
 
   public UserInfo(Context context, String objId, String firstName,
     String lastName, boolean localData, boolean networkAvailable) {
+    setDefaults();
     this.context = context;
     this.objId = objId;
     this.firstName = firstName;
@@ -52,7 +64,15 @@ public class UserInfo implements Parcelable {
     populateUserInfoWithParseData(objId, localData, networkAvailable);
   }
 
+  public UserInfo(Context context, String objId) {
+    setDefaults();
+    this.context = context;
+    this.objId = objId;
+    populateUserInfoWithParseData(objId, true, false);
+  }
+
   public UserInfo(Parcel source) {
+    setDefaults();
     this.objId = source.readString();
     this.firstName = source.readString();
     this.lastName = source.readString();
@@ -61,6 +81,17 @@ public class UserInfo implements Parcelable {
     source.readStringList(this.shownArrayList);
     source.readStringList(this.infoLink);
     source.readList(this.infoIcon, Integer.class.getClassLoader());
+  }
+
+  public void setCreated(String createdDate) {
+    if (this.createdAt == null) {
+      this.createdAt = "Unspecified";
+    }
+    this.createdAt = createdDate;
+  }
+
+  public String getCreated() {
+    return this.createdAt;
   }
 
   @Override
@@ -75,48 +106,50 @@ public class UserInfo implements Parcelable {
     dest.writeList(infoIcon);
   }
 
-  private void populateUserInfoWithParseData(String objId, boolean localData, boolean networkAvailable) {
-    if(localData || networkAvailable) {
-    	// If either this request is to build userInfo from localData
-    	// Or the request is to build userInfo from pulling data online, proceed
-    	// Otherwise do nothing
-		ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardInfo");
-		if(localData){
-			// if flag true, means this is to pull data from localDataStore. Not likely in the event of scanning new cards
-			query.fromLocalDatastore();
-		}
-	    try {
-	      // Must not use the getinbackground() thread method,
-	      // otherwise data won't be back before the UserInfo object is built
-	      // may want to implement a loading screen if taking too long?
-	      ParseObject object = query.get(objId);
-	      if (object != null) {
-	        // main card info
-	        firstName = object.getString("firstName");
-	        lastName = object.getString("lastName");
-	        company = object.getString("company");
-	        title = object.getString("title");
-	        // extra info
-	        infoIcon.clear();
-	        infoLink.clear();
-	        shownArrayList.clear();
-	        for (int i = 0; i < allowedArray.length; i++) {
-	          // the extra info item
-	          String item = allowedArray[i];
-	          // the value of this extra info item
-	          Object value = object.get(item);
-	          if (value != null && value.toString() != "") {
-	            infoIcon.add(iconSelector(item));
-	            infoLink.add(value.toString());
-	            // note down the existing extra info items
-	            shownArrayList.add(item);
-	          }
-	        }
-	      }
-	    } catch (ParseException e1) {
-	      // TODO Auto-generated catch block
-	      e1.printStackTrace();
-	    }
+  private void populateUserInfoWithParseData(String objId, boolean localData,
+    boolean networkAvailable) {
+    if (localData || networkAvailable) {
+      // If either this request is to build userInfo from localData
+      // Or the request is to build userInfo from pulling data online, proceed
+      // Otherwise do nothing
+      ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardInfo");
+      if (localData) {
+        // if flag true, means this is to pull data from localDataStore. Not
+        // likely in the event of scanning new cards
+        query.fromLocalDatastore();
+      }
+      try {
+        // Must not use the getinbackground() thread method,
+        // otherwise data won't be back before the UserInfo object is built
+        // may want to implement a loading screen if taking too long?
+        ParseObject object = query.get(objId);
+        if (object != null) {
+          // main card info
+          firstName = object.getString("firstName");
+          lastName = object.getString("lastName");
+          company = object.getString("company");
+          title = object.getString("title");
+          // extra info
+          infoIcon.clear();
+          infoLink.clear();
+          shownArrayList.clear();
+          for (int i = 0; i < allowedArray.length; i++) {
+            // the extra info item
+            String item = allowedArray[i];
+            // the value of this extra info item
+            Object value = object.get(item);
+            if (value != null && value.toString() != "") {
+              infoIcon.add(iconSelector(item));
+              infoLink.add(value.toString());
+              // note down the existing extra info items
+              shownArrayList.add(item);
+            }
+          }
+        }
+      } catch (ParseException e1) {
+        // TODO Auto-generated catch block
+        e1.printStackTrace();
+      }
     }
   }
 
@@ -134,7 +167,7 @@ public class UserInfo implements Parcelable {
     case "phone":
       return R.drawable.phone;
     case "message":
-        return R.drawable.message;
+      return R.drawable.message;
     case "about":
       return R.drawable.me;
     case "googleplus":

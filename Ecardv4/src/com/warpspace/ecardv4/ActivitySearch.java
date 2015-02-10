@@ -1,23 +1,12 @@
 package com.warpspace.ecardv4;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import com.nhaarman.listviewanimations.appearance.StickyListHeadersAdapterDecorator;
-import com.nhaarman.listviewanimations.appearance.simple.AlphaInAnimationAdapter;
-import com.nhaarman.listviewanimations.util.StickyListHeadersListViewWrapper;
-import com.parse.FindCallback;
-import com.parse.ParseException;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
-import com.parse.ParseUser;
-import com.warpspace.ecardv4.infrastructure.SearchListNameAdapter;
-import com.warpspace.ecardv4.infrastructure.UserInfo;
-import com.warpspace.ecardv4.infrastructure.UserNameComparator;
-import com.warpspace.ecardv4.utils.CurvedAndTiled;
-import com.warpspace.ecardv4.utils.MySimpleListViewAdapter;
+import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -40,7 +29,20 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
+
+import com.nhaarman.listviewanimations.appearance.StickyListHeadersAdapterDecorator;
+import com.nhaarman.listviewanimations.appearance.simple.AlphaInAnimationAdapter;
+import com.nhaarman.listviewanimations.util.StickyListHeadersListViewWrapper;
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
+import com.parse.ParseUser;
+import com.warpspace.ecardv4.infrastructure.SearchListAdapter;
+import com.warpspace.ecardv4.infrastructure.UserInfo;
+import com.warpspace.ecardv4.infrastructure.UserInfoNameComparator;
+import com.warpspace.ecardv4.utils.CurvedAndTiled;
+import com.warpspace.ecardv4.utils.MySimpleListViewAdapter;
 
 public class ActivitySearch extends ActionBarActivity {
 
@@ -49,8 +51,20 @@ public class ActivitySearch extends ActionBarActivity {
   String[] sortMethodArray = { "A-Z", "Z-A", "New-Old", "Old-New" };
 
   ArrayList<UserInfo> userNames;
-  SearchListNameAdapter adapter;
+  SearchListAdapter adapter;
   AlphaInAnimationAdapter animationAdapter;
+  StickyListHeadersAdapterDecorator stickyListHeadersAdapterDecorator;
+  StickyListHeadersListView listView;
+
+  private ArrayList<String> ecardIds = new ArrayList<String>();
+  private ArrayList<String> returnedIds = new ArrayList<String>();
+  List<Integer> idsNote = Arrays.asList(R.id.query_event_met,
+    R.id.query_where_met);
+  List<Integer> idsCardEdit = Arrays.asList(R.id.query_name,
+    R.id.query_job_title);
+  List<Integer> idsCardView = Arrays.asList(R.id.query_company_name,
+    R.id.query_where_work);
+  List<String> fieldsNote = Arrays.asList("event_met_lc", "where_met_lc");
 
   @Override
   protected void onCreate(final Bundle savedInstanceState) {
@@ -78,42 +92,77 @@ public class ActivitySearch extends ActionBarActivity {
     userNames.add(new UserInfo(this, "ffgghh", "Alan", "Turing", false, false));
     userNames.add(new UserInfo(this, "iijjkk", "Ray", "Romano", false, false));
 
-    Collections.sort(userNames, new UserNameComparator());
+    Collections.sort(userNames, new UserInfoNameComparator());
 
     // build dialog for sorting selection options
     buildSortDialog();
 
-    final StickyListHeadersListView listView = (StickyListHeadersListView) findViewById(R.id.activity_stickylistheaders_listview);
-
-    adapter = new SearchListNameAdapter(this, userNames);
-    animationAdapter = new AlphaInAnimationAdapter(adapter);
-    StickyListHeadersAdapterDecorator stickyListHeadersAdapterDecorator = new StickyListHeadersAdapterDecorator(
-      animationAdapter);
-    stickyListHeadersAdapterDecorator
-      .setListViewWrapper(new StickyListHeadersListViewWrapper(listView));
-
-    assert animationAdapter.getViewAnimator() != null;
-    animationAdapter.getViewAnimator().setInitialDelayMillis(500);
-
-    assert stickyListHeadersAdapterDecorator.getViewAnimator() != null;
-    stickyListHeadersAdapterDecorator.getViewAnimator().setInitialDelayMillis(
-      500);
-
-    listView.setAdapter(stickyListHeadersAdapterDecorator);
-    
+    listView = (StickyListHeadersListView) findViewById(R.id.activity_stickylistheaders_listview);
     listView.setOnItemClickListener(new OnItemClickListener() {
 
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position,
-          long id) {
-          UserInfo selectedUser = (UserInfo) listView.getItemAtPosition(position);
+      @Override
+      public void onItemClick(AdapterView<?> parent, View view, int position,
+        long id) {
+        UserInfo selectedUser = (UserInfo) listView.getItemAtPosition(position);
 
-          Intent intent = new Intent(getBaseContext(), ActivityDetails.class);
-          // passing UserInfo is made possible through Parcelable
-          intent.putExtra("userinfo", selectedUser);
-          startActivity(intent);
+        Intent intent = new Intent(getBaseContext(), ActivityDetails.class);
+        // passing UserInfo is made possible through Parcelable
+        intent.putExtra("userinfo", selectedUser);
+        startActivity(intent);
+      }
+    });
+
+    getContacts();
+  }
+
+  private void getContacts() {
+    ecardIds.clear();
+    returnedIds.clear();
+    ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardNote");
+    query.fromLocalDatastore();
+    query.whereEqualTo("userId", currentUser.getObjectId());
+    // specifically for time search
+    query.findInBackground(new FindCallback<ParseObject>() {
+
+      @Override
+      public void done(List<ParseObject> objectsNoteList, ParseException e) {
+        if (e == null) {
+          if (objectsNoteList.size() != 0) {
+            System.out.println(objectsNoteList.size());
+            for (Iterator<ParseObject> iter = objectsNoteList.iterator(); iter
+              .hasNext();) {
+              ParseObject objectNote = iter.next();
+              // collect EcardInfo IDs satisfying Note searches
+              // here object is Note object
+              String objectIdString = (String) objectNote.get("ecardId");
+              UserInfo contact = new UserInfo(getApplicationContext(),
+                objectIdString);
+              contact.setCreated((String) objectNote.get("createdAt"));
+              userNames.add(contact);
+            }
+            adapter = new SearchListAdapter(getApplicationContext(), userNames);
+            animationAdapter = new AlphaInAnimationAdapter(adapter);
+            stickyListHeadersAdapterDecorator = new StickyListHeadersAdapterDecorator(
+              animationAdapter);
+            stickyListHeadersAdapterDecorator
+              .setListViewWrapper(new StickyListHeadersListViewWrapper(listView));
+
+            assert animationAdapter.getViewAnimator() != null;
+            animationAdapter.getViewAnimator().setInitialDelayMillis(500);
+
+            assert stickyListHeadersAdapterDecorator.getViewAnimator() != null;
+            stickyListHeadersAdapterDecorator.getViewAnimator()
+              .setInitialDelayMillis(500);
+
+            listView.setAdapter(stickyListHeadersAdapterDecorator);
+            stickyListHeadersAdapterDecorator.notifyDataSetChanged();
+          }
+        } else {
+          Toast.makeText(getBaseContext(), "General parse error!",
+            Toast.LENGTH_SHORT).show();
         }
-      });
+      }
+    });
   }
 
   private void showActionBar() {
@@ -258,25 +307,19 @@ public class ActivitySearch extends ActionBarActivity {
         long id) {
         switch (position) {
         case (0):
-          Toast.makeText(getApplicationContext(), "Placeholder: Sort A to Z",
-            Toast.LENGTH_SHORT).show();
           adapter.reSortName(true);
           actions.dismiss();
           break;
         case (1):
-          Toast.makeText(getApplicationContext(), "Placeholder: Sort Z to A",
-            Toast.LENGTH_SHORT).show();
           adapter.reSortName(false);
           actions.dismiss();
           break;
         case (2):
-          Toast.makeText(getApplicationContext(),
-            "Placeholder: Sort New to Old", Toast.LENGTH_SHORT).show();
+          adapter.reSortDate(true);
           actions.dismiss();
           break;
         case (3):
-          Toast.makeText(getApplicationContext(),
-            "Placeholder: Sort Old to New", Toast.LENGTH_SHORT).show();
+          adapter.reSortDate(false);
           actions.dismiss();
           break;
         default:
