@@ -34,6 +34,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -72,7 +73,7 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_scanned);
-		
+				
 		db = new ECardSQLHelper(this);
 		currentUser = ParseUser.getCurrentUser();
 
@@ -91,9 +92,9 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
     	if(location != null){
     	  Log.i("ActScan", "location not null");
           new GeocoderHelper(delegate).fetchCityName(getBaseContext(),location);
-    	} else {
+    	} else {    		
     		// if getting location fails, will bypass the processFinish() function
-    		Toast.makeText(getBaseContext(), "Cannot determine location...", Toast.LENGTH_SHORT).show();
+    		Toast.makeText(getBaseContext(), "Cannot determine location for now...", Toast.LENGTH_SHORT).show();
     		whereMet = null;
     	}		
 
@@ -330,7 +331,6 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 	private Location getLocation() {
 	    LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 	    List<String> providers = lm.getProviders(true);
-
 	    Location location = null;
 
 	    for (int i = providers.size() - 1; i >= 0; i--) {
@@ -338,9 +338,38 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 	      if (location != null)
 	        break;
 	    }
+	    
+	    if(location == null){
+	    	lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
+	    			3600000, 1000, onLocationChange);
+	    }
 
 	    return location;
 	  }
+	
+	
+	LocationListener onLocationChange=new LocationListener() {
+	    public void onLocationChanged(Location fix) {
+	      
+	      Log.i("onLocationChange", "Location found");
+	      new GeocoderHelper(delegate).fetchCityName(getBaseContext(),fix);
+	      
+	    }
+	    
+	    public void onProviderDisabled(String provider) {
+	      // required for interface, not used
+	    }
+	    
+	    public void onProviderEnabled(String provider) {
+	      // required for interface, not used
+	    }
+	    
+	    public void onStatusChanged(String provider, int status,
+	                                  Bundle extras) {
+	      // required for interface, not used
+	    }
+	  };
+	
 	
 	@Override
 	  public void processFinish(String output) {
