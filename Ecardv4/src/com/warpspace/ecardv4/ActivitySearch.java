@@ -204,6 +204,9 @@ public class ActivitySearch extends ActionBarActivity {
       Intent intent = new Intent(this, QueryActivity.class);
       startActivity(intent);
       return true;
+    case R.id.download_cards:
+    	pinAllCollectedEcardsAndNotes();
+        return true;      
     case R.id.log_out:
       ParseUser.logOut();
       Intent intentLogin = new Intent(this, ActivityPreLogin.class);

@@ -258,7 +258,7 @@ public class ParseSignupFragment extends ParseLoginFragmentBase implements OnCli
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
-		currentUser.put("EcardID", object.getObjectId());
+		currentUser.put("ecardId", object.getObjectId());
 		// get first and last name then upload
 		String fullName = (String) currentUser.get("name");		
 		String delims = "[ ,]";
@@ -287,67 +287,17 @@ public class ParseSignupFragment extends ParseLoginFragmentBase implements OnCli
 		object.pinInBackground();
 		currentUser.saveInBackground();
 	}
-  
-//  @SuppressLint("NewApi")
-//	public void createQRCode(ParseObject object, ParseUser currentUser){		
-//		
-//		//Find screen size
-//		WindowManager manager = (WindowManager) getActivity().getSystemService(getActivity().WINDOW_SERVICE);
-//		Display display = manager.getDefaultDisplay();
-//		Point point = new Point();
-//		display.getSize(point);
-//		int width = point.x;
-//		int height = point.y;
-//		int smallerDimension = width < height ? width : height;
-//		smallerDimension = smallerDimension * 3/4;
-//		
-//		
-//		//Encode with a QR Code image
-//		QRCodeEncoder qrCodeEncoder = new QRCodeEncoder(currentUser.get("EcardID").toString(),
-//		                                  null,
-//		                                  Contents.Type.TEXT,
-//		                                  BarcodeFormat.QR_CODE.toString(),
-//		                                  smallerDimension);
-//		
-//		FileOutputStream out = null;
-//		ParseFile file;
-//      try {        	
-//      	ByteArrayOutputStream stream = new ByteArrayOutputStream();
-//      	Bitmap bmp = qrCodeEncoder.encodeAsBitmap();
-//          bmp.compress(Bitmap.CompressFormat.PNG, 100, stream);
-//          byte[] imgData = stream.toByteArray();         
-//          file = new ParseFile("qrcode.jpg", imgData);
-//          try {
-//				file.save();
-//			} catch (ParseException e1) {
-//				// TODO Auto-generated catch block
-//				e1.printStackTrace();
-//			}
-//      } catch (Exception ee) {
-//          ee.printStackTrace();
-//      } finally {
-//          try {
-//              if (out != null) {
-//                  out.close();
-//              }
-//          } catch (IOException ee) {
-//              ee.printStackTrace();
-//          }
-//      }        
-//      object.put("qrCode", file);		
-//      Toast.makeText(getActivity(), "QR code created!", Toast.LENGTH_SHORT).show();	
-//	}
-  
+
 	public void putBlankPortrait(ParseObject object) {
 		FileOutputStream out = null;
 		byte[] imgData;
 		ParseFile file = null;
-		Bitmap blankProfile = BitmapFactory.decodeResource(getResources(), R.drawable.blank_profile);
+		Bitmap blankProfile = BitmapFactory.decodeResource(getResources(), R.drawable.emptyprofile);
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
         try {        	        	
         	blankProfile.compress(Bitmap.CompressFormat.PNG, 100, stream);
             imgData = stream.toByteArray();         
-            file = new ParseFile("profile.jpg", imgData);
+            file = new ParseFile("portrait.jpg", imgData);
             try {
 				file.save();
 			} catch (ParseException e1) {
