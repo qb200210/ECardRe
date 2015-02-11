@@ -1,6 +1,8 @@
 package com.warpspace.ecardv4;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -12,10 +14,12 @@ import java.util.TreeSet;
 
 import com.parse.GetCallback;
 import com.parse.ParseException;
+import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.warpspace.ecardv4.R;
+import com.warpspace.ecardv4.infrastructure.UserInfo;
 import com.warpspace.ecardv4.utils.CurvedAndTiled;
 import com.warpspace.ecardv4.utils.ExpandableHeightGridView;
 import com.warpspace.ecardv4.utils.MyGridViewAdapter;
@@ -64,6 +68,11 @@ public class ActivityDesign extends ActionBarActivity {
 	private static final int SELECT_LOGO = 200;
 	private static int currentSource=0;
 	private Uri selectedImage;
+	UserInfo myselfUserInfo= null;
+	
+	Bitmap photo = null;
+	ParseFile file = null;
+	boolean portraitChanged = false;
 	
 	// dummy array, will be replaced by extra info items
 	private ArrayList<Integer> infoIcon = new ArrayList<Integer>();
@@ -90,64 +99,49 @@ public class ActivityDesign extends ActionBarActivity {
 		scrollView.setmScrollable(true);
 
 		currentUser = ParseUser.getCurrentUser();
+		Bundle data = getIntent().getExtras();
+		myselfUserInfo = (UserInfo) data.getParcelable("userinfo");
 		displayMyCard();
 
 		// complete list of possible extrainfo items
-		infoIcon.clear();
-		infoLink.clear();
-
-		ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardInfo");
-		query.fromLocalDatastore();
-		query.getInBackground(currentUser.get("ecardId").toString(), new GetCallback<ParseObject>() {
-
-			@SuppressLint("NewApi")
-			@Override
-			public void done(ParseObject object, ParseException e) {
-				if (e == null) {
-					if (object != null) {
-						for (int i = 0; i < allowedArray.length; i++) {
-							// the extra info item
-							String item = allowedArray[i];
-							// the value of this extra info item
-							Object value = object.get(item);
-							if (value != null && value.toString() != "") {
-								infoIcon.add(iconSelector(item));
-								infoLink.add(value.toString());
-								// note down the existing extra info items
-								shownArrayList.add(item);
-								// remove already added items from selection list
-								int locToRm = selectionArrayList.indexOf(item);
-								selectionArrayList.remove(locToRm);
-								selectionDisplayArrayList.remove(locToRm);
-							}
-						}
-
-						// create ordered selection list using TreeSet
-						selectionTreeSet.addAll(selectionArrayList);
-						selectionDisplayTreeSet.addAll(selectionDisplayArrayList);
-
-						// Add the last button as "add more" button
-						infoIcon.add(R.drawable.addmore);
-						infoLink.add("addmore");
-						shownArrayList.add("addmore");
-
-						// convert ordered TreeSet into array to be used by dialogbuilder
-						selectionArray = (String[]) selectionTreeSet.toArray(new String[0]);
-						selectionDisplayArray = (String[]) selectionDisplayTreeSet.toArray(new String[0]);
-						
-						// Upon initialization, build dialogAddMore for the first time
-						buildAddMoreButtonDialog();
-
-						// The gridView to display extra info items
-						gridView = (ExpandableHeightGridView) findViewById(R.id.gridView1);
-						gridView.setAdapter(new MyGridViewAdapter(getBaseContext(), shownArrayList, infoLink, infoIcon));
-						// magically the onItemClickListener on gridView only needs to be specified once
-						// Even upon gridView items changes, this listener still works well
-						gridView.setOnItemClickListener(gridViewItemClickListenerBuilder());
-					}
-				}
+		infoIcon = myselfUserInfo.getInfoIcon();
+		infoLink = myselfUserInfo.getInfoLink();
+		shownArrayList = myselfUserInfo.getShownArrayList();
+		
+		for (int i = 0; i < allowedArray.length; i++) {
+			// the extra info item
+			String item = allowedArray[i];
+			// the value of this extra info item
+			if(shownArrayList.contains(item)){
+				// remove already added items from selection list
+				int locToRm = selectionArrayList.indexOf(item);
+				selectionArrayList.remove(locToRm);
+				selectionDisplayArrayList.remove(locToRm);
 			}
-		});
+		}
+
+		// create ordered selection list using TreeSet
+		selectionTreeSet.addAll(selectionArrayList);
+		selectionDisplayTreeSet.addAll(selectionDisplayArrayList);
+
+		// Add the last button as "add more" button
+		infoIcon.add(R.drawable.addmore);
+		infoLink.add("addmore");
+		shownArrayList.add("addmore");
+
+		// convert ordered TreeSet into array to be used by dialogbuilder
+		selectionArray = (String[]) selectionTreeSet.toArray(new String[0]);
+		selectionDisplayArray = (String[]) selectionDisplayTreeSet.toArray(new String[0]);
+		
+		// Upon initialization, build dialogAddMore for the first time
+		buildAddMoreButtonDialog();
+
+		// The gridView to display extra info items
+		gridView = (ExpandableHeightGridView) findViewById(R.id.gridView1);
+		gridView.setAdapter(new MyGridViewAdapter(getBaseContext(), shownArrayList, infoLink, infoIcon));
+		// magically the onItemClickListener on gridView only needs to be specified once
+		// Even upon gridView items changes, this listener still works well
+		gridView.setOnItemClickListener(gridViewItemClickListenerBuilder());
 
 		// This is the life-saver! It fixes the bug that scrollView will go to the
 		// bottom of GridView upon open
@@ -155,7 +149,7 @@ public class ActivityDesign extends ActionBarActivity {
 		SquareLayout mainCardContainer = (SquareLayout) findViewById(R.id.main_card_container);
 		scrollView.requestChildFocus(mainCardContainer, null);
 
-		ImageButton pbPortrait = (ImageButton) findViewById(R.id.design_PortraitButton);
+		ImageButton pbPortrait = (ImageButton) findViewById(R.id.design_portrait);
 		pbPortrait.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				displaySourceDialog();
@@ -179,7 +173,7 @@ public class ActivityDesign extends ActionBarActivity {
 		if(requestCode == TAKE_IMAGE){
 			Bundle extras = data.getExtras();
 			Bitmap imageBitmap =(Bitmap) extras.get("data");
-			ImageButton imageButton = (ImageButton) findViewById(R.id.design_PortraitButton);
+			ImageButton imageButton = (ImageButton) findViewById(R.id.design_portrait);
 			imageButton.setImageBitmap(imageBitmap);
 			//selectedImage = (Uri) extras.get("Uri");
 			
@@ -188,9 +182,35 @@ public class ActivityDesign extends ActionBarActivity {
 		else if(requestCode == CROP_FROM_CAMERA){
 			Bundle extras = data.getExtras();
 			if (extras != null) {
-				Bitmap photo = extras.getParcelable("data");
-				ImageButton imageButton1 = (ImageButton) findViewById(R.id.design_PortraitButton);
+				photo = extras.getParcelable("data");
+				ImageButton imageButton1 = (ImageButton) findViewById(R.id.design_portrait);
 				imageButton1.setImageBitmap(photo);
+				// saving the bitmap onto Parse server as ParseFile
+				FileOutputStream out = null;
+	            try {
+	            	ByteArrayOutputStream stream = new ByteArrayOutputStream();
+	            	photo.compress(Bitmap.CompressFormat.PNG, 100, stream);
+	                byte[] imgData = stream.toByteArray();         
+	                file = new ParseFile("portrait.jpg", imgData);
+	                try {
+	                	// cannot save in thread, otherwise file could be empty when Design saved
+	    				file.save();
+	    				portraitChanged = true;
+	    			} catch (ParseException e1) {
+	    				// TODO Auto-generated catch block
+	    				e1.printStackTrace();
+	    			}
+	            } catch (Exception e) {
+	                e.printStackTrace();
+	            } finally {
+	                try {
+	                    if (out != null) {
+	                        out.close();
+	                    }
+	                } catch (IOException e) {
+	                    e.printStackTrace();
+	                }
+	            }
 			}
 			File f = new File(selectedImage.getPath());
 			if (f.exists()) f.delete();
@@ -263,6 +283,7 @@ public class ActivityDesign extends ActionBarActivity {
 		switch (item.getItemId()) {
 		case R.id.design_discard:
 			Toast.makeText(this, "Discarded changes!", Toast.LENGTH_SHORT).show();
+			setResult(RESULT_CANCELED);
 			this.finish();
 			return true;
 		case R.id.design_save:
@@ -274,6 +295,19 @@ public class ActivityDesign extends ActionBarActivity {
 				public void done(ParseObject object, ParseException e) {
 					if (e == null) {
 						if (object != null) {
+							// the file should not be empty
+							if(portraitChanged){
+								object.put("portrait", file);
+							}
+							EditText name = (EditText) findViewById(R.id.design_first_name);
+							object.put("firstName", name.getText().toString());
+							name = (EditText) findViewById(R.id.design_last_name);
+							object.put("lastName", name.getText().toString());
+							name = (EditText) findViewById(R.id.design_company);
+							object.put("company", name.getText().toString());
+							name = (EditText) findViewById(R.id.design_job_title);
+							object.put("title", name.getText().toString());
+							
 							ArrayList<String> remainedList = new ArrayList<String>();
 							int numBtns = gridView.getChildCount() - 1;
 							for (int i = 0; i < numBtns; i++) {
@@ -296,7 +330,15 @@ public class ActivityDesign extends ActionBarActivity {
 				}
 
 			});
-
+			
+			// construct the updatedUserInfo to be sent back to ActivityMain
+			saveChangesToUserInfo();			
+			
+			// need to pass this new UserInfo back to ActivityMain. Cannot wait for object.saveinbackground.
+			Intent intent = new Intent();
+			// here myselfUserInfo has been updated
+			intent.putExtra("userinfo", myselfUserInfo);
+			setResult(RESULT_OK, intent);
 			this.finish();
 			return true;
 		default:
@@ -304,6 +346,26 @@ public class ActivityDesign extends ActionBarActivity {
 		}
 	}
 	
+	private void saveChangesToUserInfo() {
+		if(portraitChanged){
+			myselfUserInfo.setPortrait(photo);
+		}
+		EditText name = (EditText) findViewById(R.id.design_first_name);
+		myselfUserInfo.setFirstName(name.getText().toString());
+		name = (EditText) findViewById(R.id.design_last_name);
+		myselfUserInfo.setLastName(name.getText().toString());
+		name = (EditText) findViewById(R.id.design_company);
+		myselfUserInfo.setCompany(name.getText().toString());
+		name = (EditText) findViewById(R.id.design_job_title);
+		myselfUserInfo.setTitle(name.getText().toString());
+		infoIcon.remove(infoIcon.size()-1);
+		infoLink.remove(infoLink.size()-1);
+		shownArrayList.remove(shownArrayList.size()-1);
+		myselfUserInfo.setInfoIcon(infoIcon);
+		myselfUserInfo.setInfoLink(infoLink);
+		myselfUserInfo.setShownArrayList(shownArrayList);
+	}
+
 	OnItemClickListener gridViewItemClickListenerBuilder(){
 		OnItemClickListener listener = new OnItemClickListener() {
 
@@ -456,88 +518,17 @@ public class ActivityDesign extends ActionBarActivity {
 		return dialogView;
 	}
 
-	public void displayMyCard() {
-		ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardInfo");
-		query.fromLocalDatastore();
-		query.getInBackground(currentUser.get("ecardId").toString(), new GetCallback<ParseObject>() {
-
-			@Override
-			public void done(ParseObject object, ParseException e) {
-				if (e == null) {
-					if (object != null) {
-						// ParseFile portraitFile = (ParseFile) object.get("portrait");
-						// if (portraitFile != null) {
-						// portraitFile.getDataInBackground(new GetDataCallback() {
-						//
-						// @Override
-						// public void done(byte[] data, ParseException e) {
-						// if (e == null) {
-						// Bitmap bmp = BitmapFactory.decodeByteArray(data, 0,
-						// data.length);
-						//
-						// ImageView pic = (ImageView) findViewById(R.id.Portrait);
-						// pic.setImageBitmap(bmp);
-						//
-						// } else {
-						// Toast.makeText(getActivity(), "Error displaying portrait!",
-						// Toast.LENGTH_SHORT).show();
-						// }
-						// }
-						// });
-						// } else {
-						// Toast.makeText(getActivity(), "Portrait empty!",
-						// Toast.LENGTH_SHORT).show();
-						// }
-						//
-						// ParseFile qrCodeFile = (ParseFile) object.get("qrCode");
-						// if (qrCodeFile != null) {
-						// qrCodeFile.getDataInBackground(new GetDataCallback() {
-						//
-						// @Override
-						// public void done(byte[] data, ParseException e) {
-						// if (e == null) {
-						// Bitmap bmp = BitmapFactory.decodeByteArray(data, 0,
-						// data.length);
-						//
-						// QRImg = new ImageView(getActivity());
-						// QRImg.setId(QR_IMG_ID);
-						// QRImg.setImageBitmap(bmp);
-						// } else {
-						// Toast.makeText(getActivity(), "Error displaying QR Code!",
-						// Toast.LENGTH_SHORT).show();
-						// }
-						// }
-						// });
-						// } else {
-						// Toast.makeText(getActivity(), "QR Code empty!",
-						// Toast.LENGTH_SHORT).show();
-						// }
-
-						TextView name = (TextView) findViewById(R.id.design_first_name);
-						String tmpString = object.getString("firstName");
-						if (tmpString != null)
-							name.setText(tmpString);
-						name = (TextView) findViewById(R.id.design_last_name);
-						tmpString = object.getString("lastName");
-						if (tmpString != null)
-							name.setText(tmpString);
-						name = (TextView) findViewById(R.id.design_company);
-						tmpString = object.getString("company");
-						if (tmpString != null)
-							name.setText(tmpString);
-						name = (TextView) findViewById(R.id.design_job_title);
-						tmpString = object.getString("title");
-						if (tmpString != null)
-							name.setText(tmpString);
-					} else {
-						Toast.makeText(getBaseContext(), "Self Ecardinfo not found locally!", Toast.LENGTH_SHORT).show();
-					}
-				} else {
-					Toast.makeText(getBaseContext(), "Error getting data to display card", Toast.LENGTH_SHORT).show();
-				}
-			}
-
-		});
+	public void displayMyCard() {		
+		TextView name = (TextView) findViewById(R.id.design_first_name);
+		name.setText(myselfUserInfo.getFirstName());
+		name = (TextView) findViewById(R.id.design_last_name);
+		name.setText(myselfUserInfo.getLastName());
+		name = (TextView) findViewById(R.id.design_company);
+		name.setText(myselfUserInfo.getCompany());
+		name = (TextView) findViewById(R.id.design_job_title);
+		name.setText(myselfUserInfo.getTitle());
+		ImageButton portraitImg = (ImageButton) findViewById(R.id.design_portrait);
+		portraitImg.setImageBitmap(myselfUserInfo.getPortrait());
 	}
 
 	@SuppressWarnings("deprecation")

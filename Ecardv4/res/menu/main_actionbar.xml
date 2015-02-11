@@ -15,11 +15,6 @@
         android:title="@string/logout"
         app:showAsAction="never"/>
     
-    <item
-        android:id="@+id/test_details"
-        android:orderInCategory="12"
-        android:title="Test Details"
-        app:showAsAction="never"/>
     
     <item
         android:id="@+id/log_out2"

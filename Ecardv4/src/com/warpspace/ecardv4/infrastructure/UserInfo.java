@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -13,6 +14,7 @@ import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.parse.ParseException;
+import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.warpspace.ecardv4.R;
@@ -31,6 +33,7 @@ public class UserInfo implements Parcelable {
   String lastName;
   String company;
   String title;
+  Bitmap portrait;
   String whereMet;
   String eventMet;
   String createdAt;
@@ -78,6 +81,7 @@ public class UserInfo implements Parcelable {
     this.lastName = source.readString();
     this.company = source.readString();
     this.title = source.readString();
+    this.portrait = (Bitmap) source.readParcelable(getClass().getClassLoader()); 
     source.readStringList(this.shownArrayList);
     source.readStringList(this.infoLink);
     source.readList(this.infoIcon, Integer.class.getClassLoader());
@@ -101,6 +105,7 @@ public class UserInfo implements Parcelable {
     dest.writeString(lastName);
     dest.writeString(company);
     dest.writeString(title);
+    dest.writeParcelable(portrait,flags);
     dest.writeStringList(shownArrayList);
     dest.writeStringList(infoLink);
     dest.writeList(infoIcon);
@@ -124,6 +129,13 @@ public class UserInfo implements Parcelable {
         // may want to implement a loading screen if taking too long?
         ParseObject object = query.get(objId);
         if (object != null) {
+        	// get portrait from cached img     	
+        	ParseFile portraitFile = (ParseFile) object.get("portrait");
+					if(portraitFile != null){
+						byte[] data =portraitFile.getData();
+						portrait = BitmapFactory
+			                    .decodeByteArray(data, 0, data.length);
+					}
           // main card info
           firstName = object.getString("firstName");
           lastName = object.getString("lastName");
@@ -288,7 +300,79 @@ public class UserInfo implements Parcelable {
     return infoLink;
   }
 
-  public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+  public Bitmap getPortrait() {
+	return portrait;
+}
+
+public void setPortrait(Bitmap portrait) {
+	this.portrait = portrait;
+}
+
+public String getWhereMet() {
+	return whereMet;
+}
+
+public void setWhereMet(String whereMet) {
+	this.whereMet = whereMet;
+}
+
+public String getEventMet() {
+	return eventMet;
+}
+
+public void setEventMet(String eventMet) {
+	this.eventMet = eventMet;
+}
+
+public String getCreatedAt() {
+	return createdAt;
+}
+
+public void setCreatedAt(String createdAt) {
+	this.createdAt = createdAt;
+}
+
+public String[] getAllowedArray() {
+	return allowedArray;
+}
+
+public void setAllowedArray(String[] allowedArray) {
+	this.allowedArray = allowedArray;
+}
+
+public void setObjId(String objId) {
+	this.objId = objId;
+}
+
+public void setFirstName(String firstName) {
+	this.firstName = firstName;
+}
+
+public void setLastName(String lastName) {
+	this.lastName = lastName;
+}
+
+public void setCompany(String company) {
+	this.company = company;
+}
+
+public void setTitle(String title) {
+	this.title = title;
+}
+
+public void setShownArrayList(ArrayList<String> shownArrayList) {
+	this.shownArrayList = shownArrayList;
+}
+
+public void setInfoIcon(ArrayList<Integer> infoIcon) {
+	this.infoIcon = infoIcon;
+}
+
+public void setInfoLink(ArrayList<String> infoLink) {
+	this.infoLink = infoLink;
+}
+
+public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
 
     @Override
     public UserInfo createFromParcel(Parcel source) {

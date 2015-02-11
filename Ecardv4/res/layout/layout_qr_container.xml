@@ -28,7 +28,6 @@
         android:layout_width="200dp"
         android:layout_height="200dp"
         android:padding="5dp"
-        android:src="@drawable/test_qrcode"
          />
 
 </com.warpspace.ecardv4.utils.SquareLayout>

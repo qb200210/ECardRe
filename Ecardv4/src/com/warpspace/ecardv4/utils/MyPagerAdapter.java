@@ -11,17 +11,33 @@ import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.util.Log;
+import android.widget.Toast;
 
 import com.viewpagerindicator.IconPagerAdapter;
 import com.warpspace.ecardv4.FragmentMaincard;
-import com.warpspace.ecardv4.FragmentQrcode;
+import com.warpspace.ecardv4.infrastructure.UserInfo;
 
 public class MyPagerAdapter extends FragmentPagerAdapter implements
     IconPagerAdapter {
 
 
-public MyPagerAdapter(FragmentManager fm) {
+private UserInfo myselfUserInfo;
+
+
+
+public UserInfo getMyselfUserInfo() {
+	return myselfUserInfo;
+}
+
+public void setMyselfUserInfo(UserInfo myselfUserInfo) {
+	this.myselfUserInfo = myselfUserInfo;
+	  Log.i("setMyselfUserInfo", myselfUserInfo.getFirstName());
+}
+
+public MyPagerAdapter(FragmentManager fm, UserInfo myselfUserInfo) {
     super(fm);
+	this.myselfUserInfo = myselfUserInfo;
   }
 
   @Override
@@ -29,13 +45,14 @@ public MyPagerAdapter(FragmentManager fm) {
     // getItem is called to instantiate the fragment for the given page.
     // Return a PlaceholderFragment (defined as a static inner class
     // below).
+	  Log.i("getItem", myselfUserInfo.getFirstName());
     switch (position) {
     case 0:
-      return FragmentMaincard.newInstance(1);
+      return FragmentMaincard.newInstance(1, myselfUserInfo);
     case 1:
-      return FragmentQrcode.newInstance(2);
+      return FragmentMaincard.newInstance(2, myselfUserInfo);
     default:
-      return FragmentQrcode.newInstance(2);
+      return FragmentMaincard.newInstance(2, myselfUserInfo);
     }
   }
 
@@ -55,6 +72,16 @@ public MyPagerAdapter(FragmentManager fm) {
     // return getString(R.string.title_section2).toUpperCase(l);
     // }
     return null;
+  }
+
+  @Override
+  public int getItemPosition(Object object) {
+	 FragmentMaincard f = (FragmentMaincard) object;
+     if (f != null) {
+    	// this myselfUserInfo should have been set to new data
+        f.update(myselfUserInfo);
+     }
+    return super.getItemPosition(object);
   }
 
   @Override

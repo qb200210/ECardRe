@@ -13,7 +13,7 @@
             android:paddingTop="10dp"
             android:paddingBottom="0dp"
             >
-            <include layout="@layout/qr_container" />
+            <include layout="@layout/layout_qr_container" />
 
         </com.warpspace.ecardv4.utils.SquareLayout>
 

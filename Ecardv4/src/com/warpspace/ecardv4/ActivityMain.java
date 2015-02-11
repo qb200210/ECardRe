@@ -8,6 +8,7 @@ import com.warpspace.ecardv4.R;
 import com.warpspace.ecardv4.infrastructure.UserInfo;
 import com.warpspace.ecardv4.utils.CurvedAndTiled;
 import com.warpspace.ecardv4.utils.CustomQRScanner;
+import com.warpspace.ecardv4.utils.ECardUtils;
 import com.warpspace.ecardv4.utils.MyPagerAdapter;
 import com.warpspace.ecardv4.utils.MyViewPager;
 
@@ -21,6 +22,7 @@ import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -30,7 +32,8 @@ import android.widget.Toast;
 
 public class ActivityMain extends ActionBarActivity {
 
-  /**
+  private static final int EDIT_CARD = 0;
+/**
    * The {@link ViewPager} that will host the section contents.
    */
   MyPagerAdapter mAdapter;
@@ -39,6 +42,8 @@ public class ActivityMain extends ActionBarActivity {
   ActionBar mActionBar;
   Menu mMenu;
   int currentPosition = 0;
+  ParseUser currentUser;
+  UserInfo myselfUserInfo= null;
 
   @SuppressLint("NewApi")
   @Override
@@ -76,7 +81,11 @@ public class ActivityMain extends ActionBarActivity {
 
     });
 
-    mAdapter = new MyPagerAdapter(getSupportFragmentManager());
+    currentUser = ParseUser.getCurrentUser();    
+    // pull myself info from localdatastore
+    myselfUserInfo = new UserInfo(this, currentUser.get("ecardId").toString(), "", "", true, false);
+    
+    mAdapter = new MyPagerAdapter(getSupportFragmentManager(), myselfUserInfo);
 
     mPager = (MyViewPager) findViewById(R.id.pager);
     mPager.setAdapter(mAdapter);
@@ -91,34 +100,40 @@ public class ActivityMain extends ActionBarActivity {
     return true;
   }
 
-  @Override
+@Override
   public boolean onOptionsItemSelected(MenuItem item) {
     // this function is called when either action bar icon is tapped
     switch (item.getItemId()) {
     case R.id.edit_item:
       // Should be replaced by pop up activity of editable welcome page
       Intent intent = new Intent(this, ActivityDesign.class);
-      startActivity(intent);
+      intent.putExtra("userinfo", myselfUserInfo);
+	  startActivityForResult(intent, EDIT_CARD);
       return true;
     case R.id.log_out:
       ParseUser.logOut();
       intent = new Intent(this, ActivityPreLogin.class);
       startActivity(intent);
       this.finish();
-      return true;
-    case R.id.test_details:
-    	String scannedId = "zD4jrl4o9l";
-    	// String scannedId = "CRuumzPcTN";
-		String firstName = "Jack";
-		String lastName = "Rose";
-		UserInfo newUser = new UserInfo(this, scannedId, firstName, lastName, true, false);
-
-		intent = new Intent(getBaseContext(), ActivityDetails.class);
-		// passing UserInfo is made possible through Parcelable
-		intent.putExtra("userinfo", newUser);
-		startActivity(intent);
+      return true;    
     default:
       return super.onOptionsItemSelected(item);
     }
+  }
+  
+  @Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		if(requestCode == EDIT_CARD && resultCode == RESULT_OK ){
+			Bundle extras = data.getExtras();
+			UserInfo updatedUserInfo = (UserInfo) extras.getParcelable("userinfo");
+			// Update the UserInfo for refreshing fragments
+			((MyPagerAdapter) mPager.getAdapter()).setMyselfUserInfo(updatedUserInfo);	
+			// Refreshing fragments
+			mPager.getAdapter().notifyDataSetChanged();
+			// Update the UserInfo being holded in ActivityMain
+			myselfUserInfo = updatedUserInfo;
+		}		
+	  
   }
 }

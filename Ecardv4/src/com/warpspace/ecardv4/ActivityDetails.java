@@ -204,6 +204,10 @@ public class ActivityDetails extends ActionBarActivity {
 
 	public void displayCard(UserInfo newUser) {
 
+		ImageView portraitImg = (ImageView) findViewById(R.id.my_portrait);
+		if (newUser.getPortrait() != null){
+			portraitImg.setImageBitmap(newUser.getPortrait());
+		}
 		TextView name = (TextView) findViewById(R.id.my_first_name);
 		String tmpString = newUser.getFirstName();
 		if (tmpString != null)
