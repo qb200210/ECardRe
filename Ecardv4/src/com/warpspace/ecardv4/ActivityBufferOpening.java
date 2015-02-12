@@ -34,6 +34,8 @@ public class ActivityBufferOpening extends Activity {
 	List<String> scannedIDs;
 	List<OfflineData> olDatas;
 	ParseUser currentUser;
+	// flag to see if there is portrait cached offline that cannot be converted to ParseFile yet.
+	boolean imgFromTmpData = false; 
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -59,10 +61,9 @@ public class ActivityBufferOpening extends Activity {
 	    createLocalSelfCopy(currentUser);
 	    // check ecardIds that were scanned/cached offline
 	    checkCachedIds();
-    } else{
-    	// if no network, need to convert 
-    	checkPortrait();
-    }
+    } 
+    // if tmpImgByteArray not null, need to convert regardless of network
+    checkPortrait();    
     
     timerToJump();
   }
@@ -78,7 +79,7 @@ public class ActivityBufferOpening extends Activity {
 	          if (e == null && object != null) {
 	        	byte[] tmpImgData = (byte[]) object.get("tmpImgByteArray");
 	        	if(tmpImgData != null){
-	        		Toast.makeText(ActivityBufferOpening.this, "Portrait updates upon network", Toast.LENGTH_SHORT).show();
+	        		imgFromTmpData = true;
 	        	}
 	          }
 			}
@@ -265,6 +266,7 @@ public void timerToJump() {
       @Override
       public void run() {
         Intent intent = new Intent(getBaseContext(), ActivityMain.class);
+        intent.putExtra("imgFromTmpData", imgFromTmpData);
         startActivity(intent);
       }
     }, timeout);

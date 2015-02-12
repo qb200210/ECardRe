@@ -78,19 +78,19 @@ public class ActivitySearch extends ActionBarActivity {
     userNames = new ArrayList<UserInfo>();
 
     userNames.add(new UserInfo(this, "abcdef", "Udayan", "Banerji", false,
-      false));
-    userNames.add(new UserInfo(this, "ghijkl", "Bo", "Qiu", false, false));
-    userNames.add(new UserInfo(this, "mnopqr", "Peng", "Zhao", false, false));
+      false, false));
+    userNames.add(new UserInfo(this, "ghijkl", "Bo", "Qiu", false, false, false));
+    userNames.add(new UserInfo(this, "mnopqr", "Peng", "Zhao", false, false, false));
     userNames.add(new UserInfo(this, "stuvwx", "Simontika", "Mukherjee", false,
-      false));
+      false, false));
     userNames
-      .add(new UserInfo(this, "yzaabb", "Jianfang", "Zhu", false, false));
+      .add(new UserInfo(this, "yzaabb", "Jianfang", "Zhu", false, false, false));
     userNames.add(new UserInfo(this, "iurtyi", "Johnson", "Johnson", false,
-      false));
+      false, false));
     userNames
-      .add(new UserInfo(this, "ccddee", "Barack", "Obama", false, false));
-    userNames.add(new UserInfo(this, "ffgghh", "Alan", "Turing", false, false));
-    userNames.add(new UserInfo(this, "iijjkk", "Ray", "Romano", false, false));
+      .add(new UserInfo(this, "ccddee", "Barack", "Obama", false, false, false));
+    userNames.add(new UserInfo(this, "ffgghh", "Alan", "Turing", false, false, false));
+    userNames.add(new UserInfo(this, "iijjkk", "Ray", "Romano", false, false, false));
 
     Collections.sort(userNames, new UserInfoNameComparator());
 

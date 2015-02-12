@@ -44,12 +44,16 @@ public class ActivityMain extends ActionBarActivity {
   int currentPosition = 0;
   ParseUser currentUser;
   UserInfo myselfUserInfo= null;
+  boolean imgFromTmpData = false;
 
   @SuppressLint("NewApi")
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
+    
+    Bundle b = getIntent().getExtras();
+    imgFromTmpData = (boolean) b.get("imgFromTmpData");
 
     LinearLayout ll_add = (LinearLayout) findViewById(R.id.ll_add);
     LinearLayout ll_search = (LinearLayout) findViewById(R.id.ll_search);
@@ -83,7 +87,7 @@ public class ActivityMain extends ActionBarActivity {
 
     currentUser = ParseUser.getCurrentUser();    
     // pull myself info from localdatastore
-    myselfUserInfo = new UserInfo(this, currentUser.get("ecardId").toString(), "", "", true, false);
+    myselfUserInfo = new UserInfo(this, currentUser.get("ecardId").toString(), "", "", true, false, imgFromTmpData);
     
     mAdapter = new MyPagerAdapter(getSupportFragmentManager(), myselfUserInfo);
 

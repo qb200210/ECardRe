@@ -90,7 +90,7 @@ public class CustomQRScanner extends CaptureActivity {
       // Will be hanging if cannot pull from Parse, since this is not done in
       // background thread
       UserInfo newUser = new UserInfo(this, scannedID, firstName, lastName, false,
-        ECardUtils.isNetworkAvailable(this));
+        ECardUtils.isNetworkAvailable(this), false);
 
       Intent intent = new Intent(getBaseContext(), ActivityScanned.class);
       // passing UserInfo is made possible through Parcelable

@@ -58,20 +58,20 @@ public class UserInfo implements Parcelable {
   }
 
   public UserInfo(Context context, String objId, String firstName,
-    String lastName, boolean localData, boolean networkAvailable) {
+    String lastName, boolean localData, boolean networkAvailable, boolean imgFromTmpData) {
     setDefaults();
     this.context = context;
     this.objId = objId;
     this.firstName = firstName;
     this.lastName = lastName;
-    populateUserInfoWithParseData(objId, localData, networkAvailable);
+    populateUserInfoWithParseData(objId, localData, networkAvailable, imgFromTmpData);
   }
 
   public UserInfo(Context context, String objId) {
     setDefaults();
     this.context = context;
     this.objId = objId;
-    populateUserInfoWithParseData(objId, true, false);
+    populateUserInfoWithParseData(objId, true, false, false);
   }
 
   public UserInfo(Parcel source) {
@@ -112,7 +112,7 @@ public class UserInfo implements Parcelable {
   }
 
   private void populateUserInfoWithParseData(String objId, boolean localData,
-    boolean networkAvailable) {
+    boolean networkAvailable, boolean imgFromTmpData) {
     if (localData || networkAvailable) {
       // If either this request is to build userInfo from localData
       // Or the request is to build userInfo from pulling data online, proceed
@@ -129,13 +129,19 @@ public class UserInfo implements Parcelable {
         // may want to implement a loading screen if taking too long?
         ParseObject object = query.get(objId);
         if (object != null) {
-        	// get portrait from cached img     	
-        	ParseFile portraitFile = (ParseFile) object.get("portrait");
-					if(portraitFile != null){
-						byte[] data =portraitFile.getData();
-						portrait = BitmapFactory
-			                    .decodeByteArray(data, 0, data.length);
-					}
+        	if(!imgFromTmpData){
+	        	// get portrait from cached img     	
+	        	ParseFile portraitFile = (ParseFile) object.get("portrait");
+				if(portraitFile != null){
+					byte[] data =portraitFile.getData();
+					portrait = BitmapFactory
+		                    .decodeByteArray(data, 0, data.length);
+				}
+        	} else{
+        		byte[] tmpImgData = (byte[]) object.get("tmpImgByteArray");
+        		portrait = BitmapFactory
+	                    .decodeByteArray(tmpImgData, 0, tmpImgData.length);
+        	}
           // main card info
           firstName = object.getString("firstName");
           lastName = object.getString("lastName");
@@ -255,7 +261,7 @@ public class UserInfo implements Parcelable {
     // error tolerant: 1. if input string isn't ecard link, 2. if input objectId
     // doesn't exist
     // 3. if input objectId already collected, 4. if no network
-    return new UserInfo(context, id, fname, lname, false, networkAvailable);
+    return new UserInfo(context, id, fname, lname, false, networkAvailable, false);
   }
 
   public Bitmap getQRCode() {
