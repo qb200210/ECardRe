@@ -4,6 +4,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,9 +20,11 @@ import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 import com.warpspace.ecardv4.R;
 import com.warpspace.ecardv4.infrastructure.UserInfo;
 import com.warpspace.ecardv4.utils.CurvedAndTiled;
+import com.warpspace.ecardv4.utils.ECardUtils;
 import com.warpspace.ecardv4.utils.ExpandableHeightGridView;
 import com.warpspace.ecardv4.utils.MyGridViewAdapter;
 import com.warpspace.ecardv4.utils.MySimpleListViewAdapter;
@@ -71,6 +75,7 @@ public class ActivityDesign extends ActionBarActivity {
 	UserInfo myselfUserInfo= null;
 	
 	Bitmap photo = null;
+	byte[] tmpImgData = null; // temporary storage of byte array for cropped img
 	ParseFile file = null;
 	boolean portraitChanged = false;
 	
@@ -185,32 +190,11 @@ public class ActivityDesign extends ActionBarActivity {
 				photo = extras.getParcelable("data");
 				ImageButton imageButton1 = (ImageButton) findViewById(R.id.design_portrait);
 				imageButton1.setImageBitmap(photo);
-				// saving the bitmap onto Parse server as ParseFile
-				FileOutputStream out = null;
-	            try {
-	            	ByteArrayOutputStream stream = new ByteArrayOutputStream();
-	            	photo.compress(Bitmap.CompressFormat.PNG, 100, stream);
-	                byte[] imgData = stream.toByteArray();         
-	                file = new ParseFile("portrait.jpg", imgData);
-	                try {
-	                	// cannot save in thread, otherwise file could be empty when Design saved
-	    				file.save();
-	    				portraitChanged = true;
-	    			} catch (ParseException e1) {
-	    				// TODO Auto-generated catch block
-	    				e1.printStackTrace();
-	    			}
-	            } catch (Exception e) {
-	                e.printStackTrace();
-	            } finally {
-	                try {
-	                    if (out != null) {
-	                        out.close();
-	                    }
-	                } catch (IOException e) {
-	                    e.printStackTrace();
-	                }
-	            }
+				// converting Bitmap to byte array
+            	ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            	photo.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                tmpImgData = stream.toByteArray(); 
+                portraitChanged = true;
 			}
 			File f = new File(selectedImage.getPath());
 			if (f.exists()) f.delete();
@@ -287,52 +271,77 @@ public class ActivityDesign extends ActionBarActivity {
 			this.finish();
 			return true;
 		case R.id.design_save:
+			// construct the updatedUserInfo to be sent back to ActivityMain
+			saveChangesToUserInfo();
+			
 			ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardInfo");
 			query.fromLocalDatastore();
 			query.getInBackground(currentUser.get("ecardId").toString(), new GetCallback<ParseObject>() {
 
 				@Override
-				public void done(ParseObject object, ParseException e) {
+				public void done(final ParseObject object, ParseException e) {
 					if (e == null) {
 						if (object != null) {
 							// the file should not be empty
-							if(portraitChanged){
-								object.put("portrait", file);
+							if(!portraitChanged){
+								saveChangesToParse(object);
+							} else {
+								// If no internet, save portrait to parse as byte array, then later convert to parse file
+								if(!ECardUtils.isNetworkAvailable(ActivityDesign.this)){
+									Toast.makeText(ActivityDesign.this, "No network, caching img", Toast.LENGTH_SHORT).show(); 
+				                	object.put("tmpImgByteArray", tmpImgData);
+				                	saveChangesToParse(object);
+				                } else {
+				                	// with network, can save parsefile like normal
+				                	// have to do saveInBackground, otherwise hang and crash in poor networks
+					                file = new ParseFile("portrait.jpg", tmpImgData);					                
+					            	file.saveInBackground(new SaveCallback(){
+
+										@Override
+										public void done(ParseException arg0) {
+											object.put("portrait", file);
+											saveChangesToParse(object);
+										}
+										
+									});
+				                }
 							}
-							EditText name = (EditText) findViewById(R.id.design_first_name);
-							object.put("firstName", name.getText().toString());
-							name = (EditText) findViewById(R.id.design_last_name);
-							object.put("lastName", name.getText().toString());
-							name = (EditText) findViewById(R.id.design_company);
-							object.put("company", name.getText().toString());
-							name = (EditText) findViewById(R.id.design_job_title);
-							object.put("title", name.getText().toString());
 							
-							ArrayList<String> remainedList = new ArrayList<String>();
-							int numBtns = gridView.getChildCount() - 1;
-							for (int i = 0; i < numBtns; i++) {
-								View view = gridView.getChildAt(i);
-								// Log.d("buttons:" , ((MyTag) view.getTag()).getKey() +
-								// "   "+ ((MyTag) view.getTag()).getValue());
-								object.put(((MyTag) view.getTag()).getKey(), ((MyTag) view.getTag()).getValue());
-								remainedList.add(((MyTag) view.getTag()).getKey());
-							}
-							allowedArrayList.removeAll(remainedList);
-							for (Iterator<String> iter = allowedArrayList.iterator(); iter.hasNext();) {
-								String nullItem = iter.next();
-								object.remove(nullItem);
-							}
-							object.saveEventually();
-							object.pinInBackground();
-							Toast.makeText(getBaseContext(), "Save successful", Toast.LENGTH_SHORT).show();
 						}
 					}
 				}
 
+				private void saveChangesToParse(ParseObject object) {
+					EditText name = (EditText) findViewById(R.id.design_first_name);
+					object.put("firstName", name.getText().toString());
+					name = (EditText) findViewById(R.id.design_last_name);
+					object.put("lastName", name.getText().toString());
+					name = (EditText) findViewById(R.id.design_company);
+					object.put("company", name.getText().toString());
+					name = (EditText) findViewById(R.id.design_job_title);
+					object.put("title", name.getText().toString());
+					
+					ArrayList<String> remainedList = new ArrayList<String>();
+					int numBtns = gridView.getChildCount() - 1;
+					for (int i = 0; i < numBtns; i++) {
+						View view = gridView.getChildAt(i);
+						// Log.d("buttons:" , ((MyTag) view.getTag()).getKey() +
+						// "   "+ ((MyTag) view.getTag()).getValue());
+						object.put(((MyTag) view.getTag()).getKey(), ((MyTag) view.getTag()).getValue());
+						remainedList.add(((MyTag) view.getTag()).getKey());
+					}
+					allowedArrayList.removeAll(remainedList);
+					for (Iterator<String> iter = allowedArrayList.iterator(); iter.hasNext();) {
+						String nullItem = iter.next();
+						object.remove(nullItem);
+					}
+					object.saveEventually();
+					Toast.makeText(getBaseContext(), "Save successful", Toast.LENGTH_SHORT).show();
+					
+				}
+
 			});
-			
-			// construct the updatedUserInfo to be sent back to ActivityMain
-			saveChangesToUserInfo();			
+						
 			
 			// need to pass this new UserInfo back to ActivityMain. Cannot wait for object.saveinbackground.
 			Intent intent = new Intent();

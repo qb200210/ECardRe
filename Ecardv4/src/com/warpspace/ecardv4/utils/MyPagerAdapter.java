@@ -32,7 +32,6 @@ public UserInfo getMyselfUserInfo() {
 
 public void setMyselfUserInfo(UserInfo myselfUserInfo) {
 	this.myselfUserInfo = myselfUserInfo;
-	  Log.i("setMyselfUserInfo", myselfUserInfo.getFirstName());
 }
 
 public MyPagerAdapter(FragmentManager fm, UserInfo myselfUserInfo) {
@@ -45,7 +44,6 @@ public MyPagerAdapter(FragmentManager fm, UserInfo myselfUserInfo) {
     // getItem is called to instantiate the fragment for the given page.
     // Return a PlaceholderFragment (defined as a static inner class
     // below).
-	  Log.i("getItem", myselfUserInfo.getFirstName());
     switch (position) {
     case 0:
       return FragmentMaincard.newInstance(1, myselfUserInfo);

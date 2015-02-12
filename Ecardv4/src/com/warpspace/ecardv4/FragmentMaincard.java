@@ -21,7 +21,6 @@ public class FragmentMaincard extends Fragment implements UpdateableFragment {
   public static FragmentMaincard newInstance(int sectionNumber, UserInfo myselfUserInfo) {
 	
 	myself = myselfUserInfo;
-	Log.i("fragmain", myself.getFirstName());
     FragmentMaincard fragment = new FragmentMaincard();
     Bundle args = new Bundle();
     args.putInt(ARG_SECTION_NUMBER, sectionNumber);

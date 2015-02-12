@@ -11,9 +11,11 @@ import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.ParseACL;
 import com.parse.ParseException;
+import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 import com.warpspace.ecardv4.R;
 import com.warpspace.ecardv4.utils.ECardSQLHelper;
 import com.warpspace.ecardv4.utils.ECardUtils;
@@ -53,31 +55,56 @@ public class ActivityBufferOpening extends Activity {
 
     // Create/refresh local copy every time app opens
     ParseUser currentUser = ParseUser.getCurrentUser();
-    createLocalSelfCopy(currentUser);
-    // check ecardIds that were scanned/cached offline
-    checkCachedIds();
+    if (ECardUtils.isNetworkAvailable(this)) {
+	    createLocalSelfCopy(currentUser);
+	    // check ecardIds that were scanned/cached offline
+	    checkCachedIds();
+    } else{
+    	// if no network, need to convert 
+    	checkPortrait();
+    }
     
     timerToJump();
   }
 
-  private void checkCachedIds() {
-	  if (ECardUtils.isNetworkAvailable(this)) {
-			// Upon opening, if there is Internet connection, try to store cached IDs
-			db = new ECardSQLHelper(this);
-			// getting all local db data to check against EcardIds
-			olDatas = db.getAllData();
-			if (olDatas.size() != 0) {
-				Toast.makeText(getBaseContext(), "Found unsaved Ecards", Toast.LENGTH_SHORT).show();
-				// If there are unsaved offline list, check and save them
-				scannedIDs = new LinkedList<String>();
-				for (Iterator<OfflineData> iter = olDatas.iterator(); iter.hasNext();) {
-					OfflineData olData = iter.next();
-					String scannedID = olData.getEcardID();
-					scannedIDs.add(scannedID);
-				}
-				addCachedEcardIds();
+  private void checkPortrait() {
+	  ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardInfo");
+	  query.fromLocalDatastore();
+	  query.getInBackground(currentUser.get("ecardId").toString(),
+	      new GetCallback<ParseObject>() {
+
+			@Override
+			public void done(ParseObject object, ParseException e) {
+	          if (e == null && object != null) {
+	        	byte[] tmpImgData = (byte[]) object.get("tmpImgByteArray");
+	        	if(tmpImgData != null){
+	        		Toast.makeText(ActivityBufferOpening.this, "Portrait updates upon network", Toast.LENGTH_SHORT).show();
+	        	}
+	          }
 			}
+		  
+	  });
+	
+}
+
+private void checkCachedIds() {
+	 
+	// Upon opening, if there is Internet connection, try to store cached IDs
+	db = new ECardSQLHelper(this);
+	// getting all local db data to check against EcardIds
+	olDatas = db.getAllData();
+	if (olDatas.size() != 0) {
+		Toast.makeText(getBaseContext(), "Found unsaved Ecards", Toast.LENGTH_SHORT).show();
+		// If there are unsaved offline list, check and save them
+		scannedIDs = new LinkedList<String>();
+		for (Iterator<OfflineData> iter = olDatas.iterator(); iter.hasNext();) {
+			OfflineData olData = iter.next();
+			String scannedID = olData.getEcardID();
+			scannedIDs.add(scannedID);
 		}
+		addCachedEcardIds();
+	}
+		
 	
 }
   
@@ -261,23 +288,32 @@ public void timerToJump() {
       new GetCallback<ParseObject>() {
 
         @Override
-        public void done(ParseObject object, ParseException e) {
+        public void done(final ParseObject object, ParseException e) {
           if (e == null && object != null) {
-            // ParseFile portraitFile = (ParseFile) object.get("portrait");
-            // if(portraitFile ==null){
-            // // if the portrait is empty, create dummy one
-            // putBlankPortrait(object);
-            // object.saveInBackground();
-            // }
-            // ParseFile QRcodeFile = (ParseFile) object.get("qrCode");
-            // if(QRcodeFile ==null){
-            // // if the portrait is empty, create dummy one
-            // createQRCode(object);
-            // object.saveInBackground();
-            // }
+        	byte[] tmpImgData = (byte[]) object.get("tmpImgByteArray");
+        	if(tmpImgData != null){
+        		// if there is cached data in the array, convert to ParseFile then clear the array
+        		final ParseFile file = new ParseFile("portrait.jpg", tmpImgData);					                
+            	// cannot save in thread, otherwise file could be empty when Design saved
+									
+				file.saveInBackground(new SaveCallback(){
+
+					@Override
+					public void done(ParseException e) {
+						if(e==null){
+							Toast.makeText(ActivityBufferOpening.this, "Cached portrait saved!", Toast.LENGTH_SHORT).show();		        	
+							object.put("portrait", file);
+							object.remove("tmpImgByteArray");
+							object.saveEventually();
+						} else {
+							Log.i("bufferopen","error saving portrait");
+						}
+					}
+					
+				});
+				
+        	}
             object.pinInBackground();
-            Toast.makeText(getBaseContext(), "Local copy created!",
-              Toast.LENGTH_SHORT).show();
           } else {
             // If no internet connection, no local copy can be saved
             Log.d("BufferOpening", "Cannot save self copy");

@@ -2,6 +2,7 @@ package com.warpspace.ecardv4;
 
 import com.parse.Parse;
 import com.parse.ParseACL;
+import com.parse.PushService;
 import com.warpspace.ecardv4.R;
 
 import android.app.Application;
@@ -22,6 +23,8 @@ public class MyApplication extends Application {
     ParseACL.setDefaultACL(defaultACL, true);
     Parse.initialize(this, getString(R.string.parse_app_id),
       getString(R.string.parse_client_key));
+    // Specify an Activity to handle all pushes by default.
+    PushService.setDefaultPushCallback(this, ActivityMain.class);
 
   }
 }

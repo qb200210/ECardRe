@@ -1,7 +1,12 @@
 package com.warpspace.ecardv4.utils;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.StringTokenizer;
+
+import org.apache.http.client.methods.HttpGet;
 
 import android.app.Activity;
 import android.content.Context;
@@ -11,6 +16,32 @@ import android.net.NetworkInfo;
 import com.warpspace.ecardv4.R;
 
 public class ECardUtils {
+  
+  public static Long getNetworkLatency(Context context){
+	  String host = "http://www.google.com";
+	  int timeOut = 2000; 
+	  long[] time = new long[5];
+	  Boolean reachable = false;
+
+	  for(int i = 0; i < 5; i++)
+	  {
+	    long BeforeTime = System.currentTimeMillis();
+	    try {
+			reachable = InetAddress.getByName(host).isReachable(timeOut);
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	    long AfterTime = System.currentTimeMillis();
+	    Long TimeDifference = AfterTime - BeforeTime;
+	    time[i] = TimeDifference;
+	  }
+	return null;
+	  
+  }
   public static HashMap<String, String> parseQRString(Context context,
     String qrString) {
     /*
