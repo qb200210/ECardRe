@@ -22,43 +22,47 @@
 
 
 <!-- </com.warpspace.ecardv4.utils.SquareLayoutSpecial> -->
-
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:padding="8dp" >
+    android:background="@color/white"
+    android:paddingBottom="2dp"
+    android:paddingLeft="2dp"
+    android:paddingRight="2dp" >
+
+    <ImageView
+        android:id="@+id/search_image"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:background="@color/light_blue_F8B"
+        android:padding="2dp"
+        android:src="@drawable/uncle_sam" />
 
     <LinearLayout
-        android:id="@+id/Text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:layout_height="72dp"
+        android:layout_toEndOf="@id/search_image"
+        android:layout_toRightOf="@id/search_image"
+        android:background="@color/light_blue_F8B"
         android:orientation="vertical"
-        android:paddingLeft="10dip" >
+        android:padding="2dp" >
 
         <TextView
             android:id="@+id/list_row_draganddrop_textview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#FF7F3300"
-            android:textSize="20dip"
-            android:textStyle="italic" />
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:textSize="20sp"  />
 
         <TextView
             android:id="@+id/Text2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingLeft="100dip"
             android:textColor="#FF267F00"
-            android:textSize="14dip" />
+            android:textSize="14sp" />
     </LinearLayout>
-
-    <ImageView
-        android:id="@+id/Image"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:padding="5dp"
-        android:src="@drawable/ic_launcher" />
 
 </RelativeLayout>

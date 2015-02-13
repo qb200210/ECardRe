@@ -79,18 +79,22 @@ public class ActivitySearch extends ActionBarActivity {
 
     userNames.add(new UserInfo(this, "abcdef", "Udayan", "Banerji", false,
       false, false));
-    userNames.add(new UserInfo(this, "ghijkl", "Bo", "Qiu", false, false, false));
-    userNames.add(new UserInfo(this, "mnopqr", "Peng", "Zhao", false, false, false));
+    userNames
+      .add(new UserInfo(this, "ghijkl", "Bo", "Qiu", false, false, false));
+    userNames.add(new UserInfo(this, "mnopqr", "Peng", "Zhao", false, false,
+      false));
     userNames.add(new UserInfo(this, "stuvwx", "Simontika", "Mukherjee", false,
       false, false));
-    userNames
-      .add(new UserInfo(this, "yzaabb", "Jianfang", "Zhu", false, false, false));
+    userNames.add(new UserInfo(this, "yzaabb", "Jianfang", "Zhu", false, false,
+      false));
     userNames.add(new UserInfo(this, "iurtyi", "Johnson", "Johnson", false,
       false, false));
-    userNames
-      .add(new UserInfo(this, "ccddee", "Barack", "Obama", false, false, false));
-    userNames.add(new UserInfo(this, "ffgghh", "Alan", "Turing", false, false, false));
-    userNames.add(new UserInfo(this, "iijjkk", "Ray", "Romano", false, false, false));
+    userNames.add(new UserInfo(this, "ccddee", "Barack", "Obama", false, false,
+      false));
+    userNames.add(new UserInfo(this, "ffgghh", "Alan", "Turing", false, false,
+      false));
+    userNames.add(new UserInfo(this, "iijjkk", "Ray", "Romano", false, false,
+      false));
 
     Collections.sort(userNames, new UserInfoNameComparator());
 
@@ -155,6 +159,7 @@ public class ActivitySearch extends ActionBarActivity {
               .setInitialDelayMillis(500);
 
             listView.setAdapter(stickyListHeadersAdapterDecorator);
+            adapter.reSortName(true);
             stickyListHeadersAdapterDecorator.notifyDataSetChanged();
           }
         } else {
@@ -205,8 +210,8 @@ public class ActivitySearch extends ActionBarActivity {
       startActivity(intent);
       return true;
     case R.id.download_cards:
-    	pinAllCollectedEcardsAndNotes();
-        return true;      
+      pinAllCollectedEcardsAndNotes();
+      return true;
     case R.id.log_out:
       ParseUser.logOut();
       Intent intentLogin = new Intent(this, ActivityPreLogin.class);
@@ -255,7 +260,6 @@ public class ActivitySearch extends ActionBarActivity {
                     Toast.LENGTH_SHORT).show();
                 }
               }
-
             });
           }
           Toast
@@ -266,14 +270,9 @@ public class ActivitySearch extends ActionBarActivity {
             .show();
         }
       }
-
     });
-
   }
 
-  //
-
-  //
   @SuppressLint("NewApi")
   private void buildSortDialog() {
     // Get the layout inflater

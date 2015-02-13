@@ -96,6 +96,7 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
       .findViewById(R.id.list_row_draganddrop_textview);
 
     tv.setText(localUserList.get(position).getFirstName());
+    tv.setTextAlignment(TextView.TEXT_ALIGNMENT_CENTER);
 
     return convertView;
   }
@@ -113,7 +114,7 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
 
     if (sortModeName) {
       String first = localUser.getFirstName();
-      headerText.setText(first.toCharArray(), 0, 1);
+      headerText.setText(first.toUpperCase(Locale.ENGLISH).toCharArray(), 0, 1);
     } else {
       headerText.setText(dateToHeaderString(localUser.getCreated()));
     }
