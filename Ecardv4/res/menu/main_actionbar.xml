@@ -17,16 +17,11 @@
     
     
     <item
-        android:id="@+id/log_out2"
+        android:id="@+id/test_notif"
         android:orderInCategory="12"
-        android:title="Test1"
+        android:title="Test Notif"
         app:showAsAction="never"/>
     
-    <item
-        android:id="@+id/log_out1"
-        android:orderInCategory="13"
-        android:title="Test2"
-        app:showAsAction="never"/>
     
     
 

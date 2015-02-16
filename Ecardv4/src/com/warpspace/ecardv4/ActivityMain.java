@@ -1,6 +1,17 @@
 package com.warpspace.ecardv4;
 
+import java.util.List;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.google.zxing.client.android.Intents;
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseInstallation;
+import com.parse.ParseObject;
+import com.parse.ParsePush;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.viewpagerindicator.CirclePageIndicator;
 import com.viewpagerindicator.PageIndicator;
@@ -14,6 +25,7 @@ import com.warpspace.ecardv4.utils.MyViewPager;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -23,10 +35,13 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -50,10 +65,15 @@ public class ActivityMain extends ActionBarActivity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    showActionBar();
     setContentView(R.layout.activity_main);
     
     Bundle b = getIntent().getExtras();
-    imgFromTmpData = (boolean) b.get("imgFromTmpData");
+    if(b!=null){
+    	if(b.get("imgFromTmpData") != null){
+    		imgFromTmpData = (boolean) b.get("imgFromTmpData");
+    	}
+    }
 
     LinearLayout ll_add = (LinearLayout) findViewById(R.id.ll_add);
     LinearLayout ll_search = (LinearLayout) findViewById(R.id.ll_search);
@@ -120,6 +140,9 @@ public class ActivityMain extends ActionBarActivity {
       startActivity(intent);
       this.finish();
       return true;    
+    case R.id.test_notif:
+      sendPush();
+      return true;   
     default:
       return super.onOptionsItemSelected(item);
     }
@@ -140,4 +163,54 @@ public class ActivityMain extends ActionBarActivity {
 		}		
 	  
   }
+  
+  private void showActionBar() {
+		LayoutInflater inflator = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		View v = inflator.inflate(R.layout.layout_actionbar_main, null);
+		ImageView btnNotif = (ImageView) v.findViewById(R.id.btn_notifications);
+		btnNotif.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(getApplicationContext(), ActivityConversations.class);
+				startActivity(intent);
+			}
+		});
+		if (getSupportActionBar() != null) {
+			ActionBar actionBar = getSupportActionBar();
+			actionBar.setDisplayHomeAsUpEnabled(false);
+			actionBar.setDisplayShowHomeEnabled(false);
+			actionBar.setDisplayShowCustomEnabled(true);
+			actionBar.setDisplayShowTitleEnabled(false);
+			actionBar.setCustomView(v);
+		}
+	}
+  
+  
+  
+  public void sendPush(){
+		// Send push to the other party according to their ecardId recorded in an installation
+		ParseQuery pushQuery = ParseInstallation.getQuery();
+		pushQuery.whereEqualTo("ecardId", "CRuumzPcTN");
+		JSONObject jsonObject = new JSONObject();
+		try {
+			jsonObject.put("alert", "Hi, I'm " + currentUser.get("ecardId").toString() + ", save my card now");
+			jsonObject.put("link", "https://ecard.parseapp.com/search?id="+currentUser.get("ecardId").toString()+"&fn=Udayan&ln=Banerji");
+			jsonObject.put("action", "EcardOpenConversations");
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
+		
+		ParsePush push = new ParsePush();
+		push.setQuery(pushQuery);
+		push.setData(jsonObject);
+		push.sendInBackground();
+		
+//		// Meanwhile, create a record in conversations -- so web app can check since it cannot receive notification
+//		ParseObject object = new ParseObject("Conversations");
+//		object.put("partyA", currentUser.get("ecardId").toString());
+//		object.put("partyB", objId.getText().toString());
+//		object.put("read", false);
+//		object.saveInBackground();
+	}
 }

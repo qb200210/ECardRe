@@ -220,11 +220,11 @@ public class UserInfo implements Parcelable {
     String firstName, String lastName) {
     String website = context.getString(R.string.base_website_user);
     StringBuffer qrString = new StringBuffer(website);
-    qrString.append("=");
+    qrString.append("id=");
     qrString.append(objId);
-    qrString.append(".");
+    qrString.append("&fn=");
     qrString.append(firstName);
-    qrString.append(".");
+    qrString.append("&ln=");
     qrString.append(lastName);
 
     QRCodeWriter writer = new QRCodeWriter();

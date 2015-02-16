@@ -7,11 +7,13 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import com.parse.DeleteCallback;
 import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.ParseACL;
 import com.parse.ParseException;
 import com.parse.ParseFile;
+import com.parse.ParseInstallation;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
@@ -47,6 +49,16 @@ public class ActivityBufferOpening extends Activity {
     setContentView(R.layout.activity_buffer_opening);
     currentUser = ParseUser.getCurrentUser();
 
+    // Below is for the sake of push notification
+    ParseInstallation.getCurrentInstallation().put("ecardId", currentUser.get("ecardId").toString());
+    ParseInstallation.getCurrentInstallation().saveInBackground(new SaveCallback() {
+
+		@Override
+		public void done(ParseException arg0) {
+			// TODO Auto-generated method stub
+			Toast.makeText(getApplicationContext(), "saved", Toast.LENGTH_SHORT).show();
+		}
+	});
 
     // the animation becomes laggy when object.save() is occupying the main
     // thread
@@ -56,9 +68,10 @@ public class ActivityBufferOpening extends Activity {
     // imageCover.startAnimation(animation1);
 
     // Create/refresh local copy every time app opens
-    ParseUser currentUser = ParseUser.getCurrentUser();
     if (ECardUtils.isNetworkAvailable(this)) {
 	    createLocalSelfCopy(currentUser);
+	    // upon opening, Sloppily copy online conversations to local
+		syncAllLocalConversations();		
 	    // check ecardIds that were scanned/cached offline
 	    checkCachedIds();
     } 
@@ -67,7 +80,7 @@ public class ActivityBufferOpening extends Activity {
     
     timerToJump();
   }
-
+  
   private void checkPortrait() {
 	  ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardInfo");
 	  query.fromLocalDatastore();
@@ -323,4 +336,69 @@ public void timerToJump() {
         }
       });
   }
+  
+  private void syncAllLocalConversations() {
+		ParseQuery<ParseObject> query = ParseQuery.getQuery("Conversations");
+		query.fromLocalDatastore();
+      query.whereEqualTo("partyB", currentUser.get("ecardId").toString());
+      query.findInBackground(new FindCallback<ParseObject>(){
+
+			@Override
+			public void done(List<ParseObject> objects, ParseException e) {
+				// Sloppy way of syncing: delete all local copies of conversation, then 
+				// re-pin all online conversations
+				if(e == null){
+					if(objects.size()!=0){
+						ParseObject.unpinAllInBackground(objects, new DeleteCallback(){
+
+							@Override
+							public void done(ParseException arg0) {
+								ParseQuery<ParseObject> query = ParseQuery.getQuery("Conversations");
+						        query.whereEqualTo("partyB", currentUser.get("ecardId").toString());
+						        query.findInBackground(new FindCallback<ParseObject>(){
+
+									@Override
+									public void done(List<ParseObject> objects, ParseException e) {
+										if(e == null){
+											if(objects.size()!=0){
+												Toast.makeText(getApplicationContext(), "pinned conversations", Toast.LENGTH_SHORT).show();
+												ParseObject.pinAllInBackground(objects);												
+											}
+										} else {
+											e.printStackTrace();
+										}
+										
+									}
+						        });
+							}
+							
+						});
+						
+					} else {
+						// if locally there is no conversation records, directly pin from cloud
+						ParseQuery<ParseObject> query = ParseQuery.getQuery("Conversations");
+				        query.whereEqualTo("partyB", currentUser.get("ecardId").toString());
+				        query.findInBackground(new FindCallback<ParseObject>(){
+
+							@Override
+							public void done(List<ParseObject> objects, ParseException e) {
+								if(e == null){
+									if(objects.size()!=0){
+										Toast.makeText(getApplicationContext(), "pinned conversations", Toast.LENGTH_SHORT).show();
+										ParseObject.pinAllInBackground(objects);												
+									}
+								} else {
+									e.printStackTrace();
+								}
+								
+							}
+				        });
+					}
+				} else{
+					e.printStackTrace();
+			        }
+			}
+      	
+      });
+	}
 }

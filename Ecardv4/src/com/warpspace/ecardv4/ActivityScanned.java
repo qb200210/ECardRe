@@ -3,11 +3,16 @@ package com.warpspace.ecardv4;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.ParseACL;
 import com.parse.ParseException;
+import com.parse.ParseInstallation;
 import com.parse.ParseObject;
+import com.parse.ParsePush;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.warpspace.ecardv4.R;
@@ -27,6 +32,7 @@ import com.warpspace.ecardv4.utils.SquareLayout;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -48,6 +54,8 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -214,13 +222,46 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 				cacheScannedIds(scannedUser.getObjId());								
 			}
 			
-			this.finish();
+			askIfShareBack();
+			
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
 	}
 	
+	@SuppressLint("NewApi")
+	private void askIfShareBack() {
+		// Get the layout inflater
+				LayoutInflater inflater = getLayoutInflater();
+				View dialogView = inflater.inflate(R.layout.layout_dialog_scanned_peritem, null);
+				LinearLayout dialogHeader = (LinearLayout) dialogView.findViewById(R.id.dialog_header);
+				final TextView dialogText = (TextView) dialogView.findViewById(R.id.dialog_text);
+				TextView dialogTitle = (TextView) dialogView.findViewById(R.id.dialog_title);
+				// Set dialog header background with rounded corner
+				Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.striped);
+				BitmapDrawable bmDrawable = new BitmapDrawable(getResources(), bm);
+				dialogHeader.setBackground(new CurvedAndTiled(bmDrawable.getBitmap(), 5));
+				// Set dialog title and main EditText
+				dialogTitle.setText("Share back?");
+
+				new AlertDialog.Builder(ActivityScanned.this)
+				  .setView(dialogView)
+				  .setPositiveButton("Sure", new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int whichButton) {
+						sendPush(scannedUser.getObjId());
+						ActivityScanned.this.finish();
+					}
+				  })
+				  .setNegativeButton("Nope", new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int whichButton) {
+							ActivityScanned.this.finish();
+						}
+					  })
+				  .show();
+		
+	}
+
 	private void cacheScannedIds(String scannedId) {
 	    List<OfflineData> olDatas = db.getData("ecardID", scannedId);
 	    if (olDatas.size() == 0) {
@@ -325,6 +366,10 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 		tmpString = newUser.getTitle();
 		if (tmpString != null)
 			name.setText(tmpString);
+		ImageView portraitImg = (ImageView) findViewById(R.id.my_portrait);
+		if (newUser.getPortrait() != null){
+			portraitImg.setImageBitmap(newUser.getPortrait());
+		}
 
 	}
 	
@@ -377,4 +422,31 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 	    // save the obtained cityName to global variable to be passed to ActivityNotes
 	    whereMet = output;
 	  }
+	
+	public void sendPush(String targetEcardId){
+		// Send push to the other party according to their ecardId recorded in an installation
+		ParseQuery pushQuery = ParseInstallation.getQuery();
+		pushQuery.whereEqualTo("ecardId", targetEcardId);
+		JSONObject jsonObject = new JSONObject();
+		try {
+			jsonObject.put("alert", "Hi, I'm " + currentUser.get("ecardId").toString() + ", save my card now");
+			jsonObject.put("link", "https://ecard.parseapp.com/search?id="+currentUser.get("ecardId").toString()+"&fn=Udayan&ln=Banerji");
+			jsonObject.put("action", "EcardOpenConversations");
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
+		
+		ParsePush push = new ParsePush();
+		push.setQuery(pushQuery);
+		push.setData(jsonObject);
+		push.sendInBackground();
+		
+		// Meanwhile, create a record in conversations -- so web app can check since it cannot receive notification
+		ParseObject object = new ParseObject("Conversations");
+		object.put("partyA", currentUser.get("ecardId").toString());
+		object.put("partyB", targetEcardId);
+		object.put("read", false);
+		object.saveInBackground();
+	}
 }

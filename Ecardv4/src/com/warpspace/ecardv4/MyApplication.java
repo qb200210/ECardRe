@@ -24,7 +24,7 @@ public class MyApplication extends Application {
     Parse.initialize(this, getString(R.string.parse_app_id),
       getString(R.string.parse_client_key));
     // Specify an Activity to handle all pushes by default.
-    PushService.setDefaultPushCallback(this, ActivityMain.class);
+    PushService.setDefaultPushCallback(this, ActivityConversations.class);
 
   }
 }
