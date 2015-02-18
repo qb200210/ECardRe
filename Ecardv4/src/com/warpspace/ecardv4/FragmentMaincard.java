@@ -16,14 +16,13 @@ import android.widget.TextView;
 public class FragmentMaincard extends Fragment implements UpdateableFragment {
 
   private static final String ARG_SECTION_NUMBER = "section_number";
-  private static UserInfo myself;
 
   public static FragmentMaincard newInstance(int sectionNumber, UserInfo myselfUserInfo) {
-	
-	myself = myselfUserInfo;
+	Log.i("maincard", "newinstance");
     FragmentMaincard fragment = new FragmentMaincard();
     Bundle args = new Bundle();
     args.putInt(ARG_SECTION_NUMBER, sectionNumber);
+    args.putParcelable("userinfo", myselfUserInfo);
     fragment.setArguments(args);
     return fragment;
   }
@@ -33,16 +32,18 @@ private View rootView;
   public FragmentMaincard() {
 
   }
-
+  
   @Override
   public View onCreateView(LayoutInflater inflater, ViewGroup container,
     Bundle savedInstanceState) {
-	  
+	  Bundle bundle = this.getArguments();
+	  UserInfo myself = (UserInfo) bundle.getParcelable("userinfo");
+	  Log.i("maincard", "oncreateview");
 	if(getArguments().getInt(ARG_SECTION_NUMBER, 1) == 1){
 		// if this is to create maincard fragment
 		rootView = inflater.inflate(R.layout.fragment_maincard, container,
 			      false);
-			    
+		
 	    // display the main card
 		displayCard(rootView, myself);
 	    setHasOptionsMenu(true);

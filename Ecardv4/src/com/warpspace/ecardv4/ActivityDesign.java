@@ -48,6 +48,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Editable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -124,7 +125,7 @@ public class ActivityDesign extends ActionBarActivity {
 				selectionDisplayArrayList.remove(locToRm);
 			}
 		}
-
+		Log.i("DisplayArrayList", selectionDisplayArrayList.toString()); 
 		// create ordered selection list using TreeSet
 		selectionTreeSet.addAll(selectionArrayList);
 		selectionDisplayTreeSet.addAll(selectionDisplayArrayList);
@@ -137,7 +138,8 @@ public class ActivityDesign extends ActionBarActivity {
 		// convert ordered TreeSet into array to be used by dialogbuilder
 		selectionArray = (String[]) selectionTreeSet.toArray(new String[0]);
 		selectionDisplayArray = (String[]) selectionDisplayTreeSet.toArray(new String[0]);
-		
+
+		Log.i("DisplayArray", Arrays.toString(selectionDisplayArray)); 
 		// Upon initialization, build dialogAddMore for the first time
 		buildAddMoreButtonDialog();
 
@@ -731,10 +733,22 @@ private void doCrop() {
 		builder.setNegativeButton("Cancel", null);
 		// actions now links to the dialog
 		actions = builder.create();
-		
+		Log.i("dialog", Arrays.toString(selectionDisplayArray));
+		Log.i("infoIcon", infoIcon.toString());
+		ArrayList<Integer> iconListForAddMoreDialog = new ArrayList<Integer>();
+		for (int i = 0; i < selectionDisplayArray.length; i++) {
+			// the extra info item
+			String item = selectionDisplayArray[i];
+			// the value of this extra info item
+			if(selectionDisplayArrayList.contains(item)){
+				// remove already added items from selection list
+				int locToRm = selectionDisplayArrayList.indexOf(item);
+				iconListForAddMoreDialog.add(iconSelector(selectionArrayList.get(locToRm)));
+			}
+		}
 		// Below is to build the listener for items listed inside the poped up "addmorebutton dialog"
 		ListView listViewInDialog = (ListView)dialogAddMoreView.findViewById(R.id.dialog_listview);
-	    listViewInDialog.setAdapter(new MySimpleListViewAdapter(ActivityDesign.this, selectionDisplayArray));
+	    listViewInDialog.setAdapter(new MySimpleListViewAdapter(ActivityDesign.this, selectionDisplayArray, iconListForAddMoreDialog));
 		listViewInDialog.setOnItemClickListener(dialogAddMoreListItemClickListenerBuilder());
 	}
 }

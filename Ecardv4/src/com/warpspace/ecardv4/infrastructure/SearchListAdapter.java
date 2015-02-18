@@ -24,7 +24,9 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -84,7 +86,8 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
     }
   }
 
-  @Override
+  @SuppressLint("NewApi")
+@Override
   public View getView(final int position, View convertView,
     final ViewGroup parent) {
     if (convertView == null) {
@@ -114,7 +117,11 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
 
     if (sortModeName) {
       String first = localUser.getFirstName();
-      headerText.setText(first.toUpperCase(Locale.ENGLISH).toCharArray(), 0, 1);
+      if(first!=null && first!=""){
+    	  headerText.setText(first.toUpperCase(Locale.ENGLISH).toCharArray(), 0, 1);
+      } else{
+    	  headerText.setText("null");
+      }
     } else {
       headerText.setText(dateToHeaderString(localUser.getCreated()));
     }
@@ -124,7 +131,12 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
   @Override
   public long getHeaderId(final int position) {
     if (sortModeName) {
-      return localUserList.get(position).getFirstName().toCharArray()[0];
+      if(localUserList.get(position).getFirstName() != null && localUserList.get(position).getFirstName() != ""){
+        return localUserList.get(position).getFirstName().toCharArray()[0];
+      } else{
+    	  Log.i("getHeaderId", "empty first name");
+    	  return 'N';
+      }
     } else {
       return dateToHeaderString(localUserList.get(position).getCreated())
         .length();

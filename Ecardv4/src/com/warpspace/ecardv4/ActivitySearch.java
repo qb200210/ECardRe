@@ -43,6 +43,7 @@ import com.warpspace.ecardv4.infrastructure.UserInfo;
 import com.warpspace.ecardv4.infrastructure.UserInfoNameComparator;
 import com.warpspace.ecardv4.utils.CurvedAndTiled;
 import com.warpspace.ecardv4.utils.MySimpleListViewAdapter;
+import com.warpspace.ecardv4.utils.MySimpleListViewAdapterForSearch;
 
 public class ActivitySearch extends ActionBarActivity {
 
@@ -300,7 +301,7 @@ public class ActivitySearch extends ActionBarActivity {
     // "addmorebutton dialog"
     ListView listViewInDialog = (ListView) dialogAddMoreView
       .findViewById(R.id.dialog_listview);
-    listViewInDialog.setAdapter(new MySimpleListViewAdapter(
+    listViewInDialog.setAdapter(new MySimpleListViewAdapterForSearch(
       ActivitySearch.this, sortMethodArray));
     listViewInDialog.setOnItemClickListener(new OnItemClickListener() {
 

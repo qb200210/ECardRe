@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import com.warpspace.ecardv4.R;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,6 +45,8 @@ public class MyGridViewAdapter extends BaseAdapter {
       imageView.setImageResource(gridResources.get(position));
       gridView.setTag(new MyTag(gridKeys.get(position), gridValues
         .get(position)));
+      
+      Log.i("gridview", ""+position);
 
     } else {
       gridView = (View) convertView;

@@ -15,6 +15,7 @@ import com.parse.ParseObject;
 import com.parse.ParsePush;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 import com.warpspace.ecardv4.R;
 import com.warpspace.ecardv4.infrastructure.UserInfo;
 import com.warpspace.ecardv4.utils.AsyncResponse;
@@ -423,30 +424,38 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 	    whereMet = output;
 	  }
 	
-	public void sendPush(String targetEcardId){
-		// Send push to the other party according to their ecardId recorded in an installation
-		ParseQuery pushQuery = ParseInstallation.getQuery();
-		pushQuery.whereEqualTo("ecardId", targetEcardId);
-		JSONObject jsonObject = new JSONObject();
-		try {
-			jsonObject.put("alert", "Hi, I'm " + currentUser.get("ecardId").toString() + ", save my card now");
-			jsonObject.put("link", "https://ecard.parseapp.com/search?id="+currentUser.get("ecardId").toString()+"&fn=Udayan&ln=Banerji");
-			jsonObject.put("action", "EcardOpenConversations");
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}		
-		
-		ParsePush push = new ParsePush();
-		push.setQuery(pushQuery);
-		push.setData(jsonObject);
-		push.sendInBackground();
+	public void sendPush(final String targetEcardId){
 		
 		// Meanwhile, create a record in conversations -- so web app can check since it cannot receive notification
+		// need to see how to fix ACL so only both parties can access conversation
 		ParseObject object = new ParseObject("Conversations");
 		object.put("partyA", currentUser.get("ecardId").toString());
 		object.put("partyB", targetEcardId);
 		object.put("read", false);
-		object.saveInBackground();
+		object.saveEventually(new SaveCallback(){
+
+			@Override
+			public void done(ParseException arg0) {
+				// what if offline? so far so good... no notification, but will create conversations records
+				// make sure the conversation record is created before a notification is sent
+				// Send push to the other party according to their ecardId recorded in an installation
+				ParseQuery pushQuery = ParseInstallation.getQuery();
+				pushQuery.whereEqualTo("ecardId", targetEcardId);
+				JSONObject jsonObject = new JSONObject();
+				try {
+					jsonObject.put("alert", "Hi, I'm " + currentUser.get("ecardId").toString() + ", save my card now");
+					jsonObject.put("link", "https://ecard.parseapp.com/search?id="+currentUser.get("ecardId").toString()+"&fn=Udayan&ln=Banerji");
+					jsonObject.put("action", "EcardOpenConversations");
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}	
+				ParsePush push = new ParsePush();
+				push.setQuery(pushQuery);
+				push.setData(jsonObject);
+				push.sendInBackground();
+			}
+			
+		});
 	}
 }

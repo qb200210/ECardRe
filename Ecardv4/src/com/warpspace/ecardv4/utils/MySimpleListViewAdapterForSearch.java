@@ -13,17 +13,15 @@ import android.widget.TextView;
 
 import com.warpspace.ecardv4.R;
 
-public class MySimpleListViewAdapter extends BaseAdapter {
+public class MySimpleListViewAdapterForSearch extends BaseAdapter {
 
 	private Context context;
 	private String listValues[];
 	private ArrayList<Integer> gridResources;
 
-	public MySimpleListViewAdapter(Context context, String listValues[], ArrayList<Integer> gridResources) {
+	public MySimpleListViewAdapterForSearch(Context context, String listValues[]) {
 		this.context = context;
 		this.listValues = listValues;
-		this.gridResources = gridResources;
-		Log.i("adapter", gridResources.toString());
 	}
 
 	public View getView(int position, View convertView, ViewGroup parent) {
@@ -39,7 +37,6 @@ public class MySimpleListViewAdapter extends BaseAdapter {
 			holder = new MyViewHolder();
 			
 			holder.tv = (TextView) row.findViewById(R.id.dialog_item_text);
-			holder.icon = (ImageView) row.findViewById(R.id.dialog_addinfo_icon);
 			row.setTag(holder);
 
 			
@@ -47,9 +44,9 @@ public class MySimpleListViewAdapter extends BaseAdapter {
 		} else {
 			holder = (MyViewHolder) row.getTag();
 		}
-		// Log.i("adapter", position + "  "+ listValues[position]+ "  " + listValues.length);
+		Log.i("adapter", position + "  "+ listValues[position]+ "  " + listValues.length);
+
 		holder.tv.setText(listValues[position]);
-		holder.icon.setImageResource(gridResources.get(position));
 
 		return row;
 	}
@@ -74,7 +71,6 @@ public class MySimpleListViewAdapter extends BaseAdapter {
 	
 	static class MyViewHolder{
 		TextView tv;
-		ImageView icon;
 	}
 
 }
