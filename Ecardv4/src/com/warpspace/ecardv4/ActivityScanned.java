@@ -201,7 +201,7 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 	}
 
 	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.design_actionbar, menu);
+		getMenuInflater().inflate(R.menu.scanned_actionbar, menu);
 		return true;
 	}
 
@@ -209,11 +209,12 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// this function is called when either action bar icon is tapped
 		switch (item.getItemId()) {
-		case R.id.design_discard:
+		case R.id.scanned_discard:
 			Toast.makeText(this, "Discarded Ecard!", Toast.LENGTH_SHORT).show();
+			setResult(RESULT_CANCELED);
 			this.finish();
 			return true;
-		case R.id.design_save:
+		case R.id.scanned_save:
 			if(ECardUtils.isNetworkAvailable(this)){
 				// If there is network connection, pull from server
 				addNewCard(scannedUser.getObjId());
@@ -251,11 +252,13 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 				  .setPositiveButton("Sure", new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
 						sendPush(scannedUser.getObjId());
+						setResult(RESULT_OK);
 						ActivityScanned.this.finish();
 					}
 				  })
 				  .setNegativeButton("Nope", new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int whichButton) {
+							setResult(RESULT_OK);
 							ActivityScanned.this.finish();
 						}
 					  })

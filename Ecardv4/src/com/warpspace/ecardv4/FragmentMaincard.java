@@ -16,9 +16,11 @@ import android.widget.TextView;
 public class FragmentMaincard extends Fragment implements UpdateableFragment {
 
   private static final String ARG_SECTION_NUMBER = "section_number";
+  static UserInfo myselfUserInfoLocal;
 
   public static FragmentMaincard newInstance(int sectionNumber, UserInfo myselfUserInfo) {
 	Log.i("maincard", "newinstance");
+	myselfUserInfoLocal = myselfUserInfo;
     FragmentMaincard fragment = new FragmentMaincard();
     Bundle args = new Bundle();
     args.putInt(ARG_SECTION_NUMBER, sectionNumber);
@@ -34,10 +36,20 @@ private View rootView;
   }
   
   @Override
+  public void onSaveInstanceState(Bundle outState) {
+    super.onSaveInstanceState(outState);
+    Log.v("onsave", "In frag's on save instance state ");
+    outState.putParcelable("userinfo", myselfUserInfoLocal);
+  }
+  
+  @Override
   public View onCreateView(LayoutInflater inflater, ViewGroup container,
     Bundle savedInstanceState) {
 	  Bundle bundle = this.getArguments();
 	  UserInfo myself = (UserInfo) bundle.getParcelable("userinfo");
+	  if(savedInstanceState !=null){
+		  myself = (UserInfo) savedInstanceState.getParcelable("userinfo");
+	  }
 	  Log.i("maincard", "oncreateview");
 	if(getArguments().getInt(ARG_SECTION_NUMBER, 1) == 1){
 		// if this is to create maincard fragment
@@ -45,14 +57,18 @@ private View rootView;
 			      false);
 		
 	    // display the main card
-		displayCard(rootView, myself);
+		if(myself !=null){
+		  displayCard(rootView, myself);
+		}
 	    setHasOptionsMenu(true);
 	    return rootView;
 	} 
 	if(getArguments().getInt(ARG_SECTION_NUMBER, 1) == 2){
 		View rootView = inflater.inflate(R.layout.fragment_qr, container, false);
-	    ImageView qrCode = (ImageView) rootView.findViewById(R.id.qr_container);
-	    qrCode.setImageBitmap(myself.getQRCode());    
+		if(myself !=null){
+		    ImageView qrCode = (ImageView) rootView.findViewById(R.id.qr_container);
+		    qrCode.setImageBitmap(myself.getQRCode());    
+		}
 	    setHasOptionsMenu(true);
 	    return rootView;
 	}

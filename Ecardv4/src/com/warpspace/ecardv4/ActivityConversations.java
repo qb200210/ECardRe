@@ -32,6 +32,7 @@ import android.widget.AdapterView.OnItemClickListener;
 
 public class ActivityConversations extends ActionBarActivity {
 
+	protected static final int SAVE_CARD = 0;
 	private ParseUser currentUser;
 	ArrayList<UserInfo> userNames = new ArrayList<UserInfo>();
 	SearchListAdapter adapter;
@@ -52,11 +53,15 @@ public class ActivityConversations extends ActionBarActivity {
 	      public void onItemClick(AdapterView<?> parent, View view, int position,
 	        long id) {
 	        UserInfo selectedUser = (UserInfo) listView.getItemAtPosition(position);
+	        
+	        // How to set card to be read? Need two layouts in the listview
+	        // selectedUser.setRead(true);
+	        // flipMiniCard(position);
 
 	        Intent intent = new Intent(getBaseContext(), ActivityScanned.class);
 	        // passing UserInfo is made possible through Parcelable
 	        intent.putExtra("userinfo", selectedUser);
-	        startActivity(intent);
+	        startActivityForResult(intent, SAVE_CARD);
 	      }
 	    });
 	    
@@ -106,5 +111,9 @@ public class ActivityConversations extends ActionBarActivity {
 		});
 	}
 
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		
+	}
 	
 }

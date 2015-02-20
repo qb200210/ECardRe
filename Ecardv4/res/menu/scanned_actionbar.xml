@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools" >
+
+    <item
+      android:id="@+id/scanned_discard"
+      android:icon="@drawable/ic_action_remove"
+      android:orderInCategory="10"
+      android:title="@string/edit_item" 
+      app:showAsAction="ifRoom" />
+    
+    <item
+      android:id="@+id/scanned_save"
+      android:icon="@drawable/ic_action_save"
+      android:orderInCategory="12"
+      android:title="@string/edit_item" 
+      app:showAsAction="ifRoom" />
+     
+
+</menu>

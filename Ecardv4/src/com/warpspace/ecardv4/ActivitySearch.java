@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.TreeSet;
 
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 import android.annotation.SuppressLint;
@@ -225,54 +226,89 @@ public class ActivitySearch extends ActionBarActivity {
   }
 
   private void pinAllCollectedEcardsAndNotes() {
-    // first search all notes matching currentUser's id, pin all notes
-    // then search all ecards matching ecardId in EcardInfo, pin all ecards
-    ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardNote");
-    query.whereEqualTo("userId", currentUser.getObjectId());
-    query.findInBackground(new FindCallback<ParseObject>() {
+	    // first search all notes matching currentUser's id, pin all notes
+	    // then search all ecards matching ecardId in EcardInfo, pin all ecards
+	    ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardNote");
+	    query.whereEqualTo("userId", currentUser.getObjectId());
+	    query.findInBackground(new FindCallback<ParseObject>() {
 
-      @Override
-      public void done(List<ParseObject> objects, ParseException e) {
-        if (e == null) {
-          if (objects != null) {
-            // these objects are notes
-            // download all notes to background
-            ParseObject.pinAllInBackground(objects);
-            ArrayList<String> ecardList = new ArrayList<String>();
-            for (Iterator<ParseObject> iter = objects.iterator(); iter
-              .hasNext();) {
-              ParseObject obj = iter.next();
-              // store the Id's of all collected ecards
-              ecardList.add(obj.get("ecardId").toString());
-            }
-            ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardInfo");
-            query.whereContainedIn("objectId", ecardList);
-            query.findInBackground(new FindCallback<ParseObject>() {
+	      @Override
+	      public void done(final List<ParseObject> noteObjects, ParseException e) {
+	        if (e == null) {
+	        	ParseQuery<ParseObject> queryLocal = ParseQuery.getQuery("ECardNote");
+	        	queryLocal.fromLocalDatastore();
+	        	queryLocal.whereEqualTo("userId", currentUser.getObjectId());
+	        	queryLocal.findInBackground(new FindCallback<ParseObject>() {
 
-              @Override
-              public void done(List<ParseObject> objects, ParseException e) {
-                if (e == null) {
-                  if (objects != null) {
-                    // download all collected cards to background
-                    ParseObject.pinAllInBackground(objects);
-                  }
-                } else {
-                  Toast.makeText(getBaseContext(), e.getMessage(),
-                    Toast.LENGTH_SHORT).show();
-                }
-              }
-            });
-          }
-          Toast
-            .makeText(getBaseContext(), "Sync completed", Toast.LENGTH_SHORT)
-            .show();
-        } else {
-          Toast.makeText(getBaseContext(), e.getMessage(), Toast.LENGTH_SHORT)
-            .show();
-        }
-      }
-    });
-  }
+					private TreeSet<String> serverNoteIds = new TreeSet<String>();
+					private TreeSet<String> ecardIdsTree = new TreeSet<String>();
+					private List<ParseObject> toBeUnpinned = new ArrayList<ParseObject>();
+
+					@Override
+					public void done(List<ParseObject> localObjects, ParseException e) {
+						if(e==null){
+							if(localObjects.size() !=0){
+								// unpin all local note records that do not exist on server
+								if(noteObjects.size() != 0){
+									for(Iterator<ParseObject> iter = noteObjects.iterator(); iter.hasNext();){
+										ParseObject obj = iter.next();
+										serverNoteIds.add(obj.getObjectId());
+									}
+									for(Iterator<ParseObject> iter = localObjects.iterator(); iter.hasNext();){
+										ParseObject localObj = iter.next();
+										if(!serverNoteIds.contains(localObj.getObjectId())){
+											// if the local record doesn't exist on server, record for unpin
+											toBeUnpinned.add(localObj);
+										}
+									}
+								} else {
+									toBeUnpinned = localObjects;
+								}
+								if(toBeUnpinned.size() !=0){
+									ParseObject.unpinAllInBackground(toBeUnpinned);	
+								}
+							}
+							if(noteObjects.size()!=0){
+								// pin down all note records to local
+								// placeholder: should compare time to decide whether to save to server or pin to local
+								ParseObject.pinAllInBackground(noteObjects);
+								for(Iterator<ParseObject> iter= noteObjects.iterator(); iter.hasNext();){
+									ParseObject objNote = iter.next();
+									ecardIdsTree.add(objNote.get("ecardId").toString());
+								}
+								ParseQuery<ParseObject> query1 = ParseQuery.getQuery("ECardInfo");
+						        query1.whereContainedIn("objectId", ecardIdsTree);
+						        query1.findInBackground(new FindCallback<ParseObject>(){
+
+									@Override
+									public void done(List<ParseObject> infoObjects, ParseException e) {
+										if(e==null){
+											if(infoObjects != null){
+												ParseObject.pinAllInBackground(infoObjects);
+												Toast
+									            .makeText(getBaseContext(), "Sync Notes completed", Toast.LENGTH_SHORT)
+									            .show();
+											}
+										} else{
+											e.printStackTrace();
+										}
+									}
+						        	
+						        });
+							}
+						} else{
+							e.printStackTrace();
+						}
+					}
+	    	    	
+	    	    });
+	          
+	        } else {
+	          e.printStackTrace();
+	        }
+	      }
+	    });
+	  }
 
   @SuppressLint("NewApi")
   private void buildSortDialog() {

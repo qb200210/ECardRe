@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.TreeSet;
 
 import com.parse.DeleteCallback;
 import com.parse.FindCallback;
@@ -70,8 +71,10 @@ public class ActivityBufferOpening extends Activity {
     // Create/refresh local copy every time app opens
     if (ECardUtils.isNetworkAvailable(this)) {
 	    createLocalSelfCopy(currentUser);
-	    // upon opening, Sloppily copy online conversations to local
-		syncAllLocalConversations();		
+	    // upon opening, pin online conversations to local
+		syncAllLocalConversations();	
+		// upon opening, pin online notes to local
+		pinAllCollectedEcardsAndNotes();
 	    // check ecardIds that were scanned/cached offline
 	    checkCachedIds();
     } 
@@ -81,7 +84,9 @@ public class ActivityBufferOpening extends Activity {
     timerToJump();
   }
   
-  private void checkPortrait() {
+  
+
+private void checkPortrait() {
 	  ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardInfo");
 	  query.fromLocalDatastore();
 	  query.getInBackground(currentUser.get("ecardId").toString(),
@@ -337,68 +342,171 @@ public void timerToJump() {
       });
   }
   
-  private void syncAllLocalConversations() {
-		ParseQuery<ParseObject> query = ParseQuery.getQuery("Conversations");
-		query.fromLocalDatastore();
-      query.whereEqualTo("partyB", currentUser.get("ecardId").toString());
-      query.findInBackground(new FindCallback<ParseObject>(){
+	private void syncAllLocalConversations() {
+		  // find all conversations from the parse
+		  ParseQuery<ParseObject> query = ParseQuery.getQuery("Conversations");
+	      query.whereEqualTo("partyB", currentUser.get("ecardId").toString());
+	      query.findInBackground(new FindCallback<ParseObject>(){
 
-			@Override
-			public void done(List<ParseObject> objects, ParseException e) {
-				// Sloppy way of syncing: delete all local copies of conversation, then 
-				// re-pin all online conversations
-				if(e == null){
-					if(objects.size()!=0){
-						ParseObject.unpinAllInBackground(objects, new DeleteCallback(){
+				@Override
+				public void done(final List<ParseObject> objects, ParseException e) {
+					if(e == null){					
+						// remove all objects locally then pin from parse
+						// this is special because for conversations, server always wins
+						ParseQuery<ParseObject> queryLocal = ParseQuery.getQuery("Conversations");
+						queryLocal.fromLocalDatastore();
+						queryLocal.whereEqualTo("partyB", currentUser.get("ecardId").toString());
+						queryLocal.findInBackground(new FindCallback<ParseObject>(){
+
+							private TreeSet<String> serverConversationIds = new TreeSet<String>();
+							private TreeSet<String> ecardIdsTree = new TreeSet<String>();
+							private List<ParseObject> toBeUnpinned = new ArrayList<ParseObject>();
 
 							@Override
-							public void done(ParseException arg0) {
-								ParseQuery<ParseObject> query = ParseQuery.getQuery("Conversations");
-						        query.whereEqualTo("partyB", currentUser.get("ecardId").toString());
-						        query.findInBackground(new FindCallback<ParseObject>(){
-
-									@Override
-									public void done(List<ParseObject> objects, ParseException e) {
-										if(e == null){
-											if(objects.size()!=0){
-												Toast.makeText(getApplicationContext(), "pinned conversations", Toast.LENGTH_SHORT).show();
-												ParseObject.pinAllInBackground(objects);												
+							public void done(List<ParseObject> localObjects, ParseException e) {
+								if(e==null){
+									if(localObjects.size() !=0){
+										// unpin all local conversation records that do not exist on server
+										if(objects.size() != 0){
+											Toast.makeText(getApplicationContext(), "conv: "+objects.size(), Toast.LENGTH_SHORT).show();
+											for(Iterator<ParseObject> iter = objects.iterator(); iter.hasNext();){
+												ParseObject obj = iter.next();
+												serverConversationIds.add(obj.getObjectId());
+											}
+											for(Iterator<ParseObject> iter = localObjects.iterator(); iter.hasNext();){
+												ParseObject localObj = iter.next();
+												if(!serverConversationIds.contains(localObj.getObjectId())){
+													// if the local record doesn't exist on server, record for unpin
+													toBeUnpinned.add(localObj);
+												}
 											}
 										} else {
-											e.printStackTrace();
+											toBeUnpinned = localObjects;
 										}
-										
+										if(toBeUnpinned.size() !=0){
+											ParseObject.unpinAllInBackground(toBeUnpinned);	
+										}
 									}
-						        });
-							}
-							
-						});
-						
-					} else {
-						// if locally there is no conversation records, directly pin from cloud
-						ParseQuery<ParseObject> query = ParseQuery.getQuery("Conversations");
-				        query.whereEqualTo("partyB", currentUser.get("ecardId").toString());
-				        query.findInBackground(new FindCallback<ParseObject>(){
-
-							@Override
-							public void done(List<ParseObject> objects, ParseException e) {
-								if(e == null){
 									if(objects.size()!=0){
-										Toast.makeText(getApplicationContext(), "pinned conversations", Toast.LENGTH_SHORT).show();
-										ParseObject.pinAllInBackground(objects);												
+										// pin down all conversation records to local
+										ParseObject.pinAllInBackground(objects);
+										// directly find and save all ecards associated with incoming requests
+										for(Iterator<ParseObject> iter= objects.iterator(); iter.hasNext();){
+											ParseObject objConversation = iter.next();
+											ecardIdsTree.add(objConversation.get("partyA").toString());
+										}
+										ParseQuery<ParseObject> query1 = ParseQuery.getQuery("ECardInfo");
+								        query1.whereContainedIn("objectId", ecardIdsTree);
+								        query1.findInBackground(new FindCallback<ParseObject>(){
+
+											@Override
+											public void done(List<ParseObject> infoObjects, ParseException e) {
+												if(e==null){
+													if(infoObjects != null){
+														ParseObject.pinAllInBackground(infoObjects);	
+														// Toast.makeText(context,"Incoming cards cached to local", Toast.LENGTH_SHORT).show();									
+													}
+												} else{
+													e.printStackTrace();
+												}
+											}
+								        	
+								        });
 									}
-								} else {
+								}else {
 									e.printStackTrace();
 								}
-								
-							}
-				        });
+							}				    
+					    });					
+					} else {
+						e.printStackTrace();
 					}
-				} else{
-					e.printStackTrace();
-			        }
-			}
-      	
-      });
-	}
+					
+				}
+	      });
+		}
+	
+	private void pinAllCollectedEcardsAndNotes() {
+	    // first search all notes matching currentUser's id, pin all notes
+	    // then search all ecards matching ecardId in EcardInfo, pin all ecards
+	    ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardNote");
+	    query.whereEqualTo("userId", currentUser.getObjectId());
+	    query.findInBackground(new FindCallback<ParseObject>() {
+
+	      @Override
+	      public void done(final List<ParseObject> noteObjects, ParseException e) {
+	        if (e == null) {
+	        	ParseQuery<ParseObject> queryLocal = ParseQuery.getQuery("ECardNote");
+	        	queryLocal.fromLocalDatastore();
+	        	queryLocal.whereEqualTo("userId", currentUser.getObjectId());
+	        	queryLocal.findInBackground(new FindCallback<ParseObject>() {
+
+					private TreeSet<String> serverNoteIds = new TreeSet<String>();
+					private TreeSet<String> ecardIdsTree = new TreeSet<String>();
+					private List<ParseObject> toBeUnpinned = new ArrayList<ParseObject>();
+
+					@Override
+					public void done(List<ParseObject> localObjects, ParseException e) {
+						if(e==null){
+							if(localObjects.size() !=0){
+								// unpin all local note records that do not exist on server
+								if(noteObjects.size() != 0){
+									for(Iterator<ParseObject> iter = noteObjects.iterator(); iter.hasNext();){
+										ParseObject obj = iter.next();
+										serverNoteIds.add(obj.getObjectId());
+									}
+									for(Iterator<ParseObject> iter = localObjects.iterator(); iter.hasNext();){
+										ParseObject localObj = iter.next();
+										if(!serverNoteIds.contains(localObj.getObjectId())){
+											// if the local record doesn't exist on server, record for unpin
+											toBeUnpinned.add(localObj);
+										}
+									}
+								} else {
+									toBeUnpinned = localObjects;
+								}
+								if(toBeUnpinned.size() !=0){
+									ParseObject.unpinAllInBackground(toBeUnpinned);	
+								}
+							}
+							if(noteObjects.size()!=0){
+								// pin down all note records to local
+								// placeholder: should compare time to decide whether to save to server or pin to local
+								ParseObject.pinAllInBackground(noteObjects);
+								for(Iterator<ParseObject> iter= noteObjects.iterator(); iter.hasNext();){
+									ParseObject objNote = iter.next();
+									ecardIdsTree.add(objNote.get("ecardId").toString());
+								}
+								ParseQuery<ParseObject> query1 = ParseQuery.getQuery("ECardInfo");
+						        query1.whereContainedIn("objectId", ecardIdsTree);
+						        query1.findInBackground(new FindCallback<ParseObject>(){
+
+									@Override
+									public void done(List<ParseObject> infoObjects, ParseException e) {
+										if(e==null){
+											if(infoObjects != null){
+												ParseObject.pinAllInBackground(infoObjects);
+										          Toast
+										            .makeText(getBaseContext(), "Sync Notes completed", Toast.LENGTH_SHORT)
+										            .show();
+											}
+										} else{
+											e.printStackTrace();
+										}
+									}
+						        	
+						        });
+							}
+						} else{
+							e.printStackTrace();
+						}
+					}
+	    	    	
+	    	    });
+	        } else {
+	          e.printStackTrace();
+	        }
+	      }
+	    });
+	  }
 }
