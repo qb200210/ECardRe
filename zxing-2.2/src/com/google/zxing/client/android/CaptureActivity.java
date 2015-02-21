@@ -140,8 +140,6 @@ public class CaptureActivity extends ActionBarActivity implements SurfaceHolder.
 
     PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
-    showHelpOnFirstLaunch();
-
     ActionBar actionBar = getSupportActionBar();
     Resources res = getResources();
     try {
@@ -360,9 +358,6 @@ public class CaptureActivity extends ActionBarActivity implements SurfaceHolder.
     } else if (itemId == R.id.menu_settings) {
       intent.setClassName(this, PreferencesActivity.class.getName());
       startActivity(intent);
-    } else if (itemId == R.id.menu_help) {
-      intent.setClassName(this, HelpActivity.class.getName());
-      startActivity(intent);
     } else {
       return super.onOptionsItemSelected(item);
     }
@@ -436,45 +431,11 @@ public class CaptureActivity extends ActionBarActivity implements SurfaceHolder.
     inactivityTimer.onActivity();
     viewfinderView.drawResultBitmap(barcode);
     beepManager.playBeepSoundAndVibrate();
-    Toast.makeText(getBaseContext(),
-      rawResult.getBarcodeFormat().toString() + ":" + rawResult.getText(),
-      Toast.LENGTH_SHORT).show();
+//    Toast.makeText(getBaseContext(),
+//      rawResult.getBarcodeFormat().toString() + ":" + rawResult.getText(),
+//      Toast.LENGTH_SHORT).show();
     inactivityTimer.onActivity();
     lastResult = rawResult;
-  }
-
-  /**
-   * We want the help screen to be shown automatically the first time a new
-   * version of the app is run. The easiest way to do this is to check
-   * android:versionCode from the manifest, and compare it to a value stored as
-   * a preference.
-   */
-  private boolean showHelpOnFirstLaunch() {
-    try {
-      PackageInfo info = getPackageManager().getPackageInfo(PACKAGE_NAME, 0);
-      int currentVersion = info.versionCode;
-      SharedPreferences prefs = PreferenceManager
-        .getDefaultSharedPreferences(this);
-      int lastVersion = prefs.getInt(
-        PreferencesActivity.KEY_HELP_VERSION_SHOWN, 0);
-      if (currentVersion > lastVersion) {
-        prefs.edit()
-          .putInt(PreferencesActivity.KEY_HELP_VERSION_SHOWN, currentVersion)
-          .commit();
-        Intent intent = new Intent(this, HelpActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-        // Show the default page on a clean install, and the what's new page on
-        // an upgrade.
-        String page = lastVersion == 0 ? HelpActivity.DEFAULT_PAGE
-          : HelpActivity.WHATS_NEW_PAGE;
-        intent.putExtra(HelpActivity.REQUESTED_PAGE_KEY, page);
-        startActivity(intent);
-        return true;
-      }
-    } catch (PackageManager.NameNotFoundException e) {
-      Log.w(TAG, e);
-    }
-    return false;
   }
 
   private void initCamera(SurfaceHolder surfaceHolder) {
