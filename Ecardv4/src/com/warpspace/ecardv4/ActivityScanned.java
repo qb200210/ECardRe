@@ -6,6 +6,9 @@ import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.parse.FindCallback;
+import com.parse.GetCallback;
+import com.parse.ParseACL;
 import com.parse.ParseException;
 import com.parse.ParseInstallation;
 import com.parse.ParseObject;
@@ -16,13 +19,13 @@ import com.parse.SaveCallback;
 import com.warpspace.ecardv4.R;
 import com.warpspace.ecardv4.infrastructure.UserInfo;
 import com.warpspace.ecardv4.utils.AsyncResponse;
-import com.warpspace.ecardv4.utils.AsyncTasks;
 import com.warpspace.ecardv4.utils.CurvedAndTiled;
 import com.warpspace.ecardv4.utils.ECardSQLHelper;
 import com.warpspace.ecardv4.utils.ECardUtils;
 import com.warpspace.ecardv4.utils.ExpandableHeightGridView;
 import com.warpspace.ecardv4.utils.GeocoderHelper;
 import com.warpspace.ecardv4.utils.MyDetailsGridViewAdapter;
+import com.warpspace.ecardv4.utils.MyGridViewAdapter;
 import com.warpspace.ecardv4.utils.MyScrollView;
 import com.warpspace.ecardv4.utils.MyTag;
 import com.warpspace.ecardv4.utils.OfflineData;
@@ -30,6 +33,7 @@ import com.warpspace.ecardv4.utils.SquareLayout;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -40,9 +44,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -51,6 +53,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -58,16 +63,16 @@ import android.widget.Toast;
 
 public class ActivityScanned extends ActionBarActivity implements AsyncResponse {
 
-	private static final long ADDCARD_TIMEOUT = 10000;
 	private MyScrollView scrollView;
 	ArrayList<String> shownArrayList = new ArrayList<String>();
 	ArrayList<Integer> infoIcon = new ArrayList<Integer>();
 	ArrayList<String> infoLink = new ArrayList<String>();
 
 	ExpandableHeightGridView gridView;
+	private ECardSQLHelper db = null;
 	ParseUser currentUser;
 	private UserInfo scannedUser;
-
+	
 	// need to use this to hold the interface to be passed to GeocoderHelper
 	// constructor, otherwise NullPoint
 	AsyncResponse delegate = null;
@@ -77,7 +82,8 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_scanned);
-
+				
+		db = new ECardSQLHelper(this);
 		currentUser = ParseUser.getCurrentUser();
 
 		scrollView = (MyScrollView) findViewById(R.id.scroll_view_scanned);
@@ -85,21 +91,21 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 
 		Bundle data = getIntent().getExtras();
 		scannedUser = (UserInfo) data.getParcelable("userinfo");
-
+		
 		// getting "where met" city info
 		// this will be used later -- where "this" is ambiguous, so directly
-		// storing delegate for later use
-		delegate = this;
+	    // storing delegate for later use
+	    delegate = this;
 		// if there is network, start a thread to get location name
-		Location location = getLocation();
-		if (location != null) {
-			Log.i("ActScan", "location not null");
-			new GeocoderHelper(delegate).fetchCityName(getBaseContext(), location);
-		} else {
-			// if getting location fails, will bypass the processFinish() function
-			Toast.makeText(getBaseContext(), "Cannot determine location for now...", Toast.LENGTH_SHORT).show();
-			whereMet = null;
-		}
+    	Location location = getLocation();
+    	if(location != null){
+    	  Log.i("ActScan", "location not null");
+          new GeocoderHelper(delegate).fetchCityName(getBaseContext(),location);
+    	} else {    		
+    		// if getting location fails, will bypass the processFinish() function
+    		Toast.makeText(getBaseContext(), "Cannot determine location for now...", Toast.LENGTH_SHORT).show();
+    		whereMet = null;
+    	}		
 
 		// display the main card
 		displayCard(scannedUser);
@@ -138,7 +144,7 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 						break;
 					case "note":
 						intent = new Intent(ActivityScanned.this, ActivityNotes.class);
-						intent.putExtra("whereMet", whereMet);
+						intent.putExtra("whereMet",	whereMet);
 						startActivity(intent);
 						break;
 					default:
@@ -162,12 +168,12 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 		scrollView.requestChildFocus(mainCardContainer, null);
 
 	}
-
+	
 	private void addNoteButton() {
 		infoLink.add("");
 		infoIcon.add(R.drawable.note);
 		shownArrayList.add("note");
-
+		
 	}
 
 	@SuppressLint("NewApi")
@@ -209,81 +215,141 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 			this.finish();
 			return true;
 		case R.id.scanned_save:
-			// save scanned card either online or cache it offline
-			if (ECardUtils.isNetworkAvailable(this)) {
-				final AsyncTasks.AddCardNetworkAvailable addNewCard = new AsyncTasks.AddCardNetworkAvailable(this, currentUser, scannedUser.getObjId());
-				addNewCard.execute();
-				Handler handlerAddNewCard = new Handler();
-				handlerAddNewCard.postDelayed(new Runnable() {
-
-					@Override
-					public void run() {
-						if (addNewCard.getStatus() == AsyncTask.Status.RUNNING) {
-							Toast.makeText(getApplicationContext(), "Adding New Card Timed Out", Toast.LENGTH_SHORT).show();
-							// if poor network, cache the scannedID to local db, wait till
-							// network comes back to add Ecard
-							cacheScannedIds(scannedUser.getObjId());
-							addNewCard.cancel(true);
-						}
-					}
-				}, ADDCARD_TIMEOUT);
-			} else {
-				// no network, cache to local database
-				cacheScannedIds(scannedUser.getObjId());
+			if(ECardUtils.isNetworkAvailable(this)){
+				// If there is network connection, pull from server
+				addNewCard(scannedUser.getObjId());
+			} else{
+				// if no network, cache the scannedID to local db, wait till
+				// network comes back to add Ecard
+				cacheScannedIds(scannedUser.getObjId());								
 			}
-
+			
 			askIfShareBack();
-
+			
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
 	}
-
+	
 	@SuppressLint("NewApi")
 	private void askIfShareBack() {
 		// Get the layout inflater
-		LayoutInflater inflater = getLayoutInflater();
-		View dialogView = inflater.inflate(R.layout.layout_dialog_scanned_peritem, null);
-		LinearLayout dialogHeader = (LinearLayout) dialogView.findViewById(R.id.dialog_header);
-		final TextView dialogText = (TextView) dialogView.findViewById(R.id.dialog_text);
-		TextView dialogTitle = (TextView) dialogView.findViewById(R.id.dialog_title);
-		// Set dialog header background with rounded corner
-		Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.striped);
-		BitmapDrawable bmDrawable = new BitmapDrawable(getResources(), bm);
-		dialogHeader.setBackground(new CurvedAndTiled(bmDrawable.getBitmap(), 5));
-		// Set dialog title and main EditText
-		dialogTitle.setText("Share back?");
+				LayoutInflater inflater = getLayoutInflater();
+				View dialogView = inflater.inflate(R.layout.layout_dialog_scanned_peritem, null);
+				LinearLayout dialogHeader = (LinearLayout) dialogView.findViewById(R.id.dialog_header);
+				final TextView dialogText = (TextView) dialogView.findViewById(R.id.dialog_text);
+				TextView dialogTitle = (TextView) dialogView.findViewById(R.id.dialog_title);
+				// Set dialog header background with rounded corner
+				Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.striped);
+				BitmapDrawable bmDrawable = new BitmapDrawable(getResources(), bm);
+				dialogHeader.setBackground(new CurvedAndTiled(bmDrawable.getBitmap(), 5));
+				// Set dialog title and main EditText
+				dialogTitle.setText("Share back?");
 
-		new AlertDialog.Builder(ActivityScanned.this).setView(dialogView).setPositiveButton("Sure", new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int whichButton) {
-				sendPush(scannedUser.getObjId());
-				setResult(RESULT_OK);
-				ActivityScanned.this.finish();
-			}
-		}).setNegativeButton("Nope", new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int whichButton) {
-				setResult(RESULT_OK);
-				ActivityScanned.this.finish();
-			}
-		}).show();
-
+				new AlertDialog.Builder(ActivityScanned.this)
+				  .setView(dialogView)
+				  .setPositiveButton("Sure", new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int whichButton) {
+						sendPush(scannedUser.getObjId());
+						setResult(RESULT_OK);
+						ActivityScanned.this.finish();
+					}
+				  })
+				  .setNegativeButton("Nope", new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int whichButton) {
+							setResult(RESULT_OK);
+							ActivityScanned.this.finish();
+						}
+					  })
+				  .show();
+		
 	}
 
 	private void cacheScannedIds(String scannedId) {
+	    List<OfflineData> olDatas = db.getData("ecardID", scannedId);
+	    if (olDatas.size() == 0) {
+	      // if EcardID is not among local db records, cache it
+	      db.addData(new OfflineData(scannedId, "/sdcard/aaa/"));
+	      Toast.makeText(getBaseContext(),
+	          "Ecard cached, will add when next time connect to internet",
+	          Toast.LENGTH_SHORT).show();
+	    } else {
+	      Toast.makeText(getBaseContext(),
+	          "Already in local queue, but still cached!", Toast.LENGTH_SHORT)
+	          .show();
+	      // flip the flag, give it a chance to be revisited
+	      olDatas.get(0).setStored(0);
+	      db.updataData(olDatas.get(0));
+	    }
+	  }
 
-		ECardSQLHelper db = new ECardSQLHelper(this);
-		List<OfflineData> olDatas = db.getData("ecardID", scannedId);
-		if (olDatas.size() == 0) {
-			// if EcardID is not among local db records, cache it
-			db.addData(new OfflineData(scannedId, "/sdcard/aaa/"));
-			Toast.makeText(getBaseContext(), "Ecard cached, will add when next time connect to internet", Toast.LENGTH_SHORT).show();
-		} else {
-			Toast.makeText(getBaseContext(), "Already in local queue, but still cached!", Toast.LENGTH_SHORT).show();
-			// flip the flag, give it a chance to be revisited
-			olDatas.get(0).setStored(0);
-			db.updataData(olDatas.get(0));
-		}
+	public void addNewCard(final String scannedId) {
+
+		ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardInfo");
+		// get the Ecardinfo from server
+		query.getInBackground(scannedId, new GetCallback<ParseObject>() {
+
+			@Override
+			public void done(ParseObject object, ParseException e) {
+				if (e == null) {
+					if (object == null) {
+						// If ecard non-exist
+						Toast.makeText(getBaseContext(), "No such Ecard with ID: " + scannedId, Toast.LENGTH_SHORT).show();
+					} else {
+						// The ecard is valid, now check if it's collected already
+						ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardNote");
+						query.fromLocalDatastore();
+						query.whereEqualTo("userId", currentUser.getObjectId());
+						query.whereEqualTo("ecardId", object.getObjectId());
+						query.findInBackground(new FindCallback<ParseObject>() {
+
+							@Override
+							public void done(List<ParseObject> objects, ParseException e) {
+								if (e == null) {
+									if (objects.size() == 0) {
+										// If Ecard not collected yet, add it to EcardNote
+										ParseObject ecardNote = new ParseObject("ECardNote");
+										ecardNote.setACL(new ParseACL(currentUser));
+										ecardNote.put("userId", currentUser.getObjectId());
+										ecardNote.put("ecardId", scannedId);
+										// if(cityName != null){
+										// ecardNote.put("where", cityName);
+										// }
+										// fetch the EcardInfo to be added to extract some info that needs to be placed into EcardNote
+										ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardInfo");
+										ParseObject object = null;
+										try {
+											object = query.get(scannedId);
+										} catch (ParseException e1) {
+											// TODO Auto-generated catch block
+											Toast.makeText(getBaseContext(), "General Parse Error", Toast.LENGTH_SHORT).show();
+											e1.printStackTrace();
+										}
+										if (object != null) {
+											// if null, no worries, these info can be filled in later in "refresh"
+											ecardNote.put("EcardUpdatedAt", object.getUpdatedAt());
+											object.pinInBackground();
+											Toast.makeText(getBaseContext(), "Ecard " + scannedId + " added!", Toast.LENGTH_SHORT).show();
+										}
+										ecardNote.saveInBackground();
+										ecardNote.pinInBackground();
+									} else {
+										Toast.makeText(getBaseContext(), "Ecard " + scannedId + " exists!", Toast.LENGTH_SHORT).show();
+									}
+								} else {
+									Toast.makeText(getBaseContext(), "General Parse Error", Toast.LENGTH_SHORT).show();
+								}
+							}
+
+						});
+					}
+				} else {
+					Toast.makeText(getBaseContext(), "General Parse query error", Toast.LENGTH_SHORT).show();
+				}
+			}
+
+		});
 	}
 
 	public void displayCard(UserInfo newUser) {
@@ -305,67 +371,71 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 		if (tmpString != null)
 			name.setText(tmpString);
 		ImageView portraitImg = (ImageView) findViewById(R.id.my_portrait);
-		if (newUser.getPortrait() != null) {
+		if (newUser.getPortrait() != null){
 			portraitImg.setImageBitmap(newUser.getPortrait());
 		}
 
 	}
-
+	
 	private Location getLocation() {
-		LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-		List<String> providers = lm.getProviders(true);
-		Location location = null;
+	    LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+	    List<String> providers = lm.getProviders(true);
+	    Location location = null;
 
-		for (int i = providers.size() - 1; i >= 0; i--) {
-			location = lm.getLastKnownLocation(providers.get(i));
-			if (location != null)
-				break;
-		}
+	    for (int i = providers.size() - 1; i >= 0; i--) {
+	      location = lm.getLastKnownLocation(providers.get(i));
+	      if (location != null)
+	        break;
+	    }
+	    
+	    if(location == null){
+	    	lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
+	    			3600000, 1000, onLocationChange);
+	    }
 
-		if (location == null) {
-			lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 3600000, 1000, onLocationChange);
-		}
-
-		return location;
-	}
-
-	LocationListener onLocationChange = new LocationListener() {
-		public void onLocationChanged(Location fix) {
-
-			Log.i("onLocationChange", "Location found");
-			new GeocoderHelper(delegate).fetchCityName(getBaseContext(), fix);
-
-		}
-
-		public void onProviderDisabled(String provider) {
-			// required for interface, not used
-		}
-
-		public void onProviderEnabled(String provider) {
-			// required for interface, not used
-		}
-
-		public void onStatusChanged(String provider, int status, Bundle extras) {
-			// required for interface, not used
-		}
-	};
-
+	    return location;
+	  }
+	
+	
+	LocationListener onLocationChange=new LocationListener() {
+	    public void onLocationChanged(Location fix) {
+	      
+	      Log.i("onLocationChange", "Location found");
+	      new GeocoderHelper(delegate).fetchCityName(getBaseContext(),fix);
+	      
+	    }
+	    
+	    public void onProviderDisabled(String provider) {
+	      // required for interface, not used
+	    }
+	    
+	    public void onProviderEnabled(String provider) {
+	      // required for interface, not used
+	    }
+	    
+	    public void onStatusChanged(String provider, int status,
+	                                  Bundle extras) {
+	      // required for interface, not used
+	    }
+	  };
+	
+	
 	@Override
-	public void processFinish(String output) {
-		Log.i("GeocoderHelperAdd", output);
-		// save the obtained cityName to global variable to be passed to ActivityNotes
-		whereMet = output;
-	}
-
-	public void sendPush(final String targetEcardId) {
-
+	  public void processFinish(String output) {
+	    Log.i("GeocoderHelperAdd", output);
+	    // save the obtained cityName to global variable to be passed to ActivityNotes
+	    whereMet = output;
+	  }
+	
+	public void sendPush(final String targetEcardId){
+		
 		// Meanwhile, create a record in conversations -- so web app can check since it cannot receive notification
 		// need to see how to fix ACL so only both parties can access conversation
 		ParseObject object = new ParseObject("Conversations");
 		object.put("partyA", currentUser.get("ecardId").toString());
 		object.put("partyB", targetEcardId);
 		object.put("read", false);
-		object.saveEventually(new SaveCallback() {
+		object.saveEventually(new SaveCallback(){
 
 			@Override
 			public void done(ParseException arg0) {
@@ -377,18 +447,18 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 				JSONObject jsonObject = new JSONObject();
 				try {
 					jsonObject.put("alert", "Hi, I'm " + currentUser.get("ecardId").toString() + ", save my card now");
-					jsonObject.put("link", "https://ecard.parseapp.com/search?id=" + currentUser.get("ecardId").toString() + "&fn=Udayan&ln=Banerji");
+					jsonObject.put("link", "https://ecard.parseapp.com/search?id="+currentUser.get("ecardId").toString()+"&fn=Udayan&ln=Banerji");
 					jsonObject.put("action", "EcardOpenConversations");
 				} catch (JSONException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-				}
+				}	
 				ParsePush push = new ParsePush();
 				push.setQuery(pushQuery);
 				push.setData(jsonObject);
 				push.sendInBackground();
 			}
-
+			
 		});
 	}
 }

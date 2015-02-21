@@ -23,172 +23,490 @@ import com.warpspace.ecardv4.R;
 import com.warpspace.ecardv4.utils.ECardSQLHelper;
 import com.warpspace.ecardv4.utils.ECardUtils;
 import com.warpspace.ecardv4.utils.OfflineData;
-import com.warpspace.ecardv4.utils.AsyncTasks;
-import com.warpspace.ecardv4.utils.AsyncTasks.SyncDataTaskSelfCopy;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.Window;
 import android.widget.Toast;
 
 public class ActivityBufferOpening extends Activity {
-
-	private static final long CREATE_SELF_COPY_TIMEOUT = 2000;
-	private static final long CACHEIDS_TIMEOUT = 10000;
-	private static final long NOTES_TIMEOUT = 10000;
-	private static final long CONVERSATIONS_TIMEOUT = 3000;	
+	
+	ECardSQLHelper db;
+	List<String> scannedIDs;
+	List<OfflineData> olDatas;
 	ParseUser currentUser;
 	// flag to see if there is portrait cached offline that cannot be converted to ParseFile yet.
-	boolean imgFromTmpData = false;
+	boolean imgFromTmpData = false; 
 
-	private boolean timeoutFlag = false;
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
+    if (getActionBar() != null) {
+      getActionBar().hide();
+    }
+    setContentView(R.layout.activity_buffer_opening);
+    currentUser = ParseUser.getCurrentUser();
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
-		if (getActionBar() != null) {
-			getActionBar().hide();
+    // Below is for the sake of push notification
+    ParseInstallation.getCurrentInstallation().put("ecardId", currentUser.get("ecardId").toString());
+    ParseInstallation.getCurrentInstallation().saveInBackground(new SaveCallback() {
+
+		@Override
+		public void done(ParseException arg0) {
+			// TODO Auto-generated method stub
+			Toast.makeText(getApplicationContext(), "saved", Toast.LENGTH_SHORT).show();
 		}
-		setContentView(R.layout.activity_buffer_opening);
-		currentUser = ParseUser.getCurrentUser();
-		
-		if(ECardUtils.isNetworkAvailable(this)){
-			// Below is for the sake of push notification
-			ParseInstallation.getCurrentInstallation().put("ecardId", currentUser.get("ecardId").toString());
-			ParseInstallation.getCurrentInstallation().saveInBackground(new SaveCallback() {
-	
-				@Override
-				public void done(ParseException arg0) {
-				}
-			});
-	
-			// syncing data within given timeout		
-			syncAllDataUponOpening();
-		}
-		
-		// if tmpImgByteArray not null, need to convert regardless of network
-		checkPortrait();
-		// only display the splash screen for an amount of time
-		// should I have it depend on the completion of self-copy sync instead?
-		timerToJump();
-	}
-	
-	private void syncAllDataUponOpening() {
-		// Create/refresh local copy every time app opens
-		final AsyncTasks.SyncDataTaskSelfCopy createSelfCopy = new AsyncTasks.SyncDataTaskSelfCopy(this, currentUser);
-		createSelfCopy.execute();
-		Handler handler = new Handler();
-		handler.postDelayed(new Runnable() {
+	});
 
-			@Override
-			public void run() {
-				if (createSelfCopy.getStatus() == AsyncTask.Status.RUNNING) {
-					Toast.makeText(getApplicationContext(), "Self Copy Timed Out", Toast.LENGTH_SHORT).show();
-					timeoutFlag = true;
-					createSelfCopy.cancel(true);
-				}
-			}
-		}, CREATE_SELF_COPY_TIMEOUT);
-		
-		// upon opening, pin online conversations to local
-		final AsyncTasks.SyncDataTaskConversations syncConversations = new AsyncTasks.SyncDataTaskConversations(this, currentUser);
-		syncConversations.execute();
-		Handler handlerConversations = new Handler();
-		handlerConversations.postDelayed(new Runnable() {
+    // the animation becomes laggy when object.save() is occupying the main
+    // thread
+    // ImageView imageCover = (ImageView)findViewById(R.id.imageCover);
+    // Animation animation1 =
+    // AnimationUtils.loadAnimation(getApplicationContext(), R.anim.zoomin);
+    // imageCover.startAnimation(animation1);
 
-			@Override
-			public void run() {
-				if (syncConversations.getStatus() == AsyncTask.Status.RUNNING) {
-					Toast.makeText(getApplicationContext(), "Sync Conversations Timed Out", Toast.LENGTH_SHORT).show();
-					timeoutFlag = true;
-					syncConversations.cancel(true);
-				}
-			}
-		}, CONVERSATIONS_TIMEOUT);
-		
+    // Create/refresh local copy every time app opens
+    if (ECardUtils.isNetworkAvailable(this)) {
+	    createLocalSelfCopy(currentUser);
+	    // upon opening, pin online conversations to local
+		syncAllLocalConversations();	
 		// upon opening, pin online notes to local
-		final AsyncTasks.SyncDataTaskNotes syncNotes = new AsyncTasks.SyncDataTaskNotes(this, currentUser);
-		syncNotes.execute();
-		Handler handlerNotes = new Handler();
-		handlerNotes.postDelayed(new Runnable() {
+		pinAllCollectedEcardsAndNotes();
+	    // check ecardIds that were scanned/cached offline
+	    checkCachedIds();
+    } 
+    // if tmpImgByteArray not null, need to convert regardless of network
+    checkPortrait();    
+    
+    timerToJump();
+  }
+  
+  
 
-			@Override
-			public void run() {
-				if (syncNotes.getStatus() == AsyncTask.Status.RUNNING) {
-					Toast.makeText(getApplicationContext(), "Sync Notes Timed Out", Toast.LENGTH_SHORT).show();
-					timeoutFlag = true;
-					syncNotes.cancel(true);
-				}
-			}
-		}, NOTES_TIMEOUT);
-		
-		// check ecardIds that were scanned/cached offline		
-		final AsyncTasks.SyncDataTaskCachedIds syncCachedIds = new AsyncTasks.SyncDataTaskCachedIds(this, currentUser);
-		syncCachedIds.execute();
-		Handler handlerCachedIds = new Handler();
-		handlerCachedIds.postDelayed(new Runnable() {
-
-			@Override
-			public void run() {
-				if (syncCachedIds.getStatus() == AsyncTask.Status.RUNNING) {
-					Toast.makeText(getApplicationContext(), "Sync CachedIds Timed Out", Toast.LENGTH_SHORT).show();
-					timeoutFlag = true;
-					syncCachedIds.cancel(true);
-				}
-			}
-		}, CACHEIDS_TIMEOUT);
-	}
-
-	private void checkPortrait() {
-		ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardInfo");
-		query.fromLocalDatastore();
-		query.getInBackground(currentUser.get("ecardId").toString(), new GetCallback<ParseObject>() {
+private void checkPortrait() {
+	  ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardInfo");
+	  query.fromLocalDatastore();
+	  query.getInBackground(currentUser.get("ecardId").toString(),
+	      new GetCallback<ParseObject>() {
 
 			@Override
 			public void done(ParseObject object, ParseException e) {
-				if (e == null && object != null) {
-					byte[] tmpImgData = (byte[]) object.get("tmpImgByteArray");
-					if (tmpImgData != null) {
-						imgFromTmpData = true;
+	          if (e == null && object != null) {
+	        	byte[] tmpImgData = (byte[]) object.get("tmpImgByteArray");
+	        	if(tmpImgData != null){
+	        		imgFromTmpData = true;
+	        	}
+	          }
+			}
+		  
+	  });
+	
+}
+
+private void checkCachedIds() {
+	 
+	// Upon opening, if there is Internet connection, try to store cached IDs
+	db = new ECardSQLHelper(this);
+	// getting all local db data to check against EcardIds
+	olDatas = db.getAllData();
+	if (olDatas.size() != 0) {
+		Toast.makeText(getBaseContext(), "Found unsaved Ecards", Toast.LENGTH_SHORT).show();
+		// If there are unsaved offline list, check and save them
+		scannedIDs = new LinkedList<String>();
+		for (Iterator<OfflineData> iter = olDatas.iterator(); iter.hasNext();) {
+			OfflineData olData = iter.next();
+			String scannedID = olData.getEcardID();
+			scannedIDs.add(scannedID);
+		}
+		addCachedEcardIds();
+	}
+		
+	
+}
+  
+  public void addCachedEcardIds() {
+		ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardInfo");
+		query.whereContainedIn("objectId", scannedIDs);
+		query.findInBackground(new FindCallback<ParseObject>() {
+
+			@Override
+			public void done(List<ParseObject> objects, ParseException e) {
+				if (e == null) {
+					if (objects.size() == 0) {
+						// None in the saved EcardInfo IDs are valid, delete
+						// everything
+						Toast.makeText(getBaseContext(), "Entire list contains no valid EcardID", Toast.LENGTH_SHORT).show();
+						if (olDatas.size() != 0) {
+							// if the cached userID don't exist, delete local
+							// records
+							for (int i = 0; i < olDatas.size(); i++) {
+								db.deleteData(olDatas.get(i));
+							}
+						}
+					} else {
+						// At least one Ecard objectId is valid
+						List<String> ecardExistList = new LinkedList<String>();
+						for (int i = 0; i < objects.size(); i++) {
+							ecardExistList.add(objects.get(i).getObjectId());
+							// create list of valid EcardIDs
+						}
+						for (Iterator<String> iter = scannedIDs.iterator(); iter.hasNext();) {
+							String scannedID = iter.next();
+							// loop over all local records and delete invalid
+							// ones
+							if (!(ecardExistList.contains(scannedID))) {
+								// if local record does not correspond to
+								// existing ecardList, delete it
+								List<OfflineData> olDatas = db.getData("ecardID", scannedID);
+								db.deleteData(olDatas.get(0));
+								// remove this record from scannedIDs
+								iter.remove();
+							}
+							// if local record correspond to existing userList,
+							// ready for updating colectedID list
+						}
+
+						// Now the scannedIDs is the record of fully valid
+						// EcardInfo
+
+						ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardNote");
+						// need to do it from server so to avoid duplicate
+						// adding due to out-of-sync
+						query.whereEqualTo("userId", currentUser.getObjectId());
+						query.whereContainedIn("ecardId", scannedIDs);
+						query.findInBackground(new FindCallback<ParseObject>() {
+
+							@Override
+							public void done(List<ParseObject> objects, ParseException e) {
+								if (e == null) {
+									ArrayList<String> toRemove = new ArrayList<String>();
+									if (objects.size() != 0) {
+										// these are the ecards that are already
+										// collected
+										for (Iterator<ParseObject> iter = objects.iterator(); iter.hasNext();) {
+											ParseObject object = iter.next();
+											Toast.makeText(getBaseContext(), "ECard " + object.get("ecardId").toString() + " already existed!",
+													Toast.LENGTH_SHORT).show();
+											toRemove.add(object.get("ecardId").toString());
+											// Either way, delete the local db
+											// record. This is because local db
+											// is only a temp storage for
+											// offline added Ecards
+											// Should be emptied when cards are
+											// collected
+											List<OfflineData> olDatas = db.getData("ecardID", object.get("ecardId").toString());
+											if (olDatas.size() != 0) {
+												// if the record exists in local
+												// db, delete it
+												OfflineData olData = olDatas.get(0);
+												db.deleteData(olData);
+											}
+										}
+									}
+									if (!toRemove.isEmpty()) {
+										// remove the records in scannedID that
+										// are already collected
+										scannedIDs.removeAll(toRemove);
+									}
+									// add the remaining unique ecards
+									for (Iterator<String> iter = scannedIDs.iterator(); iter.hasNext();) {
+										String scannedID = iter.next();
+										ParseObject ecardNote = new ParseObject("ECardNote");
+										ecardNote.setACL(new ParseACL(currentUser));
+										ecardNote.put("userId", currentUser.getObjectId());
+										ecardNote.put("ecardId", scannedID);
+										// cannot know where the card was
+										// collected since no network/ geoinfo
+										// at that time
+										// fetch the EcardInfo to be added to
+										// extract some info that needs to be
+										// placed into EcardNote
+										ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardInfo");
+										ParseObject object = null;
+										try {
+											object = query.get(scannedID);
+										} catch (ParseException e1) {
+											// TODO Auto-generated catch block
+											Toast.makeText(getBaseContext(), "General Parse Error", Toast.LENGTH_SHORT).show();
+											e1.printStackTrace();
+										}
+										if (object != null) {
+											// if null, no worries, these info
+											// can be filled in later in
+											// "refresh"
+											ecardNote.put("EcardUpdatedAt", object.getUpdatedAt());
+											object.pinInBackground();
+											Toast.makeText(getBaseContext(), "Ecard " + scannedID + " added!", Toast.LENGTH_SHORT).show();
+										}
+										ecardNote.saveInBackground();
+										ecardNote.pinInBackground();
+										// Either way, delete the local db
+										// record. This is because local db is
+										// only a temp storage for offline added
+										// Ecards
+										// Should be emptied when cards are
+										// collected
+										List<OfflineData> olDatas = db.getData("ecardID", scannedID);
+										if (olDatas.size() != 0) {
+											// if the record exists in local db,
+											// delete it
+											OfflineData olData = olDatas.get(0);
+											db.deleteData(olData);
+										}
+									}
+									scannedIDs.clear();
+
+								} else {
+									Toast.makeText(getBaseContext(), "General Parse query error", Toast.LENGTH_SHORT).show();
+								}
+							}
+						});
 					}
+				} else {
+					Toast.makeText(getBaseContext(), "General Parse query error", Toast.LENGTH_SHORT).show();
 				}
 			}
-
 		});
-
 	}
 
-	public void timerToJump() {
-		int timeout = 1000;
-		// make the activity visible for 3 seconds before transitioning
-		// This is important when first time sign up or login on this device
-		// allows time to create local self copy
+public void timerToJump() {
+    int timeout = 1000;
+    // make the activity visible for 3 seconds before transitioning
+    // This is important when first time sign up or login on this device
+    // allows time to create local self copy
 
-		Timer timer = new Timer();
-		timer.schedule(new TimerTask() {
+    Timer timer = new Timer();
+    timer.schedule(new TimerTask() {
 
-			@Override
-			public void run() {
-				Intent intent = new Intent(getBaseContext(), ActivityMain.class);
-				intent.putExtra("imgFromTmpData", imgFromTmpData);
-				startActivity(intent);
-			}
-		}, timeout);
+      @Override
+      public void run() {
+        Intent intent = new Intent(getBaseContext(), ActivityMain.class);
+        intent.putExtra("imgFromTmpData", imgFromTmpData);
+        startActivity(intent);
+      }
+    }, timeout);
 
-		int timeout1 = timeout + 500;
-		timer.schedule(new TimerTask() {
+    int timeout1 = timeout + 500;
+    timer.schedule(new TimerTask() {
 
-			@Override
-			public void run() {
-				finish();
-				// have to delayed finishing, so desktop don't show
-			}
-		}, timeout1);
-	}
+      @Override
+      public void run() {
+        finish();
+        // have to delayed finishing, so desktop don't show
+      }
+    }, timeout1);
+  }
 
+  public void createLocalSelfCopy(ParseUser currentUser) {
+    // Refresh local copies of records upon login EACH TIME app opens
+
+    ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardInfo");
+    query.getInBackground(currentUser.get("ecardId").toString(),
+      new GetCallback<ParseObject>() {
+
+        @Override
+        public void done(final ParseObject object, ParseException e) {
+          if (e == null && object != null) {
+        	byte[] tmpImgData = (byte[]) object.get("tmpImgByteArray");
+        	if(tmpImgData != null){
+        		// if there is cached data in the array, convert to ParseFile then clear the array
+        		final ParseFile file = new ParseFile("portrait.jpg", tmpImgData);					                
+            	// cannot save in thread, otherwise file could be empty when Design saved
+									
+				file.saveInBackground(new SaveCallback(){
+
+					@Override
+					public void done(ParseException e) {
+						if(e==null){
+							Toast.makeText(ActivityBufferOpening.this, "Cached portrait saved!", Toast.LENGTH_SHORT).show();		        	
+							object.put("portrait", file);
+							object.remove("tmpImgByteArray");
+							object.saveEventually();
+						} else {
+							Log.i("bufferopen","error saving portrait");
+						}
+					}
+					
+				});
+				
+        	}
+            object.pinInBackground();
+          } else {
+            // If no internet connection, no local copy can be saved
+            Log.d("BufferOpening", "Cannot save self copy");
+          }
+        }
+      });
+  }
+  
+	private void syncAllLocalConversations() {
+		  // find all conversations from the parse
+		  ParseQuery<ParseObject> query = ParseQuery.getQuery("Conversations");
+	      query.whereEqualTo("partyB", currentUser.get("ecardId").toString());
+	      query.findInBackground(new FindCallback<ParseObject>(){
+
+				@Override
+				public void done(final List<ParseObject> objects, ParseException e) {
+					if(e == null){					
+						// remove all objects locally then pin from parse
+						// this is special because for conversations, server always wins
+						ParseQuery<ParseObject> queryLocal = ParseQuery.getQuery("Conversations");
+						queryLocal.fromLocalDatastore();
+						queryLocal.whereEqualTo("partyB", currentUser.get("ecardId").toString());
+						queryLocal.findInBackground(new FindCallback<ParseObject>(){
+
+							private TreeSet<String> serverConversationIds = new TreeSet<String>();
+							private TreeSet<String> ecardIdsTree = new TreeSet<String>();
+							private List<ParseObject> toBeUnpinned = new ArrayList<ParseObject>();
+
+							@Override
+							public void done(List<ParseObject> localObjects, ParseException e) {
+								if(e==null){
+									if(localObjects.size() !=0){
+										// unpin all local conversation records that do not exist on server
+										if(objects.size() != 0){
+											Toast.makeText(getApplicationContext(), "conv: "+objects.size(), Toast.LENGTH_SHORT).show();
+											for(Iterator<ParseObject> iter = objects.iterator(); iter.hasNext();){
+												ParseObject obj = iter.next();
+												serverConversationIds.add(obj.getObjectId());
+											}
+											for(Iterator<ParseObject> iter = localObjects.iterator(); iter.hasNext();){
+												ParseObject localObj = iter.next();
+												if(!serverConversationIds.contains(localObj.getObjectId())){
+													// if the local record doesn't exist on server, record for unpin
+													toBeUnpinned.add(localObj);
+												}
+											}
+										} else {
+											toBeUnpinned = localObjects;
+										}
+										if(toBeUnpinned.size() !=0){
+											ParseObject.unpinAllInBackground(toBeUnpinned);	
+										}
+									}
+									if(objects.size()!=0){
+										// pin down all conversation records to local
+										ParseObject.pinAllInBackground(objects);
+										// directly find and save all ecards associated with incoming requests
+										for(Iterator<ParseObject> iter= objects.iterator(); iter.hasNext();){
+											ParseObject objConversation = iter.next();
+											ecardIdsTree.add(objConversation.get("partyA").toString());
+										}
+										ParseQuery<ParseObject> query1 = ParseQuery.getQuery("ECardInfo");
+								        query1.whereContainedIn("objectId", ecardIdsTree);
+								        query1.findInBackground(new FindCallback<ParseObject>(){
+
+											@Override
+											public void done(List<ParseObject> infoObjects, ParseException e) {
+												if(e==null){
+													if(infoObjects != null){
+														ParseObject.pinAllInBackground(infoObjects);	
+														// Toast.makeText(context,"Incoming cards cached to local", Toast.LENGTH_SHORT).show();									
+													}
+												} else{
+													e.printStackTrace();
+												}
+											}
+								        	
+								        });
+									}
+								}else {
+									e.printStackTrace();
+								}
+							}				    
+					    });					
+					} else {
+						e.printStackTrace();
+					}
+					
+				}
+	      });
+		}
+	
+	private void pinAllCollectedEcardsAndNotes() {
+	    // first search all notes matching currentUser's id, pin all notes
+	    // then search all ecards matching ecardId in EcardInfo, pin all ecards
+	    ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardNote");
+	    query.whereEqualTo("userId", currentUser.getObjectId());
+	    query.findInBackground(new FindCallback<ParseObject>() {
+
+	      @Override
+	      public void done(final List<ParseObject> noteObjects, ParseException e) {
+	        if (e == null) {
+	        	ParseQuery<ParseObject> queryLocal = ParseQuery.getQuery("ECardNote");
+	        	queryLocal.fromLocalDatastore();
+	        	queryLocal.whereEqualTo("userId", currentUser.getObjectId());
+	        	queryLocal.findInBackground(new FindCallback<ParseObject>() {
+
+					private TreeSet<String> serverNoteIds = new TreeSet<String>();
+					private TreeSet<String> ecardIdsTree = new TreeSet<String>();
+					private List<ParseObject> toBeUnpinned = new ArrayList<ParseObject>();
+
+					@Override
+					public void done(List<ParseObject> localObjects, ParseException e) {
+						if(e==null){
+							if(localObjects.size() !=0){
+								// unpin all local note records that do not exist on server
+								if(noteObjects.size() != 0){
+									for(Iterator<ParseObject> iter = noteObjects.iterator(); iter.hasNext();){
+										ParseObject obj = iter.next();
+										serverNoteIds.add(obj.getObjectId());
+									}
+									for(Iterator<ParseObject> iter = localObjects.iterator(); iter.hasNext();){
+										ParseObject localObj = iter.next();
+										if(!serverNoteIds.contains(localObj.getObjectId())){
+											// if the local record doesn't exist on server, record for unpin
+											toBeUnpinned.add(localObj);
+										}
+									}
+								} else {
+									toBeUnpinned = localObjects;
+								}
+								if(toBeUnpinned.size() !=0){
+									ParseObject.unpinAllInBackground(toBeUnpinned);	
+								}
+							}
+							if(noteObjects.size()!=0){
+								// pin down all note records to local
+								// placeholder: should compare time to decide whether to save to server or pin to local
+								ParseObject.pinAllInBackground(noteObjects);
+								for(Iterator<ParseObject> iter= noteObjects.iterator(); iter.hasNext();){
+									ParseObject objNote = iter.next();
+									ecardIdsTree.add(objNote.get("ecardId").toString());
+								}
+								ParseQuery<ParseObject> query1 = ParseQuery.getQuery("ECardInfo");
+						        query1.whereContainedIn("objectId", ecardIdsTree);
+						        query1.findInBackground(new FindCallback<ParseObject>(){
+
+									@Override
+									public void done(List<ParseObject> infoObjects, ParseException e) {
+										if(e==null){
+											if(infoObjects != null){
+												ParseObject.pinAllInBackground(infoObjects);
+										          Toast
+										            .makeText(getBaseContext(), "Sync Notes completed", Toast.LENGTH_SHORT)
+										            .show();
+											}
+										} else{
+											e.printStackTrace();
+										}
+									}
+						        	
+						        });
+							}
+						} else{
+							e.printStackTrace();
+						}
+					}
+	    	    	
+	    	    });
+	        } else {
+	          e.printStackTrace();
+	        }
+	      }
+	    });
+	  }
 }

@@ -15,9 +15,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
@@ -44,9 +42,7 @@ import com.parse.ParseUser;
 import com.warpspace.ecardv4.infrastructure.SearchListAdapter;
 import com.warpspace.ecardv4.infrastructure.UserInfo;
 import com.warpspace.ecardv4.infrastructure.UserInfoNameComparator;
-import com.warpspace.ecardv4.utils.AsyncTasks;
 import com.warpspace.ecardv4.utils.CurvedAndTiled;
-import com.warpspace.ecardv4.utils.ECardUtils;
 import com.warpspace.ecardv4.utils.MySimpleListViewAdapter;
 import com.warpspace.ecardv4.utils.MySimpleListViewAdapterForSearch;
 
@@ -55,7 +51,6 @@ public class ActivitySearch extends ActionBarActivity {
   AlertDialog actions;
   ParseUser currentUser;
   String[] sortMethodArray = { "A-Z", "Z-A", "New-Old", "Old-New" };
-  private static final long NOTES_TIMEOUT = 10000;
 
   ArrayList<UserInfo> userNames;
   SearchListAdapter adapter;
@@ -217,24 +212,7 @@ public class ActivitySearch extends ActionBarActivity {
       startActivity(intent);
       return true;
     case R.id.download_cards:
-    	if(ECardUtils.isNetworkAvailable(this)){
-			// upon opening, pin online notes to local
-			final AsyncTasks.SyncDataTaskNotes syncNotes = new AsyncTasks.SyncDataTaskNotes(this, currentUser);
-			syncNotes.execute();
-			Handler handlerNotes = new Handler();
-			handlerNotes.postDelayed(new Runnable() {
-		
-				@Override
-				public void run() {
-					if (syncNotes.getStatus() == AsyncTask.Status.RUNNING) {
-						Toast.makeText(getApplicationContext(), "Sync Notes Timed Out", Toast.LENGTH_SHORT).show();
-						syncNotes.cancel(true);
-					}
-				}
-			}, NOTES_TIMEOUT);
-    	} else {
-    		Toast.makeText(getApplicationContext(), "Network unavailable", Toast.LENGTH_SHORT).show();			
-    	}
+      pinAllCollectedEcardsAndNotes();
       return true;
     case R.id.log_out:
       ParseUser.logOut();
@@ -246,6 +224,91 @@ public class ActivitySearch extends ActionBarActivity {
       return super.onOptionsItemSelected(item);
     }
   }
+
+  private void pinAllCollectedEcardsAndNotes() {
+	    // first search all notes matching currentUser's id, pin all notes
+	    // then search all ecards matching ecardId in EcardInfo, pin all ecards
+	    ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardNote");
+	    query.whereEqualTo("userId", currentUser.getObjectId());
+	    query.findInBackground(new FindCallback<ParseObject>() {
+
+	      @Override
+	      public void done(final List<ParseObject> noteObjects, ParseException e) {
+	        if (e == null) {
+	        	ParseQuery<ParseObject> queryLocal = ParseQuery.getQuery("ECardNote");
+	        	queryLocal.fromLocalDatastore();
+	        	queryLocal.whereEqualTo("userId", currentUser.getObjectId());
+	        	queryLocal.findInBackground(new FindCallback<ParseObject>() {
+
+					private TreeSet<String> serverNoteIds = new TreeSet<String>();
+					private TreeSet<String> ecardIdsTree = new TreeSet<String>();
+					private List<ParseObject> toBeUnpinned = new ArrayList<ParseObject>();
+
+					@Override
+					public void done(List<ParseObject> localObjects, ParseException e) {
+						if(e==null){
+							if(localObjects.size() !=0){
+								// unpin all local note records that do not exist on server
+								if(noteObjects.size() != 0){
+									for(Iterator<ParseObject> iter = noteObjects.iterator(); iter.hasNext();){
+										ParseObject obj = iter.next();
+										serverNoteIds.add(obj.getObjectId());
+									}
+									for(Iterator<ParseObject> iter = localObjects.iterator(); iter.hasNext();){
+										ParseObject localObj = iter.next();
+										if(!serverNoteIds.contains(localObj.getObjectId())){
+											// if the local record doesn't exist on server, record for unpin
+											toBeUnpinned.add(localObj);
+										}
+									}
+								} else {
+									toBeUnpinned = localObjects;
+								}
+								if(toBeUnpinned.size() !=0){
+									ParseObject.unpinAllInBackground(toBeUnpinned);	
+								}
+							}
+							if(noteObjects.size()!=0){
+								// pin down all note records to local
+								// placeholder: should compare time to decide whether to save to server or pin to local
+								ParseObject.pinAllInBackground(noteObjects);
+								for(Iterator<ParseObject> iter= noteObjects.iterator(); iter.hasNext();){
+									ParseObject objNote = iter.next();
+									ecardIdsTree.add(objNote.get("ecardId").toString());
+								}
+								ParseQuery<ParseObject> query1 = ParseQuery.getQuery("ECardInfo");
+						        query1.whereContainedIn("objectId", ecardIdsTree);
+						        query1.findInBackground(new FindCallback<ParseObject>(){
+
+									@Override
+									public void done(List<ParseObject> infoObjects, ParseException e) {
+										if(e==null){
+											if(infoObjects != null){
+												ParseObject.pinAllInBackground(infoObjects);
+												Toast
+									            .makeText(getBaseContext(), "Sync Notes completed", Toast.LENGTH_SHORT)
+									            .show();
+											}
+										} else{
+											e.printStackTrace();
+										}
+									}
+						        	
+						        });
+							}
+						} else{
+							e.printStackTrace();
+						}
+					}
+	    	    	
+	    	    });
+	          
+	        } else {
+	          e.printStackTrace();
+	        }
+	      }
+	    });
+	  }
 
   @SuppressLint("NewApi")
   private void buildSortDialog() {
