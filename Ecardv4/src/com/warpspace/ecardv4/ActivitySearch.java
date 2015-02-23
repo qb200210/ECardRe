@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.TreeSet;
 
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 import android.annotation.SuppressLint;
@@ -25,8 +24,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.animation.LinearInterpolator;
+import android.view.animation.OvershootInterpolator;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -47,7 +49,6 @@ import com.warpspace.ecardv4.infrastructure.UserInfoNameComparator;
 import com.warpspace.ecardv4.utils.AsyncTasks;
 import com.warpspace.ecardv4.utils.CurvedAndTiled;
 import com.warpspace.ecardv4.utils.ECardUtils;
-import com.warpspace.ecardv4.utils.MySimpleListViewAdapter;
 import com.warpspace.ecardv4.utils.MySimpleListViewAdapterForSearch;
 
 public class ActivitySearch extends ActionBarActivity {
@@ -79,7 +80,20 @@ public class ActivitySearch extends ActionBarActivity {
 
     // show custom action bar (on top of standard action bar)
     showActionBar();
-    setContentView(R.layout.activity_search);
+    View mainView = getLayoutInflater().inflate(R.layout.activity_search, null);
+    setContentView(mainView);
+
+    final LinearLayout sv = (LinearLayout) findViewById(R.id.scroll_view_search);
+    Button buttonSearchInside = (Button) findViewById(R.id.btn_search_inside);
+
+    buttonSearchInside.setOnClickListener(new OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        sv.animate().translationY(0).setDuration(500)
+          .setInterpolator(new OvershootInterpolator()).start();
+      }
+    });
+
     currentUser = ParseUser.getCurrentUser();
 
     userNames = new ArrayList<UserInfo>();
@@ -124,6 +138,16 @@ public class ActivitySearch extends ActionBarActivity {
     });
 
     getContacts();
+
+    mainView.post(new Runnable() {
+      @Override
+      public void run() {
+        LinearLayout searchWidget = (LinearLayout) findViewById(R.id.lnlayout_search_widget);
+        sv.animate()
+          .translationY(searchWidget.getHeight() - sv.getHeight() + 10)
+          .setDuration(10).setInterpolator(new LinearInterpolator()).start();
+      }
+    });
   }
 
   private void getContacts() {
@@ -217,24 +241,27 @@ public class ActivitySearch extends ActionBarActivity {
       startActivity(intent);
       return true;
     case R.id.download_cards:
-    	if(ECardUtils.isNetworkAvailable(this)){
-			// upon opening, pin online notes to local
-			final AsyncTasks.SyncDataTaskNotes syncNotes = new AsyncTasks.SyncDataTaskNotes(this, currentUser);
-			syncNotes.execute();
-			Handler handlerNotes = new Handler();
-			handlerNotes.postDelayed(new Runnable() {
-		
-				@Override
-				public void run() {
-					if (syncNotes.getStatus() == AsyncTask.Status.RUNNING) {
-						Toast.makeText(getApplicationContext(), "Sync Notes Timed Out", Toast.LENGTH_SHORT).show();
-						syncNotes.cancel(true);
-					}
-				}
-			}, NOTES_TIMEOUT);
-    	} else {
-    		Toast.makeText(getApplicationContext(), "Network unavailable", Toast.LENGTH_SHORT).show();			
-    	}
+      if (ECardUtils.isNetworkAvailable(this)) {
+        // upon opening, pin online notes to local
+        final AsyncTasks.SyncDataTaskNotes syncNotes = new AsyncTasks.SyncDataTaskNotes(
+          this, currentUser);
+        syncNotes.execute();
+        Handler handlerNotes = new Handler();
+        handlerNotes.postDelayed(new Runnable() {
+
+          @Override
+          public void run() {
+            if (syncNotes.getStatus() == AsyncTask.Status.RUNNING) {
+              Toast.makeText(getApplicationContext(), "Sync Notes Timed Out",
+                Toast.LENGTH_SHORT).show();
+              syncNotes.cancel(true);
+            }
+          }
+        }, NOTES_TIMEOUT);
+      } else {
+        Toast.makeText(getApplicationContext(), "Network unavailable",
+          Toast.LENGTH_SHORT).show();
+      }
       return true;
     case R.id.log_out:
       ParseUser.logOut();
