@@ -64,6 +64,8 @@ public class ActivitySearch extends ActionBarActivity {
   StickyListHeadersAdapterDecorator stickyListHeadersAdapterDecorator;
   StickyListHeadersListView listView;
 
+  boolean droppedDown = false;
+
   private ArrayList<String> ecardIds = new ArrayList<String>();
   private ArrayList<String> returnedIds = new ArrayList<String>();
   List<Integer> idsNote = Arrays.asList(R.id.query_event_met,
@@ -83,14 +85,26 @@ public class ActivitySearch extends ActionBarActivity {
     View mainView = getLayoutInflater().inflate(R.layout.activity_search, null);
     setContentView(mainView);
 
-    final LinearLayout sv = (LinearLayout) findViewById(R.id.scroll_view_search);
-    Button buttonSearchInside = (Button) findViewById(R.id.btn_search_inside);
+    final LinearLayout sv = (LinearLayout) findViewById(R.id.lnlayout_search_menu);
+    Button buttonPullDown = (Button) findViewById(R.id.btn_pull_down);
 
-    buttonSearchInside.setOnClickListener(new OnClickListener() {
+    buttonPullDown.setOnClickListener(new OnClickListener() {
       @Override
       public void onClick(View v) {
-        sv.animate().translationY(0).setDuration(500)
-          .setInterpolator(new OvershootInterpolator()).start();
+        LinearLayout searchWidget = (LinearLayout) findViewById(R.id.lnlayout_search_widget);
+        if (!droppedDown) {
+          droppedDown = true;
+          v.setBackgroundDrawable(getResources().getDrawable(
+            R.drawable.semi_rounded_up_empty));
+          sv.animate().translationY(0).setDuration(500)
+            .setInterpolator(new OvershootInterpolator()).start();
+        } else {
+          droppedDown = false;
+          v.setBackgroundDrawable(getResources().getDrawable(
+            R.drawable.semi_rounded_down_empty));
+          sv.animate().translationY(275 - sv.getHeight()).setDuration(250)
+            .setInterpolator(new LinearInterpolator()).start();
+        }
       }
     });
 
@@ -142,10 +156,8 @@ public class ActivitySearch extends ActionBarActivity {
     mainView.post(new Runnable() {
       @Override
       public void run() {
-        LinearLayout searchWidget = (LinearLayout) findViewById(R.id.lnlayout_search_widget);
-        sv.animate()
-          .translationY(searchWidget.getHeight() - sv.getHeight() + 10)
-          .setDuration(10).setInterpolator(new LinearInterpolator()).start();
+        sv.animate().translationY(275 - sv.getHeight()).setDuration(600)
+          .setInterpolator(new LinearInterpolator()).start();
       }
     });
   }
@@ -255,6 +267,7 @@ public class ActivitySearch extends ActionBarActivity {
               Toast.makeText(getApplicationContext(), "Sync Notes Timed Out",
                 Toast.LENGTH_SHORT).show();
               syncNotes.cancel(true);
+              adapter.reSortName(true);
             }
           }
         }, NOTES_TIMEOUT);
