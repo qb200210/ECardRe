@@ -58,6 +58,14 @@ public class ActivitySearch extends ActionBarActivity {
   String[] sortMethodArray = { "A-Z", "Z-A", "New-Old", "Old-New" };
   private static final long NOTES_TIMEOUT = 10000;
 
+  static final int SEARCH_MENU_OVERHANG = 275;
+  static final int LIST_TOP_PADDING = 200;
+  static final int SCROLL_ANIMATION_SPEED_MS_SLOW = 1000;
+  static final int SCROLL_ANIMATION_SPEED_MS_NORMAL = 500;
+  static final int SCROLL_ANIMATION_SPEED_MS_FAST = 250;
+
+  View mainView;
+
   ArrayList<UserInfo> userNames;
   SearchListAdapter adapter;
   AlphaInAnimationAdapter animationAdapter;
@@ -82,31 +90,8 @@ public class ActivitySearch extends ActionBarActivity {
 
     // show custom action bar (on top of standard action bar)
     showActionBar();
-    View mainView = getLayoutInflater().inflate(R.layout.activity_search, null);
+    mainView = getLayoutInflater().inflate(R.layout.activity_search, null);
     setContentView(mainView);
-
-    final LinearLayout sv = (LinearLayout) findViewById(R.id.lnlayout_search_menu);
-    Button buttonPullDown = (Button) findViewById(R.id.btn_pull_down);
-
-    buttonPullDown.setOnClickListener(new OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        LinearLayout searchWidget = (LinearLayout) findViewById(R.id.lnlayout_search_widget);
-        if (!droppedDown) {
-          droppedDown = true;
-          v.setBackgroundDrawable(getResources().getDrawable(
-            R.drawable.semi_rounded_up_empty));
-          sv.animate().translationY(0).setDuration(500)
-            .setInterpolator(new OvershootInterpolator()).start();
-        } else {
-          droppedDown = false;
-          v.setBackgroundDrawable(getResources().getDrawable(
-            R.drawable.semi_rounded_down_empty));
-          sv.animate().translationY(275 - sv.getHeight()).setDuration(250)
-            .setInterpolator(new LinearInterpolator()).start();
-        }
-      }
-    });
 
     currentUser = ParseUser.getCurrentUser();
 
@@ -151,15 +136,70 @@ public class ActivitySearch extends ActionBarActivity {
       }
     });
 
+    listView.setPadding(0, LIST_TOP_PADDING, 0, 0);
+
     getContacts();
 
+    handleSearchDropDown();
+  }
+
+  private void handleSearchDropDown() {
+    // Intercept all touch events to the drop down.
+    final LinearLayout sv = (LinearLayout) findViewById(R.id.lnlayout_search_menu);
+    sv.setOnClickListener(new OnClickListener() {
+      @Override
+      public void onClick(View v) {
+
+      }
+    });
+
+    // Set the dropdown animation.
+    Button buttonPullDown = (Button) findViewById(R.id.btn_pull_down);
+    buttonPullDown.setOnClickListener(new OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        LinearLayout searchWidget = (LinearLayout) findViewById(R.id.lnlayout_search_widget);
+        if (!droppedDown) {
+          droppedDown = true;
+          v.setBackgroundDrawable(getResources().getDrawable(
+            R.drawable.semi_rounded_up_empty));
+          sv.animate().translationY(0)
+            .setDuration(SCROLL_ANIMATION_SPEED_MS_NORMAL)
+            .setInterpolator(new OvershootInterpolator()).start();
+        } else {
+          droppedDown = false;
+          v.setBackgroundDrawable(getResources().getDrawable(
+            R.drawable.semi_rounded_down_empty));
+          sv.animate().translationY(SEARCH_MENU_OVERHANG - sv.getHeight())
+            .setDuration(SCROLL_ANIMATION_SPEED_MS_FAST)
+            .setInterpolator(new LinearInterpolator()).start();
+        }
+      }
+    });
+
+    // The initial animation to retract the drop down menu.
     mainView.post(new Runnable() {
       @Override
       public void run() {
-        sv.animate().translationY(275 - sv.getHeight()).setDuration(600)
+        sv.animate().translationY(SEARCH_MENU_OVERHANG - sv.getHeight())
+          .setDuration(SCROLL_ANIMATION_SPEED_MS_SLOW)
           .setInterpolator(new LinearInterpolator()).start();
       }
     });
+
+    // Handle the search queries.
+    OnClickListener filterTouchListener = new OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        TextView tv = (TextView) v;
+        Toast.makeText(getApplicationContext(), tv.getText(),
+          Toast.LENGTH_SHORT).show();
+      }
+    };
+
+    TextView tvWhereMet = (TextView) findViewById(R.id.txt_where_met);
+    tvWhereMet.setOnClickListener(filterTouchListener);
+
   }
 
   private void getContacts() {
