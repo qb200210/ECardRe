@@ -2,13 +2,14 @@ package com.warpspace.ecardv4.infrastructure;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import android.content.Context;
+
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
+
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
@@ -17,6 +18,7 @@ import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.warpspace.ecardv4.ActivityMain;
 import com.warpspace.ecardv4.R;
 import com.warpspace.ecardv4.utils.ECardUtils;
 
@@ -37,7 +39,6 @@ public class UserInfo implements Parcelable {
   String whereMet;
   String eventMet;
   String createdAt;
-  Context context;
 
   ArrayList<String> shownArrayList = new ArrayList<String>();
   ArrayList<Integer> infoIcon = new ArrayList<Integer>();
@@ -54,22 +55,20 @@ public class UserInfo implements Parcelable {
     this.whereMet = "Unspecified";
     this.eventMet = "Unspecified";
     this.createdAt = "Unspecified";
-    this.context = null;
   }
 
-  public UserInfo(Context context, String objId, String firstName,
-    String lastName, boolean localData, boolean networkAvailable, boolean imgFromTmpData) {
+  public UserInfo(String objId, String firstName, String lastName,
+    boolean localData, boolean networkAvailable, boolean imgFromTmpData) {
     setDefaults();
-    this.context = context;
     this.objId = objId;
     this.firstName = firstName;
     this.lastName = lastName;
-    populateUserInfoWithParseData(objId, localData, networkAvailable, imgFromTmpData);
+    populateUserInfoWithParseData(objId, localData, networkAvailable,
+      imgFromTmpData);
   }
 
-  public UserInfo(Context context, String objId) {
+  public UserInfo(String objId) {
     setDefaults();
-    this.context = context;
     this.objId = objId;
     populateUserInfoWithParseData(objId, true, false, false);
   }
@@ -81,7 +80,7 @@ public class UserInfo implements Parcelable {
     this.lastName = source.readString();
     this.company = source.readString();
     this.title = source.readString();
-    this.portrait = (Bitmap) source.readParcelable(getClass().getClassLoader()); 
+    this.portrait = (Bitmap) source.readParcelable(getClass().getClassLoader());
     source.readStringList(this.shownArrayList);
     source.readStringList(this.infoLink);
     source.readList(this.infoIcon, Integer.class.getClassLoader());
@@ -105,7 +104,7 @@ public class UserInfo implements Parcelable {
     dest.writeString(lastName);
     dest.writeString(company);
     dest.writeString(title);
-    dest.writeParcelable(portrait,flags);
+    dest.writeParcelable(portrait, flags);
     dest.writeStringList(shownArrayList);
     dest.writeStringList(infoLink);
     dest.writeList(infoIcon);
@@ -129,19 +128,18 @@ public class UserInfo implements Parcelable {
         // may want to implement a loading screen if taking too long?
         ParseObject object = query.get(objId);
         if (object != null) {
-        	if(!imgFromTmpData){
-	        	// get portrait from cached img     	
-	        	ParseFile portraitFile = (ParseFile) object.get("portrait");
-				if(portraitFile != null){
-					byte[] data =portraitFile.getData();
-					portrait = BitmapFactory
-		                    .decodeByteArray(data, 0, data.length);
-				}
-        	} else{
-        		byte[] tmpImgData = (byte[]) object.get("tmpImgByteArray");
-        		portrait = BitmapFactory
-	                    .decodeByteArray(tmpImgData, 0, tmpImgData.length);
-        	}
+          if (!imgFromTmpData) {
+            // get portrait from cached img
+            ParseFile portraitFile = (ParseFile) object.get("portrait");
+            if (portraitFile != null) {
+              byte[] data = portraitFile.getData();
+              portrait = BitmapFactory.decodeByteArray(data, 0, data.length);
+            }
+          } else {
+            byte[] tmpImgData = (byte[]) object.get("tmpImgByteArray");
+            portrait = BitmapFactory.decodeByteArray(tmpImgData, 0,
+              tmpImgData.length);
+          }
           // main card info
           firstName = object.getString("firstName");
           lastName = object.getString("lastName");
@@ -216,9 +214,9 @@ public class UserInfo implements Parcelable {
     return bmp;
   }
 
-  public static Bitmap getQRCode(Context context, String objId,
-    String firstName, String lastName) {
-    String website = context.getString(R.string.base_website_user);
+  public static Bitmap getQRCode(String objId, String firstName, String lastName) {
+    String website = ActivityMain.applicationContext
+      .getString(R.string.base_website_user);
     StringBuffer qrString = new StringBuffer(website);
     qrString.append("id=");
     qrString.append(objId);
@@ -239,11 +237,10 @@ public class UserInfo implements Parcelable {
     return toBitmap(matrix);
   }
 
-  public static UserInfo getUserInfoFromQRString(Context context,
-    String qrString, boolean networkAvailable) {
+  public static UserInfo getUserInfoFromQRString(String qrString,
+    boolean networkAvailable) {
 
-    HashMap<String, String> valuesMap = ECardUtils.parseQRString(context,
-      qrString);
+    HashMap<String, String> valuesMap = ECardUtils.parseQRString(qrString);
 
     // If the valuesMap is null, the string is ill-formed.
     if (valuesMap == null) {
@@ -261,11 +258,11 @@ public class UserInfo implements Parcelable {
     // error tolerant: 1. if input string isn't ecard link, 2. if input objectId
     // doesn't exist
     // 3. if input objectId already collected, 4. if no network
-    return new UserInfo(context, id, fname, lname, false, networkAvailable, false);
+    return new UserInfo(id, fname, lname, false, networkAvailable, false);
   }
 
   public Bitmap getQRCode() {
-    return getQRCode(context, objId, firstName, lastName);
+    return getQRCode(objId, firstName, lastName);
   }
 
   @Override
@@ -307,78 +304,78 @@ public class UserInfo implements Parcelable {
   }
 
   public Bitmap getPortrait() {
-	return portrait;
-}
+    return portrait;
+  }
 
-public void setPortrait(Bitmap portrait) {
-	this.portrait = portrait;
-}
+  public void setPortrait(Bitmap portrait) {
+    this.portrait = portrait;
+  }
 
-public String getWhereMet() {
-	return whereMet;
-}
+  public String getWhereMet() {
+    return whereMet;
+  }
 
-public void setWhereMet(String whereMet) {
-	this.whereMet = whereMet;
-}
+  public void setWhereMet(String whereMet) {
+    this.whereMet = whereMet;
+  }
 
-public String getEventMet() {
-	return eventMet;
-}
+  public String getEventMet() {
+    return eventMet;
+  }
 
-public void setEventMet(String eventMet) {
-	this.eventMet = eventMet;
-}
+  public void setEventMet(String eventMet) {
+    this.eventMet = eventMet;
+  }
 
-public String getCreatedAt() {
-	return createdAt;
-}
+  public String getCreatedAt() {
+    return createdAt;
+  }
 
-public void setCreatedAt(String createdAt) {
-	this.createdAt = createdAt;
-}
+  public void setCreatedAt(String createdAt) {
+    this.createdAt = createdAt;
+  }
 
-public String[] getAllowedArray() {
-	return allowedArray;
-}
+  public String[] getAllowedArray() {
+    return allowedArray;
+  }
 
-public void setAllowedArray(String[] allowedArray) {
-	this.allowedArray = allowedArray;
-}
+  public void setAllowedArray(String[] allowedArray) {
+    this.allowedArray = allowedArray;
+  }
 
-public void setObjId(String objId) {
-	this.objId = objId;
-}
+  public void setObjId(String objId) {
+    this.objId = objId;
+  }
 
-public void setFirstName(String firstName) {
-	this.firstName = firstName;
-}
+  public void setFirstName(String firstName) {
+    this.firstName = firstName;
+  }
 
-public void setLastName(String lastName) {
-	this.lastName = lastName;
-}
+  public void setLastName(String lastName) {
+    this.lastName = lastName;
+  }
 
-public void setCompany(String company) {
-	this.company = company;
-}
+  public void setCompany(String company) {
+    this.company = company;
+  }
 
-public void setTitle(String title) {
-	this.title = title;
-}
+  public void setTitle(String title) {
+    this.title = title;
+  }
 
-public void setShownArrayList(ArrayList<String> shownArrayList) {
-	this.shownArrayList = shownArrayList;
-}
+  public void setShownArrayList(ArrayList<String> shownArrayList) {
+    this.shownArrayList = shownArrayList;
+  }
 
-public void setInfoIcon(ArrayList<Integer> infoIcon) {
-	this.infoIcon = infoIcon;
-}
+  public void setInfoIcon(ArrayList<Integer> infoIcon) {
+    this.infoIcon = infoIcon;
+  }
 
-public void setInfoLink(ArrayList<String> infoLink) {
-	this.infoLink = infoLink;
-}
+  public void setInfoLink(ArrayList<String> infoLink) {
+    this.infoLink = infoLink;
+  }
 
-public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+  public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
 
     @Override
     public UserInfo createFromParcel(Parcel source) {

@@ -12,6 +12,15 @@ public class UserInfoDateComparator implements Comparator<UserInfo> {
   public int compare(UserInfo lhs, UserInfo rhs) {
     String lhsDateString = lhs.getCreated();
     String rhsDateString = rhs.getCreated();
+
+    if (rhsDateString == null) {
+      return 0;
+    }
+
+    if (lhsDateString == null) {
+      return 1;
+    }
+
     SimpleDateFormat format = new SimpleDateFormat("MMM d, yyyy, HH:mm",
       Locale.ENGLISH);
     Date lhsDate = null;
@@ -19,13 +28,17 @@ public class UserInfoDateComparator implements Comparator<UserInfo> {
     try {
       lhsDate = format.parse(lhsDateString);
     } catch (ParseException e) {
-      lhsDateString = "Unspecified";
+      lhs.setCreated("Unspecified");
+    } catch (NullPointerException nullE) {
+      lhs.setCreated("Unspecified");
     }
 
     try {
       rhsDate = format.parse(rhsDateString);
     } catch (ParseException e) {
-      rhsDateString = "Unspecified";
+      rhs.setCreated("Unspecified");
+    } catch (NullPointerException nullE) {
+      rhs.setCreated("Unspecified");
     }
 
     if (lhsDate == null && rhsDate == null) {

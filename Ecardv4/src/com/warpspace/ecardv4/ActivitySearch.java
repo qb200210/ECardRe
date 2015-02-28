@@ -66,7 +66,7 @@ public class ActivitySearch extends ActionBarActivity {
 
   View mainView;
 
-  ArrayList<UserInfo> userNames;
+  public static ArrayList<UserInfo> userNames;
   SearchListAdapter adapter;
   AlphaInAnimationAdapter animationAdapter;
   StickyListHeadersAdapterDecorator stickyListHeadersAdapterDecorator;
@@ -97,24 +97,21 @@ public class ActivitySearch extends ActionBarActivity {
 
     userNames = new ArrayList<UserInfo>();
 
-    userNames.add(new UserInfo(this, "abcdef", "Udayan", "Banerji", false,
+    userNames.add(new UserInfo("abcdef", "Udayan", "Banerji", false, false,
+      false));
+    userNames.add(new UserInfo("ghijkl", "Bo", "Qiu", false, false, false));
+    userNames.add(new UserInfo("mnopqr", "Peng", "Zhao", false, false, false));
+    userNames.add(new UserInfo("stuvwx", "Simontika", "Mukherjee", false,
       false, false));
     userNames
-      .add(new UserInfo(this, "ghijkl", "Bo", "Qiu", false, false, false));
-    userNames.add(new UserInfo(this, "mnopqr", "Peng", "Zhao", false, false,
+      .add(new UserInfo("yzaabb", "Jianfang", "Zhu", false, false, false));
+    userNames.add(new UserInfo("iurtyi", "Johnson", "Johnson", false, false,
       false));
-    userNames.add(new UserInfo(this, "stuvwx", "Simontika", "Mukherjee", false,
-      false, false));
-    userNames.add(new UserInfo(this, "yzaabb", "Jianfang", "Zhu", false, false,
-      false));
-    userNames.add(new UserInfo(this, "iurtyi", "Johnson", "Johnson", false,
-      false, false));
-    userNames.add(new UserInfo(this, "ccddee", "Barack", "Obama", false, false,
-      false));
-    userNames.add(new UserInfo(this, "ffgghh", "Alan", "Turing", false, false,
-      false));
-    userNames.add(new UserInfo(this, "iijjkk", "Ray", "Romano", false, false,
-      false));
+    userNames
+      .add(new UserInfo("ccddee", "Barack", "Obama", false, false, false));
+    userNames
+      .add(new UserInfo("ffgghh", "Alan", "Turing", false, false, false));
+    userNames.add(new UserInfo("iijjkk", "Ray", "Romano", false, false, false));
 
     Collections.sort(userNames, new UserInfoNameComparator());
 
@@ -222,8 +219,7 @@ public class ActivitySearch extends ActionBarActivity {
               // collect EcardInfo IDs satisfying Note searches
               // here object is Note object
               String objectIdString = (String) objectNote.get("ecardId");
-              UserInfo contact = new UserInfo(getApplicationContext(),
-                objectIdString);
+              UserInfo contact = new UserInfo(objectIdString);
               contact.setCreated((String) objectNote.get("createdAt"));
               userNames.add(contact);
             }

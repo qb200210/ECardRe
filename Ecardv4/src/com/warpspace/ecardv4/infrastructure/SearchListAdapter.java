@@ -34,6 +34,7 @@ import android.widget.TextView;
 
 import com.nhaarman.listviewanimations.ArrayAdapter;
 import com.nhaarman.listviewanimations.itemmanipulation.swipedismiss.undo.UndoAdapter;
+import com.warpspace.ecardv4.ActivitySearch;
 import com.warpspace.ecardv4.R;
 
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
@@ -42,14 +43,12 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
     UndoAdapter, StickyListHeadersAdapter {
 
   private final Context mContext;
-  ArrayList<UserInfo> localUserList;
   private boolean sortModeName = true;
 
   public SearchListAdapter(final Context context, ArrayList<UserInfo> names) {
     mContext = context;
-    localUserList = names;
-    for (int i = 0; i < localUserList.size(); i++) {
-      add(localUserList.get(i));
+    for (int i = 0; i < ActivitySearch.userNames.size(); i++) {
+      add(ActivitySearch.userNames.get(i));
     }
   }
 
@@ -60,7 +59,7 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
 
   @Override
   public UserInfo getItem(final int position) {
-    return localUserList.get(position);
+    return ActivitySearch.userNames.get(position);
   }
 
   @Override
@@ -70,24 +69,24 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
 
   public void reSortName(boolean ascending) {
     sortModeName = true;
-    Collections.sort(localUserList, new UserInfoNameComparator());
+    Collections.sort(ActivitySearch.userNames, new UserInfoNameComparator());
 
     if (ascending == false) {
-      Collections.reverse(localUserList);
+      Collections.reverse(ActivitySearch.userNames);
     }
   }
 
   public void reSortDate(boolean ascending) {
     sortModeName = false;
-    Collections.sort(localUserList, new UserInfoDateComparator());
+    Collections.sort(ActivitySearch.userNames, new UserInfoDateComparator());
 
     if (ascending == false) {
-      Collections.reverse(localUserList);
+      Collections.reverse(ActivitySearch.userNames);
     }
   }
 
   @SuppressLint("NewApi")
-@Override
+  @Override
   public View getView(final int position, View convertView,
     final ViewGroup parent) {
     if (convertView == null) {
@@ -98,7 +97,7 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
     TextView tv = (TextView) convertView
       .findViewById(R.id.list_row_draganddrop_textview);
 
-    tv.setText(localUserList.get(position).getFirstName());
+    tv.setText(ActivitySearch.userNames.get(position).getFirstName());
     tv.setTextAlignment(TextView.TEXT_ALIGNMENT_CENTER);
 
     return convertView;
@@ -113,14 +112,15 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
     }
 
     TextView headerText = (TextView) convertView.findViewById(R.id.text_header);
-    UserInfo localUser = localUserList.get(position);
+    UserInfo localUser = ActivitySearch.userNames.get(position);
 
     if (sortModeName) {
       String first = localUser.getFirstName();
-      if(first!=null && first!=""){
-    	  headerText.setText(first.toUpperCase(Locale.ENGLISH).toCharArray(), 0, 1);
-      } else{
-    	  headerText.setText("null");
+      if (first != null && first != "") {
+        headerText.setText(first.toUpperCase(Locale.ENGLISH).toCharArray(), 0,
+          1);
+      } else {
+        headerText.setText("null");
       }
     } else {
       headerText.setText(dateToHeaderString(localUser.getCreated()));
@@ -131,15 +131,17 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
   @Override
   public long getHeaderId(final int position) {
     if (sortModeName) {
-      if(localUserList.get(position).getFirstName() != null && localUserList.get(position).getFirstName() != ""){
-        return localUserList.get(position).getFirstName().toCharArray()[0];
-      } else{
-    	  Log.i("getHeaderId", "empty first name");
-    	  return 'N';
+      if (ActivitySearch.userNames.get(position).getFirstName() != null
+        && ActivitySearch.userNames.get(position).getFirstName() != "") {
+        return ActivitySearch.userNames.get(position).getFirstName()
+          .toUpperCase(Locale.ENGLISH).toCharArray()[0];
+      } else {
+        Log.i("getHeaderId", "empty first name");
+        return 'N';
       }
     } else {
-      return dateToHeaderString(localUserList.get(position).getCreated())
-        .length();
+      return dateToHeaderString(
+        ActivitySearch.userNames.get(position).getCreated()).length();
     }
   }
 
@@ -168,6 +170,8 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
         return "Today";
       }
     } catch (ParseException e) {
+      return "Unspecified";
+    } catch (NullPointerException nE) {
       return "Unspecified";
     }
   }
