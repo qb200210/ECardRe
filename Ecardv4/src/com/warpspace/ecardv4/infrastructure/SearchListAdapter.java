@@ -1,31 +1,17 @@
 package com.warpspace.ecardv4.infrastructure;
 
-/*
- * Copyright 2014 Niek Haarman
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Locale;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.res.Resources;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,6 +20,7 @@ import android.widget.TextView;
 
 import com.nhaarman.listviewanimations.ArrayAdapter;
 import com.nhaarman.listviewanimations.itemmanipulation.swipedismiss.undo.UndoAdapter;
+import com.warpspace.ecardv4.ActivityMain;
 import com.warpspace.ecardv4.ActivitySearch;
 import com.warpspace.ecardv4.R;
 
@@ -69,20 +56,23 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
 
   public void reSortName(boolean ascending) {
     sortModeName = true;
-    Collections.sort(ActivitySearch.userNames, new UserInfoNameComparator());
+    Comparator<UserInfo> comparer = new UserInfoNameComparator();
 
     if (ascending == false) {
-      Collections.reverse(ActivitySearch.userNames);
+      comparer = Collections.reverseOrder(comparer);
     }
+    Collections.sort(ActivitySearch.userNames, comparer);
   }
 
   public void reSortDate(boolean ascending) {
     sortModeName = false;
-    Collections.sort(ActivitySearch.userNames, new UserInfoDateComparator());
+
+    Comparator<UserInfo> comparer = new UserInfoDateComparator();
 
     if (ascending == false) {
-      Collections.reverse(ActivitySearch.userNames);
+      comparer = Collections.reverseOrder(comparer);
     }
+    Collections.sort(ActivitySearch.userNames, comparer);
   }
 
   @SuppressLint("NewApi")
@@ -123,7 +113,7 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
         headerText.setText("null");
       }
     } else {
-      headerText.setText(dateToHeaderString(localUser.getCreated()));
+      headerText.setText(dateToHeaderString(localUser.getCreatedAt()));
     }
     return convertView;
   }
@@ -141,38 +131,46 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
       }
     } else {
       return dateToHeaderString(
-        ActivitySearch.userNames.get(position).getCreated()).length();
+        ActivitySearch.userNames.get(position).getCreatedAt()).length();
     }
   }
 
-  private String dateToHeaderString(String date) {
-    SimpleDateFormat format = new SimpleDateFormat("MMM d, yyyy, HH:mm",
-      Locale.ENGLISH);
-    try {
-      Date addedDate = format.parse(date);
-      Calendar c = Calendar.getInstance();
-      Date current = c.getTime();
-      String plural = "";
-      int yearDiff = current.getYear() - addedDate.getYear();
-      int monthDiff = current.getMonth() - addedDate.getMonth();
-      int dayDiff = current.getDay() - addedDate.getDay();
+  private String dateToHeaderString(Date addedDate) {
+    Log.e("Dates parsed", "Created at " + addedDate);
 
-      if (yearDiff > 0) {
-        plural = yearDiff == 1 ? "" : "s";
-        return String.valueOf(yearDiff) + " year" + plural + " ago";
-      } else if (monthDiff > 0) {
-        plural = monthDiff == 1 ? "" : "s";
-        return String.valueOf(monthDiff) + " month" + plural + " ago";
-      } else if (dayDiff > 0) {
-        plural = dayDiff == 1 ? "" : "s";
-        return String.valueOf(dayDiff) + " day" + plural + " ago";
-      } else {
-        return "Today";
-      }
-    } catch (ParseException e) {
-      return "Unspecified";
-    } catch (NullPointerException nE) {
-      return "Unspecified";
+    final int SEC = 1000;
+    final int MIN = SEC * 60;
+    final int HOUR = MIN * 60;
+    final int DAY = HOUR * 24;
+    final long WEEK = DAY * 7;
+    final long YEAR = WEEK * 52;
+
+    Calendar c = Calendar.getInstance();
+    Date current = c.getTime();
+    long currentTimeMS = current.getTime();
+    long addedTimeMS = addedDate.getTime();
+
+    long dateDiffMS = currentTimeMS - addedTimeMS;
+
+    String plural = "";
+    int yearDiff = (int) (dateDiffMS / YEAR);
+    int dayDiff = (int) (dateDiffMS / DAY);
+    int weekDiff = (int) (dateDiffMS / WEEK);
+
+    Log.e("Dates parsed", "Today is " + current + " dd " + dayDiff + " wd "
+      + weekDiff + " yd " + yearDiff);
+
+    if (dayDiff == 0) {
+      return "Today";
+    } else if (dayDiff < 7) {
+      plural = dayDiff == 1 ? "" : "s";
+      return String.valueOf(dayDiff) + " day" + plural + " ago";
+    } else if (weekDiff < 52) {
+      plural = weekDiff == 1 ? "" : "s";
+      return String.valueOf(weekDiff) + " week" + plural + " ago";
+    } else {
+      plural = yearDiff == 1 ? "" : "s";
+      return String.valueOf(yearDiff) + " year" + plural + " ago";
     }
   }
 

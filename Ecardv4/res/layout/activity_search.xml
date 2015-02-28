@@ -122,7 +122,8 @@
                 android:id="@+id/btn_pull_down"
                 android:layout_width="100dp"
                 android:layout_height="25dp"
-                android:layout_centerHorizontal="true"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="30dp"
                 android:background="@drawable/semi_rounded_down_empty"
                 android:scaleType="fitXY" />
         </RelativeLayout>

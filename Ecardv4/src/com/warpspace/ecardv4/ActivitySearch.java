@@ -97,24 +97,6 @@ public class ActivitySearch extends ActionBarActivity {
 
     userNames = new ArrayList<UserInfo>();
 
-    userNames.add(new UserInfo("abcdef", "Udayan", "Banerji", false, false,
-      false));
-    userNames.add(new UserInfo("ghijkl", "Bo", "Qiu", false, false, false));
-    userNames.add(new UserInfo("mnopqr", "Peng", "Zhao", false, false, false));
-    userNames.add(new UserInfo("stuvwx", "Simontika", "Mukherjee", false,
-      false, false));
-    userNames
-      .add(new UserInfo("yzaabb", "Jianfang", "Zhu", false, false, false));
-    userNames.add(new UserInfo("iurtyi", "Johnson", "Johnson", false, false,
-      false));
-    userNames
-      .add(new UserInfo("ccddee", "Barack", "Obama", false, false, false));
-    userNames
-      .add(new UserInfo("ffgghh", "Alan", "Turing", false, false, false));
-    userNames.add(new UserInfo("iijjkk", "Ray", "Romano", false, false, false));
-
-    Collections.sort(userNames, new UserInfoNameComparator());
-
     // build dialog for sorting selection options
     buildSortDialog();
 
@@ -220,7 +202,7 @@ public class ActivitySearch extends ActionBarActivity {
               // here object is Note object
               String objectIdString = (String) objectNote.get("ecardId");
               UserInfo contact = new UserInfo(objectIdString);
-              contact.setCreated((String) objectNote.get("createdAt"));
+              contact.setCreatedAt(objectNote.getCreatedAt());
               userNames.add(contact);
             }
             adapter = new SearchListAdapter(getApplicationContext(), userNames);
@@ -303,7 +285,7 @@ public class ActivitySearch extends ActionBarActivity {
               Toast.makeText(getApplicationContext(), "Sync Notes Timed Out",
                 Toast.LENGTH_SHORT).show();
               syncNotes.cancel(true);
-              adapter.reSortName(true);
+              adapter.reSortDate(true);
             }
           }
         }, NOTES_TIMEOUT);
@@ -367,11 +349,11 @@ public class ActivitySearch extends ActionBarActivity {
           actions.dismiss();
           break;
         case (2):
-          adapter.reSortDate(true);
+          adapter.reSortDate(false);
           actions.dismiss();
           break;
         case (3):
-          adapter.reSortDate(false);
+          adapter.reSortDate(true);
           actions.dismiss();
           break;
         default:

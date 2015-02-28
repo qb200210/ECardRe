@@ -1,8 +1,12 @@
 package com.warpspace.ecardv4.infrastructure;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -38,7 +42,7 @@ public class UserInfo implements Parcelable {
   Bitmap portrait;
   String whereMet;
   String eventMet;
-  String createdAt;
+  Date createdAt;
 
   ArrayList<String> shownArrayList = new ArrayList<String>();
   ArrayList<Integer> infoIcon = new ArrayList<Integer>();
@@ -54,7 +58,7 @@ public class UserInfo implements Parcelable {
     this.title = "Unspecified";
     this.whereMet = "Unspecified";
     this.eventMet = "Unspecified";
-    this.createdAt = "Unspecified";
+    this.createdAt = null;
   }
 
   public UserInfo(String objId, String firstName, String lastName,
@@ -84,17 +88,6 @@ public class UserInfo implements Parcelable {
     source.readStringList(this.shownArrayList);
     source.readStringList(this.infoLink);
     source.readList(this.infoIcon, Integer.class.getClassLoader());
-  }
-
-  public void setCreated(String createdDate) {
-    if (this.createdAt == null) {
-      this.createdAt = "Unspecified";
-    }
-    this.createdAt = createdDate;
-  }
-
-  public String getCreated() {
-    return this.createdAt;
   }
 
   @Override
@@ -140,11 +133,16 @@ public class UserInfo implements Parcelable {
             portrait = BitmapFactory.decodeByteArray(tmpImgData, 0,
               tmpImgData.length);
           }
+
           // main card info
           firstName = object.getString("firstName");
           lastName = object.getString("lastName");
           company = object.getString("company");
           title = object.getString("title");
+          createdAt = object.getCreatedAt();
+
+          Log.e("Dates!", "Created at " + createdAt);
+
           // extra info
           infoIcon.clear();
           infoLink.clear();
@@ -254,7 +252,7 @@ public class UserInfo implements Parcelable {
 
     Log.e("Got string", id + " " + fname + " " + lname);
 
-    // Udayan:::
+    // TODO: Udayan:::
     // error tolerant: 1. if input string isn't ecard link, 2. if input objectId
     // doesn't exist
     // 3. if input objectId already collected, 4. if no network
@@ -327,11 +325,11 @@ public class UserInfo implements Parcelable {
     this.eventMet = eventMet;
   }
 
-  public String getCreatedAt() {
+  public Date getCreatedAt() {
     return createdAt;
   }
 
-  public void setCreatedAt(String createdAt) {
+  public void setCreatedAt(Date createdAt) {
     this.createdAt = createdAt;
   }
 
