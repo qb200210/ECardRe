@@ -24,5 +24,7 @@
     <string name="Notes">Taking Notes</string>
     <string name="HoldToTalk">Hold to talk</string>
     <string name="Replay">Replay</string>
+    <string name="Date">Date</string>
+	<string name="City">Location</string>
 
 </resources>

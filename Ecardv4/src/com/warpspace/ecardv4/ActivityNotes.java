@@ -2,51 +2,22 @@ package com.warpspace.ecardv4;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Calendar;
 
 import com.parse.ParseUser;
 import com.warpspace.ecardv4.R;
-import com.warpspace.ecardv4.infrastructure.UserInfo;
-import com.warpspace.ecardv4.utils.AsyncResponse;
-import com.warpspace.ecardv4.utils.CurvedAndTiled;
-import com.warpspace.ecardv4.utils.ExpandableHeightGridView;
-import com.warpspace.ecardv4.utils.GeocoderHelper;
-import com.warpspace.ecardv4.utils.MyGridViewAdapter;
-import com.warpspace.ecardv4.utils.MyScrollView;
-import com.warpspace.ecardv4.utils.MyTag;
-import com.warpspace.ecardv4.utils.SquareLayout;
 
-import android.annotation.SuppressLint;
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.location.Location;
-import android.location.LocationManager;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
-import android.net.Uri;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -54,8 +25,10 @@ public class ActivityNotes extends ActionBarActivity {
 
 	ParseUser currentUser;
 	private MediaRecorder recorder = null;
+	private MediaPlayer mp=null;
 	private String mostrecentfile;
 	private static final String AUDIO_RECORDER_FOLDER = "AudioRecorder";
+	CountDownTimer t;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +42,12 @@ public class ActivityNotes extends ActionBarActivity {
 		  Toast.makeText(getBaseContext(), "Location: "+whereMet, Toast.LENGTH_SHORT).show();
 		}
 		
+		TextView dateAdded = (TextView) findViewById(R.id.DateAdded);
+		TextView cityAdded = (TextView) findViewById(R.id.PlaceAdded);
+		String mydate = java.text.DateFormat.getDateTimeInstance().format(Calendar.getInstance().getTime());
+		dateAdded.setText(mydate);
+		cityAdded.setText(whereMet);
+		
 		Button recorderButton = (Button) findViewById(R.id.recordButton);
 		Button replayButton = (Button) findViewById(R.id.replayButton);
 		replayButton.setEnabled(false);
@@ -79,10 +58,32 @@ public class ActivityNotes extends ActionBarActivity {
 		    	if(event.getAction() == MotionEvent.ACTION_DOWN) {
 					Toast.makeText(ActivityNotes.this, "Recording...", Toast.LENGTH_LONG).show();
 					changebuttontext(R.id.recordButton,"Recording...");
+					
 		            startRecording();
+					
+		             t = new CountDownTimer( 30000, 1000) {
+		            	 TextView counter=(TextView) findViewById(R.id.Timer);
+		                    @Override
+		                    public void onTick(long millisUntilFinished) {
+		                    	counter.setText("seconds remaining: " + millisUntilFinished / 1000);
+		                    }
+		                    @Override
+		                    public void onFinish() {   
+		                    	stopRecording();
+		                    	Toast.makeText(ActivityNotes.this, "Max Recording Length Reached.", Toast.LENGTH_SHORT).show();
+		    		            changebuttontext(R.id.recordButton,"Hold to speak.");
+		    		            counter.setText("30");
+		    		            enableButton(R.id.recordButton,false);
+		    		            enableButton(R.id.replayButton, true);
+		                    }
+		                }.start();
+					
 		            return true;
 		        } else if (event.getAction() == MotionEvent.ACTION_UP) {
 		            stopRecording();
+		            t.cancel();
+		            TextView counter=(TextView) findViewById(R.id.Timer);
+		            counter.setText("30");
 		            changebuttontext(R.id.recordButton,"Hold to speak.");
 		            enableButton(R.id.replayButton, true);
 		            return true;
@@ -95,7 +96,8 @@ public class ActivityNotes extends ActionBarActivity {
 		    @Override
 		    public boolean onTouch(View v, MotionEvent event) {
 		    	if(event.getAction() == MotionEvent.ACTION_DOWN) {
-		    		MediaPlayer mp = new MediaPlayer();
+		    		stopRecording();
+		    		mp = new MediaPlayer();
 		    		try {
 						mp.setDataSource(mostrecentfile);
 					} catch (IllegalArgumentException e) {
@@ -118,6 +120,7 @@ public class ActivityNotes extends ActionBarActivity {
 						e.printStackTrace();
 					}
 		    		mp.start();
+		    		enableButton(R.id.recordButton,true);
 		            
 		            return true;
 		    	}
@@ -127,6 +130,12 @@ public class ActivityNotes extends ActionBarActivity {
 		});
 		
 	}
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.design_actionbar, menu);
+		return true;
+	}
+	
+	//Bo, need your help to save those info into our database, when user clicks on "save" button in the menu
 	
 	private void stopRecording() {
 	    if (null != recorder) {
@@ -137,6 +146,11 @@ public class ActivityNotes extends ActionBarActivity {
 	    }
 	}
 	private void startRecording() {
+		 if (null != mp) {
+			 mp.stop();
+			 mp.reset();
+			 mp.release();
+		 }
 	    recorder = new MediaRecorder();
 	    recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
 	    recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
@@ -185,5 +199,22 @@ public class ActivityNotes extends ActionBarActivity {
 	    }
 	};
 	
-	
+	@Override
+	public void onPause( ) {
+		super.onPause();
+		 if (null != mp) {
+			 	mp.pause();
+		 }
+	}
+	@Override
+	public void onDestroy( ) {
+		super.onDestroy();
+		 if (null != mp) {
+		mp.stop();
+        mp.release();
+
+    
+		 }
+
+	}
 }

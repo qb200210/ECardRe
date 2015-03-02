@@ -58,17 +58,6 @@
             android:padding="5dp"
             android:textColor="#0a0a0a"
             android:textSize="20sp" />
-        
-         <TextView android:text="Company"
-            android:id="@+id/my_company"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/my_portrait"
-            android:layout_marginLeft="15dp"
-            android:layout_marginStart="15dp"
-            android:padding="5dp"
-            android:textColor="#0a0a0a"
-            android:textSize="25sp" />
          
         <TextView android:text="Address"
             android:id="@+id/my_address"
@@ -90,6 +79,19 @@
       		android:layout_marginRight="20dp"
       		android:layout_marginBottom="20dp"
             />
+
+        <TextView
+            android:id="@+id/my_company"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/CompanyLogo"
+            android:layout_alignParentRight="true"
+            android:layout_marginStart="15dp"
+            android:layout_marginLeft="15dp"
+            android:padding="5dp"
+            android:text="Company"
+            android:textColor="#0a0a0a"
+            android:textSize="25sp" />
         
     </RelativeLayout>
     

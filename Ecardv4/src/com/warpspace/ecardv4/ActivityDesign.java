@@ -72,7 +72,7 @@ public class ActivityDesign extends ActionBarActivity {
 	private static final int TAKE_IMAGE=250;
 	private static final int SELECT_LOGO = 200;
 	private static int currentSource=0;
-	private Uri selectedImage;
+	private Uri selectedImage, mCurrentPhotoPath;
 	UserInfo myselfUserInfo= null;
 	
 	Bitmap photo = null;
@@ -177,16 +177,22 @@ public class ActivityDesign extends ActionBarActivity {
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		
-		if(requestCode == TAKE_IMAGE){
-			Bundle extras = data.getExtras();
-			Bitmap imageBitmap =(Bitmap) extras.get("data");
-			ImageButton imageButton = (ImageButton) findViewById(R.id.design_portrait);
-			imageButton.setImageBitmap(imageBitmap);
-			//selectedImage = (Uri) extras.get("Uri");
-			
-	        //doCrop();
+		if(resultCode == RESULT_OK && requestCode == TAKE_IMAGE){
+			selectedImage = mCurrentPhotoPath;
+			/*String[] filePathColumn = { MediaStore.Images.Media.DATA };
+
+			Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
+			cursor.moveToFirst();
+
+			int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+			String picturePath = cursor.getString(columnIndex);
+			cursor.close();
+
+			BitmapFactory.Options options = new BitmapFactory.Options();
+			options.inJustDecodeBounds = true; */
+	        doCrop();
 		}
-		else if(requestCode == CROP_FROM_CAMERA){
+		else if(resultCode == RESULT_OK && null != data && requestCode == CROP_FROM_CAMERA){
 			Bundle extras = data.getExtras();
 			if (extras != null) {
 				photo = extras.getParcelable("data");
@@ -563,83 +569,83 @@ public class ActivityDesign extends ActionBarActivity {
 		return BitmapFactory.decodeFile(picturePath, options);
 	}
 
-private void displaySourceDialog() {
-    AlertDialog.Builder builder = new AlertDialog.Builder(this);
-    String source[] = { "Gallary", "Camera" };
+	private void displaySourceDialog() {
+	    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+	    String source[] = { "Gallary", "Camera" };
 
-    builder.setTitle("Select Image From:")
-            .setSingleChoiceItems(source, currentSource,
-                    new DialogInterface.OnClickListener() {
+	    builder.setTitle("Select Image From:")
+	            .setSingleChoiceItems(source, currentSource,
+	                    new DialogInterface.OnClickListener() {
 
-                        @Override
-                        public void onClick(DialogInterface dialog,
-                                int which) {
-                            currentSource = which;
-                            
-                            switch (currentSource){
-                            case 0:
-                				Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
-                				photoPickerIntent.setType("image/*");
-                				startActivityForResult(photoPickerIntent, SELECT_PORTRAIT);
-                				
-                				break;
-                				
-                            case 1:
-                            	Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                            	// Peng: By default, the taken image will be stored in Gallery. Can we directly use it
-                            	// instead of creating photoFile?
-                            	startActivityForResult(takePicture, TAKE_IMAGE);
-                            	//selectedImage = Uri.fromFile(new File(Environment.getExternalStorageDirectory(),"tmp_avatar_" + String.valueOf(System.currentTimeMillis()) + ".jpg"));
-                            	//takePicture.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, selectedImage);
-                            	//takePicture.putExtra("Uri", selectedImage);
-                            	//takePicture.putExtra("return-data", true);
-                            	//startActivityForResult(takePicture, TAKE_IMAGE);
-                            	// if (takePicture.resolveActivity(getPackageManager()) != null) {
-                            	//        startActivityForResult(takePicture, TAKE_IMAGE);
-                            	//    }
-                            	 
-//                            	 if (takePicture.resolveActivity(getPackageManager()) != null) {
-//                            	        // Create the File where the photo should go
-//                            	        File photoFile = null;
-//                            	        try {
-//                            	            photoFile = createImageFile();
-//                            	        } catch (IOException ex) {
-//                            	            // Error occurred while creating the File
-//                            	            //...
-//                            	        }
-//                            	        // Continue only if the File was successfully created
-//                            	        if (photoFile != null) {
-//                            	            takePicture.putExtra(MediaStore.EXTRA_OUTPUT,
-//                            	                    Uri.fromFile(photoFile));
-//                            	            startActivityForResult(takePicture, TAKE_IMAGE);
-//                            	        }
-//                            	    }
-                            	break;
-                            
-                            }
-                            
+	                        @Override
+	                        public void onClick(DialogInterface dialog,
+	                                int which) {
+	                            currentSource = which;
+	                            
+	                            switch (currentSource){
+	                            case 0:
+	                				Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+	                				photoPickerIntent.setType("image/*");
+	                				startActivityForResult(photoPickerIntent, SELECT_PORTRAIT);
+	                				
+	                				break;
+	                				
+	                            case 1:
+	                            	Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+	                            	// Peng: By default, the taken image will be stored in Gallery. Can we directly use it
+	                            	// instead of creating photoFile?
+	                            	//startActivityForResult(takePicture, TAKE_IMAGE);
+	                            	//selectedImage = Uri.fromFile(new File(Environment.getExternalStorageDirectory(),"tmp_avatar_" + String.valueOf(System.currentTimeMillis()) + ".jpg"));
+	                            	//takePicture.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, selectedImage);
+	                            	//takePicture.putExtra("Uri", selectedImage);
+	                            	//takePicture.putExtra("return-data", true);
+	                            	//startActivityForResult(takePicture, TAKE_IMAGE);
+	                            	//if (takePicture.resolveActivity(getPackageManager()) != null) {
+	                            	//        startActivityForResult(takePicture, TAKE_IMAGE);
+	                            	//    }
+	                            	 
+	                            	 if (takePicture.resolveActivity(getPackageManager()) != null) {
+	                            	        // Create the File where the photo should go
+	                            	        File photoFile = null;
+	                            	        try {
+	                            	            photoFile = createImageFile();
+	                            	        } catch (IOException ex) {
+	                            	            // Error occurred while creating the File
+	                            	            //...
+	                            	        }
+	                            	        // Continue only if the File was successfully created
+	                            	        if (photoFile != null) {
+	                            	            takePicture.putExtra(MediaStore.EXTRA_OUTPUT,
+	                            	                    Uri.fromFile(photoFile));
+	                            	            startActivityForResult(takePicture, TAKE_IMAGE);
+	                            	        }
+	                            	    }
+	                            	break;
+	                            
+	                            }
+	                            
 
-                            dialog.dismiss();
-                        }
-                    }).show();
+	                            dialog.dismiss();
+	                        }
+	                    }).show();
 }
-String mCurrentPhotoPath;
-private File createImageFile() throws IOException {
-    // Create an image file name
-    String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-    String imageFileName = "JPEG_" + timeStamp + "_";
-    File storageDir = Environment.getExternalStoragePublicDirectory(
-            Environment.DIRECTORY_PICTURES);
-    File image = File.createTempFile(
-        imageFileName,  /* prefix */
-        ".jpg",         /* suffix */
-        storageDir      /* directory */
-    );
+	
+	private File createImageFile() throws IOException {
+	    // Create an image file name
+	    String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+	    String imageFileName = "JPEG_" + timeStamp + "_";
+	    File storageDir = Environment.getExternalStoragePublicDirectory(
+	            Environment.DIRECTORY_PICTURES);
+	    File image = File.createTempFile(
+	        imageFileName,  /* prefix */
+	        ".jpg",         /* suffix */
+	        storageDir      /* directory */
+	    );
 
-    // Save a file: path for use with ACTION_VIEW intents
-    mCurrentPhotoPath = "file:" + image.getAbsolutePath();
-    return image;
-}
+	    // Save a file: path for use with ACTION_VIEW intents
+	    mCurrentPhotoPath = Uri.fromFile(image);
+	    return image;
+	}
 
 private void doCrop() {
 	final ArrayList<CropOption> cropOptions = new ArrayList<CropOption>();
