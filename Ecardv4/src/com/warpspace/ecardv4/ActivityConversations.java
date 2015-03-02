@@ -14,7 +14,7 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
-import com.warpspace.ecardv4.infrastructure.SearchListAdapter;
+import com.warpspace.ecardv4.infrastructure.ConversationsListAdapter;
 import com.warpspace.ecardv4.infrastructure.UserInfo;
 
 import android.content.Context;
@@ -22,6 +22,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -34,8 +35,8 @@ public class ActivityConversations extends ActionBarActivity {
 
   protected static final int SAVE_CARD = 0;
   private ParseUser currentUser;
-  ArrayList<UserInfo> userNames = new ArrayList<UserInfo>();
-  SearchListAdapter adapter;
+  public static ArrayList<UserInfo> userNames = new ArrayList<UserInfo>();
+  ConversationsListAdapter adapter;
   AlphaInAnimationAdapter animationAdapter;
   StickyListHeadersAdapterDecorator stickyListHeadersAdapterDecorator;
   StickyListHeadersListView listView;
@@ -92,8 +93,10 @@ public class ActivityConversations extends ActionBarActivity {
                 false, false);
               userNames.add(contact);
             }
+            
+            Log.i("usr", userNames.toString());
 
-            adapter = new SearchListAdapter(getApplicationContext(), userNames);
+            adapter = new ConversationsListAdapter(ActivityConversations.this, userNames);
             animationAdapter = new AlphaInAnimationAdapter(adapter);
             stickyListHeadersAdapterDecorator = new StickyListHeadersAdapterDecorator(
               animationAdapter);
