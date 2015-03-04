@@ -23,6 +23,33 @@ import com.warpspace.ecardv4.ActivityBufferOpening;
 
 public class AsyncTasks {
 	
+	public static class SaveNoteNetworkAvailable extends AsyncTask<String, Void, String> {
+
+		private Context context;
+		private ParseUser currentUser;
+		private String ecardNoteId;
+
+		public SaveNoteNetworkAvailable(Context context, ParseUser currentUser, String ecardNoteId){
+			this.context = context;
+			this.currentUser = currentUser;
+			this.ecardNoteId = ecardNoteId;
+		}
+		@Override
+		protected String doInBackground(String... url) {
+
+			ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardNote");
+			ParseObject noteObject = null;
+			
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(String result) {
+			Toast.makeText(context, "saved self copy", Toast.LENGTH_SHORT).show();
+		}
+
+	}
+	
 	// sync local copy of self ecard
 	// now server always wins, should change to check date
 	public static class SyncDataTaskSelfCopy extends AsyncTask<String, Void, String> {

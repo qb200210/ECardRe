@@ -137,7 +137,7 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 						buildAboutMeDialog(view);
 						break;
 					case "note":
-						intent = new Intent(ActivityScanned.this, ActivityNotes.class);
+						intent = new Intent(ActivityScanned.this, ActivityNotesScanned.class);
 						intent.putExtra("whereMet", whereMet);
 						startActivity(intent);
 						break;

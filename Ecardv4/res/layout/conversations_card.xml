@@ -31,7 +31,7 @@
     android:paddingRight="2dp" >
 
     <ImageView
-        android:id="@+id/search_image"
+        android:id="@+id/conversations_image"
         android:layout_width="72dp"
         android:layout_height="72dp"
         android:layout_alignParentLeft="true"
@@ -42,14 +42,14 @@
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="72dp"
-        android:layout_toEndOf="@id/search_image"
-        android:layout_toRightOf="@id/search_image"
+        android:layout_toEndOf="@id/conversations_image"
+        android:layout_toRightOf="@id/conversations_image"
         android:background="@color/light_blue_F8B"
         android:orientation="vertical"
         android:padding="2dp" >
 
         <TextView
-            android:id="@+id/list_row_draganddrop_textview"
+            android:id="@+id/conversations_textview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/black"
@@ -57,7 +57,7 @@
             android:textSize="20sp"  />
 
         <TextView
-            android:id="@+id/Text2"
+            android:id="@+id/conversations_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="#FF267F00"

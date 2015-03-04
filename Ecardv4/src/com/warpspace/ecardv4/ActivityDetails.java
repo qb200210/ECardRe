@@ -59,7 +59,7 @@ public class ActivityDetails extends ActionBarActivity {
 		scrollView.setmScrollable(true);
 
 		Bundle data = getIntent().getExtras();
-		UserInfo newUser = (UserInfo) data.getParcelable("userinfo");
+		final UserInfo newUser = (UserInfo) data.getParcelable("userinfo");
 
 		// display the main card
 		displayCard(newUser);
@@ -98,8 +98,8 @@ public class ActivityDetails extends ActionBarActivity {
 							buildAboutMeDialog(view);
 							break;
 						case "note":
-							intent = new Intent(ActivityDetails.this, ActivityNotes.class);
-							intent.putExtra("whereMet",	"nolocation");
+							intent = new Intent(ActivityDetails.this, ActivityNotesSearch.class);
+							intent.putExtra("ecardId", newUser.getObjId());
 							startActivity(intent);
 							break;
 						default:

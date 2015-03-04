@@ -16,13 +16,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.nhaarman.listviewanimations.ArrayAdapter;
 import com.nhaarman.listviewanimations.itemmanipulation.swipedismiss.undo.UndoAdapter;
 import com.warpspace.ecardv4.ActivityConversations;
 import com.warpspace.ecardv4.ActivityMain;
-import com.warpspace.ecardv4.ActivityConversations;
 import com.warpspace.ecardv4.R;
 
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
@@ -82,11 +82,16 @@ public class ConversationsListAdapter extends ArrayAdapter<UserInfo> implements
     final ViewGroup parent) {
     if (convertView == null) {
       convertView = LayoutInflater.from(mContext).inflate(
-        R.layout.search_result_card, parent, false);
+        R.layout.conversations_card, parent, false);
     }
+    
+    ImageView portraitImg = (ImageView) convertView.findViewById(R.id.conversations_image);
+	if (ActivityConversations.userNames.get(position).getPortrait() != null){
+		portraitImg.setImageBitmap(ActivityConversations.userNames.get(position).getPortrait());
+	}
 
     TextView tv = (TextView) convertView
-      .findViewById(R.id.list_row_draganddrop_textview);
+      .findViewById(R.id.conversations_textview);
 
     tv.setText(ActivityConversations.userNames.get(position).getFirstName());
     tv.setTextAlignment(TextView.TEXT_ALIGNMENT_CENTER);
@@ -99,10 +104,10 @@ public class ConversationsListAdapter extends ArrayAdapter<UserInfo> implements
     final ViewGroup parent) {
     if (convertView == null) {
       convertView = LayoutInflater.from(mContext).inflate(
-        R.layout.search_result_header, parent, false);
+        R.layout.conversations_header, parent, false);
     }
 
-    TextView headerText = (TextView) convertView.findViewById(R.id.text_header);
+    TextView headerText = (TextView) convertView.findViewById(R.id.conversations_text_header);
     UserInfo localUser = ActivityConversations.userNames.get(position);
 
     if (sortModeName) {

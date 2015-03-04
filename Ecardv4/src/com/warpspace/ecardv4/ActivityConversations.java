@@ -35,7 +35,7 @@ public class ActivityConversations extends ActionBarActivity {
 
   protected static final int SAVE_CARD = 0;
   private ParseUser currentUser;
-  public static ArrayList<UserInfo> userNames = new ArrayList<UserInfo>();
+  public static ArrayList<UserInfo> userNames;
   ConversationsListAdapter adapter;
   AlphaInAnimationAdapter animationAdapter;
   StickyListHeadersAdapterDecorator stickyListHeadersAdapterDecorator;
@@ -46,6 +46,7 @@ public class ActivityConversations extends ActionBarActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_conversations);
     currentUser = ParseUser.getCurrentUser();
+    userNames = new ArrayList<UserInfo>();
 
     listView = (StickyListHeadersListView) findViewById(R.id.activity_conversations_listview);
     listView.setOnItemClickListener(new OnItemClickListener() {

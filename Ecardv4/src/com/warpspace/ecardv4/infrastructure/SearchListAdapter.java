@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.nhaarman.listviewanimations.ArrayAdapter;
@@ -83,6 +84,11 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
       convertView = LayoutInflater.from(mContext).inflate(
         R.layout.search_result_card, parent, false);
     }
+    
+    ImageView portraitImg = (ImageView) convertView.findViewById(R.id.search_image);
+	if (ActivitySearch.userNames.get(position).getPortrait() != null){
+		portraitImg.setImageBitmap(ActivitySearch.userNames.get(position).getPortrait());
+	}
 
     TextView tv = (TextView) convertView
       .findViewById(R.id.list_row_draganddrop_textview);

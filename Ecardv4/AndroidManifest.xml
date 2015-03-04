@@ -97,7 +97,12 @@
             android:screenOrientation="portrait"
             android:launchMode="singleTop">            
         </activity>
-        <activity android:name="com.warpspace.ecardv4.ActivityNotes"
+        <activity android:name="com.warpspace.ecardv4.ActivityNotesSearch"
+            android:label="@string/app_name" 
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop">            
+        </activity>
+        <activity android:name="com.warpspace.ecardv4.ActivityNotesScanned"
             android:label="@string/app_name" 
             android:screenOrientation="portrait"
             android:launchMode="singleTop">            

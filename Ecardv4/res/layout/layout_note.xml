@@ -2,6 +2,11 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical" >
+    <!-- Dummy item to prevent AutoCompleteTextView from receiving focus -->
+<LinearLayout
+    android:focusable="true" android:focusableInTouchMode="true"
+    android:layout_width="0px" android:layout_height="0px"/>
+
    <LinearLayout 
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
@@ -13,24 +18,41 @@
         android:ems="10"
         android:gravity="start|top"
         android:layout_weight="1"
-        android:text="@string/Date" 
+        android:text="@string/date_added" 
         android:padding="5dp"
         android:textColor="#3a5fcd"
         android:textSize="20sp">
         </TextView>
  
-    <TextView
+    <EditText
         android:id="@+id/PlaceAdded"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
         android:gravity="start|top"
         android:layout_weight="1"
-        android:text="@string/City" 
+        android:hint="@string/city_added" 
         android:padding="5dp"
         android:textColor="#3a5fcd"
-        android:textSize="20sp">
-        </TextView>
+        android:textSize="20sp"
+        android:nextFocusUp="@id/PlaceAdded" 
+        android:nextFocusLeft="@id/PlaceAdded">
+        </EditText>
+        
+    <EditText
+        android:id="@+id/EventAdded"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:gravity="start|top"
+        android:layout_weight="1"
+        android:hint="@string/event_added" 
+        android:padding="5dp"
+        android:textColor="#3a5fcd"
+        android:textSize="20sp"
+        android:nextFocusUp="@id/EventAdded" 
+        android:nextFocusLeft="@id/EventAdded">
+        </EditText>
         
      </LinearLayout>
      
@@ -42,7 +64,9 @@
         android:gravity="start|top"
         android:inputType="textMultiLine"
         android:layout_weight="1"
-        android:hint="@string/Notes" >
+        android:hint="@string/edit_notes" 
+        android:nextFocusUp="@id/EditNotes" 
+        android:nextFocusLeft="@id/EditNotes">
  
    </EditText>
 
