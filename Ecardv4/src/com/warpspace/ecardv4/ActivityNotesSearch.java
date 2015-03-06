@@ -1,6 +1,10 @@
 package com.warpspace.ecardv4;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.List;
@@ -12,10 +16,12 @@ import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 import com.warpspace.ecardv4.R;
 import com.warpspace.ecardv4.utils.AsyncTasks;
 import com.warpspace.ecardv4.utils.ECardUtils;
 
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
@@ -40,12 +46,14 @@ public class ActivityNotesSearch extends ActionBarActivity {
 	ParseUser currentUser;
 	private MediaRecorder recorder = null;
 	private MediaPlayer mp=null;
-	private String mostrecentfile;
+	private Button replayButton; 
+	private Button recorderButton;
 	private static final String AUDIO_RECORDER_FOLDER = "AudioRecorder";
 	private static final long SAVENOTE_TIMEOUT = 5000;
 	CountDownTimer t;
 	private String ecardId;
 	private String noteId;
+	private String filepath;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +62,9 @@ public class ActivityNotesSearch extends ActionBarActivity {
 		currentUser = ParseUser.getCurrentUser();
 		Bundle b = getIntent().getExtras();
 		ecardId = (String) b.get("ecardId");
+		replayButton = (Button) findViewById(R.id.replayButton);
+		recorderButton = (Button) findViewById(R.id.recordButton);
+		filepath=getFilename();
 		
 		ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardNote");
 		query.fromLocalDatastore();
@@ -93,24 +104,32 @@ public class ActivityNotesSearch extends ActionBarActivity {
 				String notesContent = object.getString("notes");
 				if(notesContent != null) {
 					notes.setText(notesContent);
-				}
-//				ParseFile portraitFile = (ParseFile) objects.get(0).get("voiceNotes");
-//	            if (portraitFile != null) {
-//	              byte[] data = portraitFile.getData();
-//	              portrait = BitmapFactory.decodeByteArray(data, 0, data.length);
-//	            }
+				}				
+				ParseFile audioFile = (ParseFile) object.get("voiceNotes");
+	            if (audioFile != null) {
+	              byte[] audioData;
+				  try {
+					audioData = audioFile.getData();
+					FileOutputStream out = new FileOutputStream(filepath);
+		            out.write(audioData);
+		            out.close();
+				  } catch (ParseException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				  } catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				  } catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				  }
+	            } else {
+	            	replayButton.setEnabled(false);
+	            }
 			}
 			
-		});
+		});		
 		
-		
-		
-		
-		
-		Button recorderButton = (Button) findViewById(R.id.recordButton);
-		Button replayButton = (Button) findViewById(R.id.replayButton);
-		replayButton.setEnabled(false);
-
 		recorderButton.setOnTouchListener(new OnTouchListener() {
 		    @Override
 		    public boolean onTouch(View v, MotionEvent event) {
@@ -120,7 +139,7 @@ public class ActivityNotesSearch extends ActionBarActivity {
 					
 		            startRecording();
 					
-		             t = new CountDownTimer( 30000, 1000) {
+		             t = new CountDownTimer( 10000, 1000) {
 		            	 TextView counter=(TextView) findViewById(R.id.Timer);
 		                    @Override
 		                    public void onTick(long millisUntilFinished) {
@@ -131,7 +150,7 @@ public class ActivityNotesSearch extends ActionBarActivity {
 		                    	stopRecording();
 		                    	Toast.makeText(ActivityNotesSearch.this, "Max Recording Length Reached.", Toast.LENGTH_SHORT).show();
 		    		            changebuttontext(R.id.recordButton,"Hold to speak.");
-		    		            counter.setText("30");
+		    		            counter.setText("10");
 		    		            enableButton(R.id.recordButton,false);
 		    		            enableButton(R.id.replayButton, true);
 		                    }
@@ -142,7 +161,7 @@ public class ActivityNotesSearch extends ActionBarActivity {
 		            stopRecording();
 		            t.cancel();
 		            TextView counter=(TextView) findViewById(R.id.Timer);
-		            counter.setText("30");
+		            counter.setText("10");
 		            changebuttontext(R.id.recordButton,"Hold to speak.");
 		            enableButton(R.id.replayButton, true);
 		            return true;
@@ -158,7 +177,7 @@ public class ActivityNotesSearch extends ActionBarActivity {
 		    		stopRecording();
 		    		mp = new MediaPlayer();
 		    		try {
-						mp.setDataSource(mostrecentfile);
+						mp.setDataSource(filepath);
 					} catch (IllegalArgumentException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -222,7 +241,7 @@ public class ActivityNotesSearch extends ActionBarActivity {
 		query.getInBackground(noteId, new GetCallback<ParseObject>(){
 
 			@Override
-			public void done(ParseObject object, ParseException e) {
+			public void done(final ParseObject object, ParseException e) {
 				if(e==null){
 					if(object != null){						
 						EditText whereMet = (EditText) findViewById(R.id.PlaceAdded);
@@ -231,7 +250,33 @@ public class ActivityNotesSearch extends ActionBarActivity {
 						object.put("where_met", whereMet.getText().toString());
 						object.put("event_met", eventMet.getText().toString());
 						object.put("notes", notes.getText().toString());
-						object.saveEventually();
+						
+						FileInputStream fileInputStream=null;						 
+				        File file = new File(filepath);				 
+				        byte[] bFile = new byte[(int) file.length()];				 				        
+				        //convert file into array of bytes
+					    try {
+							fileInputStream = new FileInputStream(file);
+							fileInputStream.read(bFile);
+						    fileInputStream.close();
+						} catch (FileNotFoundException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						} catch (IOException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+					    final ParseFile voiceFile = new ParseFile("voicenote.mp4", bFile);
+					    voiceFile.saveInBackground(new SaveCallback(){
+
+							@Override
+							public void done(ParseException arg0) {
+								object.put("voiceNotes", voiceFile);
+								object.saveEventually();
+								Toast.makeText(ActivityNotesSearch.this, "Changes saved!", Toast.LENGTH_SHORT).show();
+							}
+					    	
+					    });
 					}
 				} else {
 					e.printStackTrace();
@@ -259,8 +304,8 @@ public class ActivityNotesSearch extends ActionBarActivity {
 	    recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
 	    recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
 	    recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-	    mostrecentfile=getFilename();
-	    recorder.setOutputFile(mostrecentfile);
+	    
+	    recorder.setOutputFile(filepath);
 	    recorder.setOnErrorListener(errorListener);
 	    recorder.setOnInfoListener(infoListener);
 	    try {
@@ -283,7 +328,7 @@ public class ActivityNotesSearch extends ActionBarActivity {
 	    if (!file.exists()) {
 	        file.mkdirs();
 	    }
-	    return (file.getAbsolutePath() + "/" + System.currentTimeMillis() + ".mp4");
+	    return (file.getAbsolutePath() + "/voicenote.mp4");
 	}
 	private void changebuttontext(int id, String text) {
 	    ((Button) findViewById(id)).setText(text);
