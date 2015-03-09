@@ -16,14 +16,12 @@
     android:layout_height="match_parent"
 >
 		    
-        <ImageButton
+        <ImageView
             android:id="@+id/design_portrait"
-            android:layout_width="128dp"
-            android:layout_height="128dp" 
+            android:layout_width="100dp"
+            android:layout_height="100dp" 
             android:layout_marginLeft="20dp"
-            android:layout_marginTop="20dp"
-            android:background="@null"
-            android:src="@drawable/ic_action_add_person"/>
+            android:layout_marginTop="20dp"/>
 
         <EditText android:text="FirstName"
             android:id="@+id/design_first_name"
@@ -31,11 +29,11 @@
             android:layout_height="wrap_content"
             android:layout_toEndOf="@+id/design_portrait"
             android:layout_toRightOf="@+id/design_portrait"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="30dp"
             android:gravity="center"
             android:padding="5dp"
             android:textColor="#0a0a0a"
-            android:textSize="20sp" />
+            android:textSize="25sp" />
         
         <EditText android:text="LastName"
             android:id="@+id/design_last_name"
@@ -47,7 +45,7 @@
             android:gravity="center"
             android:padding="5dp"
             android:textColor="#0a0a0a"
-            android:textSize="20sp" />
+            android:textSize="25sp" />
         
         <EditText android:text="Title"
             android:id="@+id/design_job_title"
@@ -57,17 +55,6 @@
             android:layout_toRightOf="@+id/design_portrait"
             android:layout_below="@+id/design_last_name"
             android:gravity="center"
-            android:padding="5dp"
-            android:textColor="#0a0a0a"
-            android:textSize="15sp" />
-        
-         <EditText android:text="Company"
-            android:id="@+id/design_company"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/design_portrait"
-            android:layout_marginLeft="15dp"
-            android:layout_marginStart="15dp"
             android:padding="5dp"
             android:textColor="#0a0a0a"
             android:textSize="20sp" />
@@ -81,9 +68,9 @@
             android:layout_marginStart="15dp"
             android:padding="5dp"
             android:textColor="#0a0a0a"
-            android:textSize="15sp" />
+            android:textSize="20sp" />
         
-        <ImageButton
+        <ImageView
             android:id="@+id/design_CompanyLogo"
             android:layout_width="96dp"
             android:layout_height="96dp" 
@@ -91,9 +78,20 @@
       		android:layout_alignParentBottom="true" 
       		android:layout_marginRight="20dp"
       		android:layout_marginBottom="20dp"
-      		android:background="@null"
-      		android:src="@drawable/ic_action_add_logo"
             />
+
+        <EditText
+            android:id="@+id/design_company"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/design_CompanyLogo"
+            android:layout_alignParentRight="true"
+            android:layout_marginStart="15dp"
+            android:layout_marginLeft="15dp"
+            android:padding="5dp"
+            android:text="Company"
+            android:textColor="#0a0a0a"
+            android:textSize="25sp" />
         
     </RelativeLayout>
     

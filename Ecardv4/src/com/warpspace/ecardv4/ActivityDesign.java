@@ -57,7 +57,8 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -156,21 +157,13 @@ public class ActivityDesign extends ActionBarActivity {
 		SquareLayout mainCardContainer = (SquareLayout) findViewById(R.id.main_card_container);
 		scrollView.requestChildFocus(mainCardContainer, null);
 
-		ImageButton pbPortrait = (ImageButton) findViewById(R.id.design_portrait);
+		ImageView pbPortrait = (ImageView) findViewById(R.id.design_portrait);
 		pbPortrait.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				displaySourceDialog();
 			}
 		});
-		ImageButton pbLogo = (ImageButton) findViewById(R.id.design_CompanyLogo);
-		pbLogo.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				Toast.makeText(ActivityDesign.this, "Select Image", Toast.LENGTH_LONG).show();
-				Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
-				photoPickerIntent.setType("image/*");
-				startActivityForResult(photoPickerIntent, SELECT_LOGO);
-			}
-		});
+		
 	}
 
 	@Override
@@ -196,8 +189,8 @@ public class ActivityDesign extends ActionBarActivity {
 			Bundle extras = data.getExtras();
 			if (extras != null) {
 				photo = extras.getParcelable("data");
-				ImageButton imageButton1 = (ImageButton) findViewById(R.id.design_portrait);
-				imageButton1.setImageBitmap(photo);
+				ImageView ImageView1 = (ImageView) findViewById(R.id.design_portrait);
+				ImageView1.setImageBitmap(photo);
 				// converting Bitmap to byte array
             	ByteArrayOutputStream stream = new ByteArrayOutputStream();
             	photo.compress(Bitmap.CompressFormat.PNG, 100, stream);
@@ -228,8 +221,6 @@ public class ActivityDesign extends ActionBarActivity {
 				break;
 			
 			case SELECT_LOGO:
-				ImageButton imageButton2 = (ImageButton) findViewById(R.id.design_CompanyLogo);
-				imageButton2.setImageBitmap(decodeSampledBitmapFromFile(picturePath, 96, 96));
 				break;
 				
 			}
@@ -544,7 +535,7 @@ public class ActivityDesign extends ActionBarActivity {
 		name.setText(myselfUserInfo.getCompany());
 		name = (TextView) findViewById(R.id.design_job_title);
 		name.setText(myselfUserInfo.getTitle());
-		ImageButton portraitImg = (ImageButton) findViewById(R.id.design_portrait);
+		ImageView portraitImg = (ImageView) findViewById(R.id.design_portrait);
 		portraitImg.setImageBitmap(myselfUserInfo.getPortrait());
 	}
 
@@ -746,12 +737,16 @@ private void doCrop() {
 			// the extra info item
 			String item = selectionDisplayArray[i];
 			// the value of this extra info item
-			if(selectionDisplayArrayList.contains(item)){
+			List<String> allowedDisplayArrayList = Arrays.asList(allowedDisplayArray);
+			
+			if(allowedDisplayArrayList.contains(selectionDisplayArray[i])){
 				// remove already added items from selection list
-				int locToRm = selectionDisplayArrayList.indexOf(item);
-				iconListForAddMoreDialog.add(iconSelector(selectionArrayList.get(locToRm)));
+				int locToRm = allowedDisplayArrayList.indexOf(item);
+				iconListForAddMoreDialog.add(iconSelector(allowedArray[locToRm]));
 			}
 		}
+		Log.i("arraylist", selectionDisplayArrayList.toString());
+		
 		// Below is to build the listener for items listed inside the poped up "addmorebutton dialog"
 		ListView listViewInDialog = (ListView)dialogAddMoreView.findViewById(R.id.dialog_listview);
 	    listViewInDialog.setAdapter(new MySimpleListViewAdapter(ActivityDesign.this, selectionDisplayArray, iconListForAddMoreDialog));
