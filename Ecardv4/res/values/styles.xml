@@ -18,6 +18,12 @@
         <item name="actionOverflowButtonStyle">@style/OverFlow</item>
     </style>
     
+    <style name="OpenTheme" parent="Theme.AppCompat.Light">
+        <item name="android:windowBackground">@drawable/striped_background</item> 
+		<item name="android:windowNoTitle">true</item> 
+		<item name="android:windowAnimationStyle">@null</item>
+    </style>
+    
     <style name="MyActionBar" parent="@android:style/Widget.Holo.Light.ActionBar">
         <item name="android:background">@drawable/striped_background</item>
         <item name="android:icon">@color/transparent</item>

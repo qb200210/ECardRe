@@ -13,12 +13,7 @@
         android:orderInCategory="7"
         android:title="@string/download_cards"
         app:showAsAction="never"/>
-    <item
-        android:id="@+id/search_options"
-        android:icon="@drawable/ic_action_search"
-        android:orderInCategory="5"
-        android:title="@string/sort_results"
-        app:showAsAction="ifRoom"/>
+
     <item
         android:id="@+id/log_out"
         android:orderInCategory="11"

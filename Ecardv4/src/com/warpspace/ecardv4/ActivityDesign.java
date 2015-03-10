@@ -319,6 +319,8 @@ public class ActivityDesign extends ActionBarActivity {
 					object.put("company", name.getText().toString());
 					name = (EditText) findViewById(R.id.design_job_title);
 					object.put("title", name.getText().toString());
+					name = (EditText) findViewById(R.id.design_address);
+					object.put("city", name.getText().toString());
 					
 					ArrayList<String> remainedList = new ArrayList<String>();
 					int numBtns = gridView.getChildCount() - 1;
@@ -366,6 +368,8 @@ public class ActivityDesign extends ActionBarActivity {
 		myselfUserInfo.setCompany(name.getText().toString());
 		name = (EditText) findViewById(R.id.design_job_title);
 		myselfUserInfo.setTitle(name.getText().toString());
+		name = (EditText) findViewById(R.id.design_address);
+		myselfUserInfo.setCity(name.getText().toString());
 		infoIcon.remove(infoIcon.size()-1);
 		infoLink.remove(infoLink.size()-1);
 		shownArrayList.remove(shownArrayList.size()-1);
@@ -535,6 +539,8 @@ public class ActivityDesign extends ActionBarActivity {
 		name.setText(myselfUserInfo.getCompany());
 		name = (TextView) findViewById(R.id.design_job_title);
 		name.setText(myselfUserInfo.getTitle());
+		name = (TextView) findViewById(R.id.design_address);
+		name.setText(myselfUserInfo.getCity());
 		ImageView portraitImg = (ImageView) findViewById(R.id.design_portrait);
 		portraitImg.setImageBitmap(myselfUserInfo.getPortrait());
 	}

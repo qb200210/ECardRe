@@ -224,6 +224,10 @@ public class ActivityDetails extends ActionBarActivity {
 		tmpString = newUser.getTitle();
 		if (tmpString != null)
 			name.setText(tmpString);
+		name = (TextView) findViewById(R.id.my_address);
+		tmpString = newUser.getCity();
+		if (tmpString != null)
+			name.setText(tmpString);
 
 	}
 }

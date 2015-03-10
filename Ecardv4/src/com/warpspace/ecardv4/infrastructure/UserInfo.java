@@ -39,6 +39,7 @@ public class UserInfo implements Parcelable {
   String lastName;
   String company;
   String title;
+  String city;
   Bitmap portrait;
   String whereMet;
   String eventMet;
@@ -56,6 +57,7 @@ public class UserInfo implements Parcelable {
     this.lastName = "Unspecified";
     this.company = "Unspecified";
     this.title = "Unspecified";
+    this.city = "Unspecified";
     this.whereMet = "Unspecified";
     this.eventMet = "Unspecified";
     this.createdAt = null;
@@ -84,6 +86,7 @@ public class UserInfo implements Parcelable {
     this.lastName = source.readString();
     this.company = source.readString();
     this.title = source.readString();
+    this.city = source.readString();
     this.portrait = (Bitmap) source.readParcelable(getClass().getClassLoader());
     source.readStringList(this.shownArrayList);
     source.readStringList(this.infoLink);
@@ -97,6 +100,7 @@ public class UserInfo implements Parcelable {
     dest.writeString(lastName);
     dest.writeString(company);
     dest.writeString(title);
+    dest.writeString(city);
     dest.writeParcelable(portrait, flags);
     dest.writeStringList(shownArrayList);
     dest.writeStringList(infoLink);
@@ -139,6 +143,7 @@ public class UserInfo implements Parcelable {
           lastName = object.getString("lastName");
           company = object.getString("company");
           title = object.getString("title");
+          city = object.getString("city");
           createdAt = object.getCreatedAt();
 
           Log.e("Dates!", "Created at " + createdAt);
@@ -373,7 +378,15 @@ public class UserInfo implements Parcelable {
     this.infoLink = infoLink;
   }
 
-  public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+  public String getCity() {
+	return city;
+}
+
+public void setCity(String city) {
+	this.city = city;
+}
+
+public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
 
     @Override
     public UserInfo createFromParcel(Parcel source) {

@@ -94,6 +94,10 @@ private View rootView;
 		tmpString = newUser.getTitle();
 		if (tmpString != null)
 			name.setText(tmpString);
+		name = (TextView) rootView.findViewById(R.id.my_address);
+		tmpString = newUser.getCity();
+		if (tmpString != null)
+			name.setText(tmpString);
 		ImageView portraitImg = (ImageView) rootView.findViewById(R.id.my_portrait);
 		portraitImg.setImageBitmap(newUser.getPortrait());
 

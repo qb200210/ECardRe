@@ -266,10 +266,6 @@ public class ActivitySearch extends ActionBarActivity {
     case R.id.sort_results:
       actions.show();
       return true;
-    case R.id.search_options:
-      Intent intent = new Intent(this, QueryActivity.class);
-      startActivity(intent);
-      return true;
     case R.id.download_cards:
       if (ECardUtils.isNetworkAvailable(this)) {
         // upon opening, pin online notes to local

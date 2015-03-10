@@ -304,6 +304,10 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 		tmpString = newUser.getTitle();
 		if (tmpString != null)
 			name.setText(tmpString);
+		name = (TextView) findViewById(R.id.my_address);
+		tmpString = newUser.getCity();
+		if (tmpString != null)
+			name.setText(tmpString);
 		ImageView portraitImg = (ImageView) findViewById(R.id.my_portrait);
 		if (newUser.getPortrait() != null) {
 			portraitImg.setImageBitmap(newUser.getPortrait());
