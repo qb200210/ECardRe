@@ -1,6 +1,7 @@
 package com.warpspace.ecardv4;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -28,6 +29,8 @@ import com.warpspace.ecardv4.utils.AsyncTasks.SyncDataTaskSelfCopy;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -37,15 +40,16 @@ import android.widget.Toast;
 
 public class ActivityBufferOpening extends Activity {
 
-	private static final long CREATE_SELF_COPY_TIMEOUT = 2000;
+	private static final long CREATE_SELF_COPY_TIMEOUT = 5000;
 	private static final long CACHEIDS_TIMEOUT = 10000;
 	private static final long NOTES_TIMEOUT = 10000;
-	private static final long CONVERSATIONS_TIMEOUT = 3000;	
+	private static final long CONVERSATIONS_TIMEOUT = 5000;
+	public static final String MY_PREFS_NAME = "KnoWellSyncParams";	
 	ParseUser currentUser;
 	// flag to see if there is portrait cached offline that cannot be converted to ParseFile yet.
 	boolean imgFromTmpData = false;
 
-	private boolean timeoutFlag = false;
+	private boolean timeoutFlag = false;	
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -66,9 +70,13 @@ public class ActivityBufferOpening extends Activity {
 				public void done(ParseException arg0) {
 				}
 			});
-	
+			
+			// check sharedpreferences
+			SharedPreferences prefs = getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE);
+			SharedPreferences.Editor prefEditor = prefs.edit();
+			
 			// syncing data within given timeout		
-			syncAllDataUponOpening();
+			syncAllDataUponOpening(prefs, prefEditor);
 		}
 		
 		// if tmpImgByteArray not null, need to convert regardless of network
@@ -78,9 +86,9 @@ public class ActivityBufferOpening extends Activity {
 		timerToJump();
 	}
 	
-	private void syncAllDataUponOpening() {
+	private void syncAllDataUponOpening(SharedPreferences prefs, SharedPreferences.Editor prefEditor) {
 		// Create/refresh local copy every time app opens
-		final AsyncTasks.SyncDataTaskSelfCopy createSelfCopy = new AsyncTasks.SyncDataTaskSelfCopy(this, currentUser);
+		final AsyncTasks.SyncDataTaskSelfCopy createSelfCopy = new AsyncTasks.SyncDataTaskSelfCopy(this, currentUser, prefs, prefEditor);
 		createSelfCopy.execute();
 		Handler handler = new Handler();
 		handler.postDelayed(new Runnable() {

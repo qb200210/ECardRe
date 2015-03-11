@@ -1,12 +1,15 @@
 package com.warpspace.ecardv4.utils;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeSet;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
@@ -56,50 +59,64 @@ public class AsyncTasks {
 
 		private Context context;
 		private ParseUser currentUser;
+		private SharedPreferences prefs;
+		private SharedPreferences.Editor prefEditor;
+		private boolean flagShouldSync;
 
-		public SyncDataTaskSelfCopy(Context context, ParseUser currentUser){
+		public SyncDataTaskSelfCopy(Context context, ParseUser currentUser, SharedPreferences prefs, SharedPreferences.Editor prefEditor){
 			this.context = context;
 			this.currentUser = currentUser;
+			this.prefs = prefs;
+			this.prefEditor = prefEditor;
+			this.flagShouldSync = false;
 		}
 		@Override
 		protected String doInBackground(String... url) {
+			// get the stored shared last sync date, if null, default to 1969
+			long millis = prefs.getLong("DateSelfSynced", 0L);
+			Date lastSyncedDate = new Date(millis);
 
 			ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardInfo");
-			ParseObject infoObject = null;
+			// constraint: server value newer
+			// if tmpImgByteArray was used, lastSyncedDate will be set to 1969, so that it will make sure the 
+			// parse object is pulled and the parsefile created from tmpImgByteArray
+			query.whereGreaterThan("updatedAt", lastSyncedDate);
+			query.whereEqualTo("objectId", currentUser.get("ecardId").toString());
+			List<ParseObject> infoObjects = null;
 			try {
-				infoObject = query.get(currentUser.get("ecardId").toString());
+				infoObjects = query.find();
 			} catch (ParseException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-			if (infoObject != null) {
-				final ParseObject infoObjectTmp = infoObject;
-				byte[] tmpImgData = (byte[]) infoObject.get("tmpImgByteArray");
+			
+			if(infoObjects !=null && infoObjects.size()!=0){
+				flagShouldSync = true;
+				// if there is a newer version on server, then sync it to local
+				final ParseObject infoObjectTmp = infoObjects.get(0);
+				// for webui, should do the same, check this array whenever can, then convert it to parseFile
+				byte[] tmpImgData = (byte[]) infoObjects.get(0).get("tmpImgByteArray");
 				if (tmpImgData != null) {
-					// if there is cached data in the array, convert to ParseFile then clear the array
-					final ParseFile file = new ParseFile("portrait.jpg", tmpImgData);
-					// cannot save in thread, otherwise file could be empty when Design saved
-
-					file.saveInBackground(new SaveCallback() {
-
-						@Override
-						public void done(ParseException e) {
-							if (e == null) {
-								Log.i("self copy", "Cached portrait saved!");
-								infoObjectTmp.put("portrait", file);
-								infoObjectTmp.remove("tmpImgByteArray");
-								// do not use saveEventually, easily leads to corrupted data
-								infoObjectTmp.saveInBackground();
-							} else {
-								e.printStackTrace();
-							}
-						}
-
-					});
-
+					// if there is cached data in the array on server, convert to ParseFile then clear the array
+					final ParseFile file = new ParseFile("portrait.jpg", tmpImgData);					
+					try {
+						file.save();
+						Log.i("self copy", "Cached portrait saved!");
+						infoObjectTmp.put("portrait", file);
+						infoObjectTmp.remove("tmpImgByteArray");
+						// do not use saveEventually, easily leads to corrupted data
+						infoObjectTmp.save();
+					} catch (ParseException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}					
 				}
 				try {
-					infoObject.pin();
+					infoObjects.get(0).pin();
+					// flush sharedpreference with today's date
+					Date currentDate=new Date();
+					prefEditor.putLong("DateSelfSynced", currentDate.getTime());
+					prefEditor.commit();
 				} catch (ParseException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -110,7 +127,9 @@ public class AsyncTasks {
 
 		@Override
 		protected void onPostExecute(String result) {
-			Toast.makeText(context, "saved self copy", Toast.LENGTH_SHORT).show();
+			if(flagShouldSync){
+				Toast.makeText(context, "saved self copy", Toast.LENGTH_SHORT).show();
+			}
 		}
 
 	}

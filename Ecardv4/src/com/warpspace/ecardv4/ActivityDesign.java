@@ -37,6 +37,7 @@ import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -289,6 +290,12 @@ public class ActivityDesign extends ActionBarActivity {
 								if(!ECardUtils.isNetworkAvailable(ActivityDesign.this)){
 									Toast.makeText(ActivityDesign.this, "No network, caching img", Toast.LENGTH_SHORT).show(); 
 				                	object.put("tmpImgByteArray", tmpImgData);
+				                	// flush sharedpreferences to 1969 so next time app opens with internet, convert the file
+				                	Date currentDate=new Date(0);
+				        			SharedPreferences prefs = getSharedPreferences(ActivityBufferOpening.MY_PREFS_NAME, MODE_PRIVATE);
+				        			SharedPreferences.Editor prefEditor = prefs.edit();
+									prefEditor.putLong("DateSelfSynced", currentDate.getTime());
+									prefEditor.commit();
 				                	saveChangesToParse(object);
 				                } else {
 				                	// with network, can save parsefile like normal
