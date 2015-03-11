@@ -2,12 +2,12 @@ package com.warpspace.ecardv4;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -15,10 +15,12 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -32,6 +34,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -45,7 +48,6 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.warpspace.ecardv4.infrastructure.SearchListAdapter;
 import com.warpspace.ecardv4.infrastructure.UserInfo;
-import com.warpspace.ecardv4.infrastructure.UserInfoNameComparator;
 import com.warpspace.ecardv4.utils.AsyncTasks;
 import com.warpspace.ecardv4.utils.CurvedAndTiled;
 import com.warpspace.ecardv4.utils.ECardUtils;
@@ -58,13 +60,14 @@ public class ActivitySearch extends ActionBarActivity {
   String[] sortMethodArray = { "A-Z", "Z-A", "New-Old", "Old-New" };
   private static final long NOTES_TIMEOUT = 10000;
 
-  static final int SEARCH_MENU_OVERHANG = 275;
-  static final int LIST_TOP_PADDING = 200;
+  static int SEARCH_MENU_OVERHANG = 275;
+  static int LIST_TOP_PADDING = 200;
   static final int SCROLL_ANIMATION_SPEED_MS_SLOW = 1000;
   static final int SCROLL_ANIMATION_SPEED_MS_NORMAL = 500;
   static final int SCROLL_ANIMATION_SPEED_MS_FAST = 250;
 
   View mainView;
+  LinearLayout searchWidget;
 
   public static ArrayList<UserInfo> userNames;
   SearchListAdapter adapter;
@@ -84,6 +87,7 @@ public class ActivitySearch extends ActionBarActivity {
     R.id.query_where_work);
   List<String> fieldsNote = Arrays.asList("event_met_lc", "where_met_lc");
 
+  @SuppressLint("InflateParams")
   @Override
   protected void onCreate(final Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -96,6 +100,8 @@ public class ActivitySearch extends ActionBarActivity {
     currentUser = ParseUser.getCurrentUser();
 
     userNames = new ArrayList<UserInfo>();
+
+    searchWidget = (LinearLayout) findViewById(R.id.lnlayout_search_widget);
 
     // build dialog for sorting selection options
     buildSortDialog();
@@ -135,20 +141,34 @@ public class ActivitySearch extends ActionBarActivity {
     // Set the dropdown animation.
     Button buttonPullDown = (Button) findViewById(R.id.btn_pull_down);
     buttonPullDown.setOnClickListener(new OnClickListener() {
+      @SuppressWarnings("deprecation")
+      @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
       @Override
       public void onClick(View v) {
         LinearLayout searchWidget = (LinearLayout) findViewById(R.id.lnlayout_search_widget);
+        int sdk = android.os.Build.VERSION.SDK_INT;
         if (!droppedDown) {
           droppedDown = true;
-          v.setBackgroundDrawable(getResources().getDrawable(
-            R.drawable.semi_rounded_up_empty));
+          if (sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
+            v.setBackgroundDrawable(getResources().getDrawable(
+              R.drawable.semi_rounded_up_empty));
+          } else {
+            v.setBackground(getResources().getDrawable(
+              R.drawable.semi_rounded_up_empty));
+          }
+
           sv.animate().translationY(0)
             .setDuration(SCROLL_ANIMATION_SPEED_MS_NORMAL)
             .setInterpolator(new OvershootInterpolator()).start();
         } else {
           droppedDown = false;
-          v.setBackgroundDrawable(getResources().getDrawable(
-            R.drawable.semi_rounded_down_empty));
+          if (sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
+            v.setBackgroundDrawable(getResources().getDrawable(
+              R.drawable.semi_rounded_down_empty));
+          } else {
+            v.setBackground(getResources().getDrawable(
+              R.drawable.semi_rounded_down_empty));
+          }
           sv.animate().translationY(SEARCH_MENU_OVERHANG - sv.getHeight())
             .setDuration(SCROLL_ANIMATION_SPEED_MS_FAST)
             .setInterpolator(new LinearInterpolator()).start();
@@ -160,7 +180,16 @@ public class ActivitySearch extends ActionBarActivity {
     mainView.post(new Runnable() {
       @Override
       public void run() {
-        sv.animate().translationY(SEARCH_MENU_OVERHANG - sv.getHeight())
+        RelativeLayout rLayout = (RelativeLayout) findViewById(R.id.rllayout_search_pull_down);
+        int searchWidgetTotalHeight = searchWidget.getMeasuredHeight()
+          + searchWidget.getPaddingTop();
+        SEARCH_MENU_OVERHANG = searchWidgetTotalHeight
+          + rLayout.getMeasuredHeight();
+        listView.setPadding(0, searchWidgetTotalHeight, 0, 0);
+        Log.e("HeyGuys", "So the top of the world is!!! "
+          + SEARCH_MENU_OVERHANG + " and sv is " + sv.getMeasuredHeight());
+        sv.animate()
+          .translationY(SEARCH_MENU_OVERHANG - sv.getMeasuredHeight())
           .setDuration(SCROLL_ANIMATION_SPEED_MS_SLOW)
           .setInterpolator(new LinearInterpolator()).start();
       }
@@ -231,6 +260,7 @@ public class ActivitySearch extends ActionBarActivity {
     });
   }
 
+  @SuppressLint("InflateParams")
   private void showActionBar() {
     LayoutInflater inflator = (LayoutInflater) this
       .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -301,7 +331,7 @@ public class ActivitySearch extends ActionBarActivity {
     }
   }
 
-  @SuppressLint("NewApi")
+  @SuppressLint({ "NewApi", "InflateParams" })
   private void buildSortDialog() {
     // Get the layout inflater
     LayoutInflater inflater = getLayoutInflater();
