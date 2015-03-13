@@ -6,7 +6,10 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import com.parse.FindCallback;
@@ -20,7 +23,9 @@ import com.parse.SaveCallback;
 import com.warpspace.ecardv4.R;
 import com.warpspace.ecardv4.utils.AsyncTasks;
 import com.warpspace.ecardv4.utils.ECardUtils;
+import com.warpspace.ecardv4.utils.MyTag;
 
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaPlayer;
@@ -85,7 +90,7 @@ public class ActivityNotesSearch extends ActionBarActivity {
 				}
 			}
 
-			private void displayNote(ParseObject object) {
+			private void displayNote(final ParseObject object) {
 				TextView whenMet = (TextView) findViewById(R.id.DateAdded);
 				whenMet.setText(android.text.format.DateFormat.format("MMM", object.getCreatedAt()) + " " + 
 						android.text.format.DateFormat.format("dd", object.getCreatedAt()) + ", " +
@@ -105,27 +110,63 @@ public class ActivityNotesSearch extends ActionBarActivity {
 				if(notesContent != null) {
 					notes.setText(notesContent);
 				}				
-				ParseFile audioFile = (ParseFile) object.get("voiceNotes");
-	            if (audioFile != null) {
-	              byte[] audioData;
-				  try {
-					audioData = audioFile.getData();
-					FileOutputStream out = new FileOutputStream(filepath);
-		            out.write(audioData);
-		            out.close();
-				  } catch (ParseException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				  } catch (FileNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				  } catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				  }
-	            } else {
-	            	replayButton.setEnabled(false);
-	            }
+				byte[] tmpVoiceData = (byte[]) object.get("tmpVoiceByteArray");
+				if (tmpVoiceData != null) {
+					// save as parseFile then clean the array if there is network
+					// this is necessary as user can switch on network without restarting app
+					if(ECardUtils.isNetworkAvailable(ActivityNotesSearch.this)){
+						final ParseFile voiceFile = new ParseFile("voicenote.mp4", tmpVoiceData);
+					    voiceFile.saveInBackground(new SaveCallback(){
+
+							@Override
+							public void done(ParseException arg0) {
+								object.put("voiceNotes", voiceFile);
+								object.remove("tmpVoiceByteArray");
+								object.saveEventually();
+							}
+					    	
+					    });
+					}
+					// use the array to populate replay no matter with network or not
+					FileOutputStream out;
+					try {
+						out = new FileOutputStream(filepath);
+						out.write(tmpVoiceData);
+			            out.close();
+					} catch (FileNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}					
+					 
+				} else {
+					// only check the voiceNotes when tmpVoice data is empty
+					// that is always use tmpArray to overwrite voiceNotes if there is conflict
+					ParseFile audioFile = (ParseFile) object.get("voiceNotes");
+		            if (audioFile != null) {
+		              byte[] audioData;
+					  try {
+						audioData = audioFile.getData();
+						FileOutputStream out = new FileOutputStream(filepath);
+			            out.write(audioData);
+			            out.close();
+					  } catch (ParseException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					  } catch (FileNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					  } catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					  }
+		            } else {
+		            	// if both tmparray and voiceNotes are null, then it means no voice note at all
+		            	replayButton.setEnabled(false);
+		            }
+				}
 			}
 			
 		});		
@@ -232,9 +273,7 @@ public class ActivityNotesSearch extends ActionBarActivity {
 			return super.onOptionsItemSelected(item);
 		}
 	}
-	
-	//Bo, need your help to save those info into our database, when user clicks on "save" button in the menu
-	
+		
 	private void saveNoteChanges(String noteId) {
 		ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardNote");
 		query.fromLocalDatastore();
@@ -243,14 +282,7 @@ public class ActivityNotesSearch extends ActionBarActivity {
 			@Override
 			public void done(final ParseObject object, ParseException e) {
 				if(e==null){
-					if(object != null){						
-						EditText whereMet = (EditText) findViewById(R.id.PlaceAdded);
-						EditText eventMet = (EditText) findViewById(R.id.EventAdded);
-						EditText notes = (EditText) findViewById(R.id.EditNotes);
-						object.put("where_met", whereMet.getText().toString());
-						object.put("event_met", eventMet.getText().toString());
-						object.put("notes", notes.getText().toString());
-						
+					if(object != null){										
 						FileInputStream fileInputStream=null;						 
 				        File file = new File(filepath);				 
 				        byte[] bFile = new byte[(int) file.length()];				 				        
@@ -266,17 +298,30 @@ public class ActivityNotesSearch extends ActionBarActivity {
 							// TODO Auto-generated catch block
 							e1.printStackTrace();
 						}
-					    final ParseFile voiceFile = new ParseFile("voicenote.mp4", bFile);
-					    voiceFile.saveInBackground(new SaveCallback(){
-
-							@Override
-							public void done(ParseException arg0) {
-								object.put("voiceNotes", voiceFile);
-								object.saveEventually();
-								Toast.makeText(ActivityNotesSearch.this, "Changes saved!", Toast.LENGTH_SHORT).show();
-							}
-					    	
-					    });
+						if(ECardUtils.isNetworkAvailable(ActivityNotesSearch.this)){
+						    final ParseFile voiceFile = new ParseFile("voicenote.mp4", bFile);
+						    voiceFile.saveInBackground(new SaveCallback(){
+	
+								@Override
+								public void done(ParseException arg0) {
+									object.put("voiceNotes", voiceFile);
+									saveChangesToParse(object);
+									Toast.makeText(ActivityNotesSearch.this, "Changes saved!", Toast.LENGTH_SHORT).show();
+								}
+						    	
+						    });
+						} else {
+							// if network not available, save voicenote with unique name then record in local database
+							Toast.makeText(ActivityNotesSearch.this, "No network, caching voice note", Toast.LENGTH_SHORT).show(); 
+		                	object.put("tmpVoiceByteArray", bFile);
+		                	// flush sharedpreferences to 1969 so next time app opens with internet, convert the file
+		                	Date currentDate=new Date(0);
+		        			SharedPreferences prefs = getSharedPreferences(ActivityBufferOpening.MY_PREFS_NAME, MODE_PRIVATE);
+		        			SharedPreferences.Editor prefEditor = prefs.edit();
+							prefEditor.putLong("DateNoteSynced", currentDate.getTime());
+							prefEditor.commit();
+		                	saveChangesToParse(object);
+						}
 					}
 				} else {
 					e.printStackTrace();
@@ -286,6 +331,20 @@ public class ActivityNotesSearch extends ActionBarActivity {
 		});
 		
 	}
+	
+	private void saveChangesToParse(ParseObject object) {
+		EditText whereMet = (EditText) findViewById(R.id.PlaceAdded);
+		EditText eventMet = (EditText) findViewById(R.id.EventAdded);
+		EditText notes = (EditText) findViewById(R.id.EditNotes);
+		object.put("where_met", whereMet.getText().toString());
+		object.put("event_met", eventMet.getText().toString());
+		object.put("notes", notes.getText().toString());		
+		
+		object.saveEventually();
+		Toast.makeText(getBaseContext(), "Save successful", Toast.LENGTH_SHORT).show();
+		
+	}
+	
 	private void stopRecording() {
 	    if (null != recorder) {
 	        recorder.stop();
@@ -330,6 +389,7 @@ public class ActivityNotesSearch extends ActionBarActivity {
 	    }
 	    return (file.getAbsolutePath() + "/voicenote.mp4");
 	}
+		
 	private void changebuttontext(int id, String text) {
 	    ((Button) findViewById(id)).setText(text);
 	}

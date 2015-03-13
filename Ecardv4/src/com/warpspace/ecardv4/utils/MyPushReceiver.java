@@ -13,10 +13,12 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.warpspace.ecardv4.ActivityBufferOpening;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -40,7 +42,9 @@ public class MyPushReceiver extends BroadcastReceiver {
         // Toast.makeText(context,message, Toast.LENGTH_SHORT).show();
         
 		// upon opening, pin online conversations to local
-		final AsyncTasks.SyncDataTaskConversations syncConversations = new AsyncTasks.SyncDataTaskConversations(context, currentUser);
+		SharedPreferences prefs = context.getSharedPreferences(ActivityBufferOpening.MY_PREFS_NAME, context.MODE_PRIVATE);
+		SharedPreferences.Editor prefEditor = prefs.edit();
+		final AsyncTasks.SyncDataTaskConversations syncConversations = new AsyncTasks.SyncDataTaskConversations(context, currentUser, prefs, prefEditor);
 		syncConversations.execute();
 		Handler handlerConversations = new Handler();
 		handlerConversations.postDelayed(new Runnable() {

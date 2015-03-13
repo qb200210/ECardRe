@@ -8,12 +8,15 @@ import java.util.List;
 import java.util.TreeSet;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
+import android.app.Activity;
 
+import com.parse.DeleteCallback;
 import com.parse.FindCallback;
 import com.parse.ParseACL;
 import com.parse.ParseException;
@@ -23,6 +26,7 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.warpspace.ecardv4.ActivityBufferOpening;
+import com.warpspace.ecardv4.ActivityMain;
 
 public class AsyncTasks {
 	
@@ -62,13 +66,15 @@ public class AsyncTasks {
 		private SharedPreferences prefs;
 		private SharedPreferences.Editor prefEditor;
 		private boolean flagShouldSync;
+		private boolean imgFromTmpData;
 
-		public SyncDataTaskSelfCopy(Context context, ParseUser currentUser, SharedPreferences prefs, SharedPreferences.Editor prefEditor){
+		public SyncDataTaskSelfCopy(Context context, ParseUser currentUser, SharedPreferences prefs, SharedPreferences.Editor prefEditor, boolean imgFromTmpData){
 			this.context = context;
 			this.currentUser = currentUser;
 			this.prefs = prefs;
 			this.prefEditor = prefEditor;
 			this.flagShouldSync = false;
+			this.imgFromTmpData = imgFromTmpData;
 		}
 		@Override
 		protected String doInBackground(String... url) {
@@ -130,6 +136,11 @@ public class AsyncTasks {
 			if(flagShouldSync){
 				Toast.makeText(context, "saved self copy", Toast.LENGTH_SHORT).show();
 			}
+			// if there is network, wait till self sync completes before finishing BufferOpening
+			Intent intent = new Intent(context, ActivityMain.class);
+			intent.putExtra("imgFromTmpData", imgFromTmpData);
+			context.startActivity(intent);
+			((Activity)context).finish();
 		}
 
 	}
@@ -139,105 +150,136 @@ public class AsyncTasks {
 
 		private Context context;
 		private ParseUser currentUser;
+		private SharedPreferences prefs;
+		private SharedPreferences.Editor prefEditor;
+		private boolean flagShouldSync;
 
-		public SyncDataTaskNotes(Context context, ParseUser currentUser){
+		public SyncDataTaskNotes(Context context, ParseUser currentUser, SharedPreferences prefs, SharedPreferences.Editor prefEditor){
 			this.context = context;
 			this.currentUser = currentUser;
+			this.prefs = prefs;
+			this.prefEditor = prefEditor;
+			this.flagShouldSync = false;
 		}
 		
 		@Override
 		protected String doInBackground(String... params) {
+			// get the stored shared last sync date, if null, default to 1969
+			long millis = prefs.getLong("DateNoteSynced", 0L);
+			Date lastSyncedDate = new Date(millis);
+			
 			ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardNote");
 			query.whereEqualTo("userId", currentUser.getObjectId());
-			List<ParseObject> noteObjectsTmp = null;
+			query.whereGreaterThan("updatedAt", lastSyncedDate);
+			List<ParseObject> noteObjects = null;
 			try {
-				noteObjectsTmp = query.find();
+				noteObjects = query.find();
 			} catch (ParseException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-			final List<ParseObject> noteObjects = noteObjectsTmp;
-			ParseQuery<ParseObject> queryLocal = ParseQuery.getQuery("ECardNote");
-			queryLocal.fromLocalDatastore();
-			queryLocal.whereEqualTo("userId", currentUser.getObjectId());
-			queryLocal.findInBackground(new FindCallback<ParseObject>() {
-
-				private TreeSet<String> serverNoteIds = new TreeSet<String>();
-				private TreeSet<String> ecardIdsTree = new TreeSet<String>();
-				private List<ParseObject> toBeUnpinned = new ArrayList<ParseObject>();
-
-				@Override
-				public void done(List<ParseObject> localObjects, ParseException e) {
-					if (e == null) {
-						if (localObjects.size() != 0) {
-							// unpin all local note records that do not exist on server
-							if (noteObjects.size() != 0) {
-								for (Iterator<ParseObject> iter = noteObjects.iterator(); iter.hasNext();) {
-									ParseObject obj = iter.next();
-									serverNoteIds.add(obj.getObjectId());
-								}
-								for (Iterator<ParseObject> iter = localObjects.iterator(); iter.hasNext();) {
-									ParseObject localObj = iter.next();
-									if (!serverNoteIds.contains(localObj.getObjectId())) {
-										// if the local record doesn't exist on server, record for unpin
-										toBeUnpinned.add(localObj);
-									}
-								}
-							} else {
-								toBeUnpinned = localObjects;
-							}
-							if (toBeUnpinned.size() != 0) {
-								try {
-									ParseObject.unpinAll(toBeUnpinned);
-								} catch (ParseException e1) {
-									// TODO Auto-generated catch block
-									e1.printStackTrace();
-								}
+			if(noteObjects != null && noteObjects.size()!=0){
+				flagShouldSync = true;
+				// unpin those notes that are deleted
+				for(Iterator<ParseObject> iter = noteObjects.iterator(); iter.hasNext();){
+					ParseObject objNote = iter.next();
+					// This is to cache all associated parseFiles
+					ParseFile voiceNote = (ParseFile) objNote.get("voiceNotes");
+					if(voiceNote !=null){
+						try {
+							// dummy statement to force caching data
+							voiceNote.getData();
+						} catch (ParseException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}					
+					if(objNote.get("isDeleted") != null){
+						if( (boolean) objNote.get("isDeleted") == true){
+							try {
+								// unpin the "deleted" object
+								objNote.unpin();
+								// remove it from the to-be-pinned list
+								iter.remove();
+							} catch (ParseException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
 							}
 						}
-						if (noteObjects.size() != 0) {
-							// pin down all note records to local
-							// placeholder: should compare time to decide whether to save to server or pin to local
-							try {
-								ParseObject.pinAll(noteObjects);
-							} catch (ParseException e1) {
-								// TODO Auto-generated catch block
-								e1.printStackTrace();
-							}
-							for (Iterator<ParseObject> iter = noteObjects.iterator(); iter.hasNext();) {
-								ParseObject objNote = iter.next();
-								ecardIdsTree.add(objNote.get("ecardId").toString());
-							}
-							ParseQuery<ParseObject> query1 = ParseQuery.getQuery("ECardInfo");
-							query1.whereContainedIn("objectId", ecardIdsTree);
-							List<ParseObject> infoObjects = null;
-							try {
-								infoObjects = query1.find();
-							} catch (ParseException e1) {
-								// TODO Auto-generated catch block
-								e1.printStackTrace();
-							}
-							if (infoObjects != null) {
-								try {
-									ParseObject.pinAll(infoObjects);
-								} catch (ParseException e1) {
-									e1.printStackTrace();
-								}								
-							}
-						}
-					} else {
-						e.printStackTrace();
 					}
 				}
-
-			});
-			
+				TreeSet<String> ecardIdsTree = new TreeSet<String>();
+				for(Iterator<ParseObject> iter = noteObjects.iterator(); iter.hasNext();){
+					ParseObject objNote = iter.next();
+					ecardIdsTree.add(objNote.get("ecardId").toString());
+					byte[] tmpVoiceData = (byte[]) objNote.get("tmpVoiceByteArray");
+					if (tmpVoiceData != null) {
+						// if there is cached data in the array on server, convert to ParseFile then clear the array
+						final ParseFile file = new ParseFile("voicenote.mp4", tmpVoiceData);					
+						try {
+							file.save();
+							Log.i("notes", "Cached voice note saved!");
+							objNote.put("voiceNotes", file);
+							objNote.remove("tmpVoiceByteArray");
+							// do not use saveEventually, easily leads to corrupted data
+							objNote.save();
+						} catch (ParseException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}					
+					}
+				}
+				// find associated Ecards
+				ParseQuery<ParseObject> query1 = ParseQuery.getQuery("ECardInfo");
+				query1.whereContainedIn("objectId", ecardIdsTree);
+				List<ParseObject> infoObjects = null;
+				try {
+					infoObjects = query1.find();
+				} catch (ParseException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				// pin infoObjects
+				if (infoObjects != null) {
+					for(Iterator<ParseObject> iter = infoObjects.iterator(); iter.hasNext();){
+						ParseObject objInfo = iter.next();
+						// This is to cache all associated parseFiles
+						ParseFile portraitImg = (ParseFile) objInfo.get("portrait");
+						if(portraitImg !=null){
+							try {
+								portraitImg.getData();
+							} catch (ParseException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
+					}
+					try {
+						ParseObject.pinAll(infoObjects);
+					} catch (ParseException e1) {
+						e1.printStackTrace();
+					}								
+				}
+				// pin noteObjects
+				try {
+					ParseObject.pinAll(noteObjects);
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}			
+			}
+			// flush sharedpreference with today's date after all notes saved
+			Date currentDate=new Date();
+			prefEditor.putLong("DateNoteSynced", currentDate.getTime());
+			prefEditor.commit();
 			return null;
 		}
 		
 		@Override
 		protected void onPostExecute(String result) {
-			Toast.makeText(context, "synced notes", Toast.LENGTH_SHORT).show();
+			if(flagShouldSync){
+				Toast.makeText(context, "synced notes", Toast.LENGTH_SHORT).show();
+			}
 		}
 		
 	}
@@ -246,110 +288,108 @@ public class AsyncTasks {
 		
 		private Context context;
 		private ParseUser currentUser;
+		private SharedPreferences prefs;
+		private SharedPreferences.Editor prefEditor;
+		private boolean flagShouldSync;
 		
-		public SyncDataTaskConversations(Context context, ParseUser currentUser){
+		public SyncDataTaskConversations(Context context, ParseUser currentUser, SharedPreferences prefs, SharedPreferences.Editor prefEditor){
 			this.context = context;
 			this.currentUser = currentUser;
+			this.prefs = prefs;
+			this.prefEditor = prefEditor;
+			this.flagShouldSync = false;
 		}
 
 		@Override
 		protected String doInBackground(String... params) {
-				// find all conversations from the parse
-				ParseQuery<ParseObject> query = ParseQuery.getQuery("Conversations");
-				query.whereEqualTo("partyB", currentUser.get("ecardId").toString());
-				List<ParseObject> objectsTmp = null;
+			// get the stored shared last sync date, if null, default to 1969
+			long millis = prefs.getLong("DateConversationsSynced", 0L);
+			Date lastSyncedDate = new Date(millis);	
+			
+			ParseQuery<ParseObject> query = ParseQuery.getQuery("Conversations");
+			query.whereEqualTo("partyB", currentUser.get("ecardId").toString());
+			query.whereGreaterThan("updatedAt", lastSyncedDate);
+			List<ParseObject> convObjects = null;
+			try {
+				convObjects = query.find();
+			} catch (ParseException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
+			if(convObjects != null && convObjects.size()!=0){
+				flagShouldSync = true;
+				for(Iterator<ParseObject> iter = convObjects.iterator(); iter.hasNext();){
+					ParseObject objConv = iter.next();			
+					if(objConv.get("isDeleted") != null){
+						if( (boolean) objConv.get("isDeleted") == true){
+							try {
+								// unpin the "deleted" object
+								objConv.unpin();
+								// remove it from the to-be-pinned list
+								iter.remove();
+							} catch (ParseException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
+					}
+				}
+				TreeSet<String> ecardIdsTree = new TreeSet<String>();
+				for(Iterator<ParseObject> iter = convObjects.iterator(); iter.hasNext();){
+					ParseObject objConv = iter.next();
+					ecardIdsTree.add(objConv.get("partyA").toString());						
+				}
+				// find associated Ecards
+				ParseQuery<ParseObject> query1 = ParseQuery.getQuery("ECardInfo");
+				query1.whereContainedIn("objectId", ecardIdsTree);
+				List<ParseObject> infoObjects = null;
 				try {
-					objectsTmp = query.find();
+					infoObjects = query1.find();
 				} catch (ParseException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-				final List<ParseObject> objects = objectsTmp;
-
-				// remove all objects locally then pin from parse
-				// this is special because for conversations, server always wins
-				ParseQuery<ParseObject> queryLocal = ParseQuery.getQuery("Conversations");
-				queryLocal.fromLocalDatastore();
-				queryLocal.whereEqualTo("partyB", currentUser.get("ecardId").toString());
-				queryLocal.findInBackground(new FindCallback<ParseObject>() {
-
-					private TreeSet<String> serverConversationIds = new TreeSet<String>();
-					private TreeSet<String> ecardIdsTree = new TreeSet<String>();
-					private List<ParseObject> toBeUnpinned = new ArrayList<ParseObject>();
-
-					@Override
-					public void done(List<ParseObject> localObjects, ParseException e) {
-						if (e == null) {
-							if (localObjects.size() != 0) {
-								// unpin all local conversation records that do not exist on server
-								if (objects.size() != 0) {
-									for (Iterator<ParseObject> iter = objects.iterator(); iter.hasNext();) {
-										ParseObject obj = iter.next();
-										serverConversationIds.add(obj.getObjectId());
-									}
-									for (Iterator<ParseObject> iter = localObjects.iterator(); iter.hasNext();) {
-										ParseObject localObj = iter.next();
-										if (!serverConversationIds.contains(localObj.getObjectId())) {
-											// if the local record doesn't exist on server, record for unpin
-											toBeUnpinned.add(localObj);
-										}
-									}
-								} else {
-									toBeUnpinned = localObjects;
-								}
-								if (toBeUnpinned.size() != 0) {
-									try {
-										ParseObject.unpinAll(toBeUnpinned);
-									} catch (ParseException e1) {
-										// TODO Auto-generated catch block
-										e1.printStackTrace();
-									}
-								}
+				// pin infoObjects
+				if (infoObjects != null) {
+					for(Iterator<ParseObject> iter = infoObjects.iterator(); iter.hasNext();){
+						ParseObject objInfo = iter.next();
+						// This is to cache all associated parseFiles
+						ParseFile portraitImg = (ParseFile) objInfo.get("portrait");
+						if(portraitImg !=null){
+							try {
+								portraitImg.getData();
+							} catch (ParseException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
 							}
-							if (objects.size() != 0) {
-								// pin down all conversation records to local
-								try {
-									ParseObject.pinAll(objects);
-								} catch (ParseException e1) {
-									// TODO Auto-generated catch block
-									e1.printStackTrace();
-								}
-								// directly find and save all ecards associated with incoming requests
-								for (Iterator<ParseObject> iter = objects.iterator(); iter.hasNext();) {
-									ParseObject objConversation = iter.next();
-									ecardIdsTree.add(objConversation.get("partyA").toString());
-								}
-								ParseQuery<ParseObject> query1 = ParseQuery.getQuery("ECardInfo");
-								query1.whereContainedIn("objectId", ecardIdsTree);
-								List<ParseObject> infoObjects = null;
-								try {
-									infoObjects = query1.find();
-								} catch (ParseException e1) {
-									// TODO Auto-generated catch block
-									e1.printStackTrace();
-								}
-								if (infoObjects != null) {
-									try {
-										ParseObject.pinAll(infoObjects);
-									} catch (ParseException e1) {
-										// TODO Auto-generated catch block
-										e1.printStackTrace();
-									}
-									// Toast.makeText(context,"Incoming cards cached to local", Toast.LENGTH_SHORT).show();
-								}								
-							}
-						} else {
-							e.printStackTrace();
 						}
 					}
-				});
-			
+					try {
+						ParseObject.pinAll(infoObjects);
+					} catch (ParseException e1) {
+						e1.printStackTrace();
+					}								
+				}
+				// pin convObjects
+				try {
+					ParseObject.pinAll(convObjects);
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}		
+			}
+			// flush sharedpreference with today's date after all notes saved
+			Date currentDate=new Date();
+			prefEditor.putLong("DateConversationsSynced", currentDate.getTime());
+			prefEditor.commit();
 			return null;
 		}
 		
 		@Override
 		protected void onPostExecute(String result) {
-			Toast.makeText(context, "synced conversations", Toast.LENGTH_SHORT).show();
+			if(flagShouldSync){
+				Toast.makeText(context, "synced conversations", Toast.LENGTH_SHORT).show();
+			}
 		}
 		
 	}
@@ -361,10 +401,13 @@ public class AsyncTasks {
 		ECardSQLHelper db;
 		List<String> scannedIDs;
 		List<OfflineData> olDatas;
+		private boolean flagShouldSync;
+		
 
 		public SyncDataTaskCachedIds(Context context, ParseUser currentUser){
 			this.context = context;
 			this.currentUser = currentUser;
+			this.flagShouldSync = false;
 		}
 		
 		@Override
@@ -374,6 +417,7 @@ public class AsyncTasks {
 			// getting all local db data to check against EcardIds
 			olDatas = db.getAllData();
 			if (olDatas.size() != 0) {
+				flagShouldSync = true;
 				Log.i("CachedIds", "Found unsaved Ecards");
 				// If there are unsaved offline list, check and save them
 				scannedIDs = new LinkedList<String>();
@@ -526,7 +570,9 @@ public class AsyncTasks {
 		
 		@Override
 		protected void onPostExecute(String result) {
-			Toast.makeText(context, "synced cachedIds", Toast.LENGTH_SHORT).show();
+			if(flagShouldSync){
+				Toast.makeText(context, "synced cachedIds", Toast.LENGTH_SHORT).show();
+			}
 		}
 		
 	}

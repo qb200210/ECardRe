@@ -76,19 +76,24 @@ public class ActivityBufferOpening extends Activity {
 			SharedPreferences.Editor prefEditor = prefs.edit();
 			
 			// syncing data within given timeout		
+			// when self sync done, transition
 			syncAllDataUponOpening(prefs, prefEditor);
+		} else{
+			// when no network, transition after specified time
+			timerToJump();
 		}
 		
-		// if tmpImgByteArray not null, need to convert regardless of network
+		// if tmpImgByteArray not null, need to convert to img file regardless of network
 		checkPortrait();
 		// only display the splash screen for an amount of time
 		// should I have it depend on the completion of self-copy sync instead?
-		timerToJump();
+		
+		
 	}
 	
 	private void syncAllDataUponOpening(SharedPreferences prefs, SharedPreferences.Editor prefEditor) {
 		// Create/refresh local copy every time app opens
-		final AsyncTasks.SyncDataTaskSelfCopy createSelfCopy = new AsyncTasks.SyncDataTaskSelfCopy(this, currentUser, prefs, prefEditor);
+		final AsyncTasks.SyncDataTaskSelfCopy createSelfCopy = new AsyncTasks.SyncDataTaskSelfCopy(this, currentUser, prefs, prefEditor, imgFromTmpData);
 		createSelfCopy.execute();
 		Handler handler = new Handler();
 		handler.postDelayed(new Runnable() {
@@ -99,12 +104,18 @@ public class ActivityBufferOpening extends Activity {
 					Toast.makeText(getApplicationContext(), "Self Copy Timed Out", Toast.LENGTH_SHORT).show();
 					timeoutFlag = true;
 					createSelfCopy.cancel(true);
+					
+					// if there is network, but self sync timed out, still get pass the BufferOpening
+					Intent intent = new Intent(getBaseContext(), ActivityMain.class);
+					intent.putExtra("imgFromTmpData", imgFromTmpData);
+					startActivity(intent);
 				}
+				
 			}
 		}, CREATE_SELF_COPY_TIMEOUT);
 		
 		// upon opening, pin online conversations to local
-		final AsyncTasks.SyncDataTaskConversations syncConversations = new AsyncTasks.SyncDataTaskConversations(this, currentUser);
+		final AsyncTasks.SyncDataTaskConversations syncConversations = new AsyncTasks.SyncDataTaskConversations(this, currentUser, prefs, prefEditor);
 		syncConversations.execute();
 		Handler handlerConversations = new Handler();
 		handlerConversations.postDelayed(new Runnable() {
@@ -120,7 +131,7 @@ public class ActivityBufferOpening extends Activity {
 		}, CONVERSATIONS_TIMEOUT);
 		
 		// upon opening, pin online notes to local
-		final AsyncTasks.SyncDataTaskNotes syncNotes = new AsyncTasks.SyncDataTaskNotes(this, currentUser);
+		final AsyncTasks.SyncDataTaskNotes syncNotes = new AsyncTasks.SyncDataTaskNotes(this, currentUser, prefs, prefEditor);
 		syncNotes.execute();
 		Handler handlerNotes = new Handler();
 		handlerNotes.postDelayed(new Runnable() {
@@ -182,6 +193,7 @@ public class ActivityBufferOpening extends Activity {
 
 			@Override
 			public void run() {
+				// if there is no network, wait 1 sec to show splash screen before finishing BufferOpening
 				Intent intent = new Intent(getBaseContext(), ActivityMain.class);
 				intent.putExtra("imgFromTmpData", imgFromTmpData);
 				startActivity(intent);

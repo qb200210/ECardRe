@@ -11,6 +11,7 @@ import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -299,8 +300,10 @@ public class ActivitySearch extends ActionBarActivity {
     case R.id.download_cards:
       if (ECardUtils.isNetworkAvailable(this)) {
         // upon opening, pin online notes to local
+    	SharedPreferences prefs = getSharedPreferences(ActivityBufferOpening.MY_PREFS_NAME, MODE_PRIVATE);
+		SharedPreferences.Editor prefEditor = prefs.edit();
         final AsyncTasks.SyncDataTaskNotes syncNotes = new AsyncTasks.SyncDataTaskNotes(
-          this, currentUser);
+          this, currentUser, prefs, prefEditor);
         syncNotes.execute();
         Handler handlerNotes = new Handler();
         handlerNotes.postDelayed(new Runnable() {

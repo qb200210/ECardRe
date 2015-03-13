@@ -209,6 +209,7 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 			this.finish();
 			return true;
 		case R.id.scanned_save:
+			// !!!!!!!! need to consider the case the note isDeleted -- maybe should flip the flag and reload the data
 			// save scanned card either online or cache it offline
 			if (ECardUtils.isNetworkAvailable(this)) {
 				final AsyncTasks.AddCardNetworkAvailable addNewCard = new AsyncTasks.AddCardNetworkAvailable(this, currentUser, scannedUser.getObjId());
