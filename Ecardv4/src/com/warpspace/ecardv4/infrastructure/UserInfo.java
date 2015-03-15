@@ -43,7 +43,7 @@ public class UserInfo implements Parcelable {
   Bitmap portrait;
   String whereMet;
   String eventMet;
-  Date createdAt;
+  Date addedAt;
 
   ArrayList<String> shownArrayList = new ArrayList<String>();
   ArrayList<Integer> infoIcon = new ArrayList<Integer>();
@@ -60,23 +60,105 @@ public class UserInfo implements Parcelable {
     this.city = "Unspecified";
     this.whereMet = "Unspecified";
     this.eventMet = "Unspecified";
-    this.createdAt = null;
+    this.addedAt = null;
   }
 
-  public UserInfo(String objId, String firstName, String lastName,
+  private static ParseObject getParseObjectFromObjId(String objId,
     boolean localData, boolean networkAvailable, boolean imgFromTmpData) {
-    setDefaults();
-    this.objId = objId;
-    this.firstName = firstName;
-    this.lastName = lastName;
-    populateUserInfoWithParseData(objId, localData, networkAvailable,
-      imgFromTmpData);
+    ParseObject object = null;
+    if (localData || networkAvailable) {
+      // If either this request is to build userInfo from localData
+      // Or the request is to build userInfo from pulling data online, proceed
+      // Otherwise do nothing
+      ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardInfo");
+      if (localData) {
+        // if flag true, means this is to pull data from localDataStore. Not
+        // likely in the event of scanning new cards
+        query.fromLocalDatastore();
+      }
+      try {
+        // Must not use the getinbackground() thread method,
+        // otherwise data won't be back before the UserInfo object is built
+        // may want to implement a loading screen if taking too long?
+        object = query.get(objId);
+      } catch (ParseException e1) {
+        // TODO Auto-generated catch block
+        e1.printStackTrace();
+      }
+    } else {
+      Log.w("Knowell", "ParseObject is not getting created");
+    }
+
+    return object;
+  }
+
+  public UserInfo(String objId, boolean localData, boolean networkAvailable,
+    boolean imgFromTmpData) {
+    this(getParseObjectFromObjId(objId, localData, networkAvailable,
+      imgFromTmpData));
   }
 
   public UserInfo(String objId) {
-    setDefaults();
-    this.objId = objId;
-    populateUserInfoWithParseData(objId, true, false, false);
+    this(objId, true, false, false);
+  }
+
+  public UserInfo(String objId, String fName, String lName, boolean localData,
+    boolean isNetworkAvailable, boolean imgFromTmpData) {
+    this(objId, localData, isNetworkAvailable, imgFromTmpData);
+
+    if (this.firstName != fName) {
+      Log.w("Knowell",
+        "First name read from QR code does not match value in DB");
+    }
+
+    if (this.lastName != lName) {
+      Log
+        .w("Knowell", "Last name read from QR code does not match value in DB");
+    }
+  }
+
+  public UserInfo(ParseObject parseObj) {
+    if (parseObj == null) {
+      throw new IllegalArgumentException(
+        "Parse Object is null when loading user");
+    }
+
+    // get portrait from cached img
+    ParseFile portraitFile = (ParseFile) parseObj.get("portrait");
+    if (portraitFile != null) {
+      byte[] data;
+      try {
+        data = portraitFile.getData();
+        portrait = BitmapFactory.decodeByteArray(data, 0, data.length);
+      } catch (ParseException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+    }
+
+    // main card info
+    firstName = parseObj.getString("firstName");
+    lastName = parseObj.getString("lastName");
+    company = parseObj.getString("company");
+    title = parseObj.getString("title");
+    city = parseObj.getString("city");
+
+    // extra info
+    infoIcon.clear();
+    infoLink.clear();
+    shownArrayList.clear();
+    for (int i = 0; i < allowedArray.length; i++) {
+      // the extra info item
+      String item = allowedArray[i];
+      // the value of this extra info item
+      Object value = parseObj.get(item);
+      if (value != null && value.toString() != "") {
+        infoIcon.add(iconSelector(item));
+        infoLink.add(value.toString());
+        // note down the existing extra info items
+        shownArrayList.add(item);
+      }
+    }
   }
 
   public UserInfo(Parcel source) {
@@ -105,71 +187,6 @@ public class UserInfo implements Parcelable {
     dest.writeStringList(shownArrayList);
     dest.writeStringList(infoLink);
     dest.writeList(infoIcon);
-  }
-
-  private void populateUserInfoWithParseData(String objId, boolean localData,
-    boolean networkAvailable, boolean imgFromTmpData) {
-    if (localData || networkAvailable) {
-      // If either this request is to build userInfo from localData
-      // Or the request is to build userInfo from pulling data online, proceed
-      // Otherwise do nothing
-      ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardInfo");
-      if (localData) {
-        // if flag true, means this is to pull data from localDataStore. Not
-        // likely in the event of scanning new cards
-        query.fromLocalDatastore();
-      }
-      try {
-        // Must not use the getinbackground() thread method,
-        // otherwise data won't be back before the UserInfo object is built
-        // may want to implement a loading screen if taking too long?
-        ParseObject object = query.get(objId);
-        if (object != null) {
-          if (!imgFromTmpData) {
-            // get portrait from cached img
-            ParseFile portraitFile = (ParseFile) object.get("portrait");
-            if (portraitFile != null) {
-              byte[] data = portraitFile.getData();
-              portrait = BitmapFactory.decodeByteArray(data, 0, data.length);
-            }
-          } else {
-            byte[] tmpImgData = (byte[]) object.get("tmpImgByteArray");
-            portrait = BitmapFactory.decodeByteArray(tmpImgData, 0,
-              tmpImgData.length);
-          }
-
-          // main card info
-          firstName = object.getString("firstName");
-          lastName = object.getString("lastName");
-          company = object.getString("company");
-          title = object.getString("title");
-          city = object.getString("city");
-          createdAt = object.getCreatedAt();
-
-          Log.e("Dates!", "Created at " + createdAt);
-
-          // extra info
-          infoIcon.clear();
-          infoLink.clear();
-          shownArrayList.clear();
-          for (int i = 0; i < allowedArray.length; i++) {
-            // the extra info item
-            String item = allowedArray[i];
-            // the value of this extra info item
-            Object value = object.get(item);
-            if (value != null && value.toString() != "") {
-              infoIcon.add(iconSelector(item));
-              infoLink.add(value.toString());
-              // note down the existing extra info items
-              shownArrayList.add(item);
-            }
-          }
-        }
-      } catch (ParseException e1) {
-        // TODO Auto-generated catch block
-        e1.printStackTrace();
-      }
-    }
   }
 
   private Integer iconSelector(String key) {
@@ -331,11 +348,11 @@ public class UserInfo implements Parcelable {
   }
 
   public Date getCreatedAt() {
-    return createdAt;
+    return addedAt;
   }
 
   public void setCreatedAt(Date createdAt) {
-    this.createdAt = createdAt;
+    this.addedAt = createdAt;
   }
 
   public String[] getAllowedArray() {
@@ -379,14 +396,14 @@ public class UserInfo implements Parcelable {
   }
 
   public String getCity() {
-	return city;
-}
+    return city;
+  }
 
-public void setCity(String city) {
-	this.city = city;
-}
+  public void setCity(String city) {
+    this.city = city;
+  }
 
-public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+  public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
 
     @Override
     public UserInfo createFromParcel(Parcel source) {

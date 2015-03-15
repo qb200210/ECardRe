@@ -2,6 +2,7 @@ package com.warpspace.ecardv4;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -31,6 +32,8 @@ import android.view.animation.LinearInterpolator;
 import android.view.animation.OvershootInterpolator;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -70,11 +73,16 @@ public class ActivitySearch extends ActionBarActivity {
   View mainView;
   LinearLayout searchWidget;
 
-  public static ArrayList<UserInfo> userNames;
+  public static ArrayList<UserInfo> filteredUsers;
+  private static ArrayList<UserInfo> allUsers;
+  static ArrayList<String> userNames;
   SearchListAdapter adapter;
   AlphaInAnimationAdapter animationAdapter;
   StickyListHeadersAdapterDecorator stickyListHeadersAdapterDecorator;
   StickyListHeadersListView listView;
+
+  ArrayAdapter<String> autoCompleteAdapter;
+  AutoCompleteTextView searchBox;
 
   boolean droppedDown = false;
 
@@ -100,7 +108,9 @@ public class ActivitySearch extends ActionBarActivity {
 
     currentUser = ParseUser.getCurrentUser();
 
-    userNames = new ArrayList<UserInfo>();
+    allUsers = new ArrayList<UserInfo>();
+    filteredUsers = allUsers;
+    userNames = new ArrayList<String>();
 
     searchWidget = (LinearLayout) findViewById(R.id.lnlayout_search_widget);
 
@@ -122,11 +132,18 @@ public class ActivitySearch extends ActionBarActivity {
       }
     });
 
-    listView.setPadding(0, LIST_TOP_PADDING, 0, 0);
-
     getContacts();
 
     handleSearchDropDown();
+
+    searchBox = (AutoCompleteTextView) findViewById(R.id.txt_autocomplete_search);
+    populateAutoComplete(searchBox);
+  }
+
+  private void populateAutoComplete(AutoCompleteTextView textBox) {
+    autoCompleteAdapter = new ArrayAdapter<String>(this,
+      android.R.layout.simple_dropdown_item_1line, userNames);
+    textBox.setAdapter(autoCompleteAdapter);
   }
 
   private void handleSearchDropDown() {
@@ -193,6 +210,8 @@ public class ActivitySearch extends ActionBarActivity {
           .translationY(SEARCH_MENU_OVERHANG - sv.getMeasuredHeight())
           .setDuration(SCROLL_ANIMATION_SPEED_MS_SLOW)
           .setInterpolator(new LinearInterpolator()).start();
+
+        autoCompleteAdapter.notifyDataSetChanged();
       }
     });
 
@@ -214,44 +233,89 @@ public class ActivitySearch extends ActionBarActivity {
   private void getContacts() {
     ecardIds.clear();
     returnedIds.clear();
-    ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardNote");
-    query.fromLocalDatastore();
-    query.whereEqualTo("userId", currentUser.getObjectId());
-    // specifically for time search
-    query.findInBackground(new FindCallback<ParseObject>() {
 
+    /* A map of all the ECardNote objects to the noteID */
+    final HashMap<String, ParseObject> noteIdToNoteObjectMap = new HashMap<String, ParseObject>();
+
+    ParseQuery<ParseObject> queryNotes = ParseQuery.getQuery("ECardNote");
+    queryNotes.fromLocalDatastore();
+    queryNotes.whereEqualTo("userId", currentUser.getObjectId());
+
+    queryNotes.findInBackground(new FindCallback<ParseObject>() {
       @Override
-      public void done(List<ParseObject> objectsNoteList, ParseException e) {
-        if (e == null) {
+      public void done(List<ParseObject> objectsNoteList,
+        ParseException noteException) {
+        if (noteException == null) {
           if (objectsNoteList.size() != 0) {
-            System.out.println(objectsNoteList.size());
+            // Got a list of all the notes. Now collect all the noteIDs.
             for (Iterator<ParseObject> iter = objectsNoteList.iterator(); iter
               .hasNext();) {
               ParseObject objectNote = iter.next();
-              // collect EcardInfo IDs satisfying Note searches
-              // here object is Note object
-              String objectIdString = (String) objectNote.get("ecardId");
-              UserInfo contact = new UserInfo(objectIdString);
-              contact.setCreatedAt(objectNote.getCreatedAt());
-              userNames.add(contact);
+              String infoObjectId = (String) objectNote.get("ecardId");
+
+              // Add these values to the map.
+              Log.e("KnoWell", "Adding to map " + infoObjectId);
+              noteIdToNoteObjectMap.put(infoObjectId, objectNote);
             }
-            adapter = new SearchListAdapter(getApplicationContext(), userNames);
-            animationAdapter = new AlphaInAnimationAdapter(adapter);
-            stickyListHeadersAdapterDecorator = new StickyListHeadersAdapterDecorator(
-              animationAdapter);
-            stickyListHeadersAdapterDecorator
-              .setListViewWrapper(new StickyListHeadersListViewWrapper(listView));
 
-            assert animationAdapter.getViewAnimator() != null;
-            animationAdapter.getViewAnimator().setInitialDelayMillis(500);
+            /*
+             * Now, query the ECardInfoTable to get all the ECardInfo for the
+             * notes collected here.
+             */
+            ParseQuery<ParseObject> queryInfo = ParseQuery
+              .getQuery("ECardInfo");
+            queryInfo.fromLocalDatastore();
+            queryInfo.whereContainedIn("objectId",
+              noteIdToNoteObjectMap.keySet());
 
-            assert stickyListHeadersAdapterDecorator.getViewAnimator() != null;
-            stickyListHeadersAdapterDecorator.getViewAnimator()
-              .setInitialDelayMillis(500);
+            queryInfo.findInBackground(new FindCallback<ParseObject>() {
 
-            listView.setAdapter(stickyListHeadersAdapterDecorator);
-            adapter.reSortName(true);
-            stickyListHeadersAdapterDecorator.notifyDataSetChanged();
+              @Override
+              public void done(List<ParseObject> objectInfoList,
+                ParseException infoException) {
+                // Now we have a list of ECardInfo objects. Populate the
+                // userInfo list.
+                if (infoException == null) {
+                  // Iterate over the list.
+                  for (Iterator<ParseObject> iter = objectInfoList.iterator(); iter
+                    .hasNext();) {
+                    ParseObject objectInfo = iter.next();
+                    UserInfo contact = new UserInfo(objectInfo);
+                    if (contact != null) {
+                      // Contact has been created. Populate the "createdAt" from
+                      // the note object.
+                      String infoObjectId = (String) objectInfo.getObjectId();
+                      Log.e("KnoWell", "Adding to map " + infoObjectId);
+                      ParseObject objectNote = noteIdToNoteObjectMap
+                        .get(infoObjectId);
+                      contact.setCreatedAt(objectNote.getCreatedAt());
+                    }
+
+                    allUsers.add(contact);
+                  }
+
+                  adapter = new SearchListAdapter(getApplicationContext(),
+                    filteredUsers);
+                  animationAdapter = new AlphaInAnimationAdapter(adapter);
+                  stickyListHeadersAdapterDecorator = new StickyListHeadersAdapterDecorator(
+                    animationAdapter);
+                  stickyListHeadersAdapterDecorator
+                    .setListViewWrapper(new StickyListHeadersListViewWrapper(
+                      listView));
+
+                  assert animationAdapter.getViewAnimator() != null;
+                  animationAdapter.getViewAnimator().setInitialDelayMillis(500);
+
+                  assert stickyListHeadersAdapterDecorator.getViewAnimator() != null;
+                  stickyListHeadersAdapterDecorator.getViewAnimator()
+                    .setInitialDelayMillis(500);
+
+                  listView.setAdapter(stickyListHeadersAdapterDecorator);
+                  adapter.reSortName(true);
+                  stickyListHeadersAdapterDecorator.notifyDataSetChanged();
+                }
+              }
+            });
           }
         } else {
           Toast.makeText(getBaseContext(), "General parse error!",
@@ -300,8 +364,9 @@ public class ActivitySearch extends ActionBarActivity {
     case R.id.download_cards:
       if (ECardUtils.isNetworkAvailable(this)) {
         // upon opening, pin online notes to local
-    	SharedPreferences prefs = getSharedPreferences(ActivityBufferOpening.MY_PREFS_NAME, MODE_PRIVATE);
-		SharedPreferences.Editor prefEditor = prefs.edit();
+        SharedPreferences prefs = getSharedPreferences(
+          ActivityBufferOpening.MY_PREFS_NAME, MODE_PRIVATE);
+        SharedPreferences.Editor prefEditor = prefs.edit();
         final AsyncTasks.SyncDataTaskNotes syncNotes = new AsyncTasks.SyncDataTaskNotes(
           this, currentUser, prefs, prefEditor);
         syncNotes.execute();

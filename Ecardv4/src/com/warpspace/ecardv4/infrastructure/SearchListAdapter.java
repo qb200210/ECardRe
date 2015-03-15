@@ -1,7 +1,5 @@
 package com.warpspace.ecardv4.infrastructure;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -9,9 +7,9 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.Locale;
 
+import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.res.Resources;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,11 +19,8 @@ import android.widget.TextView;
 
 import com.nhaarman.listviewanimations.ArrayAdapter;
 import com.nhaarman.listviewanimations.itemmanipulation.swipedismiss.undo.UndoAdapter;
-import com.warpspace.ecardv4.ActivityMain;
 import com.warpspace.ecardv4.ActivitySearch;
 import com.warpspace.ecardv4.R;
-
-import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 
 public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
     UndoAdapter, StickyListHeadersAdapter {
@@ -35,8 +30,8 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
 
   public SearchListAdapter(final Context context, ArrayList<UserInfo> names) {
     mContext = context;
-    for (int i = 0; i < ActivitySearch.userNames.size(); i++) {
-      add(ActivitySearch.userNames.get(i));
+    for (int i = 0; i < ActivitySearch.filteredUsers.size(); i++) {
+      add(ActivitySearch.filteredUsers.get(i));
     }
   }
 
@@ -47,7 +42,7 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
 
   @Override
   public UserInfo getItem(final int position) {
-    return ActivitySearch.userNames.get(position);
+    return ActivitySearch.filteredUsers.get(position);
   }
 
   @Override
@@ -62,7 +57,7 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
     if (ascending == false) {
       comparer = Collections.reverseOrder(comparer);
     }
-    Collections.sort(ActivitySearch.userNames, comparer);
+    Collections.sort(ActivitySearch.filteredUsers, comparer);
   }
 
   public void reSortDate(boolean ascending) {
@@ -73,7 +68,7 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
     if (ascending == false) {
       comparer = Collections.reverseOrder(comparer);
     }
-    Collections.sort(ActivitySearch.userNames, comparer);
+    Collections.sort(ActivitySearch.filteredUsers, comparer);
   }
 
   @SuppressLint("NewApi")
@@ -84,16 +79,18 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
       convertView = LayoutInflater.from(mContext).inflate(
         R.layout.search_result_card, parent, false);
     }
-    
-    ImageView portraitImg = (ImageView) convertView.findViewById(R.id.search_image);
-	if (ActivitySearch.userNames.get(position).getPortrait() != null){
-		portraitImg.setImageBitmap(ActivitySearch.userNames.get(position).getPortrait());
-	}
+
+    ImageView portraitImg = (ImageView) convertView
+      .findViewById(R.id.search_image);
+    if (ActivitySearch.filteredUsers.get(position).getPortrait() != null) {
+      portraitImg.setImageBitmap(ActivitySearch.filteredUsers.get(position)
+        .getPortrait());
+    }
 
     TextView tv = (TextView) convertView
       .findViewById(R.id.list_row_draganddrop_textview);
 
-    tv.setText(ActivitySearch.userNames.get(position).getFirstName());
+    tv.setText(ActivitySearch.filteredUsers.get(position).getFirstName());
     tv.setTextAlignment(TextView.TEXT_ALIGNMENT_CENTER);
 
     return convertView;
@@ -108,7 +105,7 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
     }
 
     TextView headerText = (TextView) convertView.findViewById(R.id.text_header);
-    UserInfo localUser = ActivitySearch.userNames.get(position);
+    UserInfo localUser = ActivitySearch.filteredUsers.get(position);
 
     if (sortModeName) {
       String first = localUser.getFirstName();
@@ -127,9 +124,9 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
   @Override
   public long getHeaderId(final int position) {
     if (sortModeName) {
-      if (ActivitySearch.userNames.get(position).getFirstName() != null
-        && ActivitySearch.userNames.get(position).getFirstName() != "") {
-        return ActivitySearch.userNames.get(position).getFirstName()
+      if (ActivitySearch.filteredUsers.get(position).getFirstName() != null
+        && ActivitySearch.filteredUsers.get(position).getFirstName() != "") {
+        return ActivitySearch.filteredUsers.get(position).getFirstName()
           .toUpperCase(Locale.ENGLISH).toCharArray()[0];
       } else {
         Log.i("getHeaderId", "empty first name");
@@ -137,7 +134,7 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
       }
     } else {
       return dateToHeaderString(
-        ActivitySearch.userNames.get(position).getCreatedAt()).length();
+        ActivitySearch.filteredUsers.get(position).getCreatedAt()).length();
     }
   }
 
