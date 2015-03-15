@@ -23,6 +23,7 @@ import android.os.Handler;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -75,7 +76,7 @@ public class ActivitySearch extends ActionBarActivity {
 
   public static ArrayList<UserInfo> filteredUsers;
   private static ArrayList<UserInfo> allUsers;
-  static ArrayList<String> userNames;
+  static ArrayList<String> userFirstNames;
   SearchListAdapter adapter;
   AlphaInAnimationAdapter animationAdapter;
   StickyListHeadersAdapterDecorator stickyListHeadersAdapterDecorator;
@@ -83,6 +84,8 @@ public class ActivitySearch extends ActionBarActivity {
 
   ArrayAdapter<String> autoCompleteAdapter;
   AutoCompleteTextView searchBox;
+
+  SparseIntArray searchListToUserListMap;
 
   boolean droppedDown = false;
 
@@ -110,7 +113,8 @@ public class ActivitySearch extends ActionBarActivity {
 
     allUsers = new ArrayList<UserInfo>();
     filteredUsers = allUsers;
-    userNames = new ArrayList<String>();
+    userFirstNames = new ArrayList<String>();
+    searchListToUserListMap = new SparseIntArray();
 
     searchWidget = (LinearLayout) findViewById(R.id.lnlayout_search_widget);
 
@@ -137,12 +141,28 @@ public class ActivitySearch extends ActionBarActivity {
     handleSearchDropDown();
 
     searchBox = (AutoCompleteTextView) findViewById(R.id.txt_autocomplete_search);
-    populateAutoComplete(searchBox);
+    searchBox.setOnItemClickListener(new OnItemClickListener() {
+
+      @Override
+      public void onItemClick(AdapterView<?> parent, View view, int position,
+        long id) {
+        TextView selectedView = (TextView) view;
+        int index = userFirstNames.indexOf(selectedView.getText());
+
+        int allUsersIndex = searchListToUserListMap.get(index);
+        UserInfo selectedUser = allUsers.get(allUsersIndex);
+
+        Intent intent = new Intent(getBaseContext(), ActivityDetails.class);
+        // passing UserInfo is made possible through Parcelable
+        intent.putExtra("userinfo", selectedUser);
+        startActivity(intent);
+      }
+    });
   }
 
   private void populateAutoComplete(AutoCompleteTextView textBox) {
     autoCompleteAdapter = new ArrayAdapter<String>(this,
-      android.R.layout.simple_dropdown_item_1line, userNames);
+      android.R.layout.simple_dropdown_item_1line, userFirstNames);
     textBox.setAdapter(autoCompleteAdapter);
   }
 
@@ -152,7 +172,6 @@ public class ActivitySearch extends ActionBarActivity {
     sv.setOnClickListener(new OnClickListener() {
       @Override
       public void onClick(View v) {
-
       }
     });
 
@@ -204,14 +223,10 @@ public class ActivitySearch extends ActionBarActivity {
         SEARCH_MENU_OVERHANG = searchWidgetTotalHeight
           + rLayout.getMeasuredHeight();
         listView.setPadding(0, searchWidgetTotalHeight, 0, 0);
-        Log.e("HeyGuys", "So the top of the world is!!! "
-          + SEARCH_MENU_OVERHANG + " and sv is " + sv.getMeasuredHeight());
         sv.animate()
           .translationY(SEARCH_MENU_OVERHANG - sv.getMeasuredHeight())
           .setDuration(SCROLL_ANIMATION_SPEED_MS_SLOW)
           .setInterpolator(new LinearInterpolator()).start();
-
-        autoCompleteAdapter.notifyDataSetChanged();
       }
     });
 
@@ -254,7 +269,6 @@ public class ActivitySearch extends ActionBarActivity {
               String infoObjectId = (String) objectNote.get("ecardId");
 
               // Add these values to the map.
-              Log.e("KnoWell", "Adding to map " + infoObjectId);
               noteIdToNoteObjectMap.put(infoObjectId, objectNote);
             }
 
@@ -285,15 +299,23 @@ public class ActivitySearch extends ActionBarActivity {
                       // Contact has been created. Populate the "createdAt" from
                       // the note object.
                       String infoObjectId = (String) objectInfo.getObjectId();
-                      Log.e("KnoWell", "Adding to map " + infoObjectId);
                       ParseObject objectNote = noteIdToNoteObjectMap
                         .get(infoObjectId);
                       contact.setCreatedAt(objectNote.getCreatedAt());
-                    }
 
-                    allUsers.add(contact);
+                      allUsers.add(contact);
+
+                      // Add the positions to the map to retrieve the search
+                      // results.
+                      int userIndex = allUsers.size() - 1;
+
+                      userFirstNames.add(contact.getFirstName());
+                      searchListToUserListMap.append(userFirstNames.size() - 1,
+                        userIndex);
+                    }
                   }
 
+                  filteredUsers = new ArrayList<UserInfo>(allUsers);
                   adapter = new SearchListAdapter(getApplicationContext(),
                     filteredUsers);
                   animationAdapter = new AlphaInAnimationAdapter(adapter);
@@ -313,6 +335,10 @@ public class ActivitySearch extends ActionBarActivity {
                   listView.setAdapter(stickyListHeadersAdapterDecorator);
                   adapter.reSortName(true);
                   stickyListHeadersAdapterDecorator.notifyDataSetChanged();
+
+                  // Also update the Autocomplete search box.
+                  populateAutoComplete(searchBox);
+                  autoCompleteAdapter.notifyDataSetChanged();
                 }
               }
             });
