@@ -76,7 +76,7 @@ public class ActivitySearch extends ActionBarActivity {
 
   public static ArrayList<UserInfo> filteredUsers;
   private static ArrayList<UserInfo> allUsers;
-  static ArrayList<String> userFirstNames;
+  static ArrayList<String> autoCompleteList;
   SearchListAdapter adapter;
   AlphaInAnimationAdapter animationAdapter;
   StickyListHeadersAdapterDecorator stickyListHeadersAdapterDecorator;
@@ -113,7 +113,7 @@ public class ActivitySearch extends ActionBarActivity {
 
     allUsers = new ArrayList<UserInfo>();
     filteredUsers = allUsers;
-    userFirstNames = new ArrayList<String>();
+    autoCompleteList = new ArrayList<String>();
     searchListToUserListMap = new SparseIntArray();
 
     searchWidget = (LinearLayout) findViewById(R.id.lnlayout_search_widget);
@@ -147,7 +147,7 @@ public class ActivitySearch extends ActionBarActivity {
       public void onItemClick(AdapterView<?> parent, View view, int position,
         long id) {
         TextView selectedView = (TextView) view;
-        int index = userFirstNames.indexOf(selectedView.getText());
+        int index = autoCompleteList.indexOf(selectedView.getText());
 
         int allUsersIndex = searchListToUserListMap.get(index);
         UserInfo selectedUser = allUsers.get(allUsersIndex);
@@ -162,7 +162,7 @@ public class ActivitySearch extends ActionBarActivity {
 
   private void populateAutoComplete(AutoCompleteTextView textBox) {
     autoCompleteAdapter = new ArrayAdapter<String>(this,
-      android.R.layout.simple_dropdown_item_1line, userFirstNames);
+      android.R.layout.simple_dropdown_item_1line, autoCompleteList);
     textBox.setAdapter(autoCompleteAdapter);
   }
 
@@ -309,9 +309,40 @@ public class ActivitySearch extends ActionBarActivity {
                       // results.
                       int userIndex = allUsers.size() - 1;
 
-                      userFirstNames.add(contact.getFirstName());
-                      searchListToUserListMap.append(userFirstNames.size() - 1,
-                        userIndex);
+                      // Add first names.
+                      if (contact.getFirstName() != "") {
+                        autoCompleteList.add(contact.getFirstName());
+                        searchListToUserListMap.append(
+                          autoCompleteList.size() - 1, userIndex);
+                      }
+
+                      // Add last names.
+                      if (contact.getLastName() != "") {
+                        autoCompleteList.add(contact.getLastName());
+                        searchListToUserListMap.append(
+                          autoCompleteList.size() - 1, userIndex);
+                      }
+
+                      // Add Company.
+                      if (contact.getCompany() != "") {
+                        autoCompleteList.add(contact.getCompany());
+                        searchListToUserListMap.append(
+                          autoCompleteList.size() - 1, userIndex);
+                      }
+
+                      // Add City.
+                      if (contact.getCity() != "") {
+                        autoCompleteList.add(contact.getCity());
+                        searchListToUserListMap.append(
+                          autoCompleteList.size() - 1, userIndex);
+                      }
+
+                      // Add Title.
+                      if (contact.getTitle() != "") {
+                        autoCompleteList.add(contact.getTitle());
+                        searchListToUserListMap.append(
+                          autoCompleteList.size() - 1, userIndex);
+                      }
                     }
                   }
 
