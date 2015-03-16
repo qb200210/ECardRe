@@ -30,6 +30,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
+import android.media.MediaPlayer.OnCompletionListener;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -56,6 +57,7 @@ public class ActivityNotesSearch extends ActionBarActivity {
 	private static final String AUDIO_RECORDER_FOLDER = "AudioRecorder";
 	private static final long SAVENOTE_TIMEOUT = 5000;
 	CountDownTimer t;
+	private int flag=0;
 	private String ecardId;
 	private String noteId;
 	private String filepath;
@@ -175,12 +177,12 @@ public class ActivityNotesSearch extends ActionBarActivity {
 		    @Override
 		    public boolean onTouch(View v, MotionEvent event) {
 		    	if(event.getAction() == MotionEvent.ACTION_DOWN) {
-					Toast.makeText(ActivityNotesSearch.this, "Recording...", Toast.LENGTH_LONG).show();
+					Toast.makeText(ActivityNotesSearch.this, "Recording...", Toast.LENGTH_SHORT).show();
 					changebuttontext(R.id.recordButton,"Recording...");
-					
+					enableButton(R.id.replayButton,false);
 		            startRecording();
 					
-		             t = new CountDownTimer( 10000, 1000) {
+		             t = new CountDownTimer( 30000, 1000) {
 		            	 TextView counter=(TextView) findViewById(R.id.Timer);
 		                    @Override
 		                    public void onTick(long millisUntilFinished) {
@@ -191,7 +193,7 @@ public class ActivityNotesSearch extends ActionBarActivity {
 		                    	stopRecording();
 		                    	Toast.makeText(ActivityNotesSearch.this, "Max Recording Length Reached.", Toast.LENGTH_SHORT).show();
 		    		            changebuttontext(R.id.recordButton,"Hold to speak.");
-		    		            counter.setText("10");
+		    		            counter.setText("30");
 		    		            enableButton(R.id.recordButton,false);
 		    		            enableButton(R.id.replayButton, true);
 		                    }
@@ -202,19 +204,26 @@ public class ActivityNotesSearch extends ActionBarActivity {
 		            stopRecording();
 		            t.cancel();
 		            TextView counter=(TextView) findViewById(R.id.Timer);
-		            counter.setText("10");
+		            counter.setText("30");
 		            changebuttontext(R.id.recordButton,"Hold to speak.");
 		            enableButton(R.id.replayButton, true);
 		            return true;
 		        }
 		        else 
-				return false;
+				return true;
 		    }
 		});
 		replayButton.setOnTouchListener(new OnTouchListener() {
 		    @Override
 		    public boolean onTouch(View v, MotionEvent event) {
 		    	if(event.getAction() == MotionEvent.ACTION_DOWN) {
+		    		if (null!=mp && mp.isPlaying()) {
+		                mp.pause();
+		                flag=1;
+		                changebuttontext(R.id.replayButton,"Paused");
+		            } 
+		    		else if (null!=mp && flag==1){mp.start(); flag=0;changebuttontext(R.id.replayButton,"Playing");}
+		            else {
 		    		stopRecording();
 		    		mp = new MediaPlayer();
 		    		try {
@@ -240,9 +249,18 @@ public class ActivityNotesSearch extends ActionBarActivity {
 					}
 		    		mp.start();
 		    		enableButton(R.id.recordButton,true);
-		            
+		    		changebuttontext(R.id.replayButton,"Playing");
+		    		
+		    		mp.setOnCompletionListener(new OnCompletionListener() {        
+				        //@Override
+				        public void onCompletion(MediaPlayer mp) {
+				        	changebuttontext(R.id.replayButton,"Replay");
+				    }
+				});
+		            }
 		            return true;
 		    	}
+		    	
 		        else 
 				return false;
 		    }
@@ -347,23 +365,44 @@ public class ActivityNotesSearch extends ActionBarActivity {
 	
 	private void stopRecording() {
 	    if (null != recorder) {
-	        recorder.stop();
-	        recorder.reset();
-	        recorder.release();
-	        recorder = null;
+	    	 try{ 
+					recorder.stop();
+				 } 
+	    	 catch (IllegalStateException e) {
+	    		 File mfile= new File(filepath);
+	    		 mfile.delete();
+	    		 Toast.makeText(ActivityNotesSearch.this, "Recording failed, please try again.", Toast.LENGTH_SHORT).show();
+				 }
+	    	 catch (RuntimeException e){
+	    		 File mfile= new File(filepath);
+	    		 mfile.delete();
+	    		 Toast.makeText(ActivityNotesSearch.this, "Recording failed, please try again.", Toast.LENGTH_SHORT).show();
+	    	 }
+	    	 finally{
+		        recorder.reset();
+		        recorder.release();
+		        recorder = null;
+	    	 }
 	    }
 	}
 	private void startRecording() {
 		 if (null != mp) {
-			 mp.stop();
-			 mp.reset();
-			 mp.release();
+			 try{ 
+				mp.stop();
+
+			 } catch (IllegalStateException e) {
+				 e.printStackTrace();
+			 }
+				mp.reset();
+				mp.release();
+				mp=null;
+
 		 }
 	    recorder = new MediaRecorder();
 	    recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
 	    recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
 	    recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-	    
+	
 	    recorder.setOutputFile(filepath);
 	    recorder.setOnErrorListener(errorListener);
 	    recorder.setOnInfoListener(infoListener);

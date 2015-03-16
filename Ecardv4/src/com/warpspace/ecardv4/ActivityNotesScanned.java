@@ -9,6 +9,7 @@ import com.warpspace.ecardv4.R;
 
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
+import android.media.MediaPlayer.OnCompletionListener;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Environment;
@@ -28,6 +29,7 @@ public class ActivityNotesScanned extends ActionBarActivity {
 	private MediaPlayer mp=null;
 	private String mostrecentfile;
 	private static final String AUDIO_RECORDER_FOLDER = "AudioRecorder";
+	private int flag=0;
 	CountDownTimer t;
 	
 	@Override
@@ -56,9 +58,9 @@ public class ActivityNotesScanned extends ActionBarActivity {
 		    @Override
 		    public boolean onTouch(View v, MotionEvent event) {
 		    	if(event.getAction() == MotionEvent.ACTION_DOWN) {
-					Toast.makeText(ActivityNotesScanned.this, "Recording...", Toast.LENGTH_LONG).show();
+					Toast.makeText(ActivityNotesScanned.this, "Recording...", Toast.LENGTH_SHORT).show();
 					changebuttontext(R.id.recordButton,"Recording...");
-					
+					enableButton(R.id.replayButton,false);
 		            startRecording();
 					
 		             t = new CountDownTimer( 30000, 1000) {
@@ -89,13 +91,20 @@ public class ActivityNotesScanned extends ActionBarActivity {
 		            return true;
 		        }
 		        else 
-				return false;
+				return true;
 		    }
 		});
 		replayButton.setOnTouchListener(new OnTouchListener() {
 		    @Override
 		    public boolean onTouch(View v, MotionEvent event) {
 		    	if(event.getAction() == MotionEvent.ACTION_DOWN) {
+		    		if (null!=mp && mp.isPlaying()) {
+		                mp.pause();
+		                flag=1;
+		                changebuttontext(R.id.replayButton,"Paused");
+		            } 
+		    		else if (null!=mp && flag==1){mp.start(); flag=0;changebuttontext(R.id.replayButton,"Playing");}
+		            else {
 		    		stopRecording();
 		    		mp = new MediaPlayer();
 		    		try {
@@ -121,9 +130,18 @@ public class ActivityNotesScanned extends ActionBarActivity {
 					}
 		    		mp.start();
 		    		enableButton(R.id.recordButton,true);
-		            
+		    		changebuttontext(R.id.replayButton,"Playing");
+		    		
+		    		mp.setOnCompletionListener(new OnCompletionListener() {        
+				        //@Override
+				        public void onCompletion(MediaPlayer mp) {
+				        	changebuttontext(R.id.replayButton,"Replay");
+				    }
+				});
+		            }
 		            return true;
 		    	}
+		    	
 		        else 
 				return false;
 		    }
@@ -139,17 +157,38 @@ public class ActivityNotesScanned extends ActionBarActivity {
 	
 	private void stopRecording() {
 	    if (null != recorder) {
-	        recorder.stop();
-	        recorder.reset();
-	        recorder.release();
-	        recorder = null;
+	    	 try{ 
+					recorder.stop();
+				 } 
+	    	 catch (IllegalStateException e) {
+	    		 File mfile= new File(mostrecentfile);
+	    		 mfile.delete();
+	    		 Toast.makeText(ActivityNotesScanned.this, "Recording failed, please try again.", Toast.LENGTH_SHORT).show();
+				 }
+	    	 catch (RuntimeException e){
+	    		 File mfile= new File(mostrecentfile);
+	    		 mfile.delete();
+	    		 Toast.makeText(ActivityNotesScanned.this, "Recording failed, please try again.", Toast.LENGTH_SHORT).show();
+	    	 }
+	    	 finally{
+		        recorder.reset();
+		        recorder.release();
+		        recorder = null;
+	    	 }
 	    }
 	}
 	private void startRecording() {
 		 if (null != mp) {
-			 mp.stop();
-			 mp.reset();
-			 mp.release();
+			 try{ 
+				mp.stop();
+
+			 } catch (IllegalStateException e) {
+				 e.printStackTrace();
+			 }
+				mp.reset();
+				mp.release();
+				mp=null;
+
 		 }
 	    recorder = new MediaRecorder();
 	    recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
