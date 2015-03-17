@@ -109,6 +109,15 @@ public class ActivityBufferOpening extends Activity {
 					Intent intent = new Intent(getBaseContext(), ActivityMain.class);
 					intent.putExtra("imgFromTmpData", imgFromTmpData);
 					startActivity(intent);
+					Timer timer = new Timer();
+					timer.schedule(new TimerTask() {
+
+						@Override
+						public void run() {
+							finish();
+							// have to delayed finishing, so desktop don't show
+						}
+					}, 500);
 				}
 				
 			}

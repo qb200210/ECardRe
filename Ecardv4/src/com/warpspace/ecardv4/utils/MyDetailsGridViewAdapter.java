@@ -38,11 +38,7 @@ public class MyDetailsGridViewAdapter extends BaseAdapter {
 
     if (convertView == null) {
       gridView = new View(context);
-      if(position == getCount()-1){
-    	  gridView = inflater.inflate(R.layout.layout_note_item, null);
-      } else{
-    	  gridView = inflater.inflate(R.layout.layout_info_item, null);
-      }
+      gridView = inflater.inflate(R.layout.layout_info_item, null);
 
       ImageView imageView = (ImageView) gridView
         .findViewById(R.id.grid_item_image);

@@ -1,12 +1,22 @@
 package com.warpspace.ecardv4;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.parse.FindCallback;
+import com.parse.GetCallback;
+import com.parse.ParseACL;
 import com.parse.ParseException;
+import com.parse.ParseFile;
 import com.parse.ParseInstallation;
 import com.parse.ParseObject;
 import com.parse.ParsePush;
@@ -33,26 +43,37 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.media.MediaPlayer;
+import android.media.MediaRecorder;
+import android.media.MediaPlayer.OnCompletionListener;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.os.Environment;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -67,14 +88,31 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 	ExpandableHeightGridView gridView;
 	ParseUser currentUser;
 	private UserInfo scannedUser;
+	private MediaRecorder recorder = null;
+	private MediaPlayer mp=null;
+	private ImageView replayButtonBar; 
+	private ImageView replayButtonPanel; 
+	private ImageView recorderButton;
+	private static final String AUDIO_RECORDER_FOLDER = "AudioRecorder";
+	private static final long SAVENOTE_TIMEOUT = 5000;
+	CountDownTimer t;
+	private int flag=0;
+	private String filepath;
+	private String noteId = null;
 
 	// need to use this to hold the interface to be passed to GeocoderHelper
 	// constructor, otherwise NullPoint
 	AsyncResponse delegate = null;
 	private String whereMet = null;
+	private boolean flagOfflineMode;
+	private String deletedNoteId = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		// two possiblities of entering ActivityScanned:
+		// 1. online, checked ecard exist and not collected
+		// 2. offline, didn't check ecard exist or if collected
+		
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_scanned);
 
@@ -85,6 +123,8 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 
 		Bundle data = getIntent().getExtras();
 		scannedUser = (UserInfo) data.getParcelable("userinfo");
+		flagOfflineMode = (boolean) data.get("offlineMode");
+		deletedNoteId  = (String) data.get("deletedNoteId");
 
 		// getting "where met" city info
 		// this will be used later -- where "this" is ambiguous, so directly
@@ -100,6 +140,37 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 			Toast.makeText(getBaseContext(), "Cannot determine location for now...", Toast.LENGTH_SHORT).show();
 			whereMet = null;
 		}
+		
+		// setOnclickListener for note bar/panel switcher
+		ImageView barNoteButton = (ImageView) findViewById(R.id.bar_note_button);
+		barNoteButton.setOnClickListener(new OnClickListener(){
+
+			@Override
+			public void onClick(View v) {
+				RelativeLayout notePanelLayout = (RelativeLayout) findViewById(R.id.note_panel);
+				notePanelLayout.setVisibility(View.VISIBLE);
+				RelativeLayout noteBarLayout = (RelativeLayout) findViewById(R.id.note_bar);
+				noteBarLayout.setVisibility(View.GONE);
+			}
+			
+		});
+		ImageView panelNoteButton = (ImageView) findViewById(R.id.panel_note_button);		
+		panelNoteButton.setOnClickListener(new OnClickListener(){
+
+			@Override
+			public void onClick(View v) {
+				RelativeLayout notePanelLayout = (RelativeLayout) findViewById(R.id.note_panel);
+				notePanelLayout.setVisibility(View.GONE);
+				RelativeLayout noteBarLayout = (RelativeLayout) findViewById(R.id.note_bar);
+				noteBarLayout.setVisibility(View.VISIBLE);
+				TextView whereMet1 = (TextView) findViewById(R.id.PlaceAdded1);
+				EditText whereMet2 = (EditText) findViewById(R.id.PlaceAdded2);				
+				if(whereMet2.getText() != null) {
+					whereMet1.setText(whereMet2.getText().toString());
+				}
+			}
+			
+		});
 
 		// display the main card
 		displayCard(scannedUser);
@@ -107,7 +178,6 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 		infoIcon = scannedUser.getInfoIcon();
 		infoLink = scannedUser.getInfoLink();
 		shownArrayList = scannedUser.getShownArrayList();
-		addNoteButton();
 
 		gridView = (ExpandableHeightGridView) findViewById(R.id.gridView1);
 		gridView.setAdapter(new MyDetailsGridViewAdapter(ActivityScanned.this, shownArrayList, infoLink, infoIcon));
@@ -136,11 +206,6 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 					case "about":
 						buildAboutMeDialog(view);
 						break;
-					case "note":
-						intent = new Intent(ActivityScanned.this, ActivityNotesScanned.class);
-						intent.putExtra("whereMet", whereMet);
-						startActivity(intent);
-						break;
 					default:
 						String url = ((MyTag) view.getTag()).getValue().toString();
 						if (!url.startsWith("http://") && !url.startsWith("https://") && !url.startsWith("ftp://")) {
@@ -154,19 +219,282 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 			}
 
 		});
+		
+		
+		// display note if the note existed but deleted
+		if(deletedNoteId != null){
+			ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardNote");
+			query.whereEqualTo("userId", currentUser.getObjectId().toString());
+			query.whereEqualTo("ecardId", scannedUser.getObjId());
+			query.findInBackground(new FindCallback<ParseObject>(){
+
+				@Override
+				public void done(List<ParseObject> objects, ParseException e) {
+					if(e== null){
+						if(objects != null){
+							noteId = objects.get(0).getObjectId().toString();
+							displayNote(objects.get(0));						
+						}
+					} else {
+						e.printStackTrace();
+					}
+				}
+
+				private void displayNote(final ParseObject object) {
+					TextView whenMet1 = (TextView) findViewById(R.id.DateAdded1);
+					TextView whenMet2 = (TextView) findViewById(R.id.DateAdded2);
+					whenMet1.setText(android.text.format.DateFormat.format("MMM", object.getCreatedAt()) + " " + 
+							android.text.format.DateFormat.format("dd", object.getCreatedAt()) + ", " +
+							android.text.format.DateFormat.format("yyyy", object.getCreatedAt()));
+					whenMet2.setText(android.text.format.DateFormat.format("MMM", object.getCreatedAt()) + " " + 
+							android.text.format.DateFormat.format("dd", object.getCreatedAt()) + ", " +
+							android.text.format.DateFormat.format("yyyy", object.getCreatedAt()));
+					TextView whereMet1 = (TextView) findViewById(R.id.PlaceAdded1);
+					EditText whereMet2 = (EditText) findViewById(R.id.PlaceAdded2);
+					String cityName = object.getString("where_met");
+					if(cityName != null) {
+						whereMet1.setText(cityName);
+						whereMet2.setText(cityName);
+					}
+					EditText eventMet = (EditText) findViewById(R.id.EventAdded2);
+					String eventName = object.getString("event_met");
+					if(eventName != null) {
+						eventMet.setText(eventName);
+					}
+					EditText notes = (EditText) findViewById(R.id.EditNotes);
+					String notesContent = object.getString("notes");
+					if(notesContent != null) {
+						notes.setText(notesContent);
+					}				
+					byte[] tmpVoiceData = (byte[]) object.get("tmpVoiceByteArray");
+					if (tmpVoiceData != null) {
+						// save as parseFile then clean the array if there is network
+						// this is necessary as user can switch on network without restarting app
+						if(ECardUtils.isNetworkAvailable(ActivityScanned.this)){
+							final ParseFile voiceFile = new ParseFile("voicenote.mp4", tmpVoiceData);
+						    voiceFile.saveInBackground(new SaveCallback(){
+
+								@Override
+								public void done(ParseException arg0) {
+									object.put("voiceNotes", voiceFile);
+									object.remove("tmpVoiceByteArray");
+									object.saveEventually();
+								}
+						    	
+						    });
+						}
+						// use the array to populate replay no matter with network or not
+						FileOutputStream out;
+						try {
+							out = new FileOutputStream(filepath);
+							out.write(tmpVoiceData);
+				            out.close();
+						} catch (FileNotFoundException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}					
+						 
+					} else {
+						// only check the voiceNotes when tmpVoice data is empty
+						// that is always use tmpArray to overwrite voiceNotes if there is conflict
+						ParseFile audioFile = (ParseFile) object.get("voiceNotes");
+			            if (audioFile != null) {
+			              byte[] audioData;
+						  try {
+							audioData = audioFile.getData();
+							FileOutputStream out = new FileOutputStream(filepath);
+				            out.write(audioData);
+				            out.close();
+						  } catch (ParseException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						  } catch (FileNotFoundException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						  } catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						  }
+			            } else {
+			            	// if both tmparray and voiceNotes are null, then it means no voice note at all
+			            	replayButtonBar.setVisibility(View.GONE);
+			            	replayButtonPanel.setVisibility(View.GONE);
+			            }
+					}
+				}
+				
+			});		
+		} else {
+			// this is a new note
+			// disable replay button!
+		}
+				
+		// recorder-related begins
+		replayButtonBar = (ImageView) findViewById(R.id.bar_play_button);
+		replayButtonPanel = (ImageView) findViewById(R.id.panel_play_button);
+		recorderButton = (ImageView) findViewById(R.id.panel_recorder_button);
+		replayButtonBar.setVisibility(View.GONE);
+    	replayButtonPanel.setVisibility(View.GONE);
+		filepath=getFilename();
+		recorderButton.setOnTouchListener(new OnTouchListener() {
+		    @Override
+		    public boolean onTouch(View v, MotionEvent event) {
+		    	if(event.getAction() == MotionEvent.ACTION_DOWN) {
+					Toast.makeText(ActivityScanned.this, "Recording...", Toast.LENGTH_SHORT).show();
+					// changebuttontext(R.id.recordButton,"Recording...");
+					replayButtonBar.setVisibility(View.GONE);
+                	replayButtonPanel.setVisibility(View.GONE);
+		            startRecording();
+					
+		             t = new CountDownTimer( 30000, 1000) {
+		            	 //TextView counter=(TextView) findViewById(R.id.Timer);
+		                    @Override
+		                    public void onTick(long millisUntilFinished) {
+		                    	//counter.setText("seconds remaining: " + millisUntilFinished / 1000);
+		                    }
+		                    @Override
+		                    public void onFinish() {   
+		                    	stopRecording();
+		                    	Toast.makeText(ActivityScanned.this, "Max Recording Length Reached.", Toast.LENGTH_SHORT).show();
+		    		            // changebuttontext(R.id.recordButton,"Hold to speak.");
+		    		            //counter.setText("30");
+		    		            //enableButton(R.id.recordButton,false);
+		                    	replayButtonBar.setVisibility(View.VISIBLE);
+		                    	replayButtonPanel.setVisibility(View.VISIBLE);
+		                    }
+		                }.start();
+					
+		            return true;
+		        } else if (event.getAction() == MotionEvent.ACTION_UP) {
+		            stopRecording();
+		            t.cancel();
+		            //TextView counter=(TextView) findViewById(R.id.Timer);
+		            //counter.setText("30");
+		            //changebuttontext(R.id.recordButton,"Hold to speak.");
+		            replayButtonBar.setVisibility(View.VISIBLE);
+                	replayButtonPanel.setVisibility(View.VISIBLE);
+		            return true;
+		        }
+		        else 
+				return true;
+		    }
+		});
+		replayButtonBar.setOnTouchListener(new OnTouchListener() {
+		    @Override
+		    public boolean onTouch(View v, MotionEvent event) {
+		    	if(event.getAction() == MotionEvent.ACTION_DOWN) {
+		    		if (null!=mp && mp.isPlaying()) {
+		                mp.pause();
+		                flag=1;
+		                //changebuttontext(R.id.replayButton,"Paused");
+		            } else if (null!=mp && flag==1){
+		            	mp.start(); 
+		            	flag=0;
+		            	// changebuttontext(R.id.replayButton,"Playing");
+		            } else {
+			    		stopRecording();
+			    		mp = new MediaPlayer();
+			    		try {
+							mp.setDataSource(filepath);
+						} catch (IllegalArgumentException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (SecurityException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (IllegalStateException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+			    		try {
+							mp.prepare();
+						} catch (IllegalStateException | IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+			    		mp.start();
+			    		// enableButton(R.id.recordButton,true);
+			    		// changebuttontext(R.id.replayButton,"Playing");
+			    		
+			    		mp.setOnCompletionListener(new OnCompletionListener() {        
+					        //@Override
+					        public void onCompletion(MediaPlayer mp) {
+					        	// changebuttontext(R.id.replayButton,"Replay");
+						    }
+						});
+		            }
+		            return true;
+		    	} else {
+		    		return false;
+		    	}
+		    }
+		});
+		replayButtonPanel.setOnTouchListener(new OnTouchListener() {
+		    @Override
+		    public boolean onTouch(View v, MotionEvent event) {
+		    	if(event.getAction() == MotionEvent.ACTION_DOWN) {
+		    		if (null!=mp && mp.isPlaying()) {
+		                mp.pause();
+		                flag=1;
+		                //changebuttontext(R.id.replayButton,"Paused");
+		            } else if (null!=mp && flag==1){
+		            	mp.start(); 
+		            	flag=0;
+		            	// changebuttontext(R.id.replayButton,"Playing");
+		            } else {
+			    		stopRecording();
+			    		mp = new MediaPlayer();
+			    		try {
+							mp.setDataSource(filepath);
+						} catch (IllegalArgumentException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (SecurityException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (IllegalStateException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+			    		try {
+							mp.prepare();
+						} catch (IllegalStateException | IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+			    		mp.start();
+			    		// enableButton(R.id.recordButton,true);
+			    		// changebuttontext(R.id.replayButton,"Playing");
+			    		
+			    		mp.setOnCompletionListener(new OnCompletionListener() {        
+					        //@Override
+					        public void onCompletion(MediaPlayer mp) {
+					        	// changebuttontext(R.id.replayButton,"Replay");
+						    }
+						});
+		            }
+		            return true;
+		    	} else {
+		    		return false;
+		    	}
+		    }
+		});
+		// recorder-related ends
 
 		// This is the life-saver! It fixes the bug that scrollView will go to the
 		// bottom of GridView upon open
 		// below is to re-scroll to the first view in the LinearLayout
 		SquareLayout mainCardContainer = (SquareLayout) findViewById(R.id.main_card_container);
 		scrollView.requestChildFocus(mainCardContainer, null);
-
-	}
-
-	private void addNoteButton() {
-		infoLink.add("");
-		infoIcon.add(R.drawable.note);
-		shownArrayList.add("note");
 
 	}
 
@@ -209,26 +537,44 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 			this.finish();
 			return true;
 		case R.id.scanned_save:
-			// !!!!!!!! need to consider the case the note isDeleted -- maybe should flip the flag and reload the data
 			// save scanned card either online or cache it offline
 			if (ECardUtils.isNetworkAvailable(this)) {
-				final AsyncTasks.AddCardNetworkAvailable addNewCard = new AsyncTasks.AddCardNetworkAvailable(this, currentUser, scannedUser.getObjId());
-				addNewCard.execute();
-				Handler handlerAddNewCard = new Handler();
-				handlerAddNewCard.postDelayed(new Runnable() {
-
-					@Override
-					public void run() {
-						if (addNewCard.getStatus() == AsyncTask.Status.RUNNING) {
-							Toast.makeText(getApplicationContext(), "Adding New Card Timed Out", Toast.LENGTH_SHORT).show();
-							// if poor network, cache the scannedID to local db, wait till
-							// network comes back to add Ecard
-							cacheScannedIds(scannedUser.getObjId());
-							addNewCard.cancel(true);
-						}
+				if(deletedNoteId != null){
+					// if the note existed but deleted, flip the flag and save note changes
+					ParseQuery<ParseObject> queryNote = ParseQuery.getQuery("ECardNote");
+					ParseObject ecarNote;
+					try {
+						ecarNote = queryNote.get(deletedNoteId);
+						saveNote(ecarNote);
+					} catch (ParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
 					}
-				}, ADDCARD_TIMEOUT);
+					setResult(RESULT_OK);
+				} else{
+					// if the note didn't exist, create note and save note changes
+					createNote();
+					setResult(RESULT_OK);
+				}
+				// if ActivityScanned started out as online and now it's still online, go ahead and add
+//				final AsyncTasks.AddCardNetworkAvailable addNewCard = new AsyncTasks.AddCardNetworkAvailable(this, currentUser, scannedUser.getObjId(), deletedNoteId);
+//				addNewCard.execute();
+//				Handler handlerAddNewCard = new Handler();
+//				handlerAddNewCard.postDelayed(new Runnable() {
+//
+//					@Override
+//					public void run() {
+//						if (addNewCard.getStatus() == AsyncTask.Status.RUNNING) {
+//							Toast.makeText(getApplicationContext(), "Adding New Card Timed Out", Toast.LENGTH_SHORT).show();
+//							// if poor network, cache the scannedID to local db, wait till
+//							// network comes back to add Ecard
+//							cacheScannedIds(scannedUser.getObjId());
+//							addNewCard.cancel(true);
+//						}
+//					}
+//				}, ADDCARD_TIMEOUT);
 			} else {
+				// if ActivityScanned started out as offline, it means there was no check on ecard existence or collected, cache it for later check
 				// no network, cache to local database
 				cacheScannedIds(scannedUser.getObjId());
 			}
@@ -239,6 +585,135 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 		default:
 			return super.onOptionsItemSelected(item);
 		}
+	}
+
+	private void saveNote(final ParseObject ecarNote) {
+		// if note existed but deleted, directly get the note and flip the flag
+		if(ecarNote != null){		
+			// pin corresponding ecard
+			ParseQuery<ParseObject> queryInfo = ParseQuery.getQuery("ECardInfo");
+			ParseObject ecardObject = null;
+			try {
+				ecardObject = queryInfo.get(scannedUser.getObjId());
+			} catch (ParseException e1) {
+				e1.printStackTrace();
+			}
+			if (ecardObject != null) {
+				try {
+					ecardObject.pin();
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			ecarNote.put("EcardUpdatedAt", ecardObject.getUpdatedAt());
+			ecarNote.put("isDeleted", false);			 				        
+	        //convert file into array of bytes
+			FileInputStream fileInputStream=null;						 
+	        File file = new File(filepath);				 
+	        byte[] bFile = new byte[(int) file.length()];	
+		    try {
+				fileInputStream = new FileInputStream(file);
+				fileInputStream.read(bFile);
+			    fileInputStream.close();
+			} catch (FileNotFoundException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			if(ECardUtils.isNetworkAvailable(ActivityScanned.this)){
+			    final ParseFile voiceFile = new ParseFile("voicenote.mp4", bFile);
+			    voiceFile.saveInBackground(new SaveCallback(){
+
+					@Override
+					public void done(ParseException arg0) {
+						ecarNote.put("voiceNotes", voiceFile);
+						saveChangesToParse(ecarNote);
+						Toast.makeText(ActivityScanned.this, "Changes saved!", Toast.LENGTH_SHORT).show();
+					}
+			    	
+			    });
+			} else {
+				// if network not available, save voicenote with unique name then record in local database
+				Toast.makeText(ActivityScanned.this, "No network, caching voice note", Toast.LENGTH_SHORT).show(); 
+				ecarNote.put("tmpVoiceByteArray", bFile);
+            	// flush sharedpreferences to 1969 so next time app opens with internet, convert the file
+            	Date currentDate=new Date(0);
+    			SharedPreferences prefs = getSharedPreferences(ActivityBufferOpening.MY_PREFS_NAME, MODE_PRIVATE);
+    			SharedPreferences.Editor prefEditor = prefs.edit();
+				prefEditor.putLong("DateNoteSynced", currentDate.getTime());
+				prefEditor.commit();
+            	saveChangesToParse(ecarNote);
+			}
+		}
+		
+	}
+
+	private void createNote() {
+		// pin corresponding ecard
+		ParseQuery<ParseObject> queryInfo = ParseQuery.getQuery("ECardInfo");
+		ParseObject ecardObject = null;
+		try {
+			ecardObject = queryInfo.get(scannedUser.getObjId());
+		} catch (ParseException e1) {
+			e1.printStackTrace();
+		}
+		if (ecardObject != null) {
+			try {
+				ecardObject.pin();
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+				
+		final ParseObject ecardNote = new ParseObject("ECardNote");
+		ecardNote.setACL(new ParseACL(currentUser));
+		ecardNote.put("userId", currentUser.getObjectId());
+		ecardNote.put("ecardId", scannedUser.getObjId());
+		ecardNote.put("EcardUpdatedAt", ecardObject.getUpdatedAt());
+		//convert file into array of bytes
+		FileInputStream fileInputStream=null;						 
+        File file = new File(filepath);				 
+        byte[] bFile = new byte[(int) file.length()];	
+	    try {
+			fileInputStream = new FileInputStream(file);
+			fileInputStream.read(bFile);
+		    fileInputStream.close();
+		} catch (FileNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		if(ECardUtils.isNetworkAvailable(ActivityScanned.this)){
+		    final ParseFile voiceFile = new ParseFile("voicenote.mp4", bFile);
+		    voiceFile.saveInBackground(new SaveCallback(){
+
+				@Override
+				public void done(ParseException arg0) {
+					ecardNote.put("voiceNotes", voiceFile);
+					saveChangesToParse(ecardNote);
+					Toast.makeText(ActivityScanned.this, "Changes saved!", Toast.LENGTH_SHORT).show();
+				}
+		    	
+		    });
+		} else {
+			// if network not available, save voicenote with unique name then record in local database
+			Toast.makeText(ActivityScanned.this, "No network, caching voice note", Toast.LENGTH_SHORT).show(); 
+			ecardNote.put("tmpVoiceByteArray", bFile);
+        	// flush sharedpreferences to 1969 so next time app opens with internet, convert the file
+        	Date currentDate=new Date(0);
+			SharedPreferences prefs = getSharedPreferences(ActivityBufferOpening.MY_PREFS_NAME, MODE_PRIVATE);
+			SharedPreferences.Editor prefEditor = prefs.edit();
+			prefEditor.putLong("DateNoteSynced", currentDate.getTime());
+			prefEditor.commit();
+        	saveChangesToParse(ecardNote);
+		}
+		
 	}
 
 	@SuppressLint("NewApi")
@@ -313,6 +788,120 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 		if (newUser.getPortrait() != null) {
 			portraitImg.setImageBitmap(newUser.getPortrait());
 		}
+
+	}
+		
+	private void saveChangesToParse(ParseObject object) {
+		EditText whereMet = (EditText) findViewById(R.id.PlaceAdded2);
+		EditText eventMet = (EditText) findViewById(R.id.EventAdded2);
+		EditText notes = (EditText) findViewById(R.id.EditNotes);
+		object.put("where_met", whereMet.getText().toString());
+		object.put("event_met", eventMet.getText().toString());
+		object.put("notes", notes.getText().toString());		
+		
+		object.saveEventually();
+		try {
+			object.pin();
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		Toast.makeText(getBaseContext(), "Save successful", Toast.LENGTH_SHORT).show();
+		
+	}
+	
+	private void stopRecording() {
+	    if (null != recorder) {
+	    	 try{ 
+					recorder.stop();
+				 } 
+	    	 catch (IllegalStateException e) {
+	    		 File mfile= new File(filepath);
+	    		 mfile.delete();
+	    		 Toast.makeText(ActivityScanned.this, "Recording failed, please try again.", Toast.LENGTH_SHORT).show();
+				 }
+	    	 catch (RuntimeException e){
+	    		 File mfile= new File(filepath);
+	    		 mfile.delete();
+	    		 Toast.makeText(ActivityScanned.this, "Recording failed, please try again.", Toast.LENGTH_SHORT).show();
+	    	 }
+	    	 finally{
+		        recorder.reset();
+		        recorder.release();
+		        recorder = null;
+	    	 }
+	    }
+	}
+	private void startRecording() {
+		 if (null != mp) {
+			 try{ 
+				mp.stop();
+
+			 } catch (IllegalStateException e) {
+				 e.printStackTrace();
+			 }
+				mp.reset();
+				mp.release();
+				mp=null;
+
+		 }
+	    recorder = new MediaRecorder();
+	    recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+	    recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+	    recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+	
+	    recorder.setOutputFile(filepath);
+	    recorder.setOnErrorListener(errorListener);
+	    recorder.setOnInfoListener(infoListener);
+	    try {
+	        recorder.prepare();
+	        recorder.start();
+	    } catch (IllegalStateException e) {
+	        e.printStackTrace();
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	    }
+	}
+	
+	private String getFilename() {
+	    String filepath = Environment.getExternalStorageDirectory().getPath();
+	    File file = new File(filepath, AUDIO_RECORDER_FOLDER);
+	    if (!file.exists()) {
+	        file.mkdirs();
+	    }
+	    return (file.getAbsolutePath() + "/voicenote.mp4");
+	}
+	
+	private MediaRecorder.OnErrorListener errorListener = new MediaRecorder.OnErrorListener() {
+	    @Override
+	    public void onError(MediaRecorder mr, int what, int extra) {
+	        Toast.makeText(ActivityScanned.this, "Error: " + what + ", " + extra, Toast.LENGTH_SHORT).show();
+	    }
+	};
+	
+	private MediaRecorder.OnInfoListener infoListener = new MediaRecorder.OnInfoListener() {
+	    @Override
+	    public void onInfo(MediaRecorder mr, int what, int extra) {
+	        Toast.makeText(ActivityScanned.this, "Warning: " + what + ", " + extra, Toast.LENGTH_SHORT).show();
+	    }
+	};
+	
+	@Override
+	public void onPause( ) {
+		super.onPause();
+		 if (null != mp) {
+			 	mp.pause();
+		 }
+	}
+	@Override
+	public void onDestroy( ) {
+		super.onDestroy();
+		 if (null != mp) {
+		mp.stop();
+        mp.release();
+
+    
+		 }
 
 	}
 

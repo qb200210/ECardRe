@@ -137,6 +137,7 @@ public class UserInfo implements Parcelable {
     }
 
     // main card info
+    objId = parseObj.getObjectId();
     firstName = parseObj.getString("firstName");
     lastName = parseObj.getString("lastName");
     company = parseObj.getString("company");

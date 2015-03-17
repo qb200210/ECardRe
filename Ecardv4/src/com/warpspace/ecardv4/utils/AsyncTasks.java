@@ -5,6 +5,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.TreeSet;
 
 import android.content.Context;
@@ -140,7 +142,15 @@ public class AsyncTasks {
 			Intent intent = new Intent(context, ActivityMain.class);
 			intent.putExtra("imgFromTmpData", imgFromTmpData);
 			context.startActivity(intent);
-			((Activity)context).finish();
+			Timer timer = new Timer();
+			timer.schedule(new TimerTask() {
+
+				@Override
+				public void run() {
+					((Activity)context).finish();
+					// have to delayed finishing, so desktop don't show
+				}
+			}, 500);			
 		}
 
 	}
@@ -579,94 +589,95 @@ public class AsyncTasks {
 	
 	public static class AddCardNetworkAvailable extends AsyncTask<String, Void, String> {
 
-		private static final int INVALID_ECARD = 1;
-		private static final int ECARD_EXISTS = 2;
 		private static final int ECARD_ADDED = 3;
 		private Context context;
 		private ParseUser currentUser;
 		private String scannedId;
 		private int flag = 0;
+		private String deletedNoteId;
 
-		public AddCardNetworkAvailable(Context context, ParseUser currentUser, String scannedId){
+		public AddCardNetworkAvailable(Context context, ParseUser currentUser, String scannedId, String deletedNoteId){
 			this.context = context;
 			this.currentUser = currentUser;
 			this.scannedId = scannedId;
+			this.deletedNoteId = deletedNoteId;
 		}
 		
 		@Override
 		protected String doInBackground(String... params) {
-
-				ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardInfo");
-				ParseObject objectScanned = null;
+			// Once entered here, ecard has confirmed to exist and not collected.
+			if(deletedNoteId== null){
+				// the note never existed or deleted, create new note
+				final ParseObject ecardNote = new ParseObject("ECardNote");
+				ecardNote.setACL(new ParseACL(currentUser));
+				ecardNote.put("userId", currentUser.getObjectId());
+				ecardNote.put("ecardId", scannedId);
+				ParseQuery<ParseObject> queryInfo = ParseQuery.getQuery("ECardInfo");
+				ParseObject object = null;
 				try {
-					objectScanned = query.get(scannedId);
+					object = queryInfo.get(scannedId);
+				} catch (ParseException e1) {
+					e1.printStackTrace();
+				}
+				if (object != null) {
+					ecardNote.put("EcardUpdatedAt", object.getUpdatedAt());
+					try {
+						object.pin();
+					} catch (ParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					Log.i("AddCard", "Ecard " + scannedId + " added!");
+					flag = ECARD_ADDED;
+				}
+				// save the note, upon success, pin it to local
+				try {
+					ecardNote.save();
+					ecardNote.pin();
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			} else {
+				// The note existed but deleted, now recover it
+
+				ParseQuery<ParseObject> queryNote = ParseQuery.getQuery("ECardNote");
+				ParseObject noteObj;
+				try {
+					noteObj = queryNote.get(deletedNoteId);
+					ParseQuery<ParseObject> queryInfo = ParseQuery.getQuery("ECardInfo");
+					ParseObject object = null;
+					try {
+						object = queryInfo.get(scannedId);
+					} catch (ParseException e1) {
+						e1.printStackTrace();
+					}
+					if (object != null) {
+						noteObj.put("EcardUpdatedAt", object.getUpdatedAt());
+						noteObj.put("isDeleted", false);
+						try {
+							object.pin();
+						} catch (ParseException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						Log.i("AddCard", "Ecard " + scannedId + " added!");
+						flag = ECARD_ADDED;
+					}
+					// save the note, upon success, pin it to local
+					try {
+						noteObj.save();
+						noteObj.pin();
+					} catch (ParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				} catch (ParseException e2) {
 					// TODO Auto-generated catch block
 					e2.printStackTrace();
 				}
-				if (objectScanned == null) {
-					// If ecard non-exist on server
-					Log.i("AddCard", "No such Ecard with ID: " + scannedId);
-					flag = INVALID_ECARD;
-				} else {
-					// ecard found on server
-					// now check if it's collected already on server
-					ParseQuery<ParseObject> queryNote = ParseQuery.getQuery("ECardNote");
-					queryNote.whereEqualTo("userId", currentUser.getObjectId());
-					queryNote.whereEqualTo("ecardId", objectScanned.getObjectId());
-					List<ParseObject> objects = null;
-					try {
-						objects = queryNote.find();
-					} catch (ParseException e2) {
-						// TODO Auto-generated catch block
-						e2.printStackTrace();
-					}
-					if (objects == null) {
-						// If Ecard not collected yet, add it to EcardNote
-						final ParseObject ecardNote = new ParseObject("ECardNote");
-						ecardNote.setACL(new ParseACL(currentUser));
-						ecardNote.put("userId", currentUser.getObjectId());
-						ecardNote.put("ecardId", scannedId);
-						// if(cityName != null){
-						// ecardNote.put("where", cityName);
-						// }
-						// fetch the EcardInfo to be added to extract some info that needs to be placed into EcardNote
-						ParseQuery<ParseObject> queryInfo = ParseQuery.getQuery("ECardInfo");
-						ParseObject object = null;
-						try {
-							object = queryInfo.get(scannedId);
-						} catch (ParseException e1) {
-							e1.printStackTrace();
-						}
-						if (object != null) {
-							ecardNote.put("EcardUpdatedAt", object.getUpdatedAt());
-							try {
-								object.pin();
-							} catch (ParseException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-							Log.i("AddCard", "Ecard " + scannedId + " added!");
-							flag = ECARD_ADDED;
-						}
-						// save the note, upon success, pin it to local
-						ecardNote.saveInBackground(new SaveCallback(){
-
-							@Override
-							public void done(ParseException arg0) {
-								try {
-									ecardNote.pin();
-								} catch (ParseException e) {
-									e.printStackTrace();
-								}
-							}
-							
-						});
-					} else {
-						Log.i("AddCard", "Ecard " + scannedId + " exists!");
-						flag = ECARD_EXISTS;
-					}
-				}
+				
+			}
 			
 			return null;
 		}
@@ -675,13 +686,7 @@ public class AsyncTasks {
 			switch(flag){
 			  case ECARD_ADDED:
 				  Toast.makeText(context, "Card Added", Toast.LENGTH_SHORT).show();
-				  break;
-			  case ECARD_EXISTS:
-				  Toast.makeText(context, "Card exists", Toast.LENGTH_SHORT).show();
-				  break;
-			  case INVALID_ECARD:
-				  Toast.makeText(context, "Invalid Card", Toast.LENGTH_SHORT).show();
-				  break;
+				  break;		
 			  default:
 				  Toast.makeText(context, "Error Adding Card...", Toast.LENGTH_SHORT).show();
 				  break;

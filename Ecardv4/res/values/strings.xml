@@ -20,7 +20,7 @@
     <string name="parse_app_id">"eXr5eE3ff6vTMkTqsWe373eVZbuOLtafn7mFwlI2"</string>
     <string name="parse_client_key">"Ud799nz6KKXZNqWS6LBgCZ2QDiKx894SpVcskkfj"</string>
     <string name="com_parse_ui_name_input_hint">Name: George Washington</string>
-    <string name="base_website_user">https://ecard.parseapp.com/search?</string>
+    <string name="base_website_user">https://www.micklestudios.com/search?</string>
     <string name="edit_notes">Taking Notes</string>
     <string name="HoldToTalk">Hold to talk</string>
     <string name="Replay">Replay</string>
