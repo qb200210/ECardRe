@@ -22,14 +22,20 @@ public class ECardSQLHelper extends SQLiteOpenHelper {
     private static final String KEY_ID = "id";
     private static final String KEY_STORED = "stored";
     private static final String KEY_ECARDID = "ecardID";
-    private static final String KEY_NOTEPATH = "notePath";
+    private static final String KEY_WHEREMET = "where_met";
+    private static final String KEY_EVENTMET = "event_met";
+    private static final String KEY_NOTES = "notes";
+    private static final String KEY_VOICENOTE = "voiceNotes";
     private static final String TABLE_CREATE =
                 "CREATE TABLE " + TABLE_NAME + " (" +
                 KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 KEY_STORED + " INTEGER, " +
-                KEY_ECARDID + " TEXT, " + KEY_NOTEPATH + " TEXT)";
+                KEY_ECARDID + " TEXT, " +
+                KEY_WHEREMET + " TEXT, " +
+                KEY_EVENTMET + " TEXT, " +
+                KEY_NOTES + " TEXT, " + KEY_VOICENOTE + " TEXT)";
 
-    private static final String[] COLUMNS = {KEY_ID, KEY_STORED, KEY_ECARDID,KEY_NOTEPATH};
+    private static final String[] COLUMNS = {KEY_ID, KEY_STORED, KEY_ECARDID, KEY_WHEREMET,KEY_EVENTMET,KEY_NOTES,KEY_VOICENOTE};
     
 	public ECardSQLHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -47,7 +53,10 @@ public class ECardSQLHelper extends SQLiteOpenHelper {
 		ContentValues values = new ContentValues();
 		values.put(KEY_STORED, olData.getStored());
 		values.put(KEY_ECARDID, olData.getEcardID());
-		values.put(KEY_NOTEPATH, olData.getNotePath());
+		values.put(KEY_WHEREMET, olData.getWhereMet());
+		values.put(KEY_EVENTMET, olData.getEventMet());
+		values.put(KEY_NOTES, olData.getNotes());
+		values.put(KEY_VOICENOTE, olData.getVoiceNote());
 		
 		db.insert(TABLE_NAME, null, values);
 		db.close();
@@ -66,7 +75,10 @@ public class ECardSQLHelper extends SQLiteOpenHelper {
 					// getString(0) is the id inside the db
 					olData.setStored(Integer.parseInt(cursor.getString(1)));
 					olData.setEcardID(cursor.getString(2));
-					olData.setNotePath(cursor.getString(3));
+					olData.setWhereMet(cursor.getString(3));
+					olData.setEventMet(cursor.getString(4));
+					olData.setNotes(cursor.getString(5));
+					olData.setVoiceNote(cursor.getString(6));
 					olDatas.add(olData);
 				} while (cursor.moveToNext());
 			}			
@@ -88,7 +100,10 @@ public class ECardSQLHelper extends SQLiteOpenHelper {
 				olData = new OfflineData();
 				olData.setStored(Integer.parseInt(cursor.getString(1)));
 				olData.setEcardID(cursor.getString(2));
-				olData.setNotePath(cursor.getString(3));
+				olData.setWhereMet(cursor.getString(3));
+				olData.setEventMet(cursor.getString(4));
+				olData.setNotes(cursor.getString(5));
+				olData.setVoiceNote(cursor.getString(6));
 				olDatas.add(olData);
 			} while (cursor.moveToNext());
 		}
@@ -103,7 +118,10 @@ public class ECardSQLHelper extends SQLiteOpenHelper {
 		ContentValues values = new ContentValues();
 		values.put(KEY_STORED, olData.getStored());
 		values.put(KEY_ECARDID, olData.getEcardID());
-		values.put(KEY_NOTEPATH, olData.getNotePath());
+		values.put(KEY_WHEREMET, olData.getWhereMet());
+		values.put(KEY_EVENTMET, olData.getEventMet());
+		values.put(KEY_NOTES, olData.getNotes());
+		values.put(KEY_VOICENOTE, olData.getVoiceNote());
 		
 		int i = db.update(TABLE_NAME, values, KEY_ECARDID+" = ?", new String[]{olData.getEcardID()});
 		db.close();

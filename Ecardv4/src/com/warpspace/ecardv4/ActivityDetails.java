@@ -91,9 +91,15 @@ public class ActivityDetails extends ActionBarActivity {
 	    showActionBar();
 		setContentView(R.layout.activity_scanned);
 		currentUser = ParseUser.getCurrentUser();
-	    
+		
+		replayButtonBar = (ImageView) findViewById(R.id.bar_play_button);
+		replayButtonPanel = (ImageView) findViewById(R.id.panel_play_button);
+		recorderButton = (ImageView) findViewById(R.id.panel_recorder_button);
+		filepath=getFilename();
+		
 		scrollView = (MyScrollView) findViewById(R.id.scroll_view_scanned);
 		scrollView.setmScrollable(true);
+		
 
 		Bundle data = getIntent().getExtras();
 		final UserInfo newUser = (UserInfo) data.getParcelable("userinfo");
@@ -286,12 +292,7 @@ public class ActivityDetails extends ActionBarActivity {
 		});		
 		
 		// recorder-related begins
-				replayButtonBar = (ImageView) findViewById(R.id.bar_play_button);
-				replayButtonPanel = (ImageView) findViewById(R.id.panel_play_button);
-				recorderButton = (ImageView) findViewById(R.id.panel_recorder_button);
-				replayButtonBar.setVisibility(View.GONE);
-		    	replayButtonPanel.setVisibility(View.GONE);
-				filepath=getFilename();
+				
 				recorderButton.setOnTouchListener(new OnTouchListener() {
 				    @Override
 				    public boolean onTouch(View v, MotionEvent event) {
@@ -499,6 +500,17 @@ public class ActivityDetails extends ActionBarActivity {
 			}).show();
 		
 	}
+	
+	private void deleteLocalVoiceNote() {
+		File myFile = new File(filepath);
+		if(myFile.exists())
+		    myFile.delete();
+	}
+	
+	public void onBackPressed(){
+		super.onBackPressed();
+		deleteLocalVoiceNote();
+	}
 
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.notes_search_actionbar, menu);
@@ -512,6 +524,7 @@ public class ActivityDetails extends ActionBarActivity {
 		case R.id.notes_search_discard:
 			Toast.makeText(this, "Discarded Notes changes!", Toast.LENGTH_SHORT).show();
 			setResult(RESULT_CANCELED);
+			deleteLocalVoiceNote();
 			this.finish();
 			return true;
 		case R.id.notes_search_save:
@@ -622,7 +635,7 @@ public class ActivityDetails extends ActionBarActivity {
 		
 		object.saveEventually();
 		Toast.makeText(getBaseContext(), "Save successful", Toast.LENGTH_SHORT).show();
-		
+		deleteLocalVoiceNote();
 	}
 	
 	private void stopRecording() {

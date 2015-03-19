@@ -156,7 +156,7 @@ public class ActivityBufferOpening extends Activity {
 		}, NOTES_TIMEOUT);
 		
 		// check ecardIds that were scanned/cached offline		
-		final AsyncTasks.SyncDataTaskCachedIds syncCachedIds = new AsyncTasks.SyncDataTaskCachedIds(this, currentUser);
+		final AsyncTasks.SyncDataTaskCachedIds syncCachedIds = new AsyncTasks.SyncDataTaskCachedIds(this, currentUser, prefs, prefEditor);
 		syncCachedIds.execute();
 		Handler handlerCachedIds = new Handler();
 		handlerCachedIds.postDelayed(new Runnable() {

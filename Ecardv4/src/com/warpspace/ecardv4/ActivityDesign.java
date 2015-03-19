@@ -675,51 +675,14 @@ private void doCrop() {
         intent.putExtra("scale", true);
         intent.putExtra("return-data", true);
         
-    	if (size == 1) {
+    	if (size >= 1) {
     		Intent i 		= new Intent(intent);
         	ResolveInfo res	= list.get(0);
         	
         	i.setComponent( new ComponentName(res.activityInfo.packageName, res.activityInfo.name));
         	
         	startActivityForResult(i, CROP_FROM_CAMERA);
-    	} else {
-	        for (ResolveInfo res : list) {
-	        	final CropOption co = new CropOption();
-	        	
-	        	co.title 	= getPackageManager().getApplicationLabel(res.activityInfo.applicationInfo);
-	        	co.icon		= getPackageManager().getApplicationIcon(res.activityInfo.applicationInfo);
-	        	co.appIntent= new Intent(intent);
-	        	
-	        	co.appIntent.setComponent( new ComponentName(res.activityInfo.packageName, res.activityInfo.name));
-	        	
-	            cropOptions.add(co);
-	        }
-        
-	        CropOptionAdapter adapter = new CropOptionAdapter(getApplicationContext(), cropOptions);
-	        
-	        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-	        builder.setTitle("Choose Crop App");
-	        builder.setAdapter( adapter, new DialogInterface.OnClickListener() {
-	            public void onClick( DialogInterface dialog, int item ) {
-	                startActivityForResult( cropOptions.get(item).appIntent, CROP_FROM_CAMERA);
-	            }
-	        });
-        
-	        builder.setOnCancelListener( new DialogInterface.OnCancelListener() {
-	            @Override
-	            public void onCancel( DialogInterface dialog ) {
-	               
-	                if (selectedImage != null ) {
-	                    getContentResolver().delete(selectedImage, null, null );
-	                    selectedImage = null;
-	                }
-	            }
-	        } );
-	        
-	        AlertDialog alert = builder.create();
-	        
-	        alert.show();
-    	}
+    	} 
     }
 }
 	

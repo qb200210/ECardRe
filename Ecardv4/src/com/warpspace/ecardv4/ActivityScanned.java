@@ -115,7 +115,7 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 		
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_scanned);
-
+		filepath=getFilename();
 		currentUser = ParseUser.getCurrentUser();
 
 		scrollView = (MyScrollView) findViewById(R.id.scroll_view_scanned);
@@ -219,6 +219,11 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 			}
 
 		});
+		
+		// replay related
+		replayButtonBar = (ImageView) findViewById(R.id.bar_play_button);
+		replayButtonPanel = (ImageView) findViewById(R.id.panel_play_button);
+		recorderButton = (ImageView) findViewById(R.id.panel_recorder_button);
 		
 		
 		// display note if the note existed but deleted
@@ -330,15 +335,14 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 		} else {
 			// this is a new note
 			// disable replay button!
+			replayButtonBar.setVisibility(View.GONE);
+	    	replayButtonPanel.setVisibility(View.GONE);
 		}
 				
 		// recorder-related begins
-		replayButtonBar = (ImageView) findViewById(R.id.bar_play_button);
-		replayButtonPanel = (ImageView) findViewById(R.id.panel_play_button);
-		recorderButton = (ImageView) findViewById(R.id.panel_recorder_button);
-		replayButtonBar.setVisibility(View.GONE);
-    	replayButtonPanel.setVisibility(View.GONE);
-		filepath=getFilename();
+		
+		
+		
 		recorderButton.setOnTouchListener(new OnTouchListener() {
 		    @Override
 		    public boolean onTouch(View v, MotionEvent event) {
@@ -522,6 +526,17 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 
 	}
 
+	private void deleteLocalVoiceNote() {
+		File myFile = new File(filepath);
+		if(myFile.exists())
+		    myFile.delete();
+	}
+	
+	public void onBackPressed(){
+		super.onBackPressed();
+		deleteLocalVoiceNote();
+	}
+	
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.scanned_actionbar, menu);
 		return true;
@@ -534,45 +549,29 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 		case R.id.scanned_discard:
 			Toast.makeText(this, "Discarded Ecard!", Toast.LENGTH_SHORT).show();
 			setResult(RESULT_CANCELED);
+			deleteLocalVoiceNote();
 			this.finish();
 			return true;
 		case R.id.scanned_save:
 			// save scanned card either online or cache it offline
 			if (ECardUtils.isNetworkAvailable(this)) {
-				if(deletedNoteId != null){
-					// if the note existed but deleted, flip the flag and save note changes
-					ParseQuery<ParseObject> queryNote = ParseQuery.getQuery("ECardNote");
-					ParseObject ecarNote;
-					try {
-						ecarNote = queryNote.get(deletedNoteId);
-						saveNote(ecarNote);
-					} catch (ParseException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					setResult(RESULT_OK);
-				} else{
-					// if the note didn't exist, create note and save note changes
-					createNote();
-					setResult(RESULT_OK);
-				}
 				// if ActivityScanned started out as online and now it's still online, go ahead and add
-//				final AsyncTasks.AddCardNetworkAvailable addNewCard = new AsyncTasks.AddCardNetworkAvailable(this, currentUser, scannedUser.getObjId(), deletedNoteId);
-//				addNewCard.execute();
-//				Handler handlerAddNewCard = new Handler();
-//				handlerAddNewCard.postDelayed(new Runnable() {
-//
-//					@Override
-//					public void run() {
-//						if (addNewCard.getStatus() == AsyncTask.Status.RUNNING) {
-//							Toast.makeText(getApplicationContext(), "Adding New Card Timed Out", Toast.LENGTH_SHORT).show();
-//							// if poor network, cache the scannedID to local db, wait till
-//							// network comes back to add Ecard
-//							cacheScannedIds(scannedUser.getObjId());
-//							addNewCard.cancel(true);
-//						}
-//					}
-//				}, ADDCARD_TIMEOUT);
+				final AsyncTasks.AddCardNetworkAvailable addNewCard = new AsyncTasks.AddCardNetworkAvailable(this, currentUser, scannedUser.getObjId(), deletedNoteId);
+				addNewCard.execute();
+				Handler handlerAddNewCard = new Handler();
+				handlerAddNewCard.postDelayed(new Runnable() {
+
+					@Override
+					public void run() {
+						if (addNewCard.getStatus() == AsyncTask.Status.RUNNING) {
+							Toast.makeText(getApplicationContext(), "Adding New Card Timed Out", Toast.LENGTH_SHORT).show();
+							// if poor network, cache the scannedID to local db, wait till
+							// network comes back to add Ecard
+							cacheScannedIds(scannedUser.getObjId());
+							addNewCard.cancel(true);
+						}
+					}
+				}, ADDCARD_TIMEOUT);
 			} else {
 				// if ActivityScanned started out as offline, it means there was no check on ecard existence or collected, cache it for later check
 				// no network, cache to local database
@@ -587,134 +586,7 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 		}
 	}
 
-	private void saveNote(final ParseObject ecarNote) {
-		// if note existed but deleted, directly get the note and flip the flag
-		if(ecarNote != null){		
-			// pin corresponding ecard
-			ParseQuery<ParseObject> queryInfo = ParseQuery.getQuery("ECardInfo");
-			ParseObject ecardObject = null;
-			try {
-				ecardObject = queryInfo.get(scannedUser.getObjId());
-			} catch (ParseException e1) {
-				e1.printStackTrace();
-			}
-			if (ecardObject != null) {
-				try {
-					ecardObject.pin();
-				} catch (ParseException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-			ecarNote.put("EcardUpdatedAt", ecardObject.getUpdatedAt());
-			ecarNote.put("isDeleted", false);			 				        
-	        //convert file into array of bytes
-			FileInputStream fileInputStream=null;						 
-	        File file = new File(filepath);				 
-	        byte[] bFile = new byte[(int) file.length()];	
-		    try {
-				fileInputStream = new FileInputStream(file);
-				fileInputStream.read(bFile);
-			    fileInputStream.close();
-			} catch (FileNotFoundException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			if(ECardUtils.isNetworkAvailable(ActivityScanned.this)){
-			    final ParseFile voiceFile = new ParseFile("voicenote.mp4", bFile);
-			    voiceFile.saveInBackground(new SaveCallback(){
-
-					@Override
-					public void done(ParseException arg0) {
-						ecarNote.put("voiceNotes", voiceFile);
-						saveChangesToParse(ecarNote);
-						Toast.makeText(ActivityScanned.this, "Changes saved!", Toast.LENGTH_SHORT).show();
-					}
-			    	
-			    });
-			} else {
-				// if network not available, save voicenote with unique name then record in local database
-				Toast.makeText(ActivityScanned.this, "No network, caching voice note", Toast.LENGTH_SHORT).show(); 
-				ecarNote.put("tmpVoiceByteArray", bFile);
-            	// flush sharedpreferences to 1969 so next time app opens with internet, convert the file
-            	Date currentDate=new Date(0);
-    			SharedPreferences prefs = getSharedPreferences(ActivityBufferOpening.MY_PREFS_NAME, MODE_PRIVATE);
-    			SharedPreferences.Editor prefEditor = prefs.edit();
-				prefEditor.putLong("DateNoteSynced", currentDate.getTime());
-				prefEditor.commit();
-            	saveChangesToParse(ecarNote);
-			}
-		}
-		
-	}
-
-	private void createNote() {
-		// pin corresponding ecard
-		ParseQuery<ParseObject> queryInfo = ParseQuery.getQuery("ECardInfo");
-		ParseObject ecardObject = null;
-		try {
-			ecardObject = queryInfo.get(scannedUser.getObjId());
-		} catch (ParseException e1) {
-			e1.printStackTrace();
-		}
-		if (ecardObject != null) {
-			try {
-				ecardObject.pin();
-			} catch (ParseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-				
-		final ParseObject ecardNote = new ParseObject("ECardNote");
-		ecardNote.setACL(new ParseACL(currentUser));
-		ecardNote.put("userId", currentUser.getObjectId());
-		ecardNote.put("ecardId", scannedUser.getObjId());
-		ecardNote.put("EcardUpdatedAt", ecardObject.getUpdatedAt());
-		//convert file into array of bytes
-		FileInputStream fileInputStream=null;						 
-        File file = new File(filepath);				 
-        byte[] bFile = new byte[(int) file.length()];	
-	    try {
-			fileInputStream = new FileInputStream(file);
-			fileInputStream.read(bFile);
-		    fileInputStream.close();
-		} catch (FileNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		if(ECardUtils.isNetworkAvailable(ActivityScanned.this)){
-		    final ParseFile voiceFile = new ParseFile("voicenote.mp4", bFile);
-		    voiceFile.saveInBackground(new SaveCallback(){
-
-				@Override
-				public void done(ParseException arg0) {
-					ecardNote.put("voiceNotes", voiceFile);
-					saveChangesToParse(ecardNote);
-					Toast.makeText(ActivityScanned.this, "Changes saved!", Toast.LENGTH_SHORT).show();
-				}
-		    	
-		    });
-		} else {
-			// if network not available, save voicenote with unique name then record in local database
-			Toast.makeText(ActivityScanned.this, "No network, caching voice note", Toast.LENGTH_SHORT).show(); 
-			ecardNote.put("tmpVoiceByteArray", bFile);
-        	// flush sharedpreferences to 1969 so next time app opens with internet, convert the file
-        	Date currentDate=new Date(0);
-			SharedPreferences prefs = getSharedPreferences(ActivityBufferOpening.MY_PREFS_NAME, MODE_PRIVATE);
-			SharedPreferences.Editor prefEditor = prefs.edit();
-			prefEditor.putLong("DateNoteSynced", currentDate.getTime());
-			prefEditor.commit();
-        	saveChangesToParse(ecardNote);
-		}
-		
-	}
+	
 
 	@SuppressLint("NewApi")
 	private void askIfShareBack() {
@@ -750,9 +622,24 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 
 		ECardSQLHelper db = new ECardSQLHelper(this);
 		List<OfflineData> olDatas = db.getData("ecardID", scannedId);
+		EditText whereMet = (EditText) findViewById(R.id.PlaceAdded2);
+		EditText eventMet = (EditText) findViewById(R.id.EventAdded2);
+		EditText notes = (EditText) findViewById(R.id.EditNotes);
 		if (olDatas.size() == 0) {
 			// if EcardID is not among local db records, cache it
-			db.addData(new OfflineData(scannedId, "/sdcard/aaa/"));
+			
+			File file = new File(filepath);			
+			if(file.exists()){
+				// if there is voice note to be cached, rename it for later use
+				String newFilepath = getUniqueFilename();
+				File newFile = new File(newFilepath);
+			    file.renameTo(newFile);
+			    file.delete();		
+				db.addData(new OfflineData(scannedId, whereMet.getText().toString(), eventMet.getText().toString(), notes.getText().toString(), newFilepath));
+			} else{
+				// no voice note to save
+				db.addData(new OfflineData(scannedId, whereMet.getText().toString(), eventMet.getText().toString(), notes.getText().toString(), "null"));
+			}			
 			Toast.makeText(getBaseContext(), "Ecard cached, will add when next time connect to internet", Toast.LENGTH_SHORT).show();
 		} else {
 			Toast.makeText(getBaseContext(), "Already in local queue, but still cached!", Toast.LENGTH_SHORT).show();
@@ -791,24 +678,7 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 
 	}
 		
-	private void saveChangesToParse(ParseObject object) {
-		EditText whereMet = (EditText) findViewById(R.id.PlaceAdded2);
-		EditText eventMet = (EditText) findViewById(R.id.EventAdded2);
-		EditText notes = (EditText) findViewById(R.id.EditNotes);
-		object.put("where_met", whereMet.getText().toString());
-		object.put("event_met", eventMet.getText().toString());
-		object.put("notes", notes.getText().toString());		
-		
-		object.saveEventually();
-		try {
-			object.pin();
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		Toast.makeText(getBaseContext(), "Save successful", Toast.LENGTH_SHORT).show();
-		
-	}
+	
 	
 	private void stopRecording() {
 	    if (null != recorder) {
@@ -870,6 +740,15 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 	        file.mkdirs();
 	    }
 	    return (file.getAbsolutePath() + "/voicenote.mp4");
+	}
+	
+	private String getUniqueFilename() {
+	    String filepath = Environment.getExternalStorageDirectory().getPath();
+	    File file = new File(filepath, AUDIO_RECORDER_FOLDER);
+	    if (!file.exists()) {
+	        file.mkdirs();
+	    }
+	    return (file.getAbsolutePath() + "/" + System.currentTimeMillis() + ".mp4");
 	}
 	
 	private MediaRecorder.OnErrorListener errorListener = new MediaRecorder.OnErrorListener() {

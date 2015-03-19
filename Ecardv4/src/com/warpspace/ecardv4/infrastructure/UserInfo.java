@@ -53,13 +53,13 @@ public class UserInfo implements Parcelable {
 
   private void setDefaults() {
     this.objId = "Unspecified";
-    this.firstName = "Unspecified";
-    this.lastName = "Unspecified";
-    this.company = "Unspecified";
-    this.title = "Unspecified";
-    this.city = "Unspecified";
-    this.whereMet = "Unspecified";
-    this.eventMet = "Unspecified";
+    this.firstName = "Mysterious User X";
+    this.lastName = "";
+    this.company = "Mysterious Company";
+    this.title = "Mysterious Position";
+    this.city = "Somewhere on Earch";
+    this.whereMet = "Mysterious Place";
+    this.eventMet = "Mysterious Event";
     this.addedAt = null;
   }
 
@@ -105,6 +105,13 @@ public class UserInfo implements Parcelable {
   public UserInfo(String objId, String fName, String lName, boolean localData,
     boolean isNetworkAvailable, boolean imgFromTmpData) {
     this(objId, localData, isNetworkAvailable, imgFromTmpData);
+    
+    if(!localData && !isNetworkAvailable){
+    	// if not asking for local data and no network, this means offline scanning card
+    	this.objId = objId;
+    	firstName = fName;
+    	lastName = lName;
+    }
 
     if (this.firstName != fName) {
       Log.w("Knowell",
@@ -119,46 +126,47 @@ public class UserInfo implements Parcelable {
 
   public UserInfo(ParseObject parseObj) {
     if (parseObj == null) {
-      throw new IllegalArgumentException(
-        "Parse Object is null when loading user");
-    }
-
-    // get portrait from cached img
-    ParseFile portraitFile = (ParseFile) parseObj.get("portrait");
-    if (portraitFile != null) {
-      byte[] data;
-      try {
-        data = portraitFile.getData();
-        portrait = BitmapFactory.decodeByteArray(data, 0, data.length);
-      } catch (ParseException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      }
-    }
-
-    // main card info
-    objId = parseObj.getObjectId();
-    firstName = parseObj.getString("firstName");
-    lastName = parseObj.getString("lastName");
-    company = parseObj.getString("company");
-    title = parseObj.getString("title");
-    city = parseObj.getString("city");
-
-    // extra info
-    infoIcon.clear();
-    infoLink.clear();
-    shownArrayList.clear();
-    for (int i = 0; i < allowedArray.length; i++) {
-      // the extra info item
-      String item = allowedArray[i];
-      // the value of this extra info item
-      Object value = parseObj.get(item);
-      if (value != null && value.toString() != "") {
-        infoIcon.add(iconSelector(item));
-        infoLink.add(value.toString());
-        // note down the existing extra info items
-        shownArrayList.add(item);
-      }
+    	// if parseObj is null, assuming the scenario is offline scanning card
+    	// bypass this constructor
+    	setDefaults();
+    } else{
+	    // get portrait from cached img
+	    ParseFile portraitFile = (ParseFile) parseObj.get("portrait");
+	    if (portraitFile != null) {
+	      byte[] data;
+	      try {
+	        data = portraitFile.getData();
+	        portrait = BitmapFactory.decodeByteArray(data, 0, data.length);
+	      } catch (ParseException e) {
+	        // TODO Auto-generated catch block
+	        e.printStackTrace();
+	      }
+	    }
+	
+	    // main card info
+	    objId = parseObj.getObjectId();
+	    firstName = parseObj.getString("firstName");
+	    lastName = parseObj.getString("lastName");
+	    company = parseObj.getString("company");
+	    title = parseObj.getString("title");
+	    city = parseObj.getString("city");
+	
+	    // extra info
+	    infoIcon.clear();
+	    infoLink.clear();
+	    shownArrayList.clear();
+	    for (int i = 0; i < allowedArray.length; i++) {
+	      // the extra info item
+	      String item = allowedArray[i];
+	      // the value of this extra info item
+	      Object value = parseObj.get(item);
+	      if (value != null && value.toString() != "") {
+	        infoIcon.add(iconSelector(item));
+	        infoLink.add(value.toString());
+	        // note down the existing extra info items
+	        shownArrayList.add(item);
+	      }
+	    }
     }
   }
 
