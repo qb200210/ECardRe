@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 import android.annotation.SuppressLint;
@@ -52,6 +53,7 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.warpspace.ecardv4.infrastructure.SearchListAdapter;
+import com.warpspace.ecardv4.infrastructure.UserIndexStringType;
 import com.warpspace.ecardv4.infrastructure.UserInfo;
 import com.warpspace.ecardv4.utils.AsyncTasks;
 import com.warpspace.ecardv4.utils.CurvedAndTiled;
@@ -73,6 +75,7 @@ public class ActivitySearch extends ActionBarActivity {
 
   View mainView;
   LinearLayout searchWidget;
+  Button searchButton;
 
   public static ArrayList<UserInfo> filteredUsers;
   private static ArrayList<UserInfo> allUsers;
@@ -83,6 +86,7 @@ public class ActivitySearch extends ActionBarActivity {
   StickyListHeadersListView listView;
 
   ArrayAdapter<String> autoCompleteAdapter;
+  HashMap<String, ArrayList<UserIndexStringType>> searchEntries;
   AutoCompleteTextView searchBox;
 
   SparseIntArray searchListToUserListMap;
@@ -103,6 +107,8 @@ public class ActivitySearch extends ActionBarActivity {
   @Override
   protected void onCreate(final Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+
+    searchEntries = new HashMap<String, ArrayList<UserIndexStringType>>();
 
     // show custom action bar (on top of standard action bar)
     showActionBar();
@@ -146,18 +152,47 @@ public class ActivitySearch extends ActionBarActivity {
       @Override
       public void onItemClick(AdapterView<?> parent, View view, int position,
         long id) {
-        TextView selectedView = (TextView) view;
-        int index = autoCompleteList.indexOf(selectedView.getText());
-
-        int allUsersIndex = searchListToUserListMap.get(index);
-        UserInfo selectedUser = allUsers.get(allUsersIndex);
-
-        Intent intent = new Intent(getBaseContext(), ActivityDetails.class);
-        // passing UserInfo is made possible through Parcelable
-        intent.putExtra("userinfo", selectedUser);
-        startActivity(intent);
+        // TextView selectedView = (TextView) view;
+        // int index = autoCompleteList.indexOf(selectedView.getText());
+        //
+        // int allUsersIndex = searchListToUserListMap.get(index);
+        // UserInfo selectedUser = allUsers.get(allUsersIndex);
+        //
+        // Intent intent = new Intent(getBaseContext(), ActivityDetails.class);
+        // // passing UserInfo is made possible through Parcelable
+        // intent.putExtra("userinfo", selectedUser);
+        // startActivity(intent);
       }
     });
+
+    searchButton = (Button) findViewById(R.id.btn_search_inside);
+    searchButton.setOnClickListener(new OnClickListener() {
+
+      @Override
+      public void onClick(View v) {
+        performSearch();
+      }
+    });
+  }
+
+  private void performSearch() {
+    String key = searchBox.getText().toString().toLowerCase(Locale.ENGLISH);
+    if (key == "") {
+      filteredUsers = allUsers;
+    } else {
+      ArrayList<UserIndexStringType> searchHits = (ArrayList<UserIndexStringType>) searchEntries
+        .get(key);
+      filteredUsers.clear();
+      if (searchHits != null) {
+        for (UserIndexStringType result : searchHits) {
+          filteredUsers.add(allUsers.get(result.userIndex));
+        }
+      }
+    }
+
+    adapter.refreshData(filteredUsers);
+    adapter.notifyDataSetChanged();
+    listView.invalidateViews();
   }
 
   private void populateAutoComplete(AutoCompleteTextView textBox) {
@@ -234,15 +269,76 @@ public class ActivitySearch extends ActionBarActivity {
     OnClickListener filterTouchListener = new OnClickListener() {
       @Override
       public void onClick(View v) {
-        TextView tv = (TextView) v;
-        Toast.makeText(getApplicationContext(), tv.getText(),
-          Toast.LENGTH_SHORT).show();
       }
     };
 
     TextView tvWhereMet = (TextView) findViewById(R.id.txt_where_met);
     tvWhereMet.setOnClickListener(filterTouchListener);
 
+  }
+
+  // Add each field of the UserInfo to the search map.
+  private void addFieldToSearchStructure(String key, UserIndexStringType field) {
+    ArrayList<UserIndexStringType> fieldList = searchEntries.get(key
+      .toLowerCase(Locale.ENGLISH));
+    if (fieldList == null) {
+      fieldList = new ArrayList<UserIndexStringType>();
+      // Add all the strings to the autocomplete list
+      autoCompleteList.add(key);
+      searchEntries.put(key.toLowerCase(Locale.ENGLISH), fieldList);
+    }
+
+    fieldList.add(field);
+  }
+
+  // Add the UserInfo type object to the search map.
+  private void addToSearchStructures(UserInfo contact, int userIndex) {
+    // Add first names.
+    if (contact.getFirstName() != "") {
+      // Add this field to search map.
+      addFieldToSearchStructure(contact.getFirstName(),
+        new UserIndexStringType(userIndex, UserInfo.FIELD_TYPE.TYPE_FNAME));
+    }
+
+    // Add last names.
+    if (contact.getLastName() != "") {
+      // Add this field to search map.
+      addFieldToSearchStructure(contact.getLastName(), new UserIndexStringType(
+        userIndex, UserInfo.FIELD_TYPE.TYPE_LNAME));
+    }
+
+    // Add Company.
+    if (contact.getCompany() != "") {
+      // Add this field to search map.
+      addFieldToSearchStructure(contact.getCompany(), new UserIndexStringType(
+        userIndex, UserInfo.FIELD_TYPE.TYPE_COMPANY));
+    }
+
+    // Add City.
+    if (contact.getCity() != "") {
+      // Add this field to search map.
+      addFieldToSearchStructure(contact.getCity(), new UserIndexStringType(
+        userIndex, UserInfo.FIELD_TYPE.TYPE_CITY));
+    }
+
+    // Add Title.
+    if (contact.getTitle() != "") {
+      // Add this field to search map.
+      addFieldToSearchStructure(contact.getTitle(), new UserIndexStringType(
+        userIndex, UserInfo.FIELD_TYPE.TYPE_TITLE));
+    }
+
+    if (contact.getWhereMet() != "") {
+      // Add this field to search map.
+      addFieldToSearchStructure(contact.getWhereMet(), new UserIndexStringType(
+        userIndex, UserInfo.FIELD_TYPE.TYPE_WHERE_MET));
+    }
+
+    if (contact.getEventMet() != "") {
+      // Add this field to search map.
+      addFieldToSearchStructure(contact.getEventMet(), new UserIndexStringType(
+        userIndex, UserInfo.FIELD_TYPE.TYPE_EVENT_MET));
+    }
   }
 
   private void getContacts() {
@@ -309,40 +405,7 @@ public class ActivitySearch extends ActionBarActivity {
                       // results.
                       int userIndex = allUsers.size() - 1;
 
-                      // Add first names.
-                      if (contact.getFirstName() != "") {
-                        autoCompleteList.add(contact.getFirstName());
-                        searchListToUserListMap.append(
-                          autoCompleteList.size() - 1, userIndex);
-                      }
-
-                      // Add last names.
-                      if (contact.getLastName() != "") {
-                        autoCompleteList.add(contact.getLastName());
-                        searchListToUserListMap.append(
-                          autoCompleteList.size() - 1, userIndex);
-                      }
-
-                      // Add Company.
-                      if (contact.getCompany() != "") {
-                        autoCompleteList.add(contact.getCompany());
-                        searchListToUserListMap.append(
-                          autoCompleteList.size() - 1, userIndex);
-                      }
-
-                      // Add City.
-                      if (contact.getCity() != "") {
-                        autoCompleteList.add(contact.getCity());
-                        searchListToUserListMap.append(
-                          autoCompleteList.size() - 1, userIndex);
-                      }
-
-                      // Add Title.
-                      if (contact.getTitle() != "") {
-                        autoCompleteList.add(contact.getTitle());
-                        searchListToUserListMap.append(
-                          autoCompleteList.size() - 1, userIndex);
-                      }
+                      addToSearchStructures(contact, userIndex);
                     }
                   }
 

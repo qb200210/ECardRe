@@ -1,12 +1,9 @@
 package com.warpspace.ecardv4.infrastructure;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Locale;
 
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -34,6 +31,7 @@ public class UserInfo implements Parcelable {
   // Centralized space for ecard, should make a similar one for ecardNote
   // This is made Parcelable so a UserInfo object can be passed among activities
 
+  // Key fields of a UserInfo.
   String objId;
   String firstName;
   String lastName;
@@ -44,6 +42,17 @@ public class UserInfo implements Parcelable {
   String whereMet;
   String eventMet;
   Date addedAt;
+
+  public class FIELD_TYPE {
+    // Giving enum values to the above fields.
+    public static final int TYPE_FNAME = 1;
+    public static final int TYPE_LNAME = 2;
+    public static final int TYPE_COMPANY = 3;
+    public static final int TYPE_TITLE = 4;
+    public static final int TYPE_CITY = 5;
+    public static final int TYPE_WHERE_MET = 6;
+    public static final int TYPE_EVENT_MET = 7;
+  }
 
   ArrayList<String> shownArrayList = new ArrayList<String>();
   ArrayList<Integer> infoIcon = new ArrayList<Integer>();
@@ -105,12 +114,13 @@ public class UserInfo implements Parcelable {
   public UserInfo(String objId, String fName, String lName, boolean localData,
     boolean isNetworkAvailable, boolean imgFromTmpData) {
     this(objId, localData, isNetworkAvailable, imgFromTmpData);
-    
-    if(!localData && !isNetworkAvailable){
-    	// if not asking for local data and no network, this means offline scanning card
-    	this.objId = objId;
-    	firstName = fName;
-    	lastName = lName;
+
+    if (!localData && !isNetworkAvailable) {
+      // if not asking for local data and no network, this means offline
+      // scanning card
+      this.objId = objId;
+      firstName = fName;
+      lastName = lName;
     }
 
     if (this.firstName != fName) {
@@ -125,48 +135,48 @@ public class UserInfo implements Parcelable {
   }
 
   public UserInfo(ParseObject parseObj) {
+    setDefaults();
     if (parseObj == null) {
-    	// if parseObj is null, assuming the scenario is offline scanning card
-    	// bypass this constructor
-    	setDefaults();
-    } else{
-	    // get portrait from cached img
-	    ParseFile portraitFile = (ParseFile) parseObj.get("portrait");
-	    if (portraitFile != null) {
-	      byte[] data;
-	      try {
-	        data = portraitFile.getData();
-	        portrait = BitmapFactory.decodeByteArray(data, 0, data.length);
-	      } catch (ParseException e) {
-	        // TODO Auto-generated catch block
-	        e.printStackTrace();
-	      }
-	    }
-	
-	    // main card info
-	    objId = parseObj.getObjectId();
-	    firstName = parseObj.getString("firstName");
-	    lastName = parseObj.getString("lastName");
-	    company = parseObj.getString("company");
-	    title = parseObj.getString("title");
-	    city = parseObj.getString("city");
-	
-	    // extra info
-	    infoIcon.clear();
-	    infoLink.clear();
-	    shownArrayList.clear();
-	    for (int i = 0; i < allowedArray.length; i++) {
-	      // the extra info item
-	      String item = allowedArray[i];
-	      // the value of this extra info item
-	      Object value = parseObj.get(item);
-	      if (value != null && value.toString() != "") {
-	        infoIcon.add(iconSelector(item));
-	        infoLink.add(value.toString());
-	        // note down the existing extra info items
-	        shownArrayList.add(item);
-	      }
-	    }
+      // if parseObj is null, assuming the scenario is offline scanning card
+      // bypass this constructor
+    } else {
+      // get portrait from cached img
+      ParseFile portraitFile = (ParseFile) parseObj.get("portrait");
+      if (portraitFile != null) {
+        byte[] data;
+        try {
+          data = portraitFile.getData();
+          portrait = BitmapFactory.decodeByteArray(data, 0, data.length);
+        } catch (ParseException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        }
+      }
+
+      // main card info
+      objId = parseObj.getObjectId();
+      firstName = parseObj.getString("firstName");
+      lastName = parseObj.getString("lastName");
+      company = parseObj.getString("company");
+      title = parseObj.getString("title");
+      city = parseObj.getString("city");
+
+      // extra info
+      infoIcon.clear();
+      infoLink.clear();
+      shownArrayList.clear();
+      for (int i = 0; i < allowedArray.length; i++) {
+        // the extra info item
+        String item = allowedArray[i];
+        // the value of this extra info item
+        Object value = parseObj.get(item);
+        if (value != null && value.toString() != "") {
+          infoIcon.add(iconSelector(item));
+          infoLink.add(value.toString());
+          // note down the existing extra info items
+          shownArrayList.add(item);
+        }
+      }
     }
   }
 

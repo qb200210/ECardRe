@@ -28,8 +28,13 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
   private final Context mContext;
   private boolean sortModeName = true;
 
-  public SearchListAdapter(final Context context, ArrayList<UserInfo> names) {
+  public SearchListAdapter(final Context context, ArrayList<UserInfo> users) {
     mContext = context;
+    refreshData(users);
+  }
+
+  public void refreshData(ArrayList<UserInfo> users) {
+    clear();
     for (int i = 0; i < ActivitySearch.filteredUsers.size(); i++) {
       add(ActivitySearch.filteredUsers.get(i));
     }
