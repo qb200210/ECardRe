@@ -25,13 +25,16 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.util.SparseIntArray;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.OvershootInterpolator;
+import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
@@ -84,6 +87,15 @@ public class ActivitySearch extends ActionBarActivity {
   AlphaInAnimationAdapter animationAdapter;
   StickyListHeadersAdapterDecorator stickyListHeadersAdapterDecorator;
   StickyListHeadersListView listView;
+  LinearLayout layoutNoResults;
+
+  // Possible modes of sorting.
+  public static final int SORT_MODE_NAME_ASC = 1;
+  public static final int SORT_MODE_NAME_DSC = 2;
+  public static final int SORT_MODE_DATE_ASC = 3;
+  public static final int SORT_MODE_DATE_DSC = 4;
+
+  public static int currentSortMode = SORT_MODE_DATE_ASC;
 
   ArrayAdapter<String> autoCompleteAdapter;
   HashMap<String, ArrayList<UserIndexStringType>> searchEntries;
@@ -118,11 +130,17 @@ public class ActivitySearch extends ActionBarActivity {
     currentUser = ParseUser.getCurrentUser();
 
     allUsers = new ArrayList<UserInfo>();
-    filteredUsers = allUsers;
+    filteredUsers = new ArrayList<UserInfo>();
+    filteredUsers.addAll(allUsers);
     autoCompleteList = new ArrayList<String>();
     searchListToUserListMap = new SparseIntArray();
 
     searchWidget = (LinearLayout) findViewById(R.id.lnlayout_search_widget);
+    layoutNoResults = (LinearLayout) findViewById(R.id.lnlayout_no_results);
+    layoutNoResults.setVisibility(View.INVISIBLE);
+
+    getWindow().setSoftInputMode(
+      WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
     // build dialog for sorting selection options
     buildSortDialog();
@@ -147,21 +165,15 @@ public class ActivitySearch extends ActionBarActivity {
     handleSearchDropDown();
 
     searchBox = (AutoCompleteTextView) findViewById(R.id.txt_autocomplete_search);
-    searchBox.setOnItemClickListener(new OnItemClickListener() {
+    searchBox.setOnEditorActionListener(new TextView.OnEditorActionListener() {
 
       @Override
-      public void onItemClick(AdapterView<?> parent, View view, int position,
-        long id) {
-        // TextView selectedView = (TextView) view;
-        // int index = autoCompleteList.indexOf(selectedView.getText());
-        //
-        // int allUsersIndex = searchListToUserListMap.get(index);
-        // UserInfo selectedUser = allUsers.get(allUsersIndex);
-        //
-        // Intent intent = new Intent(getBaseContext(), ActivityDetails.class);
-        // // passing UserInfo is made possible through Parcelable
-        // intent.putExtra("userinfo", selectedUser);
-        // startActivity(intent);
+      public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+        if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+          performSearch();
+          return true;
+        }
+        return false;
       }
     });
 
@@ -176,13 +188,13 @@ public class ActivitySearch extends ActionBarActivity {
   }
 
   private void performSearch() {
-    String key = searchBox.getText().toString().toLowerCase(Locale.ENGLISH);
-    if (key == "") {
-      filteredUsers = allUsers;
+    String key = searchBox.getText().toString();
+    filteredUsers.clear();
+    if (key.matches("")) {
+      filteredUsers.addAll(allUsers);
     } else {
       ArrayList<UserIndexStringType> searchHits = (ArrayList<UserIndexStringType>) searchEntries
-        .get(key);
-      filteredUsers.clear();
+        .get(key.toLowerCase(Locale.ENGLISH));
       if (searchHits != null) {
         for (UserIndexStringType result : searchHits) {
           filteredUsers.add(allUsers.get(result.userIndex));
@@ -190,9 +202,17 @@ public class ActivitySearch extends ActionBarActivity {
       }
     }
 
+    adapter.reSort();
     adapter.refreshData(filteredUsers);
     adapter.notifyDataSetChanged();
     listView.invalidateViews();
+
+    if (filteredUsers.size() == 0) {
+      layoutNoResults.setVisibility(View.VISIBLE);
+    } else {
+      layoutNoResults.setVisibility(View.INVISIBLE);
+    }
+
   }
 
   private void populateAutoComplete(AutoCompleteTextView textBox) {
@@ -258,10 +278,7 @@ public class ActivitySearch extends ActionBarActivity {
         SEARCH_MENU_OVERHANG = searchWidgetTotalHeight
           + rLayout.getMeasuredHeight();
         listView.setPadding(0, searchWidgetTotalHeight, 0, 0);
-        sv.animate()
-          .translationY(SEARCH_MENU_OVERHANG - sv.getMeasuredHeight())
-          .setDuration(SCROLL_ANIMATION_SPEED_MS_SLOW)
-          .setInterpolator(new LinearInterpolator()).start();
+        sv.setTranslationY(SEARCH_MENU_OVERHANG - sv.getMeasuredHeight());
       }
     });
 
@@ -409,7 +426,7 @@ public class ActivitySearch extends ActionBarActivity {
                     }
                   }
 
-                  filteredUsers = new ArrayList<UserInfo>(allUsers);
+                  filteredUsers.addAll(allUsers);
                   adapter = new SearchListAdapter(getApplicationContext(),
                     filteredUsers);
                   animationAdapter = new AlphaInAnimationAdapter(adapter);
@@ -427,7 +444,8 @@ public class ActivitySearch extends ActionBarActivity {
                     .setInitialDelayMillis(500);
 
                   listView.setAdapter(stickyListHeadersAdapterDecorator);
-                  adapter.reSortName(true);
+                  currentSortMode = SORT_MODE_NAME_ASC;
+                  adapter.reSort();
                   stickyListHeadersAdapterDecorator.notifyDataSetChanged();
 
                   // Also update the Autocomplete search box.
@@ -499,7 +517,8 @@ public class ActivitySearch extends ActionBarActivity {
               Toast.makeText(getApplicationContext(), "Sync Notes Timed Out",
                 Toast.LENGTH_SHORT).show();
               syncNotes.cancel(true);
-              adapter.reSortDate(true);
+              currentSortMode = SORT_MODE_DATE_ASC;
+              adapter.reSort();
             }
           }
         }, NOTES_TIMEOUT);
@@ -555,26 +574,25 @@ public class ActivitySearch extends ActionBarActivity {
         long id) {
         switch (position) {
         case (0):
-          adapter.reSortName(true);
-          actions.dismiss();
+          currentSortMode = SORT_MODE_NAME_ASC;
           break;
         case (1):
-          adapter.reSortName(false);
-          actions.dismiss();
+          currentSortMode = SORT_MODE_NAME_DSC;
           break;
         case (2):
-          adapter.reSortDate(false);
-          actions.dismiss();
+          currentSortMode = SORT_MODE_DATE_DSC;
           break;
         case (3):
-          adapter.reSortDate(true);
-          actions.dismiss();
+          currentSortMode = SORT_MODE_DATE_ASC;
           break;
         default:
           Toast.makeText(getApplicationContext(), "Placeholder: Default",
             Toast.LENGTH_SHORT).show();
           actions.dismiss();
+          return;
         }
+        adapter.reSort();
+        actions.dismiss();
         adapter.notifyDataSetChanged();
       }
 

@@ -55,6 +55,24 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
     return false;
   }
 
+  // Resorts the list based on ActivitySearch.currentSortMode
+  public void reSort() {
+    switch (ActivitySearch.currentSortMode) {
+    case ActivitySearch.SORT_MODE_NAME_ASC:
+      reSortName(true);
+      break;
+    case ActivitySearch.SORT_MODE_NAME_DSC:
+      reSortName(false);
+      break;
+    case ActivitySearch.SORT_MODE_DATE_ASC:
+      reSortDate(true);
+      break;
+    case ActivitySearch.SORT_MODE_DATE_DSC:
+      reSortDate(false);
+      break;
+    }
+  }
+
   public void reSortName(boolean ascending) {
     sortModeName = true;
     Comparator<UserInfo> comparer = new UserInfoNameComparator();
