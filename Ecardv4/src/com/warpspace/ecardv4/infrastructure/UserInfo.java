@@ -60,16 +60,16 @@ public class UserInfo implements Parcelable {
   String[] allowedArray = { "about", "linkedin", "phone", "message", "email",
     "facebook", "twitter", "googleplus", "web" };
 
-  private void setDefaults() {
-    this.objId = "Unspecified";
-    this.firstName = "Mysterious User X";
-    this.lastName = "";
-    this.company = "Mysterious Company";
-    this.title = "Mysterious Position";
-    this.city = "Somewhere on Earch";
-    this.whereMet = "Mysterious Place";
-    this.eventMet = "Mysterious Event";
-    this.addedAt = null;
+  private void ensureDefaults() {
+    this.objId = this.objId == null ? "Unspecified" : this.objId;
+    this.firstName = this.firstName == null ? "Mysterious User X"
+      : this.firstName;
+    this.lastName = this.lastName == null ? "" : this.lastName;
+    this.company = this.company == null ? "Mysterious Company" : this.company;
+    this.title = this.title == null ? "Mysterious Position" : this.title;
+    this.city = this.city == null ? "Somewhere on Earth" : this.city;
+    this.whereMet = this.whereMet == null ? "Mysterious Place" : this.whereMet;
+    this.eventMet = this.eventMet == null ? "Mysterious Event" : this.eventMet;
   }
 
   private static ParseObject getParseObjectFromObjId(String objId,
@@ -135,7 +135,6 @@ public class UserInfo implements Parcelable {
   }
 
   public UserInfo(ParseObject parseObj) {
-    setDefaults();
     if (parseObj == null) {
       // if parseObj is null, assuming the scenario is offline scanning card
       // bypass this constructor
@@ -178,10 +177,12 @@ public class UserInfo implements Parcelable {
         }
       }
     }
+
+    // Make sure the defaults are set.
+    ensureDefaults();
   }
 
   public UserInfo(Parcel source) {
-    setDefaults();
     this.objId = source.readString();
     this.firstName = source.readString();
     this.lastName = source.readString();
@@ -192,6 +193,9 @@ public class UserInfo implements Parcelable {
     source.readStringList(this.shownArrayList);
     source.readStringList(this.infoLink);
     source.readList(this.infoIcon, Integer.class.getClassLoader());
+
+    // Ensure the defaults are set.
+    ensureDefaults();
   }
 
   @Override
