@@ -125,20 +125,23 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 		scannedUser = (UserInfo) data.getParcelable("userinfo");
 		flagOfflineMode = (boolean) data.get("offlineMode");
 		deletedNoteId  = (String) data.get("deletedNoteId");
-
-		// getting "where met" city info
-		// this will be used later -- where "this" is ambiguous, so directly
-		// storing delegate for later use
-		delegate = this;
-		// if there is network, start a thread to get location name
-		Location location = getLocation();
-		if (location != null) {
-			Log.i("ActScan", "location not null");
-			new GeocoderHelper(delegate).fetchCityName(getBaseContext(), location);
-		} else {
-			// if getting location fails, will bypass the processFinish() function
-			Toast.makeText(getBaseContext(), "Cannot determine location for now...", Toast.LENGTH_SHORT).show();
-			whereMet = null;
+		
+		if(!flagOfflineMode){
+			// get location only when online
+			// getting "where met" city info
+			// this will be used later -- where "this" is ambiguous, so directly
+			// storing delegate for later use
+			delegate = this;
+			// if there is network, start a thread to get location name
+			Location location = getLocation();
+			if (location != null) {
+				Log.i("ActScan", "location not null");
+				new GeocoderHelper(delegate).fetchCityName(getBaseContext(), location);
+			} else {
+				// if getting location fails, will bypass the processFinish() function
+				Toast.makeText(getBaseContext(), "Your GPS is off...", Toast.LENGTH_SHORT).show();
+				whereMet = null;
+			}
 		}
 		
 		// setOnclickListener for note bar/panel switcher
@@ -248,12 +251,16 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 				private void displayNote(final ParseObject object) {
 					TextView whenMet1 = (TextView) findViewById(R.id.DateAdded1);
 					TextView whenMet2 = (TextView) findViewById(R.id.DateAdded2);
+					TextView updatedAt = (TextView) findViewById(R.id.LastUpdated);
 					whenMet1.setText(android.text.format.DateFormat.format("MMM", object.getCreatedAt()) + " " + 
 							android.text.format.DateFormat.format("dd", object.getCreatedAt()) + ", " +
 							android.text.format.DateFormat.format("yyyy", object.getCreatedAt()));
 					whenMet2.setText(android.text.format.DateFormat.format("MMM", object.getCreatedAt()) + " " + 
 							android.text.format.DateFormat.format("dd", object.getCreatedAt()) + ", " +
 							android.text.format.DateFormat.format("yyyy", object.getCreatedAt()));
+					updatedAt.setText(android.text.format.DateFormat.format("MMM", object.getUpdatedAt()) + " " + 
+							android.text.format.DateFormat.format("dd", object.getUpdatedAt()) + ", " +
+							android.text.format.DateFormat.format("yyyy", object.getUpdatedAt()));
 					TextView whereMet1 = (TextView) findViewById(R.id.PlaceAdded1);
 					EditText whereMet2 = (EditText) findViewById(R.id.PlaceAdded2);
 					String cityName = object.getString("where_met");
@@ -334,6 +341,19 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 			});		
 		} else {
 			// this is a new note
+			TextView whenMet1 = (TextView) findViewById(R.id.DateAdded1);
+			TextView whenMet2 = (TextView) findViewById(R.id.DateAdded2);
+			TextView updatedAt = (TextView) findViewById(R.id.LastUpdated);					
+			Date today = new Date();
+			whenMet1.setText(android.text.format.DateFormat.format("MMM", today) + " " + 
+					android.text.format.DateFormat.format("dd", today) + ", " +
+					android.text.format.DateFormat.format("yyyy", today));
+			whenMet2.setText(android.text.format.DateFormat.format("MMM", today) + " " + 
+					android.text.format.DateFormat.format("dd", today) + ", " +
+					android.text.format.DateFormat.format("yyyy", today));
+			updatedAt.setText(android.text.format.DateFormat.format("MMM", today) + " " + 
+					android.text.format.DateFormat.format("dd", today) + ", " +
+					android.text.format.DateFormat.format("yyyy", today));
 			// disable replay button!
 			replayButtonBar.setVisibility(View.GONE);
 	    	replayButtonPanel.setVisibility(View.GONE);
@@ -826,8 +846,15 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 	@Override
 	public void processFinish(String output) {
 		Log.i("GeocoderHelperAdd", output);
+		Toast.makeText(this, output, Toast.LENGTH_SHORT).show();
 		// save the obtained cityName to global variable to be passed to ActivityNotes
 		whereMet = output;
+		TextView whereMet1 = (TextView) findViewById(R.id.PlaceAdded1);
+		EditText whereMet2 = (EditText) findViewById(R.id.PlaceAdded2);
+		if(whereMet != null) {
+			whereMet1.setText(whereMet);
+			whereMet2.setText(whereMet);
+		}
 	}
 
 	public void sendPush(final String targetEcardId) {

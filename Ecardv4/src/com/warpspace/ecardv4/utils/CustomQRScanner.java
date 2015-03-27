@@ -33,7 +33,7 @@ import com.warpspace.ecardv4.infrastructure.UserInfo;
 
 public class CustomQRScanner extends CaptureActivity {
   private static final long SCAN_TIMEOUT = 5000;
-private Dialog dialog;
+  private Dialog dialog;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
@@ -120,6 +120,8 @@ private Dialog dialog;
                 ActivityScanned.class);
               // passing UserInfo is made possible through Parcelable
               intent.putExtra("userinfo", newUser);
+              intent.putExtra("offlineMode", true);
+    	      intent.putExtra("deletedNoteId", (String)null);
               startActivity(intent);
               scanQR.cancel(true);
               finish();
@@ -160,6 +162,7 @@ private Dialog dialog;
         // passing UserInfo is made possible through Parcelable
         intent.putExtra("userinfo", newUser);
         intent.putExtra("offlineMode", true);
+	    intent.putExtra("deletedNoteId", (String)null);
         startActivity(intent);
         finish();
       }

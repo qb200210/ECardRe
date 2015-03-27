@@ -204,6 +204,10 @@ public class ActivityDetails extends ActionBarActivity {
 			}
 
 			private void displayNote(final ParseObject object) {
+				TextView updatedAt = (TextView) findViewById(R.id.LastUpdated);
+				updatedAt.setText(android.text.format.DateFormat.format("MMM", object.getUpdatedAt()) + " " + 
+						android.text.format.DateFormat.format("dd", object.getUpdatedAt()) + ", " +
+						android.text.format.DateFormat.format("yyyy", object.getUpdatedAt()));
 				TextView whenMet1 = (TextView) findViewById(R.id.DateAdded1);
 				TextView whenMet2 = (TextView) findViewById(R.id.DateAdded2);
 				whenMet1.setText(android.text.format.DateFormat.format("MMM", object.getCreatedAt()) + " " + 
