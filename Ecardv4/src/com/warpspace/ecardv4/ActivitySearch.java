@@ -79,6 +79,13 @@ public class ActivitySearch extends ActionBarActivity {
   View mainView;
   LinearLayout searchWidget;
   Button searchButton;
+  LinearLayout sv;
+
+  TextView filterTextWhereMet;
+  TextView filterTextEventMet;
+  TextView filterTextCity;
+  TextView filterTextName;
+  TextView filterTextCompany;
 
   public static ArrayList<UserInfo> filteredUsers;
   private static ArrayList<UserInfo> allUsers;
@@ -88,6 +95,18 @@ public class ActivitySearch extends ActionBarActivity {
   StickyListHeadersAdapterDecorator stickyListHeadersAdapterDecorator;
   StickyListHeadersListView listView;
   LinearLayout layoutNoResults;
+  RelativeLayout searchPullDown;
+  LinearLayout searchFilterWidget;
+
+  RelativeLayout rLayoutName;
+  RelativeLayout rLayoutCity;
+  RelativeLayout rLayoutEventMet;
+  RelativeLayout rLayoutWhereMet;
+  RelativeLayout rLayoutCompany;
+
+  Button buttonPullDown;
+
+  private int searchMenuRetractedHeight = 0;
 
   // Possible modes of sorting.
   public static final int SORT_MODE_NAME_ASC = 1;
@@ -96,6 +115,10 @@ public class ActivitySearch extends ActionBarActivity {
   public static final int SORT_MODE_DATE_DSC = 4;
 
   public static int currentSortMode = SORT_MODE_DATE_ASC;
+
+  // Possible modes of searching.
+  public static int SEARCH_MODE_ALL = -1;
+  public static int currentSearchMode = SEARCH_MODE_ALL;
 
   ArrayAdapter<String> autoCompleteAdapter;
   HashMap<String, ArrayList<UserIndexStringType>> searchEntries;
@@ -185,6 +208,99 @@ public class ActivitySearch extends ActionBarActivity {
         performSearch();
       }
     });
+
+    // Retrieve all the filters and set the onclick listener
+    FilterSelectedListener filterSelectedListener = new FilterSelectedListener();
+    filterTextName = (TextView) findViewById(R.id.txt_name);
+    filterTextCity = (TextView) findViewById(R.id.txt_city);
+    filterTextWhereMet = (TextView) findViewById(R.id.txt_where_met);
+    filterTextEventMet = (TextView) findViewById(R.id.txt_event_met);
+    filterTextCompany = (TextView) findViewById(R.id.txt_company);
+
+    toggleFilterTextVisibility(false);
+    //
+    // // filterTextName.setOnClickListener(filterSelectedListener);
+    // // filterTextCity.setOnClickListener(filterSelectedListener);
+    // // filterTextWhereMet.setOnClickListener(filterSelectedListener);
+    // // filterTextEventMet.setOnClickListener(filterSelectedListener);
+    // // filterTextCompany.setOnClickListener(filterSelectedListener);
+    //
+    // rLayoutName = (RelativeLayout) findViewById(R.id.rlayout_name);
+    // rLayoutCompany = (RelativeLayout) findViewById(R.id.rlayout_company);
+    // rLayoutWhereMet = (RelativeLayout) findViewById(R.id.rlayout_where_met);
+    // rLayoutEventMet = (RelativeLayout) findViewById(R.id.rlayout_event_met);
+    // rLayoutCity = (RelativeLayout) findViewById(R.id.rlayout_city);
+    //
+    // searchFilterWidget = (LinearLayout)
+    // findViewById(R.id.lnlayout_filter_widget);
+    // searchFilterWidget.setVisibility(View.GONE);
+    //
+    // Button btnClearFilter = (Button) findViewById(R.id.btn_clear_filter);
+    // btnClearFilter.setOnClickListener(new OnClickListener() {
+    //
+    // @Override
+    // public void onClick(View v) {
+    // rLayoutName.setVisibility(View.VISIBLE);
+    // rLayoutCity.setVisibility(View.VISIBLE);
+    // rLayoutWhereMet.setVisibility(View.VISIBLE);
+    // rLayoutEventMet.setVisibility(View.VISIBLE);
+    // rLayoutCompany.setVisibility(View.VISIBLE);
+    //
+    // searchFilterWidget.setVisibility(View.GONE);
+    //
+    // currentSearchMode = SEARCH_MODE_ALL;
+    // mainView.post(new SearchLayoutRunnable());
+    //
+    // buttonPullDown.performClick();
+    // }
+    // });
+    //
+    // btnClearFilter.setVisibility(View.GONE);
+  }
+
+  // Hide all the filter text views
+  private void toggleFilterTextVisibility(boolean show) {
+    int visibility = show ? View.VISIBLE : View.GONE;
+
+    filterTextName.setVisibility(visibility);
+    filterTextCity.setVisibility(visibility);
+    filterTextWhereMet.setVisibility(visibility);
+    filterTextEventMet.setVisibility(visibility);
+    filterTextCompany.setVisibility(visibility);
+  }
+
+  // Create a new onClickListener to be used for all the search filters
+  class FilterSelectedListener implements OnClickListener {
+    @Override
+    public void onClick(View v) {
+      // TextView viewAsText = (TextView) v;
+      //
+      // // Hide all the views
+      // rLayoutName.setVisibility(View.GONE);
+      // rLayoutCity.setVisibility(View.GONE);
+      // rLayoutWhereMet.setVisibility(View.GONE);
+      // rLayoutEventMet.setVisibility(View.GONE);
+      // rLayoutCompany.setVisibility(View.GONE);
+      //
+      // searchFilterWidget.setVisibility(View.VISIBLE);
+      //
+      // TextView filterName = (TextView) findViewById(R.id.txt_search_filter);
+      // filterName.setText(viewAsText.getText().toString());
+      //
+      // if (v == filterTextName) {
+      // currentSearchMode = UserInfo.FIELD_TYPE.TYPE_FNAME;
+      // } else if (v == filterTextCity) {
+      // currentSearchMode = UserInfo.FIELD_TYPE.TYPE_CITY;
+      // } else if (v == filterTextWhereMet) {
+      // currentSearchMode = UserInfo.FIELD_TYPE.TYPE_WHERE_MET;
+      // } else if (v == filterTextEventMet) {
+      // currentSearchMode = UserInfo.FIELD_TYPE.TYPE_EVENT_MET;
+      // } else if (v == filterTextCompany) {
+      // currentSearchMode = UserInfo.FIELD_TYPE.TYPE_COMPANY;
+      // }
+      //
+      // // mainView.post(new SearchLayoutRunnable());
+    }
   }
 
   private void performSearch() {
@@ -223,7 +339,7 @@ public class ActivitySearch extends ActionBarActivity {
 
   private void handleSearchDropDown() {
     // Intercept all touch events to the drop down.
-    final LinearLayout sv = (LinearLayout) findViewById(R.id.lnlayout_search_menu);
+    sv = (LinearLayout) findViewById(R.id.lnlayout_search_menu);
     sv.setOnClickListener(new OnClickListener() {
       @Override
       public void onClick(View v) {
@@ -231,7 +347,7 @@ public class ActivitySearch extends ActionBarActivity {
     });
 
     // Set the dropdown animation.
-    Button buttonPullDown = (Button) findViewById(R.id.btn_pull_down);
+    buttonPullDown = (Button) findViewById(R.id.btn_pull_down);
     buttonPullDown.setOnClickListener(new OnClickListener() {
       @SuppressWarnings("deprecation")
       @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
@@ -240,6 +356,10 @@ public class ActivitySearch extends ActionBarActivity {
         LinearLayout searchWidget = (LinearLayout) findViewById(R.id.lnlayout_search_widget);
         int sdk = android.os.Build.VERSION.SDK_INT;
         if (!droppedDown) {
+          // Drop the shade down.
+          // First enable the filters.
+          toggleFilterTextVisibility(true);
+
           droppedDown = true;
           if (sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
             v.setBackgroundDrawable(getResources().getDrawable(
@@ -261,9 +381,10 @@ public class ActivitySearch extends ActionBarActivity {
             v.setBackground(getResources().getDrawable(
               R.drawable.semi_rounded_down_empty));
           }
-          sv.animate().translationY(SEARCH_MENU_OVERHANG - sv.getHeight())
+          sv.animate().translationY(searchMenuRetractedHeight)
             .setDuration(SCROLL_ANIMATION_SPEED_MS_FAST)
             .setInterpolator(new LinearInterpolator()).start();
+          toggleFilterTextVisibility(false);
         }
       }
     });
@@ -278,9 +399,13 @@ public class ActivitySearch extends ActionBarActivity {
         SEARCH_MENU_OVERHANG = searchWidgetTotalHeight
           + rLayout.getMeasuredHeight();
         listView.setPadding(0, searchWidgetTotalHeight, 0, 0);
-        sv.setTranslationY(SEARCH_MENU_OVERHANG - sv.getMeasuredHeight());
+        searchMenuRetractedHeight = SEARCH_MENU_OVERHANG
+          - sv.getMeasuredHeight();
+        sv.setTranslationY(searchMenuRetractedHeight);
       }
     });
+
+    // mainView.post(new SearchLayoutRunnable());
 
     // Handle the search queries.
     OnClickListener filterTouchListener = new OnClickListener() {
@@ -292,6 +417,25 @@ public class ActivitySearch extends ActionBarActivity {
     TextView tvWhereMet = (TextView) findViewById(R.id.txt_where_met);
     tvWhereMet.setOnClickListener(filterTouchListener);
 
+  }
+
+  class SearchLayoutRunnable implements Runnable {
+    @Override
+    public void run() {
+      searchPullDown = (RelativeLayout) findViewById(R.id.rllayout_search_pull_down);
+      int searchWidgetTotalHeight = searchWidget.getMeasuredHeight()
+        + searchWidget.getPaddingTop();
+      int filterWidgetTotalHeight = searchFilterWidget.getMeasuredHeight();
+      if (filterWidgetTotalHeight != 0) {
+        filterWidgetTotalHeight += searchFilterWidget.getPaddingBottom()
+          + searchFilterWidget.getPaddingTop();
+      }
+      SEARCH_MENU_OVERHANG = searchWidgetTotalHeight + filterWidgetTotalHeight
+        + +searchPullDown.getMeasuredHeight();
+      listView.setPadding(0, searchWidgetTotalHeight + filterWidgetTotalHeight,
+        0, 0);
+      sv.setTranslationY(SEARCH_MENU_OVERHANG - sv.getMeasuredHeight());
+    }
   }
 
   // Add each field of the UserInfo to the search map.
