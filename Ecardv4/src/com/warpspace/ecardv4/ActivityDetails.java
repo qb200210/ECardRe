@@ -83,6 +83,7 @@ public class ActivityDetails extends ActionBarActivity {
 	private int flag=0;
 	private String filepath;
 	private String noteId;
+	private int recordstatus1 = 0; 
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -297,162 +298,157 @@ public class ActivityDetails extends ActionBarActivity {
 		
 		// recorder-related begins
 				
-				recorderButton.setOnTouchListener(new OnTouchListener() {
-				    @Override
-				    public boolean onTouch(View v, MotionEvent event) {
-				    	if(event.getAction() == MotionEvent.ACTION_DOWN) {
-							Toast.makeText(ActivityDetails.this, "Recording...", Toast.LENGTH_SHORT).show();
-							// changebuttontext(R.id.recordButton,"Recording...");
-							replayButtonBar.setVisibility(View.GONE);
-		                	replayButtonPanel.setVisibility(View.GONE);
-				            startRecording();
-							
-				             t = new CountDownTimer( 30000, 1000) {
-				            	 //TextView counter=(TextView) findViewById(R.id.Timer);
-				                    @Override
-				                    public void onTick(long millisUntilFinished) {
-				                    	//counter.setText("seconds remaining: " + millisUntilFinished / 1000);
-				                    }
-				                    @Override
-				                    public void onFinish() {   
-				                    	stopRecording();
-				                    	Toast.makeText(ActivityDetails.this, "Max Recording Length Reached.", Toast.LENGTH_SHORT).show();
-				    		            // changebuttontext(R.id.recordButton,"Hold to speak.");
-				    		            //counter.setText("30");
-				    		            //enableButton(R.id.recordButton,false);
-				                    	replayButtonBar.setVisibility(View.VISIBLE);
-				                    	replayButtonPanel.setVisibility(View.VISIBLE);
-				                    }
-				                }.start();
-							
-				            return true;
-				        } else if (event.getAction() == MotionEvent.ACTION_UP) {
-				            stopRecording();
-				            t.cancel();
-				            //TextView counter=(TextView) findViewById(R.id.Timer);
-				            //counter.setText("30");
-				            //changebuttontext(R.id.recordButton,"Hold to speak.");
-				            replayButtonBar.setVisibility(View.VISIBLE);
-		                	replayButtonPanel.setVisibility(View.VISIBLE);
-				            return true;
-				        }
-				        else 
-						return true;
-				    }
-				});
-				replayButtonBar.setOnTouchListener(new OnTouchListener() {
-				    @Override
-				    public boolean onTouch(View v, MotionEvent event) {
-				    	if(event.getAction() == MotionEvent.ACTION_DOWN) {
-				    		if (null!=mp && mp.isPlaying()) {
-				                mp.pause();
-				                flag=1;
-				                //changebuttontext(R.id.replayButton,"Paused");
-				            } else if (null!=mp && flag==1){
-				            	mp.start(); 
-				            	flag=0;
-				            	// changebuttontext(R.id.replayButton,"Playing");
-				            } else {
-					    		stopRecording();
-					    		mp = new MediaPlayer();
-					    		try {
-									mp.setDataSource(filepath);
-								} catch (IllegalArgumentException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								} catch (SecurityException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								} catch (IllegalStateException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								} catch (IOException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
-					    		try {
-									mp.prepare();
-								} catch (IllegalStateException | IOException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
-					    		mp.start();
-					    		// enableButton(R.id.recordButton,true);
-					    		// changebuttontext(R.id.replayButton,"Playing");
-					    		
-					    		mp.setOnCompletionListener(new OnCompletionListener() {        
-							        //@Override
-							        public void onCompletion(MediaPlayer mp) {
-							        	// changebuttontext(R.id.replayButton,"Replay");
-								    }
-								});
-				            }
-				            return true;
-				    	} else {
-				    		return false;
-				    	}
-				    }
-				});
-				replayButtonPanel.setOnTouchListener(new OnTouchListener() {
-				    @Override
-				    public boolean onTouch(View v, MotionEvent event) {
-				    	if(event.getAction() == MotionEvent.ACTION_DOWN) {
-				    		if (null!=mp && mp.isPlaying()) {
-				                mp.pause();
-				                flag=1;
-				                //changebuttontext(R.id.replayButton,"Paused");
-				            } else if (null!=mp && flag==1){
-				            	mp.start(); 
-				            	flag=0;
-				            	// changebuttontext(R.id.replayButton,"Playing");
-				            } else {
-					    		stopRecording();
-					    		mp = new MediaPlayer();
-					    		try {
-									mp.setDataSource(filepath);
-								} catch (IllegalArgumentException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								} catch (SecurityException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								} catch (IllegalStateException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								} catch (IOException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
-					    		try {
-									mp.prepare();
-								} catch (IllegalStateException | IOException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
-					    		mp.start();
-					    		// enableButton(R.id.recordButton,true);
-					    		// changebuttontext(R.id.replayButton,"Playing");
-					    		
-					    		mp.setOnCompletionListener(new OnCompletionListener() {        
-							        //@Override
-							        public void onCompletion(MediaPlayer mp) {
-							        	// changebuttontext(R.id.replayButton,"Replay");
-								    }
-								});
-				            }
-				            return true;
-				    	} else {
-				    		return false;
-				    	}
-				    }
-				});
-				// recorder-related ends
+		recorderButton.setOnClickListener(new OnClickListener() {
+		    @Override
+		    public void onClick(View v) {
+		    	if(recordstatus1==0) {
+					Toast.makeText(ActivityDetails.this, "Recording...", Toast.LENGTH_SHORT).show();
+					// changebuttontext(R.id.recordButton,"Recording...");
+					replayButtonBar.setVisibility(View.GONE);
+                	replayButtonPanel.setVisibility(View.GONE);
+		            startRecording();
+		            recordstatus1=1;
+		            recorderButton.setImageResource(R.drawable.ic_action_stop);
+		            
+		            findViewById(R.id.include1).setVisibility(View.GONE);
+		            findViewById(R.id.include2).setVisibility(View.VISIBLE);
+					
+		             t = new CountDownTimer( 30000, 1000) {           //30 seconds recording time
+		            	 TextView counter=(TextView) findViewById(R.id.time_left);
+		            	 
+		                    @Override
+		                    public void onTick(long millisUntilFinished) {
+		                    	counter.setText("Recording Seconds Remaining: " + millisUntilFinished / 1000);
+		                    }
+		                    @Override
+		                    public void onFinish() {   
+		                    	stopRecording();
+		                    	recordstatus1=0;
+		                    	Toast.makeText(ActivityDetails.this, "Max Recording Length Reached.", Toast.LENGTH_SHORT).show();
+		                    	recorderButton.setImageResource(R.drawable.recorder);
+		    		            // changebuttontext(R.id.recordButton,"Hold to speak.");
+		    		            //counter.setText("30");
+		    		            //enableButton(R.id.recordButton,false);
+		                    	replayButtonBar.setVisibility(View.VISIBLE);
+		                    	replayButtonPanel.setVisibility(View.VISIBLE);
+		    		            findViewById(R.id.include2).setVisibility(View.GONE);
+		    		            findViewById(R.id.include1).setVisibility(View.VISIBLE);
+		                    }
+		                }.start();
+					
+		        } else if (recordstatus1==1) {
+		            stopRecording();
+		            t.cancel();
+		            recordstatus1=0;
+		            //TextView counter=(TextView) findViewById(R.id.Timer);
+		            //counter.setText("30");
+		            //changebuttontext(R.id.recordButton,"Hold to speak.");
+		            recorderButton.setImageResource(R.drawable.recorder);
+		            replayButtonBar.setVisibility(View.VISIBLE);
+                	replayButtonPanel.setVisibility(View.VISIBLE);
+		            findViewById(R.id.include2).setVisibility(View.GONE);
+		            findViewById(R.id.include1).setVisibility(View.VISIBLE);
+		        }
+		    }
+		});
+		replayButtonBar.setOnClickListener(new OnClickListener() {
+		    @Override
+		    public void onClick(View v) {
+		    		if (null!=mp && mp.isPlaying()) {
+		                mp.pause();
+		                flag=1;
+		                replayButtonBar.setImageResource(R.drawable.play);
+		                replayButtonPanel.setImageResource(R.drawable.play);
+		            } else if (null!=mp && flag==1){
+		            	mp.start(); 
+		            	flag=0;
+		            } else {
+			    		stopRecording();
+			    		mp = new MediaPlayer();
+		            	replayButtonBar.setImageResource(R.drawable.pause);
+		                replayButtonPanel.setImageResource(R.drawable.pause);
+			    		try {
+							mp.setDataSource(filepath);
+						} catch (IllegalArgumentException e) {
+							e.printStackTrace();
+						} catch (SecurityException e) {
+							e.printStackTrace();
+						} catch (IllegalStateException e) {
+							e.printStackTrace();
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+			    		try {
+							mp.prepare();
+						} catch (IllegalStateException | IOException e) {
+							e.printStackTrace();
+						}
+			    		mp.start();
+			    		
+			    		mp.setOnCompletionListener(new OnCompletionListener() {        
+					        //@Override
+					        public void onCompletion(MediaPlayer mp) {
+				            	replayButtonBar.setImageResource(R.drawable.play);
+				                replayButtonPanel.setImageResource(R.drawable.play);
+						    }
+						});
+		            }
+		    	} 
+		});
+		replayButtonPanel.setOnClickListener(new OnClickListener() {
+		    @Override
+		    public void onClick(View v) {
+		    		if (null!=mp && mp.isPlaying()) {
+		                mp.pause();
+		                flag=1;
+		                replayButtonBar.setImageResource(R.drawable.play);
+		                replayButtonPanel.setImageResource(R.drawable.play);
+		            } else if (null!=mp && flag==1){
+		            	mp.start(); 
+		            	flag=0;
+		            	replayButtonBar.setImageResource(R.drawable.pause);
+		                replayButtonPanel.setImageResource(R.drawable.pause);
+		            } else {
+			    		stopRecording();
+			    		mp = new MediaPlayer();
+			    		try {
+							mp.setDataSource(filepath);
+						} catch (IllegalArgumentException e) {
+							e.printStackTrace();
+						} catch (SecurityException e) {
+							e.printStackTrace();
+						} catch (IllegalStateException e) {
+							e.printStackTrace();
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+			    		try {
+							mp.prepare();
+						} catch (IllegalStateException | IOException e) {
+							e.printStackTrace();
+						}
+			    		mp.start();
+		            	replayButtonBar.setImageResource(R.drawable.pause);
+		                replayButtonPanel.setImageResource(R.drawable.pause);
+			    		
+			    		mp.setOnCompletionListener(new OnCompletionListener() {        
+					        //@Override
+					        public void onCompletion(MediaPlayer mp) {
+				            	replayButtonBar.setImageResource(R.drawable.play);
+				                replayButtonPanel.setImageResource(R.drawable.play);
+						    }
+						});
+		            }
+		    }
+		});
+		// recorder-related ends
 
 		// This is the life-saver! It fixes the bug that scrollView will go to the
 		// bottom of GridView upon open
 		// below is to re-scroll to the first view in the LinearLayout
 		SquareLayout mainCardContainer = (SquareLayout) findViewById(R.id.main_card_container);
 		scrollView.requestChildFocus(mainCardContainer, null);
+
 	}
 	
 	  private void showActionBar() {

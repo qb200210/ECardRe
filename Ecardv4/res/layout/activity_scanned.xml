@@ -20,7 +20,14 @@
             android:paddingRight="10dp"
             android:paddingTop="10dp" >
 
-            <include layout="@layout/layout_maincard_display" />
+            <include 
+                android:id="@+id/include1"
+                layout="@layout/layout_maincard_display" 
+                android:visibility="visible"/>
+            <include 
+                android:id="@+id/include2"
+                layout="@layout/activity_timer" 
+                android:visibility="gone"/>
         </com.warpspace.ecardv4.utils.SquareLayout>
 
         <!-- This is the note bar -->
