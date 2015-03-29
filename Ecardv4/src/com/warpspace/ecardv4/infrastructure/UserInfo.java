@@ -41,6 +41,7 @@ public class UserInfo implements Parcelable {
   Bitmap portrait;
   String whereMet;
   String eventMet;
+  String notes;
   Date addedAt;
 
   public class FIELD_TYPE {
@@ -52,6 +53,7 @@ public class UserInfo implements Parcelable {
     public static final int TYPE_CITY = 5;
     public static final int TYPE_WHERE_MET = 6;
     public static final int TYPE_EVENT_MET = 7;
+    public static final int TYPE_NOTES = 8;
   }
 
   ArrayList<String> shownArrayList = new ArrayList<String>();
@@ -70,6 +72,7 @@ public class UserInfo implements Parcelable {
     this.city = this.city == null ? "Somewhere on Earth" : this.city;
     this.whereMet = this.whereMet == null ? "Mysterious Place" : this.whereMet;
     this.eventMet = this.eventMet == null ? "Mysterious Event" : this.eventMet;
+    this.eventMet = this.notes == null ? "" : this.eventMet;
   }
 
   private static ParseObject getParseObjectFromObjId(String objId,
@@ -424,6 +427,14 @@ public class UserInfo implements Parcelable {
 
   public void setCity(String city) {
     this.city = city;
+  }
+
+  public String getNotes() {
+    return notes;
+  }
+
+  public void setNote(String note) {
+    this.notes = note;
   }
 
   public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
