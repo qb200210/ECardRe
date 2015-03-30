@@ -94,7 +94,7 @@ public class ActivitySearch extends ActionBarActivity {
   boolean filterSelected = false;
 
   public static ArrayList<UserInfo> filteredUsers;
-  private static ArrayList<UserInfo> allUsers;
+  public static ArrayList<UserInfo> allUsers;
   static ArrayList<String> autoCompleteList;
   SearchListAdapter adapter;
   AlphaInAnimationAdapter animationAdapter;
@@ -135,8 +135,6 @@ public class ActivitySearch extends ActionBarActivity {
 
   boolean droppedDown = false;
 
-  private ArrayList<String> ecardIds = new ArrayList<String>();
-  private ArrayList<String> returnedIds = new ArrayList<String>();
   List<Integer> idsNote = Arrays.asList(R.id.query_event_met,
     R.id.query_where_met);
   List<Integer> idsCardEdit = Arrays.asList(R.id.query_name,
@@ -159,7 +157,6 @@ public class ActivitySearch extends ActionBarActivity {
 
     currentUser = ParseUser.getCurrentUser();
 
-    allUsers = new ArrayList<UserInfo>();
     filteredUsers = new ArrayList<UserInfo>();
     filteredUsers.addAll(allUsers);
     autoCompleteList = new ArrayList<String>();
@@ -189,8 +186,6 @@ public class ActivitySearch extends ActionBarActivity {
         startActivity(intent);
       }
     });
-
-    getContacts();
 
     handleSearchDropDown();
 
@@ -549,113 +544,7 @@ public class ActivitySearch extends ActionBarActivity {
         userIndex, UserInfo.FIELD_TYPE.TYPE_EVENT_MET));
     }
   }
-
-  private void getContacts() {
-    ecardIds.clear();
-    returnedIds.clear();
-
-    /* A map of all the ECardNote objects to the noteID */
-    final HashMap<String, ParseObject> noteIdToNoteObjectMap = new HashMap<String, ParseObject>();
-
-    ParseQuery<ParseObject> queryNotes = ParseQuery.getQuery("ECardNote");
-    queryNotes.fromLocalDatastore();
-    queryNotes.whereEqualTo("userId", currentUser.getObjectId());
-
-    queryNotes.findInBackground(new FindCallback<ParseObject>() {
-      @Override
-      public void done(List<ParseObject> objectsNoteList,
-        ParseException noteException) {
-        if (noteException == null) {
-          if (objectsNoteList.size() != 0) {
-            // Got a list of all the notes. Now collect all the noteIDs.
-            for (Iterator<ParseObject> iter = objectsNoteList.iterator(); iter
-              .hasNext();) {
-              ParseObject objectNote = iter.next();
-              String infoObjectId = (String) objectNote.get("ecardId");
-
-              // Add these values to the map.
-              noteIdToNoteObjectMap.put(infoObjectId, objectNote);
-            }
-
-            /*
-             * Now, query the ECardInfoTable to get all the ECardInfo for the
-             * notes collected here.
-             */
-            ParseQuery<ParseObject> queryInfo = ParseQuery
-              .getQuery("ECardInfo");
-            queryInfo.fromLocalDatastore();
-            queryInfo.whereContainedIn("objectId",
-              noteIdToNoteObjectMap.keySet());
-
-            queryInfo.findInBackground(new FindCallback<ParseObject>() {
-
-              @Override
-              public void done(List<ParseObject> objectInfoList,
-                ParseException infoException) {
-                // Now we have a list of ECardInfo objects. Populate the
-                // userInfo list.
-                if (infoException == null) {
-                  // Iterate over the list.
-                  for (Iterator<ParseObject> iter = objectInfoList.iterator(); iter
-                    .hasNext();) {
-                    ParseObject objectInfo = iter.next();
-                    UserInfo contact = new UserInfo(objectInfo);
-                    if (contact != null) {
-                      // Contact has been created. Populate the "createdAt" from
-                      // the note object.
-                      String infoObjectId = (String) objectInfo.getObjectId();
-                      ParseObject objectNote = noteIdToNoteObjectMap
-                        .get(infoObjectId);
-                      contact.setNote(objectNote.getString("notes"));
-                      contact.setCreatedAt(objectNote.getCreatedAt());
-
-                      allUsers.add(contact);
-
-                      // Add the positions to the map to retrieve the search
-                      // results.
-                      int userIndex = allUsers.size() - 1;
-
-                      addToSearchStructures(contact, userIndex);
-                    }
-                  }
-
-                  filteredUsers.addAll(allUsers);
-                  adapter = new SearchListAdapter(getApplicationContext(),
-                    filteredUsers);
-                  animationAdapter = new AlphaInAnimationAdapter(adapter);
-                  stickyListHeadersAdapterDecorator = new StickyListHeadersAdapterDecorator(
-                    animationAdapter);
-                  stickyListHeadersAdapterDecorator
-                    .setListViewWrapper(new StickyListHeadersListViewWrapper(
-                      listView));
-
-                  assert animationAdapter.getViewAnimator() != null;
-                  animationAdapter.getViewAnimator().setInitialDelayMillis(500);
-
-                  assert stickyListHeadersAdapterDecorator.getViewAnimator() != null;
-                  stickyListHeadersAdapterDecorator.getViewAnimator()
-                    .setInitialDelayMillis(500);
-
-                  listView.setAdapter(stickyListHeadersAdapterDecorator);
-                  currentSortMode = SORT_MODE_NAME_ASC;
-                  adapter.reSort();
-                  stickyListHeadersAdapterDecorator.notifyDataSetChanged();
-
-                  // Also update the Autocomplete search box.
-                  populateAutoComplete(searchBox);
-                  autoCompleteAdapter.notifyDataSetChanged();
-                }
-              }
-            });
-          }
-        } else {
-          Toast.makeText(getBaseContext(), "General parse error!",
-            Toast.LENGTH_SHORT).show();
-        }
-      }
-    });
-  }
-
+  
   @SuppressLint("InflateParams")
   private void showActionBar() {
     LayoutInflater inflator = (LayoutInflater) this

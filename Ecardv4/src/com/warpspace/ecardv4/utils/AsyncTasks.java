@@ -41,32 +41,7 @@ import com.warpspace.ecardv4.R;
 
 public class AsyncTasks {
 	
-	public static class SaveNoteNetworkAvailable extends AsyncTask<String, Void, String> {
 
-		private Context context;
-		private ParseUser currentUser;
-		private String ecardNoteId;
-
-		public SaveNoteNetworkAvailable(Context context, ParseUser currentUser, String ecardNoteId){
-			this.context = context;
-			this.currentUser = currentUser;
-			this.ecardNoteId = ecardNoteId;
-		}
-		@Override
-		protected String doInBackground(String... url) {
-
-			ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardNote");
-			ParseObject noteObject = null;
-			
-			return null;
-		}
-
-		@Override
-		protected void onPostExecute(String result) {
-			Toast.makeText(context, "saved self copy", Toast.LENGTH_SHORT).show();
-		}
-
-	}
 	
 	// sync local copy of self ecard
 	// now server always wins, should change to check date
@@ -79,13 +54,12 @@ public class AsyncTasks {
 		private boolean flagShouldSync;
 		private boolean imgFromTmpData;
 
-		public SyncDataTaskSelfCopy(Context context, ParseUser currentUser, SharedPreferences prefs, SharedPreferences.Editor prefEditor, boolean imgFromTmpData){
+		public SyncDataTaskSelfCopy(Context context, ParseUser currentUser, SharedPreferences prefs, SharedPreferences.Editor prefEditor){
 			this.context = context;
 			this.currentUser = currentUser;
 			this.prefs = prefs;
 			this.prefEditor = prefEditor;
 			this.flagShouldSync = false;
-			this.imgFromTmpData = imgFromTmpData;
 		}
 		@Override
 		protected String doInBackground(String... url) {
@@ -146,20 +120,7 @@ public class AsyncTasks {
 		protected void onPostExecute(String result) {
 			if(flagShouldSync){
 				Toast.makeText(context, "saved self copy", Toast.LENGTH_SHORT).show();
-			}
-			// if there is network, wait till self sync completes before finishing BufferOpening
-			Intent intent = new Intent(context, ActivityMain.class);
-			intent.putExtra("imgFromTmpData", imgFromTmpData);
-			context.startActivity(intent);
-			Timer timer = new Timer();
-			timer.schedule(new TimerTask() {
-
-				@Override
-				public void run() {
-					((Activity)context).finish();
-					// have to delayed finishing, so desktop don't show
-				}
-			}, 500);			
+			}						
 		}
 
 	}
