@@ -47,7 +47,10 @@ public class ActivityBufferOpening extends Activity {
 	// to ParseFile yet.
 	boolean imgFromTmpData = false;
 
-	private boolean timeoutFlag = false;
+	private boolean timeoutFlagSelf = false;
+	private boolean timeoutFlagConv = false;
+	private boolean timeoutFlagNotes = false;
+	private boolean timeoutFlagCachedIds = false;
 	private ProgressButton progressButton1;
 
 	@Override
@@ -196,7 +199,7 @@ public class ActivityBufferOpening extends Activity {
 				if (createSelfCopy.getStatus() == AsyncTask.Status.RUNNING) {
 					Toast.makeText(getApplicationContext(),
 							"Self Copy Timed Out", Toast.LENGTH_SHORT).show();
-					timeoutFlag = true;
+					timeoutFlagSelf = true;
 					createSelfCopy.cancel(true);
 				}
 			}
@@ -215,7 +218,7 @@ public class ActivityBufferOpening extends Activity {
 					Toast.makeText(getApplicationContext(),
 							"Sync Conversations Timed Out", Toast.LENGTH_SHORT)
 							.show();
-					timeoutFlag = true;
+					timeoutFlagConv = true;
 					syncConversations.cancel(true);
 				}
 			}
@@ -233,7 +236,7 @@ public class ActivityBufferOpening extends Activity {
 				if (syncNotes.getStatus() == AsyncTask.Status.RUNNING) {
 					Toast.makeText(getApplicationContext(),
 							"Sync Notes Timed Out", Toast.LENGTH_SHORT).show();
-					timeoutFlag = true;
+					timeoutFlagNotes = true;
 					syncNotes.cancel(true);
 				}
 			}
@@ -252,7 +255,7 @@ public class ActivityBufferOpening extends Activity {
 					Toast.makeText(getApplicationContext(),
 							"Sync CachedIds Timed Out", Toast.LENGTH_SHORT)
 							.show();
-					timeoutFlag = true;
+					timeoutFlagCachedIds = true;
 					syncCachedIds.cancel(true);
 				}
 			}
@@ -278,29 +281,29 @@ public class ActivityBufferOpening extends Activity {
 						getContacts();
 						totalProgress = 100;
 					}
-					if(createSelfCopy.getStatus() != AsyncTask.Status.RUNNING && !flagSyncSelfDone) {
+					if( (createSelfCopy.getStatus() != AsyncTask.Status.RUNNING || timeoutFlagSelf) && !flagSyncSelfDone) {
 						// In whatever case, this process is completed
 						totalProgress = totalProgress + WEIGHT_SELF;
 						flagSyncSelfDone  = true;
-						Log.i("buff", totalProgress.toString());
+						Log.i("self", totalProgress.toString());
 					}
-					if(syncNotes.getStatus() != AsyncTask.Status.RUNNING && !flagSyncNotesDone) {
+					if( (syncNotes.getStatus() != AsyncTask.Status.RUNNING || timeoutFlagNotes) && !flagSyncNotesDone) {
 						// In whatever case, this process is completed
 						totalProgress = totalProgress + WEIGHT_NOTES;
 						flagSyncNotesDone  = true;
-						Log.i("buff", totalProgress.toString());
+						Log.i("note", totalProgress.toString());
 					}
-					if(syncConversations.getStatus() != AsyncTask.Status.RUNNING && !flagSyncConvDone) {
+					if( (syncConversations.getStatus() != AsyncTask.Status.RUNNING || timeoutFlagConv) && !flagSyncConvDone) {
 						// In whatever case, this process is completed
 						totalProgress = totalProgress + WEIGHT_CONV;
 						flagSyncConvDone  = true;
-						Log.i("buff", totalProgress.toString());
+						Log.i("conv", totalProgress.toString());
 					}
-					if(syncCachedIds.getStatus() != AsyncTask.Status.RUNNING && !flagSyncCachedIdsDone) {
+					if( (syncCachedIds.getStatus() != AsyncTask.Status.RUNNING || timeoutFlagCachedIds) && !flagSyncCachedIdsDone) {
 						// In whatever case, this process is completed
 						totalProgress = totalProgress + WEIGHT_CACHEDIDS;
 						flagSyncCachedIdsDone  = true;
-						Log.i("buff", totalProgress.toString());
+						Log.i("cache", totalProgress.toString());
 					}
 					Message myMessage = new Message();
 					myMessage.obj = totalProgress;

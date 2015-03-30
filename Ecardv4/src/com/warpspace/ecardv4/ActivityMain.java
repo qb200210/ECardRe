@@ -73,8 +73,8 @@ public class ActivityMain extends ActionBarActivity {
     Bitmap bm = BitmapFactory
       .decodeResource(getResources(), R.drawable.striped);
     BitmapDrawable bmDrawable = new BitmapDrawable(getResources(), bm);
-    ll_add.setBackground(new CurvedAndTiled(bmDrawable.getBitmap(), 25));
-    ll_search.setBackground(new CurvedAndTiled(bmDrawable.getBitmap(), 25));
+    ll_add.setBackgroundDrawable(new CurvedAndTiled(bmDrawable.getBitmap(), 25));
+    ll_search.setBackgroundDrawable(new CurvedAndTiled(bmDrawable.getBitmap(), 25));
 
     ll_add.setOnClickListener(new OnClickListener() {
 

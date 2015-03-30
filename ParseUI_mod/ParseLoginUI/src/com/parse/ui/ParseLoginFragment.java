@@ -33,12 +33,8 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.facebook.Request;
-import com.facebook.Response;
-import com.facebook.model.GraphUser;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
-import com.parse.ParseFacebookUtils;
 import com.parse.ParseTwitterUtils;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
@@ -106,9 +102,6 @@ public class ParseLoginFragment extends ParseLoginFragmentBase {
     }
     if (allowParseLoginAndSignup()) {
       setUpParseLoginAndSignup();
-    }
-    if (allowFacebookLogin()) {
-      setUpFacebookLogin();
     }
     if (allowTwitterLogin()) {
       setUpTwitterLogin();
@@ -231,70 +224,7 @@ public class ParseLoginFragment extends ParseLoginFragmentBase {
     });
   }
 
-  private void setUpFacebookLogin() {
-    facebookLoginButton.setVisibility(View.VISIBLE);
-
-    if (config.getFacebookLoginButtonText() != null) {
-      facebookLoginButton.setText(config.getFacebookLoginButtonText());
-    }
-
-    facebookLoginButton.setOnClickListener(new OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        loadingStart(true);
-        ParseFacebookUtils.logIn(config.getFacebookLoginPermissions(),
-            getActivity(), new LogInCallback() {
-          @Override
-          public void done(ParseUser user, ParseException e) {
-            if (isActivityDestroyed()) {
-              return;
-            }
-
-            if (user == null) {
-              loadingFinish();
-              if (e != null) {
-                showToast(R.string.com_parse_ui_facebook_login_failed_toast);
-                debugLog(getString(R.string.com_parse_ui_login_warning_facebook_login_failed) +
-                    e.toString());
-              }
-            } else if (user.isNew()) {
-              Request.newMeRequest(ParseFacebookUtils.getSession(),
-                  new Request.GraphUserCallback() {
-                    @Override
-                    public void onCompleted(GraphUser fbUser,
-                                            Response response) {
-                      /*
-                        If we were able to successfully retrieve the Facebook
-                        user's name, let's set it on the fullName field.
-                      */
-                      ParseUser parseUser = ParseUser.getCurrentUser();
-                      if (fbUser != null && parseUser != null
-                          && fbUser.getName().length() > 0) {
-                        parseUser.put(USER_OBJECT_NAME_FIELD, fbUser.getName());
-                        parseUser.saveInBackground(new SaveCallback() {
-                          @Override
-                          public void done(ParseException e) {
-                            if (e != null) {
-                              debugLog(getString(
-                                  R.string.com_parse_ui_login_warning_facebook_login_user_update_failed) +
-                                  e.toString());
-                            }
-                            loginSuccess();
-                          }
-                        });
-                      }
-                      loginSuccess();
-                    }
-                  }
-              ).executeAsync();
-            } else {
-              loginSuccess();
-            }
-          }
-        });
-      }
-    });
-  }
+  
 
   private void setUpTwitterLogin() {
     twitterLoginButton.setVisibility(View.VISIBLE);

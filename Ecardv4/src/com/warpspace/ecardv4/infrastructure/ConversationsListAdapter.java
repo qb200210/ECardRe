@@ -94,7 +94,7 @@ public class ConversationsListAdapter extends ArrayAdapter<UserInfo> implements
       .findViewById(R.id.conversations_textview);
 
     tv.setText(ActivityConversations.userNames.get(position).getFirstName());
-    tv.setTextAlignment(TextView.TEXT_ALIGNMENT_CENTER);
+    // tv.setTextAlignment(TextView.TEXT_ALIGNMENT_CENTER);
 
     return convertView;
   }
