@@ -17,8 +17,8 @@
 
             <ImageView
                 android:id="@+id/design_portrait"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentTop="true"
                 android:layout_marginLeft="24dp"
@@ -51,7 +51,7 @@
 				 android:layout_height="1dp"
 				 android:layout_centerVertical ="true"
 				 android:layout_below="@id/design_portrait"
-				 android:layout_marginTop="20dp"
+				 android:layout_marginTop="10dp"
 				 android:layout_marginLeft="24dp"
 				 android:layout_marginRight="24dp"/>
 
@@ -62,7 +62,7 @@
                 android:layout_alignParentLeft="true"
                 android:layout_centerVertical="true"
                 android:layout_below="@id/separator"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="10dp"
                 android:layout_marginLeft="24dp"
 				 android:layout_marginRight="24dp"
                 android:gravity="left"
@@ -73,7 +73,7 @@
 			    android:maxLines="1"
                 android:text="Staff Hardware Engineer"
                 android:textColor="#000000"
-                android:textSize="20sp" />
+                android:textSize="18sp" />
 
             <EditText
                 android:id="@+id/design_com"
@@ -92,7 +92,7 @@
 			    android:maxLines="1"
                 android:text="Intel Corporation"
                 android:textColor="#000000"
-                android:textSize="20sp" />
+                android:textSize="18sp" />
 
             <EditText
                 android:id="@+id/design_address"
@@ -111,7 +111,7 @@
 			    android:maxLines="1"
                 android:text="Portland, OR"
                 android:textColor="#000000"
-                android:textSize="20sp" />
+                android:textSize="18sp" />
 
             
             
