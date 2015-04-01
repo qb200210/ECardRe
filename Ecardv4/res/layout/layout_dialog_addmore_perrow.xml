@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:gravity="left|center_vertical">
     
-    <com.warpspace.ecardv4.utils.SquareLayout
+    <com.micklestudios.knowell.utils.SquareLayout
         android:id="@+id/dialog_addinfo_icon_container"
         android:layout_width="48dp"
         android:layout_height="48dp"
@@ -24,7 +24,7 @@
             android:layout_centerVertical="true"
             android:padding="2dp" >
         </ImageView>
-    </com.warpspace.ecardv4.utils.SquareLayout>
+    </com.micklestudios.knowell.utils.SquareLayout>
     
     <TextView 
         android:id="@+id/dialog_item_text"

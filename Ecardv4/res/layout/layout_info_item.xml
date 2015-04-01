@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.warpspace.ecardv4.utils.SquareLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.micklestudios.knowell.utils.SquareLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/shadow"
     android:gravity="center"
     android:padding="6dp" >
 
-    <com.warpspace.ecardv4.utils.SquareLayout
+    <com.micklestudios.knowell.utils.SquareLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/myrect"
@@ -21,6 +21,6 @@
             android:layout_centerVertical="true"
             android:padding="2dp" >
         </ImageView>
-    </com.warpspace.ecardv4.utils.SquareLayout>
+    </com.micklestudios.knowell.utils.SquareLayout>
 
-</com.warpspace.ecardv4.utils.SquareLayout>
+</com.micklestudios.knowell.utils.SquareLayout>

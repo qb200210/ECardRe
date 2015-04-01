@@ -1,4 +1,4 @@
-<com.warpspace.ecardv4.utils.MyScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.micklestudios.knowell.utils.MyScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/scroll_view_scanned"
     android:layout_width="match_parent"
@@ -11,7 +11,7 @@
         android:layout_height="match_parent"
         android:orientation="vertical" >
 
-        <com.warpspace.ecardv4.utils.SquareLayout
+        <com.micklestudios.knowell.utils.SquareLayout
             android:id="@+id/main_card_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -28,7 +28,7 @@
                 android:id="@+id/include2"
                 layout="@layout/activity_timer" 
                 android:visibility="gone"/>
-        </com.warpspace.ecardv4.utils.SquareLayout>
+        </com.micklestudios.knowell.utils.SquareLayout>
 
         <!-- This is the note bar -->
 
@@ -48,7 +48,7 @@
                 android:layout_alignParentTop="true"
                 android:orientation="horizontal" >
 
-                <com.warpspace.ecardv4.utils.SquareLayoutSpecial
+                <com.micklestudios.knowell.utils.SquareLayoutSpecial
                     xmlns:android="http://schemas.android.com/apk/res/android"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -56,7 +56,7 @@
                     android:gravity="center"
                     android:padding="6dp" >
 
-                    <com.warpspace.ecardv4.utils.SquareLayout
+                    <com.micklestudios.knowell.utils.SquareLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:background="@drawable/myrect_note"
@@ -71,8 +71,8 @@
                             android:padding="2dp"
                             android:src="@drawable/note" >
                         </ImageView>
-                    </com.warpspace.ecardv4.utils.SquareLayout>
-                </com.warpspace.ecardv4.utils.SquareLayoutSpecial>
+                    </com.micklestudios.knowell.utils.SquareLayout>
+                </com.micklestudios.knowell.utils.SquareLayoutSpecial>
 
 	            <LinearLayout
 	                android:layout_width="50dp"
@@ -119,7 +119,7 @@
 	                        android:src="@drawable/clock" >
 	                    </ImageView>
 	
-	                    <com.warpspace.ecardv4.utils.RobotoTextView
+	                    <com.micklestudios.knowell.utils.RobotoTextView
 	                        android:id="@+id/DateAdded1"
 	                        android:layout_width="match_parent"
 	                        android:layout_height="wrap_content"
@@ -146,7 +146,7 @@
 	                        android:src="@drawable/location" >
 	                    </ImageView>
 	
-	                    <com.warpspace.ecardv4.utils.RobotoTextView
+	                    <com.micklestudios.knowell.utils.RobotoTextView
 	                        android:id="@+id/PlaceAdded1"
 	                        android:layout_width="match_parent"
 	                        android:layout_height="wrap_content"
@@ -185,7 +185,7 @@
                 android:layout_alignParentTop="true"
                 android:orientation="horizontal" >
 
-                <com.warpspace.ecardv4.utils.SquareLayoutSpecial
+                <com.micklestudios.knowell.utils.SquareLayoutSpecial
                     xmlns:android="http://schemas.android.com/apk/res/android"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -193,7 +193,7 @@
                     android:gravity="center"
                     android:padding="6dp" >
 
-                    <com.warpspace.ecardv4.utils.SquareLayout
+                    <com.micklestudios.knowell.utils.SquareLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:background="@drawable/myrect_note"
@@ -208,8 +208,8 @@
                             android:padding="2dp"
                             android:src="@drawable/note" >
                         </ImageView>
-                    </com.warpspace.ecardv4.utils.SquareLayout>
-                </com.warpspace.ecardv4.utils.SquareLayoutSpecial>
+                    </com.micklestudios.knowell.utils.SquareLayout>
+                </com.micklestudios.knowell.utils.SquareLayoutSpecial>
 
                 <LinearLayout
                     android:id="@+id/panel_recorder_holder"
@@ -258,7 +258,7 @@
                     android:gravity="center_vertical"
                     android:orientation="vertical" >
 
-                    <com.warpspace.ecardv4.utils.RobotoTextView
+                    <com.micklestudios.knowell.utils.RobotoTextView
                         android:id="@+id/LastUpdated"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -268,7 +268,7 @@
                         android:textStyle="normal"
                         app:robotoFont="Roboto-Bold.ttf" />
 
-                    <com.warpspace.ecardv4.utils.RobotoTextView
+                    <com.micklestudios.knowell.utils.RobotoTextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="2dp"
@@ -306,7 +306,7 @@
                         android:src="@drawable/clock" >
                     </ImageView>
 
-                    <com.warpspace.ecardv4.utils.RobotoEditText
+                    <com.micklestudios.knowell.utils.RobotoEditText
                         android:id="@+id/DateAdded2"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -334,7 +334,7 @@
                         android:src="@drawable/location" >
                     </ImageView>
 
-                    <com.warpspace.ecardv4.utils.RobotoEditText
+                    <com.micklestudios.knowell.utils.RobotoEditText
                         android:id="@+id/PlaceAdded2"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -364,7 +364,7 @@
                         android:src="@drawable/event" >
                     </ImageView>
 
-                    <com.warpspace.ecardv4.utils.RobotoEditText
+                    <com.micklestudios.knowell.utils.RobotoEditText
                         android:id="@+id/EventAdded2"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -389,7 +389,7 @@
                 android:background="@drawable/myrect_note_text"
                 android:orientation="vertical" >
 
-                <com.warpspace.ecardv4.utils.RobotoEditText
+                <com.micklestudios.knowell.utils.RobotoEditText
                     android:id="@+id/EditNotes"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -415,7 +415,7 @@
             android:gravity="center_vertical"
             android:orientation="vertical" >
 
-            <com.warpspace.ecardv4.utils.ExpandableHeightGridView
+            <com.micklestudios.knowell.utils.ExpandableHeightGridView
                 android:id="@+id/gridView1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -428,4 +428,4 @@
         </LinearLayout>
     </LinearLayout>
 
-</com.warpspace.ecardv4.utils.MyScrollView>
+</com.micklestudios.knowell.utils.MyScrollView>

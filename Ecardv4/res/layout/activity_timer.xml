@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"  
     android:orientation="vertical" >
     
-    <com.warpspace.ecardv4.utils.SquareLayout
+    <com.micklestudios.knowell.utils.SquareLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
     	android:background="#22FFFFFF" >
@@ -30,7 +30,7 @@
         </RelativeLayout>
     
     
-    </com.warpspace.ecardv4.utils.SquareLayout>
+    </com.micklestudios.knowell.utils.SquareLayout>
         
 
 </RelativeLayout>

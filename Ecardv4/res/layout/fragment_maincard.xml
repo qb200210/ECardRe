@@ -5,7 +5,7 @@
     android:orientation="vertical" >
     
 
-        <com.warpspace.ecardv4.utils.SquareLayout 
+        <com.micklestudios.knowell.utils.SquareLayout 
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingLeft="10dp"
@@ -15,6 +15,6 @@
             >
             <include layout="@layout/layout_maincard_display" />
 
-        </com.warpspace.ecardv4.utils.SquareLayout>
+        </com.micklestudios.knowell.utils.SquareLayout>
 
 </LinearLayout>

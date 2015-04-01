@@ -13,21 +13,27 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-
-<com.warpspace.ecardv4.utils.SquareLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    	android:background="@drawable/glass_background"
-    android:gravity="center">
+    android:layout_height="wrap_content"  
+    android:orientation="vertical" >
     
-
-    <!-- Dummy text view that will display the name of a random country. -->
-    <ImageView android:id="@+id/qr_container"
-        android:layout_width="200dp"
-        android:layout_height="200dp"
-        android:padding="5dp"
-         />
-
-</com.warpspace.ecardv4.utils.SquareLayout>
+	<com.micklestudios.knowell.utils.SquareLayout
+	    xmlns:android="http://schemas.android.com/apk/res/android"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:orientation="horizontal"
+	    android:background="@drawable/glass_background1"
+	    android:gravity="center">
+	    
+	
+	    <!-- Dummy text view that will display the name of a random country. -->
+	    <ImageView android:id="@+id/qr_container"
+	        android:layout_width="200dp"
+	        android:layout_height="200dp"
+	        android:padding="5dp"
+	         />
+	
+	</com.micklestudios.knowell.utils.SquareLayout>
+</RelativeLayout>

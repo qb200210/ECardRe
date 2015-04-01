@@ -11,7 +11,7 @@
     	android:layout_height="50dp"
     	android:gravity="center"
     	android:orientation="horizontal">
-    	<com.warpspace.ecardv4.utils.RobotoTextView
+    	<com.micklestudios.knowell.utils.RobotoTextView
 	        android:id="@+id/dialog_title"
 	        android:layout_width="wrap_content"
 	    	android:layout_height="wrap_content"
