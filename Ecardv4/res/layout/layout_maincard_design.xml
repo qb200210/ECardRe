@@ -42,7 +42,7 @@
 			    android:maxLines="1"
                 android:text="Jianfang (Olena) Zhu"
                 android:textColor="#000000"
-                android:textSize="16sp"
+                android:textSize="18sp"
                 android:textStyle="bold" />
             
             <View android:id="@+id/separator" 
@@ -73,7 +73,7 @@
 			    android:maxLines="1"
                 android:text="Staff Hardware Engineer"
                 android:textColor="#000000"
-                android:textSize="14sp" />
+                android:textSize="16sp" />
 
             <EditText
                 android:id="@+id/design_com"
@@ -92,7 +92,7 @@
 			    android:maxLines="1"
                 android:text="Intel Corporation"
                 android:textColor="#000000"
-                android:textSize="14sp" />
+                android:textSize="16sp" />
 
             <EditText
                 android:id="@+id/design_address"
@@ -111,7 +111,7 @@
 			    android:maxLines="1"
                 android:text="Portland, OR"
                 android:textColor="#000000"
-                android:textSize="14sp" />
+                android:textSize="16sp" />
 
             
             

@@ -14,7 +14,10 @@ import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.TypedValue;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,6 +25,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.google.zxing.client.android.Intents;
 import com.micklestudios.knowell.infrastructure.UserInfo;
@@ -70,7 +74,16 @@ public class ActivityMain extends ActionBarActivity {
         imgFromTmpData = (boolean) b.get("imgFromTmpData");
       }
     }
+    
+    Display display = getWindowManager().getDefaultDisplay();
+    DisplayMetrics outMetrics = new DisplayMetrics ();
+    display.getMetrics(outMetrics);
 
+    float density  = getResources().getDisplayMetrics().density;
+    float dpHeight = outMetrics.heightPixels / density;
+    float dpWidth  = outMetrics.widthPixels / density;
+    Log.i("res", "height: "+ dpHeight +"  , width: "+ dpWidth);
+    
     LinearLayout ll_add = (LinearLayout) findViewById(R.id.ll_add);
     LinearLayout ll_search = (LinearLayout) findViewById(R.id.ll_search);
     Bitmap bm = BitmapFactory

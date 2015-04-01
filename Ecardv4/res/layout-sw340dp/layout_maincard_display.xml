@@ -38,7 +38,7 @@
                 android:padding="0dp"
                 android:text="Jianfang (Olena) Zhu"
                 android:textColor="#000000"
-                android:textSize="20sp"
+                android:textSize="24sp"
                 android:textStyle="bold" />
             
             <View android:id="@+id/separator" 
@@ -47,7 +47,7 @@
 				 android:layout_height="1dp"
 				 android:layout_centerVertical ="true"
 				 android:layout_below="@id/my_portrait"
-				 android:layout_marginTop="16dp"
+				 android:layout_marginTop="20dp"
 				 android:layout_marginLeft="24dp"
 				 android:layout_marginRight="24dp"/>
 
@@ -58,14 +58,14 @@
                 android:layout_alignParentLeft="true"
                 android:layout_centerVertical="true"
                 android:layout_below="@id/separator"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="20dp"
                 android:layout_marginLeft="24dp"
                 android:layout_marginRight="24dp"
                 android:gravity="left"
                 android:padding="0dp"
                 android:text="Staff Hardware Engineer"
                 android:textColor="#000000"
-                android:textSize="16sp" />
+                android:textSize="20sp" />
 
             <TextView
                 android:id="@+id/my_com"
@@ -79,7 +79,7 @@
                 android:padding="0dp"
                 android:text="Intel Corporation"
                 android:textColor="#000000"
-                android:textSize="16sp" />
+                android:textSize="20sp" />
 
             <TextView
                 android:id="@+id/my_add"
@@ -93,14 +93,14 @@
                 android:padding="0dp"
                 android:text="Portland, OR"
                 android:textColor="#000000"
-                android:textSize="16sp" />
+                android:textSize="20sp" />
 
             
             
             <ImageView
                 android:id="@+id/my_logo"
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
+                android:layout_height="60dp"
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentRight="true"
                 android:layout_marginBottom="24dp"
