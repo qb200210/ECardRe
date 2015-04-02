@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.warpspace.ecardv4"
+    package="com.micklestudios.knowell"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -21,18 +21,18 @@
 	<uses-permission android:name="android.permission.WAKE_LOCK" />
 	<uses-permission android:name="android.permission.GET_ACCOUNTS" />
 	<uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
-	<permission android:name="com.warpspace.ecardv4.permission.C2D_MESSAGE"
+	<permission android:name="com.micklestudios.knowell.permission.C2D_MESSAGE"
 		android:protectionLevel="signature" />
-	<uses-permission android:name="com.warpspace.ecardv4.permission.C2D_MESSAGE" />
+	<uses-permission android:name="com.micklestudios.knowell.permission.C2D_MESSAGE" />
 
     <application
-        android:name="com.warpspace.ecardv4.MyApplication"
+        android:name="com.micklestudios.knowell.MyApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" 
         >
-        <activity android:name="com.warpspace.ecardv4.ActivityPreLogin"
+        <activity android:name="com.micklestudios.knowell.ActivityPreLogin"
             android:screenOrientation="portrait"
             android:launchMode="singleTop"
             android:theme="@style/Transparent">   
@@ -60,60 +60,60 @@
                 android:value="false" />
         </activity>
         <activity
-            android:name="com.warpspace.ecardv4.ActivityBufferOpening"
+            android:name="com.micklestudios.knowell.ActivityBufferOpening"
             android:theme="@style/OpenTheme"
             android:label="BufferOpening" >
         </activity>
         <activity
-            android:name="com.warpspace.ecardv4.ActivityMain"
+            android:name="com.micklestudios.knowell.ActivityMain"
             android:label="@string/app_name" 
             android:screenOrientation="portrait"
             android:launchMode="singleTop">
         </activity>
         <activity
-            android:name="com.warpspace.ecardv4.ActivityDesign"
+            android:name="com.micklestudios.knowell.ActivityDesign"
             android:label="@string/app_name" 
             android:screenOrientation="portrait"
             android:launchMode="singleTop">
         </activity>
         <activity
-            android:name="com.warpspace.ecardv4.ActivityPostScanBuffer"
+            android:name="com.micklestudios.knowell.ActivityPostScanBuffer"
             android:theme="@style/Transparent"
             android:screenOrientation="portrait"
             android:launchMode="singleTop">
         </activity>
         <activity
-            android:name="com.warpspace.ecardv4.ActivityScanned"
+            android:name="com.micklestudios.knowell.ActivityScanned"
             android:label="@string/app_name" 
             android:screenOrientation="portrait"
             android:launchMode="singleTop">
         </activity>
-        <activity android:name="com.warpspace.ecardv4.QueryActivity"
+        <activity android:name="com.micklestudios.knowell.QueryActivity"
             android:label="@string/app_name" 
             android:screenOrientation="portrait"
             android:launchMode="singleTop">            
         </activity>
-        <activity android:name="com.warpspace.ecardv4.ActivityDetails"
+        <activity android:name="com.micklestudios.knowell.ActivityDetails"
             android:label="@string/app_name" 
             android:screenOrientation="portrait"
             android:launchMode="singleTop">            
         </activity>
-        <activity android:name="com.warpspace.ecardv4.ActivityNotesSearch"
+        <activity android:name="com.micklestudios.knowell.ActivityNotesSearch"
             android:label="@string/app_name" 
             android:screenOrientation="portrait"
             android:launchMode="singleTop">            
         </activity>
-        <activity android:name="com.warpspace.ecardv4.ActivityNotesScanned"
+        <activity android:name="com.micklestudios.knowell.ActivityNotesScanned"
             android:label="@string/app_name" 
             android:screenOrientation="portrait"
             android:launchMode="singleTop">            
         </activity>
-        <activity android:name="com.warpspace.ecardv4.ActivityConversations"
+        <activity android:name="com.micklestudios.knowell.ActivityConversations"
             android:label="@string/app_name" 
             android:screenOrientation="portrait"
             android:launchMode="singleTop">            
         </activity>
-        <activity android:name="com.warpspace.ecardv4.utils.CustomQRScanner"
+        <activity android:name="com.micklestudios.knowell.utils.CustomQRScanner"
             android:screenOrientation="portrait"></activity>
         <activity android:name="ActivitySearch"  
             android:screenOrientation="portrait"
@@ -127,7 +127,7 @@
 			</intent-filter>
 		</receiver>
 				
-		<receiver android:name="com.warpspace.ecardv4.utils.MyPushReceiver">
+		<receiver android:name="com.micklestudios.knowell.utils.MyPushReceiver">
 			<intent-filter>  
 			    <action android:name="EcardOpenConversations"> </action>
 			</intent-filter>
@@ -143,7 +143,7 @@
 				  change "com.parse.tutorials.pushnotifications" in the lines
 				  below to match the new package name.
 				-->
-				<category android:name="com.warpspace.ecardv4" />
+				<category android:name="com.micklestudios.knowell" />
 			</intent-filter>
 		</receiver>
 		
