@@ -3,6 +3,7 @@ package com.micklestudios.knowell.infrastructure;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -72,7 +73,31 @@ public class UserInfo implements Parcelable {
     this.city = this.city == null ? "Somewhere on Earth" : this.city;
     this.whereMet = this.whereMet == null ? "Mysterious Place" : this.whereMet;
     this.eventMet = this.eventMet == null ? "Mysterious Event" : this.eventMet;
-    this.eventMet = this.notes == null ? "" : this.eventMet;
+    this.notes = this.notes == null ? "" : this.notes;
+  }
+
+  /*
+   * Check if any of the fields here contain the provided key.
+   */
+  public boolean containsString(String key) {
+    if (key.equals("")) {
+      return true;
+    }
+
+    String keyLower = key.toLowerCase(Locale.ENGLISH);
+
+    if (firstName.toLowerCase(Locale.ENGLISH).contains(keyLower)
+      || lastName.toLowerCase(Locale.ENGLISH).contains(keyLower)
+      || company.toLowerCase(Locale.ENGLISH).contains(keyLower)
+      || title.toLowerCase(Locale.ENGLISH).contains(keyLower)
+      || city.toLowerCase(Locale.ENGLISH).contains(keyLower)
+      || whereMet.toLowerCase(Locale.ENGLISH).contains(keyLower)
+      || eventMet.toLowerCase(Locale.ENGLISH).contains(keyLower)
+      || notes.toLowerCase(Locale.ENGLISH).contains(keyLower)) {
+      return true;
+    }
+
+    return false;
   }
 
   private static ParseObject getParseObjectFromObjId(String objId,

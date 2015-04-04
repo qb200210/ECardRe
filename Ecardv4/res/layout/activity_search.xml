@@ -55,13 +55,15 @@
                 android:paddingRight="10dp"
                 android:paddingTop="10dp" >
 
-                <TextView
+                <AutoCompleteTextView
                     android:id="@+id/txt_where_met"
                     android:layout_width="wrap_content"
                     android:layout_height="50dp"
                     android:layout_centerInParent="true"
+                    android:hint="Search meeting place ..."
+                    android:nextFocusForward="@+id/txt_company"
+                    android:singleLine="true"
                     android:padding="10dp"
-                    android:text="Where Met"
                     android:textSize="20sp" />
 
                 <ImageView
@@ -75,35 +77,6 @@
             </RelativeLayout>
 
             <RelativeLayout
-                android:id="@+id/rlayout_city"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="horizontal"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:paddingTop="10dp" >
-
-                <TextView
-                    android:id="@+id/txt_city"
-                    android:layout_width="wrap_content"
-                    android:layout_height="50dp"
-                    android:layout_centerInParent="true"
-                    android:padding="10dp"
-                    android:text="City"
-                    android:textSize="20sp" />
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_centerInParent="true"
-                    android:layout_toLeftOf="@id/txt_city"
-                    android:layout_toStartOf="@id/txt_city"
-                    android:background="@drawable/ic_filter_city"
-                    android:padding="10dp" />
-            </RelativeLayout>
-
-            <RelativeLayout
                 android:id="@+id/rlayout_company"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
@@ -113,13 +86,15 @@
                 android:paddingRight="10dp"
                 android:paddingTop="10dp" >
 
-                <TextView
-                    android:id="@+id/txt_company"
+                <AutoCompleteTextView
+                    android:id="@id/txt_company"
                     android:layout_width="wrap_content"
                     android:layout_height="50dp"
                     android:layout_centerInParent="true"
+                    android:hint="Search Company ..."
+                    android:nextFocusForward="@+id/txt_event_met"
+                    android:singleLine="true"
                     android:padding="10dp"
-                    android:text="Company"
                     android:textSize="20sp" />
 
                 <ImageView
@@ -133,35 +108,6 @@
             </RelativeLayout>
 
             <RelativeLayout
-                android:id="@+id/rlayout_name"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="horizontal"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:paddingTop="10dp" >
-
-                <TextView
-                    android:id="@+id/txt_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="50dp"
-                    android:layout_centerInParent="true"
-                    android:padding="10dp"
-                    android:text="Name"
-                    android:textSize="20sp" />
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_centerInParent="true"
-                    android:layout_toLeftOf="@id/txt_name"
-                    android:layout_toStartOf="@id/txt_name"
-                    android:background="@drawable/ic_filter_person"
-                    android:padding="10dp" />
-            </RelativeLayout>
-
-            <RelativeLayout
                 android:id="@+id/rlayout_event_met"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
@@ -171,13 +117,14 @@
                 android:paddingRight="10dp"
                 android:paddingTop="10dp" >
 
-                <TextView
-                    android:id="@+id/txt_event_met"
+                <AutoCompleteTextView
+                    android:id="@id/txt_event_met"
                     android:layout_width="wrap_content"
                     android:layout_height="50dp"
                     android:layout_centerInParent="true"
+                    android:hint="Search Events ..."
+                    android:singleLine="true"
                     android:padding="10dp"
-                    android:text="Event Met"
                     android:textSize="20sp" />
 
                 <ImageView
@@ -187,35 +134,6 @@
                     android:layout_toLeftOf="@id/txt_event_met"
                     android:layout_toStartOf="@id/txt_event_met"
                     android:background="@drawable/ic_filter_event"
-                    android:padding="10dp" />
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/rlayout_notes"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="horizontal"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:paddingTop="10dp" >
-
-                <TextView
-                    android:id="@+id/txt_notes"
-                    android:layout_width="wrap_content"
-                    android:layout_height="50dp"
-                    android:layout_centerInParent="true"
-                    android:padding="10dp"
-                    android:text="Notes"
-                    android:textSize="20sp" />
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_centerInParent="true"
-                    android:layout_toLeftOf="@id/txt_notes"
-                    android:layout_toStartOf="@id/txt_notes"
-                    android:background="@drawable/ic_filter_notes"
                     android:padding="10dp" />
             </RelativeLayout>
 

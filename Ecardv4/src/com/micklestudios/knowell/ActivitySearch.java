@@ -3,13 +3,12 @@ package com.micklestudios.knowell;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.StringTokenizer;
 
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -18,7 +17,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBar;
@@ -41,6 +39,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -58,12 +57,7 @@ import com.micklestudios.knowell.utils.MySimpleListViewAdapterForSearch;
 import com.nhaarman.listviewanimations.appearance.StickyListHeadersAdapterDecorator;
 import com.nhaarman.listviewanimations.appearance.simple.AlphaInAnimationAdapter;
 import com.nhaarman.listviewanimations.util.StickyListHeadersListViewWrapper;
-import com.parse.FindCallback;
-import com.parse.ParseException;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
 import com.parse.ParseUser;
-import com.micklestudios.knowell.R;
 
 public class ActivitySearch extends ActionBarActivity {
 
@@ -83,16 +77,9 @@ public class ActivitySearch extends ActionBarActivity {
   Button searchButton;
   LinearLayout sv;
 
-  TextView filterTextWhereMet;
-  TextView filterTextEventMet;
-  TextView filterTextCity;
-  TextView filterTextName;
-  TextView filterTextCompany;
-  TextView filterTextNotes;
-
-  Button btnClearFilter;
-
-  boolean filterSelected = false;
+  AutoCompleteTextView filterTextWhereMet;
+  AutoCompleteTextView filterTextEventMet;
+  AutoCompleteTextView filterTextCompany;
 
   public static ArrayList<UserInfo> filteredUsers;
   public static ArrayList<UserInfo> allUsers;
@@ -105,9 +92,6 @@ public class ActivitySearch extends ActionBarActivity {
   RelativeLayout searchPullDown;
   LinearLayout searchFilterWidget;
 
-  RelativeLayout rLayoutName;
-  RelativeLayout rLayoutCity;
-  RelativeLayout rLayoutNotes;
   RelativeLayout rLayoutEventMet;
   RelativeLayout rLayoutWhereMet;
   RelativeLayout rLayoutCompany;
@@ -123,10 +107,6 @@ public class ActivitySearch extends ActionBarActivity {
   public static final int SORT_MODE_DATE_DSC = 4;
 
   public static int currentSortMode = SORT_MODE_DATE_ASC;
-
-  // Possible modes of searching.
-  public static int SEARCH_MODE_ALL = -1;
-  public static int currentSearchMode = SEARCH_MODE_ALL;
 
   ArrayAdapter<String> autoCompleteAdapter;
   HashMap<String, ArrayList<UserIndexStringType>> searchEntries;
@@ -180,7 +160,6 @@ public class ActivitySearch extends ActionBarActivity {
       public void onItemClick(AdapterView<?> parent, View view, int position,
         long id) {
         UserInfo selectedUser = (UserInfo) listView.getItemAtPosition(position);
-
         Intent intent = new Intent(getBaseContext(), ActivityDetails.class);
         // passing UserInfo is made possible through Parcelable
         intent.putExtra("userinfo", selectedUser);
@@ -213,148 +192,129 @@ public class ActivitySearch extends ActionBarActivity {
     });
 
     // Retrieve all the filters and set the onclick listener
-    FilterSelectedListener filterSelectedListener = new FilterSelectedListener();
-    filterTextName = (TextView) findViewById(R.id.txt_name);
-    filterTextCity = (TextView) findViewById(R.id.txt_city);
-    filterTextWhereMet = (TextView) findViewById(R.id.txt_where_met);
-    filterTextEventMet = (TextView) findViewById(R.id.txt_event_met);
-    filterTextCompany = (TextView) findViewById(R.id.txt_company);
-    filterTextNotes = (TextView) findViewById(R.id.txt_notes);
+    filterTextWhereMet = (AutoCompleteTextView) findViewById(R.id.txt_where_met);
+    filterTextEventMet = (AutoCompleteTextView) findViewById(R.id.txt_event_met);
+    filterTextCompany = (AutoCompleteTextView) findViewById(R.id.txt_company);
 
-    filterTextName.setOnClickListener(filterSelectedListener);
-    filterTextCity.setOnClickListener(filterSelectedListener);
-    filterTextWhereMet.setOnClickListener(filterSelectedListener);
-    filterTextEventMet.setOnClickListener(filterSelectedListener);
-    filterTextCompany.setOnClickListener(filterSelectedListener);
-    filterTextNotes.setOnClickListener(filterSelectedListener);
-
-    rLayoutName = (RelativeLayout) findViewById(R.id.rlayout_name);
     rLayoutCompany = (RelativeLayout) findViewById(R.id.rlayout_company);
     rLayoutWhereMet = (RelativeLayout) findViewById(R.id.rlayout_where_met);
     rLayoutEventMet = (RelativeLayout) findViewById(R.id.rlayout_event_met);
-    rLayoutCity = (RelativeLayout) findViewById(R.id.rlayout_city);
-    rLayoutNotes = (RelativeLayout) findViewById(R.id.rlayout_notes);
 
     toggleFiltersVisibility(false);
 
-    btnClearFilter = (Button) findViewById(R.id.btn_clear_filter);
-    btnClearFilter.setOnClickListener(new OnClickListener() {
+    adapter = new SearchListAdapter(getApplicationContext(), filteredUsers);
+    animationAdapter = new AlphaInAnimationAdapter(adapter);
+    stickyListHeadersAdapterDecorator = new StickyListHeadersAdapterDecorator(
+      animationAdapter);
+    stickyListHeadersAdapterDecorator
+      .setListViewWrapper(new StickyListHeadersListViewWrapper(listView));
 
-      @SuppressWarnings("deprecation")
-      @SuppressLint("NewApi")
-      @Override
-      public void onClick(View v) {
-        currentSearchMode = SEARCH_MODE_ALL;
-        v.setVisibility(View.GONE);
-        int sdk = android.os.Build.VERSION.SDK_INT;
-        if (sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
-          searchButton.setBackgroundDrawable(getResources().getDrawable(
-            R.drawable.ic_search_blue));
-        } else {
-          searchButton.setBackground(getResources().getDrawable(
-            R.drawable.ic_search_blue));
-        }
+    assert animationAdapter.getViewAnimator() != null;
+    animationAdapter.getViewAnimator().setInitialDelayMillis(500);
 
-        performSearch();
-      }
-    });
+    assert stickyListHeadersAdapterDecorator.getViewAnimator() != null;
+    stickyListHeadersAdapterDecorator.getViewAnimator().setInitialDelayMillis(
+      500);
 
-    btnClearFilter.setVisibility(View.GONE);
+    listView.setAdapter(stickyListHeadersAdapterDecorator);
+    currentSortMode = SORT_MODE_NAME_ASC;
+    adapter.reSort();
+    stickyListHeadersAdapterDecorator.notifyDataSetChanged();
+
+    // Finally, load the contacts.
+    performSearch();
   }
 
   // Hide all the filter text views
   private void toggleFiltersVisibility(boolean show) {
     int visibility = show ? View.VISIBLE : View.GONE;
 
-    rLayoutName.setVisibility(visibility);
-    rLayoutCity.setVisibility(visibility);
     rLayoutWhereMet.setVisibility(visibility);
     rLayoutEventMet.setVisibility(visibility);
     rLayoutCompany.setVisibility(visibility);
-    rLayoutNotes.setVisibility(visibility);
-  }
-
-  // Create a new onClickListener to be used for all the search filters
-  class FilterSelectedListener implements OnClickListener {
-    @SuppressWarnings("deprecation")
-    @SuppressLint("NewApi")
-    @Override
-    public void onClick(View view) {
-      TextView v = (TextView) view;
-      int bgDrawable = 0;
-
-      String hintText = null;
-      if (v == filterTextName) {
-        currentSearchMode = UserInfo.FIELD_TYPE.TYPE_FNAME;
-        bgDrawable = R.drawable.ic_filter_person;
-        hintText = "Search Names ...";
-      } else if (v == filterTextCity) {
-        currentSearchMode = UserInfo.FIELD_TYPE.TYPE_CITY;
-        bgDrawable = R.drawable.ic_filter_city;
-        hintText = "Search City ...";
-      } else if (v == filterTextWhereMet) {
-        currentSearchMode = UserInfo.FIELD_TYPE.TYPE_WHERE_MET;
-        bgDrawable = R.drawable.ic_filter_place;
-        hintText = "Search where met ...";
-      } else if (v == filterTextEventMet) {
-        currentSearchMode = UserInfo.FIELD_TYPE.TYPE_EVENT_MET;
-        bgDrawable = R.drawable.ic_filter_event;
-        hintText = "Search event met ...";
-      } else if (v == filterTextCompany) {
-        currentSearchMode = UserInfo.FIELD_TYPE.TYPE_COMPANY;
-        bgDrawable = R.drawable.ic_filter_company;
-        hintText = "Search company ...";
-      } else if (v == filterTextNotes) {
-        currentSearchMode = UserInfo.FIELD_TYPE.TYPE_NOTES;
-        bgDrawable = R.drawable.ic_filter_notes;
-        hintText = "Search notes ...";
-      }
-
-      int sdk = android.os.Build.VERSION.SDK_INT;
-      if (sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
-        searchButton.setBackgroundDrawable(getResources().getDrawable(
-          bgDrawable));
-      } else {
-        searchButton.setBackground(getResources().getDrawable(bgDrawable));
-      }
-
-      moveSearchMenu();
-
-      performSearch();
-
-      searchBox.setHint(hintText);
-
-      btnClearFilter.setVisibility(View.VISIBLE);
-    }
   }
 
   private void performSearch() {
-    String key = searchBox.getText().toString();
     filteredUsers.clear();
-    if (key.matches("")) {
-      filteredUsers.addAll(allUsers);
-    } else {
-      String keyLower = key.toLowerCase(Locale.ENGLISH);
-      ArrayList<UserIndexStringType> searchHits = (ArrayList<UserIndexStringType>) searchEntries
-        .get(keyLower);
-      if (searchHits != null) {
-        for (UserIndexStringType result : searchHits) {
-          if (currentSearchMode == SEARCH_MODE_ALL
-            || currentSearchMode == result.type) {
-            filteredUsers.add(allUsers.get(result.userIndex));
+
+    // Create a temporary list so that we can iterate over one of them.
+    ArrayList<UserInfo> tempUserInfoList = new ArrayList<UserInfo>();
+
+    /*
+     * First, let's go through all the filters. Let's assume that all the users
+     * will be selected.
+     */
+    filteredUsers.addAll(allUsers);
+    {
+      // Start with the Where Met filter.
+      String filterKey = filterTextWhereMet.getText().toString();
+      if (filterKey != "") {
+        for (UserInfo uInfo : filteredUsers) {
+          if (uInfo.getWhereMet().toLowerCase(Locale.ENGLISH)
+            .contains(filterKey)) {
+            tempUserInfoList.add(uInfo);
           }
         }
+        filteredUsers.clear();
+        filteredUsers.addAll(tempUserInfoList);
+        tempUserInfoList.clear();
       }
 
-      if (currentSearchMode == SEARCH_MODE_ALL
-        || currentSearchMode == UserInfo.FIELD_TYPE.TYPE_NOTES) {
-        for (UserInfo info : allUsers) {
-          if (info.getNotes().toLowerCase(Locale.ENGLISH).contains(keyLower)) {
-            filteredUsers.add(info);
+      Log.e("Knowell", "After first filer, length is " + filteredUsers.size());
+
+      // Then look at the Company filter.
+      filterKey = filterTextCompany.getText().toString();
+      if (filterKey != "") {
+        for (UserInfo uInfo : filteredUsers) {
+          if (uInfo.getCompany().toLowerCase(Locale.ENGLISH)
+            .contains(filterKey)) {
+            tempUserInfoList.add(uInfo);
           }
         }
+        filteredUsers.clear();
+        filteredUsers.addAll(tempUserInfoList);
+        tempUserInfoList.clear();
+      }
+
+      Log.e("Knowell", "After second filer, length is " + filteredUsers.size());
+
+      // Then look at the Event Met filter.
+      filterKey = filterTextEventMet.getText().toString();
+      if (filterKey != "") {
+        for (UserInfo uInfo : filteredUsers) {
+          if (uInfo.getEventMet().toLowerCase(Locale.ENGLISH)
+            .contains(filterKey)) {
+            tempUserInfoList.add(uInfo);
+          }
+        }
+        filteredUsers.clear();
+        filteredUsers.addAll(tempUserInfoList);
+        tempUserInfoList.clear();
       }
     }
+
+    Log.e("Knowell", "After third filer, length is " + filteredUsers.size());
+
+    /*
+     * Now that we have filtered the users, let's look at the actual search
+     * keywords.
+     */
+    String keyWords = searchBox.getText().toString();
+
+    StringTokenizer keyWordsTokens = new StringTokenizer(keyWords);
+    while (keyWordsTokens.hasMoreTokens()) {
+      String token = keyWordsTokens.nextToken();
+      for (UserInfo uInfo : filteredUsers) {
+        if (uInfo.containsString(token)) {
+          tempUserInfoList.add(uInfo);
+        }
+      }
+      filteredUsers.clear();
+      filteredUsers.addAll(tempUserInfoList);
+      tempUserInfoList.clear();
+    }
+
+    Log.e("Knowell", "After first filer, length is " + filteredUsers.size());
 
     adapter.reSort();
     adapter.refreshData(filteredUsers);
@@ -366,12 +326,6 @@ public class ActivitySearch extends ActionBarActivity {
     } else {
       layoutNoResults.setVisibility(View.INVISIBLE);
     }
-  }
-
-  private void populateAutoComplete(AutoCompleteTextView textBox) {
-    autoCompleteAdapter = new ArrayAdapter<String>(this,
-      android.R.layout.simple_dropdown_item_1line, autoCompleteList);
-    textBox.setAdapter(autoCompleteAdapter);
   }
 
   // Drop down the search Menu
@@ -482,70 +436,6 @@ public class ActivitySearch extends ActionBarActivity {
     }
   }
 
-  // Add each field of the UserInfo to the search map.
-  private void addFieldToSearchStructure(String key, UserIndexStringType field) {
-    ArrayList<UserIndexStringType> fieldList = searchEntries.get(key
-      .toLowerCase(Locale.ENGLISH));
-    if (fieldList == null) {
-      fieldList = new ArrayList<UserIndexStringType>();
-      // Add all the strings to the autocomplete list
-      autoCompleteList.add(key);
-      searchEntries.put(key.toLowerCase(Locale.ENGLISH), fieldList);
-    }
-
-    fieldList.add(field);
-  }
-
-  // Add the UserInfo type object to the search map.
-  private void addToSearchStructures(UserInfo contact, int userIndex) {
-    // Add first names.
-    if (contact.getFirstName() != "") {
-      // Add this field to search map.
-      addFieldToSearchStructure(contact.getFirstName(),
-        new UserIndexStringType(userIndex, UserInfo.FIELD_TYPE.TYPE_FNAME));
-    }
-
-    // Add last names.
-    if (contact.getLastName() != "") {
-      // Add this field to search map.
-      addFieldToSearchStructure(contact.getLastName(), new UserIndexStringType(
-        userIndex, UserInfo.FIELD_TYPE.TYPE_LNAME));
-    }
-
-    // Add Company.
-    if (contact.getCompany() != "") {
-      // Add this field to search map.
-      addFieldToSearchStructure(contact.getCompany(), new UserIndexStringType(
-        userIndex, UserInfo.FIELD_TYPE.TYPE_COMPANY));
-    }
-
-    // Add City.
-    if (contact.getCity() != "") {
-      // Add this field to search map.
-      addFieldToSearchStructure(contact.getCity(), new UserIndexStringType(
-        userIndex, UserInfo.FIELD_TYPE.TYPE_CITY));
-    }
-
-    // Add Title.
-    if (contact.getTitle() != "") {
-      // Add this field to search map.
-      addFieldToSearchStructure(contact.getTitle(), new UserIndexStringType(
-        userIndex, UserInfo.FIELD_TYPE.TYPE_TITLE));
-    }
-
-    if (contact.getWhereMet() != "") {
-      // Add this field to search map.
-      addFieldToSearchStructure(contact.getWhereMet(), new UserIndexStringType(
-        userIndex, UserInfo.FIELD_TYPE.TYPE_WHERE_MET));
-    }
-
-    if (contact.getEventMet() != "") {
-      // Add this field to search map.
-      addFieldToSearchStructure(contact.getEventMet(), new UserIndexStringType(
-        userIndex, UserInfo.FIELD_TYPE.TYPE_EVENT_MET));
-    }
-  }
-  
   @SuppressLint("InflateParams")
   private void showActionBar() {
     LayoutInflater inflator = (LayoutInflater) this
