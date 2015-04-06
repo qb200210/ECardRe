@@ -26,6 +26,7 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
+import com.micklestudios.knowell.ActivityDetails;
 import com.micklestudios.knowell.R;
 
 import android.annotation.SuppressLint;
@@ -77,6 +78,7 @@ public class ActivityDetails extends ActionBarActivity {
   private ImageView replayButtonBar;
   private ImageView replayButtonPanel;
   private ImageView recorderButton;
+  private ImageView timerButton;
   private static final String AUDIO_RECORDER_FOLDER = "AudioRecorder";
   private static final long SAVENOTE_TIMEOUT = 5000;
   CountDownTimer t;
@@ -96,6 +98,7 @@ public class ActivityDetails extends ActionBarActivity {
     replayButtonBar = (ImageView) findViewById(R.id.bar_play_button);
     replayButtonPanel = (ImageView) findViewById(R.id.panel_play_button);
     recorderButton = (ImageView) findViewById(R.id.panel_recorder_button);
+    timerButton = (ImageView) findViewById(R.id.stop_recording);
     filepath = getFilename();
 
     scrollView = (MyScrollView) findViewById(R.id.scroll_view_scanned);
@@ -317,62 +320,69 @@ public class ActivityDetails extends ActionBarActivity {
     // recorder-related begins
 
     recorderButton.setOnClickListener(new OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        if (recordstatus1 == 0) {
-          Toast.makeText(ActivityDetails.this, "Recording...",
-            Toast.LENGTH_SHORT).show();
-          // changebuttontext(R.id.recordButton,"Recording...");
-          replayButtonBar.setVisibility(View.GONE);
-          replayButtonPanel.setVisibility(View.GONE);
-          startRecording();
-          recordstatus1 = 1;
-          recorderButton.setImageResource(R.drawable.ic_action_stop);
+	    @Override
+	    public void onClick(View v) {
+	    	if(recordstatus1==0) {
+				Toast.makeText(ActivityDetails.this, "Recording...", Toast.LENGTH_SHORT).show();
+				// changebuttontext(R.id.recordButton,"Recording...");
+				replayButtonBar.setVisibility(View.GONE);
+            	replayButtonPanel.setVisibility(View.GONE);
+	            startRecording();
+	            recordstatus1=1;
+	            recorderButton.setImageResource(R.drawable.ic_action_stop);
+	            
+	            findViewById(R.id.timer).setVisibility(View.VISIBLE);
+				
+	             t = new CountDownTimer( 30000, 1000) {           //30 seconds recording time
+	            	 TextView counter=(TextView) findViewById(R.id.time_left);
+	            	 
+	                    @Override
+	                    public void onTick(long millisUntilFinished) {
+	                    	counter.setText(millisUntilFinished / 1000 +" seconds remaining.");
+	                    }
+	                    @Override
+	                    public void onFinish() {   
+	                    	stopRecording();
+	                    	recordstatus1=0;
+	                    	Toast.makeText(ActivityDetails.this, "Max Recording Length Reached.", Toast.LENGTH_SHORT).show();
+	                    	recorderButton.setImageResource(R.drawable.recorder);
+	    		            // changebuttontext(R.id.recordButton,"Hold to speak.");
+	    		            //counter.setText("30");
+	    		            //enableButton(R.id.recordButton,false);
+	                    	replayButtonBar.setVisibility(View.VISIBLE);
+	                    	replayButtonPanel.setVisibility(View.VISIBLE);
+	    		            findViewById(R.id.timer).setVisibility(View.GONE);
+	                    }
+	                }.start();
+				
+	        } else if (recordstatus1==1) {
+	            stopRecording();
+	            t.cancel();
+	            recordstatus1=0;
+	            //TextView counter=(TextView) findViewById(R.id.Timer);
+	            //counter.setText("30");
+	            //changebuttontext(R.id.recordButton,"Hold to speak.");
+	            recorderButton.setImageResource(R.drawable.recorder);
+	            replayButtonBar.setVisibility(View.VISIBLE);
+            	replayButtonPanel.setVisibility(View.VISIBLE);
+	            findViewById(R.id.timer).setVisibility(View.GONE);
+	        }
+	    }
+	});
+	
+	timerButton.setOnClickListener(new OnClickListener() {
+	    @Override
+	    public void onClick(View v) {
 
-          findViewById(R.id.include1).setVisibility(View.GONE);
-          findViewById(R.id.include2).setVisibility(View.VISIBLE);
-
-          t = new CountDownTimer(30000, 1000) { // 30 seconds recording time
-            TextView counter = (TextView) findViewById(R.id.time_left);
-
-            @Override
-            public void onTick(long millisUntilFinished) {
-              counter.setText("Recording Seconds Remaining: "
-                + millisUntilFinished / 1000);
-            }
-
-            @Override
-            public void onFinish() {
-              stopRecording();
-              recordstatus1 = 0;
-              Toast.makeText(ActivityDetails.this,
-                "Max Recording Length Reached.", Toast.LENGTH_SHORT).show();
-              recorderButton.setImageResource(R.drawable.recorder);
-              // changebuttontext(R.id.recordButton,"Hold to speak.");
-              // counter.setText("30");
-              // enableButton(R.id.recordButton,false);
-              replayButtonBar.setVisibility(View.VISIBLE);
-              replayButtonPanel.setVisibility(View.VISIBLE);
-              findViewById(R.id.include2).setVisibility(View.GONE);
-              findViewById(R.id.include1).setVisibility(View.VISIBLE);
-            }
-          }.start();
-
-        } else if (recordstatus1 == 1) {
-          stopRecording();
-          t.cancel();
-          recordstatus1 = 0;
-          // TextView counter=(TextView) findViewById(R.id.Timer);
-          // counter.setText("30");
-          // changebuttontext(R.id.recordButton,"Hold to speak.");
-          recorderButton.setImageResource(R.drawable.recorder);
-          replayButtonBar.setVisibility(View.VISIBLE);
-          replayButtonPanel.setVisibility(View.VISIBLE);
-          findViewById(R.id.include2).setVisibility(View.GONE);
-          findViewById(R.id.include1).setVisibility(View.VISIBLE);
-        }
-      }
-    });
+	            stopRecording();
+	            t.cancel();
+	            recordstatus1=0;
+	            recorderButton.setImageResource(R.drawable.recorder);
+	            replayButtonBar.setVisibility(View.VISIBLE);
+            	replayButtonPanel.setVisibility(View.VISIBLE);
+	            findViewById(R.id.timer).setVisibility(View.GONE);
+	    }
+	});
     replayButtonBar.setOnClickListener(new OnClickListener() {
       @Override
       public void onClick(View v) {

@@ -36,6 +36,7 @@ import com.parse.ParsePush;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
+import com.micklestudios.knowell.ActivityScanned;
 import com.micklestudios.knowell.R;
 
 import android.annotation.SuppressLint;
@@ -93,6 +94,7 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 	private ImageView replayButtonBar; 
 	private ImageView replayButtonPanel; 
 	private ImageView recorderButton;
+	private ImageView timerButton;
 	private static final String AUDIO_RECORDER_FOLDER = "AudioRecorder";
 	private static final long SAVENOTE_TIMEOUT = 5000;
 	CountDownTimer t;
@@ -228,7 +230,7 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 		replayButtonBar = (ImageView) findViewById(R.id.bar_play_button);
 		replayButtonPanel = (ImageView) findViewById(R.id.panel_play_button);
 		recorderButton = (ImageView) findViewById(R.id.panel_recorder_button);
-		
+		timerButton = (ImageView) findViewById(R.id.stop_recording);
 		
 		// display note if the note existed but deleted
 		if(deletedNoteId != null){
@@ -376,15 +378,14 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 		            recordstatus=1;
 		            recorderButton.setImageResource(R.drawable.ic_action_stop);
 		            
-		            findViewById(R.id.include1).setVisibility(View.GONE);
-		            findViewById(R.id.include2).setVisibility(View.VISIBLE);
+		            findViewById(R.id.timer).setVisibility(View.VISIBLE);
 					
 		             t = new CountDownTimer( 30000, 1000) {           //30 seconds recording time
 		            	 TextView counter=(TextView) findViewById(R.id.time_left);
 		            	 
 		                    @Override
 		                    public void onTick(long millisUntilFinished) {
-		                    	counter.setText("Recording Seconds Remaining: " + millisUntilFinished / 1000);
+		                    	counter.setText(millisUntilFinished / 1000 +" seconds remaining.");
 		                    }
 		                    @Override
 		                    public void onFinish() {   
@@ -394,8 +395,7 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 		                    	recorderButton.setImageResource(R.drawable.recorder);
 		                    	replayButtonBar.setVisibility(View.VISIBLE);
 		                    	replayButtonPanel.setVisibility(View.VISIBLE);
-		    		            findViewById(R.id.include2).setVisibility(View.GONE);
-		    		            findViewById(R.id.include1).setVisibility(View.VISIBLE);
+		    		            findViewById(R.id.timer).setVisibility(View.GONE);
 		                    }
 		                }.start();
 					
@@ -406,9 +406,22 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 		            recorderButton.setImageResource(R.drawable.recorder);
 		            replayButtonBar.setVisibility(View.VISIBLE);
                 	replayButtonPanel.setVisibility(View.VISIBLE);
-		            findViewById(R.id.include2).setVisibility(View.GONE);
-		            findViewById(R.id.include1).setVisibility(View.VISIBLE);
+		            findViewById(R.id.timer).setVisibility(View.GONE);
 		        }
+		    }
+		});
+		
+		timerButton.setOnClickListener(new OnClickListener() {
+		    @Override
+		    public void onClick(View v) {
+
+		            stopRecording();
+		            t.cancel();
+		            recordstatus=0;
+		            recorderButton.setImageResource(R.drawable.recorder);
+		            replayButtonBar.setVisibility(View.VISIBLE);
+                	replayButtonPanel.setVisibility(View.VISIBLE);
+		            findViewById(R.id.timer).setVisibility(View.GONE);
 		    }
 		});
 		replayButtonBar.setOnClickListener(new OnClickListener() {
