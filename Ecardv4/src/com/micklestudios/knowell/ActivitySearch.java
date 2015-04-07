@@ -2,7 +2,6 @@ package com.micklestudios.knowell;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.StringTokenizer;
@@ -16,6 +15,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -39,7 +39,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -48,7 +47,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.micklestudios.knowell.infrastructure.SearchListAdapter;
-import com.micklestudios.knowell.infrastructure.UserIndexStringType;
 import com.micklestudios.knowell.infrastructure.UserInfo;
 import com.micklestudios.knowell.utils.AsyncTasks;
 import com.micklestudios.knowell.utils.CurvedAndTiled;
@@ -75,7 +73,7 @@ public class ActivitySearch extends ActionBarActivity {
   View mainView;
   LinearLayout searchWidget;
   Button searchButton;
-  LinearLayout sv;
+  LinearLayout searchPanel;
 
   AutoCompleteTextView filterTextWhereMet;
   AutoCompleteTextView filterTextEventMet;
@@ -91,6 +89,11 @@ public class ActivitySearch extends ActionBarActivity {
   LinearLayout layoutNoResults;
   RelativeLayout searchPullDown;
   LinearLayout searchFilterWidget;
+
+  public static ArrayList<String> autoCompleteListAll;
+  public static ArrayList<String> autoCompleteListCompany;
+  public static ArrayList<String> autoCompleteListWhere;
+  public static ArrayList<String> autoCompleteListEvent;
 
   RelativeLayout rLayoutEventMet;
   RelativeLayout rLayoutWhereMet;
@@ -109,7 +112,6 @@ public class ActivitySearch extends ActionBarActivity {
   public static int currentSortMode = SORT_MODE_DATE_ASC;
 
   ArrayAdapter<String> autoCompleteAdapter;
-  HashMap<String, ArrayList<UserIndexStringType>> searchEntries;
   AutoCompleteTextView searchBox;
 
   SparseIntArray searchListToUserListMap;
@@ -127,24 +129,23 @@ public class ActivitySearch extends ActionBarActivity {
   @SuppressLint("InflateParams")
   @Override
   protected void onCreate(final Bundle savedInstanceState) {
+    // Inflate the layout.
     super.onCreate(savedInstanceState);
+    mainView = getLayoutInflater().inflate(R.layout.activity_search, null);
+    setContentView(mainView);
 
-    searchEntries = new HashMap<String, ArrayList<UserIndexStringType>>();
+    // Get all the views from the layout.
+    retrieveAllViews();
 
     // show custom action bar (on top of standard action bar)
     showActionBar();
-    mainView = getLayoutInflater().inflate(R.layout.activity_search, null);
-    setContentView(mainView);
 
     currentUser = ParseUser.getCurrentUser();
 
     filteredUsers = new ArrayList<UserInfo>();
-    filteredUsers.addAll(allUsers);
     autoCompleteList = new ArrayList<String>();
     searchListToUserListMap = new SparseIntArray();
 
-    searchWidget = (LinearLayout) findViewById(R.id.lnlayout_search_widget);
-    layoutNoResults = (LinearLayout) findViewById(R.id.lnlayout_no_results);
     layoutNoResults.setVisibility(View.INVISIBLE);
 
     getWindow().setSoftInputMode(
@@ -153,9 +154,57 @@ public class ActivitySearch extends ActionBarActivity {
     // build dialog for sorting selection options
     buildSortDialog();
 
-    listView = (StickyListHeadersListView) findViewById(R.id.activity_stickylistheaders_listview);
-    listView.setOnItemClickListener(new OnItemClickListener() {
+    // Initialize the search panel views.
+    initializeSearchPanel();
 
+    // Initialize the contact list.
+    initializeContactList();
+
+    toggleFiltersVisibility(false);
+
+    // Do some measurements once the Activity is loaded
+    mainView.post(new Runnable() {
+      @Override
+      public void run() {
+        RelativeLayout rLayout = (RelativeLayout) findViewById(R.id.rllayout_search_pull_down);
+        int searchWidgetTotalHeight = searchWidget.getMeasuredHeight()
+          + searchWidget.getPaddingTop();
+        SEARCH_MENU_OVERHANG = searchWidgetTotalHeight
+          + rLayout.getMeasuredHeight();
+        listView.setPadding(0, searchWidgetTotalHeight, 0, 0);
+        searchMenuRetractedHeight = SEARCH_MENU_OVERHANG
+          - searchPanel.getMeasuredHeight();
+        searchPanel.setTranslationY(searchMenuRetractedHeight);
+      }
+    });
+
+    // Finally, load the contacts.
+    performSearch();
+  }
+
+  private void retrieveAllViews() {
+    // Retrieve all the filters and layouts.
+    filterTextWhereMet = (AutoCompleteTextView) findViewById(R.id.txt_where_met);
+    filterTextEventMet = (AutoCompleteTextView) findViewById(R.id.txt_event_met);
+    filterTextCompany = (AutoCompleteTextView) findViewById(R.id.txt_company);
+
+    // The layouts we need to hide when drop down goes up.
+    rLayoutCompany = (RelativeLayout) findViewById(R.id.rlayout_company);
+    rLayoutWhereMet = (RelativeLayout) findViewById(R.id.rlayout_where_met);
+    rLayoutEventMet = (RelativeLayout) findViewById(R.id.rlayout_event_met);
+
+    // The three frames in the layout.
+    searchPanel = (LinearLayout) findViewById(R.id.lnlayout_search_menu);
+    layoutNoResults = (LinearLayout) findViewById(R.id.lnlayout_no_results);
+    listView = (StickyListHeadersListView) findViewById(R.id.activity_stickylistheaders_listview);
+
+    searchWidget = (LinearLayout) findViewById(R.id.lnlayout_search_widget);
+    searchBox = (AutoCompleteTextView) findViewById(R.id.txt_autocomplete_search);
+    searchButton = (Button) findViewById(R.id.btn_search_inside);
+  }
+
+  private void initializeContactList() {
+    listView.setOnItemClickListener(new OnItemClickListener() {
       @Override
       public void onItemClick(AdapterView<?> parent, View view, int position,
         long id) {
@@ -166,41 +215,6 @@ public class ActivitySearch extends ActionBarActivity {
         startActivity(intent);
       }
     });
-
-    handleSearchDropDown();
-
-    searchBox = (AutoCompleteTextView) findViewById(R.id.txt_autocomplete_search);
-    searchBox.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-
-      @Override
-      public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-        if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-          performSearch();
-          return true;
-        }
-        return false;
-      }
-    });
-
-    searchButton = (Button) findViewById(R.id.btn_search_inside);
-    searchButton.setOnClickListener(new OnClickListener() {
-
-      @Override
-      public void onClick(View v) {
-        performSearch();
-      }
-    });
-
-    // Retrieve all the filters and set the onclick listener
-    filterTextWhereMet = (AutoCompleteTextView) findViewById(R.id.txt_where_met);
-    filterTextEventMet = (AutoCompleteTextView) findViewById(R.id.txt_event_met);
-    filterTextCompany = (AutoCompleteTextView) findViewById(R.id.txt_company);
-
-    rLayoutCompany = (RelativeLayout) findViewById(R.id.rlayout_company);
-    rLayoutWhereMet = (RelativeLayout) findViewById(R.id.rlayout_where_met);
-    rLayoutEventMet = (RelativeLayout) findViewById(R.id.rlayout_event_met);
-
-    toggleFiltersVisibility(false);
 
     adapter = new SearchListAdapter(getApplicationContext(), filteredUsers);
     animationAdapter = new AlphaInAnimationAdapter(adapter);
@@ -220,9 +234,70 @@ public class ActivitySearch extends ActionBarActivity {
     currentSortMode = SORT_MODE_NAME_ASC;
     adapter.reSort();
     stickyListHeadersAdapterDecorator.notifyDataSetChanged();
+  }
 
-    // Finally, load the contacts.
-    performSearch();
+  private void initializeSearchPanel() {
+    // Intercept all touch events to the drop down.
+    searchPanel.setOnClickListener(new OnClickListener() {
+      @Override
+      public void onClick(View v) {
+      }
+    });
+
+    // Set the dropdown animation.
+    btnPullDown = (Button) findViewById(R.id.btn_pull_down);
+    btnPullDown.setOnClickListener(new OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        moveSearchMenu();
+      }
+    });
+
+    searchBox.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+      @Override
+      public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+        if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+          performSearch();
+          return true;
+        }
+        return false;
+      }
+    });
+
+    searchBox.setOnClickListener(new OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        moveSearchMenuUp();
+      }
+    });
+
+    searchButton.setOnClickListener(new OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        moveSearchMenuUp();
+        performSearch();
+
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+      }
+    });
+
+    // Set the autocomplete lists.
+    ArrayAdapter<String> adapterCompany = new ArrayAdapter<String>(this,
+      android.R.layout.select_dialog_item, autoCompleteListCompany);
+    filterTextCompany.setAdapter(adapterCompany);
+
+    ArrayAdapter<String> adapterWhere = new ArrayAdapter<String>(this,
+      android.R.layout.select_dialog_item, autoCompleteListWhere);
+    filterTextWhereMet.setAdapter(adapterWhere);
+
+    ArrayAdapter<String> adapterEvent = new ArrayAdapter<String>(this,
+      android.R.layout.select_dialog_item, autoCompleteListEvent);
+    filterTextEventMet.setAdapter(adapterEvent);
+
+    ArrayAdapter<String> adapterAll = new ArrayAdapter<String>(this,
+      android.R.layout.select_dialog_item, autoCompleteListAll);
+    searchBox.setAdapter(adapterAll);
   }
 
   // Hide all the filter text views
@@ -247,7 +322,8 @@ public class ActivitySearch extends ActionBarActivity {
     filteredUsers.addAll(allUsers);
     {
       // Start with the Where Met filter.
-      String filterKey = filterTextWhereMet.getText().toString();
+      String filterKey = filterTextWhereMet.getText().toString()
+        .toLowerCase(Locale.ENGLISH);
       if (filterKey != "") {
         for (UserInfo uInfo : filteredUsers) {
           if (uInfo.getWhereMet().toLowerCase(Locale.ENGLISH)
@@ -260,10 +336,9 @@ public class ActivitySearch extends ActionBarActivity {
         tempUserInfoList.clear();
       }
 
-      Log.e("Knowell", "After first filer, length is " + filteredUsers.size());
-
       // Then look at the Company filter.
-      filterKey = filterTextCompany.getText().toString();
+      filterKey = filterTextCompany.getText().toString()
+        .toLowerCase(Locale.ENGLISH);
       if (filterKey != "") {
         for (UserInfo uInfo : filteredUsers) {
           if (uInfo.getCompany().toLowerCase(Locale.ENGLISH)
@@ -276,10 +351,9 @@ public class ActivitySearch extends ActionBarActivity {
         tempUserInfoList.clear();
       }
 
-      Log.e("Knowell", "After second filer, length is " + filteredUsers.size());
-
       // Then look at the Event Met filter.
-      filterKey = filterTextEventMet.getText().toString();
+      filterKey = filterTextEventMet.getText().toString()
+        .toLowerCase(Locale.ENGLISH);
       if (filterKey != "") {
         for (UserInfo uInfo : filteredUsers) {
           if (uInfo.getEventMet().toLowerCase(Locale.ENGLISH)
@@ -292,8 +366,6 @@ public class ActivitySearch extends ActionBarActivity {
         tempUserInfoList.clear();
       }
     }
-
-    Log.e("Knowell", "After third filer, length is " + filteredUsers.size());
 
     /*
      * Now that we have filtered the users, let's look at the actual search
@@ -314,8 +386,6 @@ public class ActivitySearch extends ActionBarActivity {
       tempUserInfoList.clear();
     }
 
-    Log.e("Knowell", "After first filer, length is " + filteredUsers.size());
-
     adapter.reSort();
     adapter.refreshData(filteredUsers);
     adapter.notifyDataSetChanged();
@@ -328,111 +398,61 @@ public class ActivitySearch extends ActionBarActivity {
     }
   }
 
-  // Drop down the search Menu
-  @SuppressLint("NewApi")
   @SuppressWarnings("deprecation")
-  private void moveSearchMenu() {
+  @SuppressLint("NewApi")
+  private void setViewBackground(View v, int resId) {
     int sdk = android.os.Build.VERSION.SDK_INT;
-    if (!droppedDown) {
-      // Drop the shade down.
-      // First enable the filters.
-      toggleFiltersVisibility(true);
-
-      droppedDown = true;
-      if (sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
-        btnPullDown.setBackgroundDrawable(getResources().getDrawable(
-          R.drawable.semi_rounded_up_empty));
-      } else {
-        btnPullDown.setBackground(getResources().getDrawable(
-          R.drawable.semi_rounded_up_empty));
-      }
-
-      sv.animate().translationY(0)
-        .setDuration(SCROLL_ANIMATION_SPEED_MS_NORMAL)
-        .setInterpolator(new OvershootInterpolator()).start();
-
-      // Hide the keyboard
-      InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-      imm.hideSoftInputFromWindow(btnPullDown.getWindowToken(), 0);
-
+    if (sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
+      v.setBackgroundDrawable(getResources().getDrawable(resId, null));
     } else {
+      v.setBackground(getResources().getDrawable(resId, null));
+    }
+  }
+
+  @SuppressWarnings("deprecation")
+  @SuppressLint("NewApi")
+  private void setViewBackground(View v, Drawable drawable) {
+    int sdk = android.os.Build.VERSION.SDK_INT;
+    if (sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
+      v.setBackgroundDrawable(drawable);
+    } else {
+      v.setBackground(drawable);
+    }
+  }
+
+  private void moveSearchMenuUp() {
+    if (droppedDown) {
       droppedDown = false;
-      if (sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
-        btnPullDown.setBackgroundDrawable(getResources().getDrawable(
-          R.drawable.semi_rounded_down_empty));
-      } else {
-        btnPullDown.setBackground(getResources().getDrawable(
-          R.drawable.semi_rounded_down_empty));
-      }
-      sv.animate().translationY(searchMenuRetractedHeight)
+      setViewBackground(btnPullDown, R.drawable.semi_rounded_down_empty);
+      searchPanel.animate().translationY(searchMenuRetractedHeight)
         .setDuration(SCROLL_ANIMATION_SPEED_MS_FAST)
         .setInterpolator(new LinearInterpolator()).start();
       toggleFiltersVisibility(false);
     }
   }
 
-  private void handleSearchDropDown() {
-    // Intercept all touch events to the drop down.
-    sv = (LinearLayout) findViewById(R.id.lnlayout_search_menu);
-    sv.setOnClickListener(new OnClickListener() {
-      @Override
-      public void onClick(View v) {
-      }
-    });
+  private void moveSearchMenuDown() {
+    if (!droppedDown) {
+      toggleFiltersVisibility(true);
+      // Drop the shade down.
+      droppedDown = true;
+      setViewBackground(btnPullDown, R.drawable.semi_rounded_up_empty);
+      searchPanel.animate().translationY(0)
+        .setDuration(SCROLL_ANIMATION_SPEED_MS_NORMAL)
+        .setInterpolator(new OvershootInterpolator()).start();
 
-    // Set the dropdown animation.
-    btnPullDown = (Button) findViewById(R.id.btn_pull_down);
-    btnPullDown.setOnClickListener(new OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        moveSearchMenu();
-      }
-    });
-
-    // The initial animation to retract the drop down menu.
-    mainView.post(new Runnable() {
-      @Override
-      public void run() {
-        RelativeLayout rLayout = (RelativeLayout) findViewById(R.id.rllayout_search_pull_down);
-        int searchWidgetTotalHeight = searchWidget.getMeasuredHeight()
-          + searchWidget.getPaddingTop();
-        SEARCH_MENU_OVERHANG = searchWidgetTotalHeight
-          + rLayout.getMeasuredHeight();
-        listView.setPadding(0, searchWidgetTotalHeight, 0, 0);
-        searchMenuRetractedHeight = SEARCH_MENU_OVERHANG
-          - sv.getMeasuredHeight();
-        sv.setTranslationY(searchMenuRetractedHeight);
-      }
-    });
-
-    // Handle the search queries.
-    OnClickListener filterTouchListener = new OnClickListener() {
-      @Override
-      public void onClick(View v) {
-      }
-    };
-
-    TextView tvWhereMet = (TextView) findViewById(R.id.txt_where_met);
-    tvWhereMet.setOnClickListener(filterTouchListener);
-
+      // Hide the keyboard
+      InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+      imm.hideSoftInputFromWindow(btnPullDown.getWindowToken(), 0);
+    }
   }
 
-  class SearchLayoutRunnable implements Runnable {
-    @Override
-    public void run() {
-      searchPullDown = (RelativeLayout) findViewById(R.id.rllayout_search_pull_down);
-      int searchWidgetTotalHeight = searchWidget.getMeasuredHeight()
-        + searchWidget.getPaddingTop();
-      int filterWidgetTotalHeight = searchFilterWidget.getMeasuredHeight();
-      if (filterWidgetTotalHeight != 0) {
-        filterWidgetTotalHeight += searchFilterWidget.getPaddingBottom()
-          + searchFilterWidget.getPaddingTop();
-      }
-      SEARCH_MENU_OVERHANG = searchWidgetTotalHeight + filterWidgetTotalHeight
-        + +searchPullDown.getMeasuredHeight();
-      listView.setPadding(0, searchWidgetTotalHeight + filterWidgetTotalHeight,
-        0, 0);
-      sv.setTranslationY(SEARCH_MENU_OVERHANG - sv.getMeasuredHeight());
+  // Move the search menu up or down
+  private void moveSearchMenu() {
+    if (!droppedDown) {
+      moveSearchMenuDown();
+    } else {
+      moveSearchMenuUp();
     }
   }
 
@@ -481,6 +501,7 @@ public class ActivitySearch extends ActionBarActivity {
         final AsyncTasks.SyncDataTaskNotes syncNotes = new AsyncTasks.SyncDataTaskNotes(
           this, currentUser, prefs, prefEditor);
         syncNotes.execute();
+        prefEditor.commit();
         Handler handlerNotes = new Handler();
         handlerNotes.postDelayed(new Runnable() {
 
@@ -511,7 +532,6 @@ public class ActivitySearch extends ActionBarActivity {
     }
   }
 
-  @SuppressLint({ "NewApi", "InflateParams" })
   private void buildSortDialog() {
     // Get the layout inflater
     LayoutInflater inflater = getLayoutInflater();
@@ -525,7 +545,8 @@ public class ActivitySearch extends ActionBarActivity {
     Bitmap bm = BitmapFactory
       .decodeResource(getResources(), R.drawable.striped);
     BitmapDrawable bmDrawable = new BitmapDrawable(getResources(), bm);
-    dialogHeader.setBackground(new CurvedAndTiled(bmDrawable.getBitmap(), 5));
+    setViewBackground(dialogHeader, new CurvedAndTiled(bmDrawable.getBitmap(),
+      5));
     // Set dialog title and main EditText
     dialogTitle.setText("Sort Method");
 

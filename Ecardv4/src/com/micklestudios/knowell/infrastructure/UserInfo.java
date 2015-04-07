@@ -462,6 +462,25 @@ public class UserInfo implements Parcelable {
     this.notes = note;
   }
 
+  public ArrayList<String> getAllStrings() {
+    ArrayList<String> allStrings = new ArrayList<String>();
+    if (getCity().length() > 0)
+      allStrings.add(getCity());
+    if (getCompany().length() > 0)
+      allStrings.add(getCompany());
+    if (getEventMet().length() > 0)
+      allStrings.add(getEventMet());
+    if (getFirstName().length() > 0)
+      allStrings.add(getFirstName());
+    if (getLastName().length() > 0)
+      allStrings.add(getLastName());
+    if (getTitle().length() > 0)
+      allStrings.add(getTitle());
+    if (getWhereMet().length() > 0)
+      allStrings.add(getWhereMet());
+    return allStrings;
+  }
+
   public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
 
     @Override

@@ -2,10 +2,12 @@ package com.micklestudios.knowell;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+
 import com.f2prateek.progressbutton.ProgressButton;
 import com.micklestudios.knowell.infrastructure.UserInfo;
 import com.micklestudios.knowell.utils.AsyncTasks;
@@ -19,6 +21,7 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.micklestudios.knowell.R;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -156,6 +159,17 @@ public class ActivityBufferOpening extends Activity {
                 // Now we have a list of ECardInfo objects. Populate the
                 // userInfo list.
                 if (infoException == null) {
+                  // Create sets to add the strings we find in the contacts.
+                  HashSet<String> setCompany = new HashSet<String>();
+                  HashSet<String> setWhereMet = new HashSet<String>();
+                  HashSet<String> setEventMet = new HashSet<String>();
+                  HashSet<String> setAll = new HashSet<String>();
+
+                  ActivitySearch.autoCompleteListAll = new ArrayList<String>();
+                  ActivitySearch.autoCompleteListCompany = new ArrayList<String>();
+                  ActivitySearch.autoCompleteListEvent = new ArrayList<String>();
+                  ActivitySearch.autoCompleteListWhere = new ArrayList<String>();
+
                   // Iterate over the list.
                   for (Iterator<ParseObject> iter = objectInfoList.iterator(); iter
                     .hasNext();) {
@@ -174,9 +188,16 @@ public class ActivityBufferOpening extends Activity {
 
                       ActivitySearch.allUsers.add(contact);
 
+                      setCompany.add(contact.getCompany());
+                      setWhereMet.add(contact.getWhereMet());
+                      setEventMet.add(contact.getEventMet());
+                      setAll.addAll(contact.getAllStrings());
                     }
                   }
-
+                  ActivitySearch.autoCompleteListCompany.addAll(setCompany);
+                  ActivitySearch.autoCompleteListEvent.addAll(setEventMet);
+                  ActivitySearch.autoCompleteListWhere.addAll(setWhereMet);
+                  ActivitySearch.autoCompleteListAll.addAll(setAll);
                 }
               }
             });
