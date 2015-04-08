@@ -346,9 +346,6 @@ public class ActivityDetails extends ActionBarActivity {
 	                    	recordstatus1=0;
 	                    	Toast.makeText(ActivityDetails.this, "Max Recording Length Reached.", Toast.LENGTH_SHORT).show();
 	                    	recorderButton.setImageResource(R.drawable.recorder);
-	    		            // changebuttontext(R.id.recordButton,"Hold to speak.");
-	    		            //counter.setText("30");
-	    		            //enableButton(R.id.recordButton,false);
 	                    	replayButtonBar.setVisibility(View.VISIBLE);
 	                    	replayButtonPanel.setVisibility(View.VISIBLE);
 	    		            findViewById(R.id.timer).setVisibility(View.GONE);
@@ -359,9 +356,6 @@ public class ActivityDetails extends ActionBarActivity {
 	            stopRecording();
 	            t.cancel();
 	            recordstatus1=0;
-	            //TextView counter=(TextView) findViewById(R.id.Timer);
-	            //counter.setText("30");
-	            //changebuttontext(R.id.recordButton,"Hold to speak.");
 	            recorderButton.setImageResource(R.drawable.recorder);
 	            replayButtonBar.setVisibility(View.VISIBLE);
             	replayButtonPanel.setVisibility(View.VISIBLE);

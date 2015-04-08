@@ -463,6 +463,7 @@ public class UserInfo implements Parcelable {
   }
 
   public ArrayList<String> getAllStrings() {
+	  ensureDefaults();
     ArrayList<String> allStrings = new ArrayList<String>();
     if (getCity().length() > 0)
       allStrings.add(getCity());
