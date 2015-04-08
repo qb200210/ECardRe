@@ -398,15 +398,8 @@ public class ActivitySearch extends ActionBarActivity {
     }
   }
 
-  @SuppressWarnings("deprecation")
-  @SuppressLint("NewApi")
   private void setViewBackground(View v, int resId) {
-    int sdk = android.os.Build.VERSION.SDK_INT;
-    if (sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
-      v.setBackgroundDrawable(getResources().getDrawable(resId, null));
-    } else {
-      v.setBackground(getResources().getDrawable(resId, null));
-    }
+    v.setBackgroundResource(resId);
   }
 
   @SuppressWarnings("deprecation")
