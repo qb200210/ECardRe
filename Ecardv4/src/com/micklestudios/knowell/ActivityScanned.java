@@ -67,6 +67,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.widget.AdapterView;
@@ -379,6 +380,10 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 		            recorderButton.setImageResource(R.drawable.ic_action_stop);
 		            
 		            findViewById(R.id.timer).setVisibility(View.VISIBLE);
+		    		scrollView = (MyScrollView) findViewById(R.id.scroll_view_scanned);
+		    		scrollView.setmScrollable(false);
+		    		disableViewElements((ViewGroup) findViewById(R.id.backlayer));
+		    		gridView.setEnabled(false);
 					
 		             t = new CountDownTimer( 30000, 1000) {           //30 seconds recording time
 		            	 TextView counter=(TextView) findViewById(R.id.time_left);
@@ -396,6 +401,10 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 		                    	replayButtonBar.setVisibility(View.VISIBLE);
 		                    	replayButtonPanel.setVisibility(View.VISIBLE);
 		    		            findViewById(R.id.timer).setVisibility(View.GONE);
+		    		    		scrollView = (MyScrollView) findViewById(R.id.scroll_view_scanned);
+		    		    		scrollView.setmScrollable(true);
+		    		    		gridView.setEnabled(true);
+		    		    		enableViewElements((ViewGroup) findViewById(R.id.backlayer));
 		                    }
 		                }.start();
 					
@@ -407,6 +416,10 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 		            replayButtonBar.setVisibility(View.VISIBLE);
                 	replayButtonPanel.setVisibility(View.VISIBLE);
 		            findViewById(R.id.timer).setVisibility(View.GONE);
+		    		scrollView = (MyScrollView) findViewById(R.id.scroll_view_scanned);
+		    		scrollView.setmScrollable(true);
+		    		gridView.setEnabled(true);
+		    		enableViewElements((ViewGroup) findViewById(R.id.backlayer));
 		        }
 		    }
 		});
@@ -422,6 +435,10 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 		            replayButtonBar.setVisibility(View.VISIBLE);
                 	replayButtonPanel.setVisibility(View.VISIBLE);
 		            findViewById(R.id.timer).setVisibility(View.GONE);
+		            enableViewElements((ViewGroup) findViewById(R.id.backlayer));
+		    		scrollView = (MyScrollView) findViewById(R.id.scroll_view_scanned);
+		    		scrollView.setmScrollable(true);
+		    		gridView.setEnabled(true);
 		    }
 		});
 		replayButtonBar.setOnClickListener(new OnClickListener() {
@@ -792,7 +809,29 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 	        Toast.makeText(ActivityScanned.this, "Warning: " + what + ", " + extra, Toast.LENGTH_SHORT).show();
 	    }
 	};
-	
+	  protected void disableViewElements(ViewGroup container) {
+		   for (int i = 0; i < container.getChildCount();  i++) {
+		     if(container.getChildAt(i) instanceof ViewGroup ) {
+		         disableViewElements((ViewGroup) container.getChildAt(i));
+		     }
+		     else {
+		       View view = container.getChildAt(i);
+		       view.setEnabled(false);
+		     }
+		   }
+		}
+	  protected void enableViewElements(ViewGroup container) {
+		   for (int i = 0; i < container.getChildCount();  i++) {
+		     if(container.getChildAt(i) instanceof ViewGroup ) {
+		         enableViewElements((ViewGroup) container.getChildAt(i));
+		     }
+		     else {
+		       View view = container.getChildAt(i);
+		       view.setEnabled(true);
+		     }
+		   }
+		}
+	  
 	@Override
 	public void onPause( ) {
 		super.onPause();

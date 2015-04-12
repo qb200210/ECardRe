@@ -399,7 +399,7 @@ public class ActivitySearch extends ActionBarActivity {
   }
 
   private void setViewBackground(View v, int resId) {
-    v.setBackgroundResource(resId);
+	  v.setBackgroundResource(resId);
   }
 
   @SuppressWarnings("deprecation")
