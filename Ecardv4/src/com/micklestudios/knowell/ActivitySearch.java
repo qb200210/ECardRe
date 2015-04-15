@@ -5,6 +5,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 import android.annotation.SuppressLint;
@@ -372,19 +374,30 @@ public class ActivitySearch extends ActionBarActivity {
      * keywords.
      */
     String keyWords = searchBox.getText().toString();
-
+    // Modified by Jian 04/12
     StringTokenizer keyWordsTokens = new StringTokenizer(keyWords);
     while (keyWordsTokens.hasMoreTokens()) {
-      String token = keyWordsTokens.nextToken();
-      for (UserInfo uInfo : filteredUsers) {
-        if (uInfo.containsString(token)) {
-          tempUserInfoList.add(uInfo);
-        }
-      }
-      filteredUsers.clear();
-      filteredUsers.addAll(tempUserInfoList);
-      tempUserInfoList.clear();
+            String token = keyWordsTokens.nextToken();
+            String regex_str = ".*";
+            for (char c : token.toCharArray()){
+                regex_str = regex_str + c + ".*";
+            }
+            Pattern pattern = Pattern.compile(regex_str);
+            for (UserInfo uInfo : filteredUsers) {
+                String user_str = uInfo.getFirstName().toLowerCase(Locale.ENGLISH) + 
+                				  " " + uInfo.getLastName().toLowerCase(Locale.ENGLISH) + 
+                				  " " + uInfo.getCompany().toLowerCase(Locale.ENGLISH);
+                //Log.v("search_user_str", user_str);
+                Matcher matcher = pattern.matcher(user_str);
+                if (matcher.matches()) {
+                    tempUserInfoList.add(uInfo);
+                }
+            }
+            filteredUsers.clear();
+            filteredUsers.addAll(tempUserInfoList);
+            tempUserInfoList.clear();
     }
+ 
 
     adapter.reSort();
     adapter.refreshData(filteredUsers);
