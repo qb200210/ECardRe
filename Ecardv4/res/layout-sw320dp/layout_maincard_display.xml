@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"  
+    android:orientation="vertical"  >
+    
+    <com.micklestudios.knowell.utils.SquareLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+    	android:background="@drawable/glass_background1"  >
+    
+        <RelativeLayout
+            android:id="@+id/relativeLayout1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+
+            <ImageView
+                android:id="@+id/my_portrait"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginLeft="24dp"
+                android:layout_marginTop="24dp"
+                android:src="@drawable/testp" />
+
+            <TextView
+                android:id="@+id/my_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@id/my_portrait"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="24dp"
+                android:layout_marginTop="30dp"
+                android:layout_toRightOf="@id/my_portrait"
+                android:gravity="center"
+                android:padding="0dp"
+                android:text="Jianfang (Olena) Zhu"
+                android:textColor="#000000"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+            
+            <View android:id="@+id/separator" 
+				 android:background="@color/grey_500" 
+				 android:layout_width = "match_parent"
+				 android:layout_height="1dp"
+				 android:layout_centerVertical ="true"
+				 android:layout_below="@id/my_portrait"
+				 android:layout_marginTop="18dp"
+				 android:layout_marginLeft="24dp"
+				 android:layout_marginRight="24dp"/>
+
+            <TextView
+                android:id="@+id/my_job_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
+                android:layout_below="@id/separator"
+                android:layout_marginTop="18dp"
+                android:layout_marginLeft="24dp"
+                android:layout_marginRight="24dp"
+                android:gravity="left"
+                android:padding="0dp"
+                android:text="Staff Hardware Engineer"
+                android:textColor="#000000"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/my_com"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_below="@id/my_job_title"
+                android:layout_marginLeft="24dp"
+                android:layout_marginRight="24dp"
+                android:gravity="left"
+                android:padding="0dp"
+                android:text="Intel Corporation"
+                android:textColor="#000000"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/my_add"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_below="@id/my_com"
+                android:layout_marginLeft="24dp"
+                android:layout_marginRight="24dp"
+                android:gravity="left"
+                android:padding="0dp"
+                android:text="Portland, OR"
+                android:textColor="#000000"
+                android:textSize="20sp" />
+
+            
+            
+            <ImageView
+                android:id="@+id/my_logo"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"
+                android:layout_marginBottom="24dp"
+                android:layout_marginLeft="24dp"
+                android:layout_marginRight="24dp"
+                android:adjustViewBounds="true"
+                android:scaleType="fitEnd"
+                android:src="@drawable/testlogo1" />
+
+        </RelativeLayout>
+    
+    </com.micklestudios.knowell.utils.SquareLayout>
+        
+
+</RelativeLayout>
