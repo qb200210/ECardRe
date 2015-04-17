@@ -171,11 +171,9 @@ public class ActivitySearch extends ActionBarActivity {
         RelativeLayout rLayout = (RelativeLayout) findViewById(R.id.rllayout_search_pull_down);
         int searchWidgetTotalHeight = searchWidget.getMeasuredHeight()
           + searchWidget.getPaddingTop();
-        SEARCH_MENU_OVERHANG = searchWidgetTotalHeight
-          + rLayout.getMeasuredHeight();
+        SEARCH_MENU_OVERHANG = searchWidgetTotalHeight;
         listView.setPadding(0, searchWidgetTotalHeight, 0, 0);
-        searchMenuRetractedHeight = SEARCH_MENU_OVERHANG
-          - searchPanel.getMeasuredHeight();
+        searchMenuRetractedHeight = 0 - searchPanel.getMeasuredHeight();
         searchPanel.setTranslationY(searchMenuRetractedHeight);
       }
     });
@@ -377,27 +375,26 @@ public class ActivitySearch extends ActionBarActivity {
     // Modified by Jian 04/12
     StringTokenizer keyWordsTokens = new StringTokenizer(keyWords);
     while (keyWordsTokens.hasMoreTokens()) {
-            String token = keyWordsTokens.nextToken();
-            String regex_str = ".*";
-            for (char c : token.toCharArray()){
-                regex_str = regex_str + c + ".*";
-            }
-            Pattern pattern = Pattern.compile(regex_str);
-            for (UserInfo uInfo : filteredUsers) {
-                String user_str = uInfo.getFirstName().toLowerCase(Locale.ENGLISH) + 
-                				  " " + uInfo.getLastName().toLowerCase(Locale.ENGLISH) + 
-                				  " " + uInfo.getCompany().toLowerCase(Locale.ENGLISH);
-                //Log.v("search_user_str", user_str);
-                Matcher matcher = pattern.matcher(user_str);
-                if (matcher.matches()) {
-                    tempUserInfoList.add(uInfo);
-                }
-            }
-            filteredUsers.clear();
-            filteredUsers.addAll(tempUserInfoList);
-            tempUserInfoList.clear();
+      String token = keyWordsTokens.nextToken();
+      String regex_str = ".*";
+      for (char c : token.toCharArray()) {
+        regex_str = regex_str + c + ".*";
+      }
+      Pattern pattern = Pattern.compile(regex_str);
+      for (UserInfo uInfo : filteredUsers) {
+        String user_str = uInfo.getFirstName().toLowerCase(Locale.ENGLISH)
+          + " " + uInfo.getLastName().toLowerCase(Locale.ENGLISH) + " "
+          + uInfo.getCompany().toLowerCase(Locale.ENGLISH);
+        // Log.v("search_user_str", user_str);
+        Matcher matcher = pattern.matcher(user_str);
+        if (matcher.matches()) {
+          tempUserInfoList.add(uInfo);
+        }
+      }
+      filteredUsers.clear();
+      filteredUsers.addAll(tempUserInfoList);
+      tempUserInfoList.clear();
     }
- 
 
     adapter.reSort();
     adapter.refreshData(filteredUsers);
@@ -412,7 +409,7 @@ public class ActivitySearch extends ActionBarActivity {
   }
 
   private void setViewBackground(View v, int resId) {
-	  v.setBackgroundResource(resId);
+    v.setBackgroundResource(resId);
   }
 
   @SuppressWarnings("deprecation")
@@ -443,7 +440,7 @@ public class ActivitySearch extends ActionBarActivity {
       // Drop the shade down.
       droppedDown = true;
       setViewBackground(btnPullDown, R.drawable.semi_rounded_up_empty);
-      searchPanel.animate().translationY(0)
+      searchPanel.animate().translationY(SEARCH_MENU_OVERHANG)
         .setDuration(SCROLL_ANIMATION_SPEED_MS_NORMAL)
         .setInterpolator(new OvershootInterpolator()).start();
 

@@ -35,9 +35,110 @@
         android:id="@+id/lnlayout_search_menu"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:background="@drawable/semi_rounded_inverted"
         android:orientation="vertical"
         android:paddingLeft="10dp"
         android:paddingRight="10dp" >
+
+        <RelativeLayout
+            android:id="@+id/rlayout_where_met"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingTop="10dp" >
+
+            <AutoCompleteTextView
+                android:id="@+id/txt_where_met"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:layout_centerInParent="true"
+                android:hint="Search meeting place ..."
+                android:nextFocusForward="@+id/txt_company"
+                android:padding="10dp"
+                android:singleLine="true"
+                android:textSize="20sp" />
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_centerInParent="true"
+                android:layout_toLeftOf="@id/txt_where_met"
+                android:layout_toStartOf="@id/txt_where_met"
+                android:background="@drawable/ic_filter_place"
+                android:padding="10dp" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/rlayout_company"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingTop="10dp" >
+
+            <AutoCompleteTextView
+                android:id="@id/txt_company"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:layout_centerInParent="true"
+                android:hint="Search Company ..."
+                android:nextFocusForward="@+id/txt_event_met"
+                android:padding="10dp"
+                android:singleLine="true"
+                android:textSize="20sp" />
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_centerInParent="true"
+                android:layout_toLeftOf="@id/txt_company"
+                android:layout_toStartOf="@id/txt_company"
+                android:background="@drawable/ic_filter_company"
+                android:padding="10dp" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/rlayout_event_met"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingTop="10dp" >
+
+            <AutoCompleteTextView
+                android:id="@id/txt_event_met"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:layout_centerInParent="true"
+                android:hint="Search Events ..."
+                android:padding="10dp"
+                android:singleLine="true"
+                android:textSize="20sp" />
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_centerInParent="true"
+                android:layout_toLeftOf="@id/txt_event_met"
+                android:layout_toStartOf="@id/txt_event_met"
+                android:background="@drawable/ic_filter_event"
+                android:padding="10dp" />
+        </RelativeLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
 
         <LinearLayout
             android:layout_width="fill_parent"
@@ -45,106 +146,14 @@
             android:background="@drawable/semi_rounded_inverted"
             android:orientation="vertical" >
 
-            <RelativeLayout
-                android:id="@+id/rlayout_where_met"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="horizontal"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:paddingTop="10dp" >
-
-                <AutoCompleteTextView
-                    android:id="@+id/txt_where_met"
-                    android:layout_width="wrap_content"
-                    android:layout_height="50dp"
-                    android:layout_centerInParent="true"
-                    android:hint="Search meeting place ..."
-                    android:nextFocusForward="@+id/txt_company"
-                    android:singleLine="true"
-                    android:padding="10dp"
-                    android:textSize="20sp" />
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_centerInParent="true"
-                    android:layout_toLeftOf="@id/txt_where_met"
-                    android:layout_toStartOf="@id/txt_where_met"
-                    android:background="@drawable/ic_filter_place"
-                    android:padding="10dp" />
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/rlayout_company"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="horizontal"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:paddingTop="10dp" >
-
-                <AutoCompleteTextView
-                    android:id="@id/txt_company"
-                    android:layout_width="wrap_content"
-                    android:layout_height="50dp"
-                    android:layout_centerInParent="true"
-                    android:hint="Search Company ..."
-                    android:nextFocusForward="@+id/txt_event_met"
-                    android:singleLine="true"
-                    android:padding="10dp"
-                    android:textSize="20sp" />
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_centerInParent="true"
-                    android:layout_toLeftOf="@id/txt_company"
-                    android:layout_toStartOf="@id/txt_company"
-                    android:background="@drawable/ic_filter_company"
-                    android:padding="10dp" />
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/rlayout_event_met"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="horizontal"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:paddingTop="10dp" >
-
-                <AutoCompleteTextView
-                    android:id="@id/txt_event_met"
-                    android:layout_width="wrap_content"
-                    android:layout_height="50dp"
-                    android:layout_centerInParent="true"
-                    android:hint="Search Events ..."
-                    android:singleLine="true"
-                    android:padding="10dp"
-                    android:textSize="20sp" />
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_centerInParent="true"
-                    android:layout_toLeftOf="@id/txt_event_met"
-                    android:layout_toStartOf="@id/txt_event_met"
-                    android:background="@drawable/ic_filter_event"
-                    android:padding="10dp" />
-            </RelativeLayout>
-
             <LinearLayout
                 android:id="@+id/lnlayout_search_widget"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:paddingTop="10dp" >
+                android:paddingLeft="5dp"
+                android:paddingRight="2dp"
+                android:paddingTop="5dp" >
 
                 <AutoCompleteTextView
                     android:id="@+id/txt_autocomplete_search"

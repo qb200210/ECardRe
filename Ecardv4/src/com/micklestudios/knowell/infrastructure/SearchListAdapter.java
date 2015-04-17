@@ -114,8 +114,6 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
       .findViewById(R.id.list_row_draganddrop_textview);
 
     tv.setText(ActivitySearch.filteredUsers.get(position).getFirstName());
-    tv.setTextAlignment(TextView.TEXT_ALIGNMENT_CENTER);
-
     return convertView;
   }
 
