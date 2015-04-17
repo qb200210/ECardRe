@@ -377,7 +377,7 @@ public class ActivitySearch extends ActionBarActivity {
     // Modified by Jian 04/12
     StringTokenizer keyWordsTokens = new StringTokenizer(keyWords);
     while (keyWordsTokens.hasMoreTokens()) {
-            String token = keyWordsTokens.nextToken();
+            String token = keyWordsTokens.nextToken().toLowerCase(Locale.ENGLISH);
             String regex_str = ".*";
             for (char c : token.toCharArray()){
                 regex_str = regex_str + c + ".*";
@@ -389,7 +389,10 @@ public class ActivitySearch extends ActionBarActivity {
                 				  " " + uInfo.getCompany().toLowerCase(Locale.ENGLISH);
                 //Log.v("search_user_str", user_str);
                 Matcher matcher = pattern.matcher(user_str);
-                if (matcher.matches()) {
+                if (user_str.contains(token)) {
+                	tempUserInfoList.add(uInfo);
+                }
+                else if (matcher.matches()) {
                     tempUserInfoList.add(uInfo);
                 }
             }
