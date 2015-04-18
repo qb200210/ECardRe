@@ -14,6 +14,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.micklestudios.knowell.ActivityMain;
 import com.micklestudios.knowell.FragmentMaincard;
 import com.micklestudios.knowell.infrastructure.UserInfo;
 import com.viewpagerindicator.IconPagerAdapter;
@@ -21,22 +22,8 @@ import com.viewpagerindicator.IconPagerAdapter;
 public class MyPagerAdapter extends FragmentPagerAdapter implements
     IconPagerAdapter {
 
-
-private UserInfo myselfUserInfo;
-
-
-
-public UserInfo getMyselfUserInfo() {
-	return myselfUserInfo;
-}
-
-public void setMyselfUserInfo(UserInfo myselfUserInfo) {
-	this.myselfUserInfo = myselfUserInfo;
-}
-
-public MyPagerAdapter(FragmentManager fm, UserInfo myselfUserInfo) {
+public MyPagerAdapter(FragmentManager fm) {
     super(fm);
-	this.myselfUserInfo = myselfUserInfo;
   }
 
   @Override
@@ -46,11 +33,11 @@ public MyPagerAdapter(FragmentManager fm, UserInfo myselfUserInfo) {
     // below).
     switch (position) {
     case 0:
-      return FragmentMaincard.newInstance(1, myselfUserInfo);
+      return FragmentMaincard.newInstance(1);
     case 1:
-      return FragmentMaincard.newInstance(2, myselfUserInfo);
+      return FragmentMaincard.newInstance(2);
     default:
-      return FragmentMaincard.newInstance(2, myselfUserInfo);
+      return FragmentMaincard.newInstance(2);
     }
   }
 
@@ -77,7 +64,7 @@ public MyPagerAdapter(FragmentManager fm, UserInfo myselfUserInfo) {
 	 FragmentMaincard f = (FragmentMaincard) object;
      if (f != null) {
     	// this myselfUserInfo should have been set to new data
-        f.update(myselfUserInfo);
+        f.update(ActivityMain.myselfUserInfo);
      }
     return super.getItemPosition(object);
   }

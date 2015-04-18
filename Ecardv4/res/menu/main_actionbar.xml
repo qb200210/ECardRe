@@ -16,13 +16,6 @@
         app:showAsAction="never"/>
     
     
-    <item
-        android:id="@+id/test_notif"
-        android:orderInCategory="12"
-        android:title="Test Notif"
-        app:showAsAction="never"/>
-    
-    
     
 
 </menu>

@@ -16,14 +16,16 @@ import com.micklestudios.knowell.infrastructure.UserInfo;
 import com.micklestudios.knowell.utils.AsyncResponse;
 import com.micklestudios.knowell.utils.AsyncTasks;
 import com.micklestudios.knowell.utils.CurvedAndTiled;
-import com.micklestudios.knowell.utils.ECardSQLHelper;
+import com.micklestudios.knowell.utils.ECardSQLHelperCachedIds;
+import com.micklestudios.knowell.utils.ECardSQLHelperCachedShares;
 import com.micklestudios.knowell.utils.ECardUtils;
 import com.micklestudios.knowell.utils.ExpandableHeightGridView;
 import com.micklestudios.knowell.utils.GeocoderHelper;
 import com.micklestudios.knowell.utils.MyDetailsGridViewAdapter;
 import com.micklestudios.knowell.utils.MyScrollView;
 import com.micklestudios.knowell.utils.MyTag;
-import com.micklestudios.knowell.utils.OfflineData;
+import com.micklestudios.knowell.utils.OfflineDataCachedIds;
+import com.micklestudios.knowell.utils.OfflineDataCachedShares;
 import com.micklestudios.knowell.utils.SquareLayout;
 import com.parse.FindCallback;
 import com.parse.GetCallback;
@@ -384,7 +386,7 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 		    		scrollView.setmScrollable(false);
 		    		disableViewElements((ViewGroup) findViewById(R.id.backlayer));
 		    		gridView.setEnabled(false);
-					
+		            					
 		             t = new CountDownTimer( 30000, 1000) {           //30 seconds recording time
 		            	 TextView counter=(TextView) findViewById(R.id.time_left);
 		            	 
@@ -401,7 +403,7 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 		                    	replayButtonBar.setVisibility(View.VISIBLE);
 		                    	replayButtonPanel.setVisibility(View.VISIBLE);
 		    		            findViewById(R.id.timer).setVisibility(View.GONE);
-		    		    		scrollView = (MyScrollView) findViewById(R.id.scroll_view_scanned);
+		    		            scrollView = (MyScrollView) findViewById(R.id.scroll_view_scanned);
 		    		    		scrollView.setmScrollable(true);
 		    		    		gridView.setEnabled(true);
 		    		    		enableViewElements((ViewGroup) findViewById(R.id.backlayer));
@@ -416,7 +418,7 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 		            replayButtonBar.setVisibility(View.VISIBLE);
                 	replayButtonPanel.setVisibility(View.VISIBLE);
 		            findViewById(R.id.timer).setVisibility(View.GONE);
-		    		scrollView = (MyScrollView) findViewById(R.id.scroll_view_scanned);
+		            scrollView = (MyScrollView) findViewById(R.id.scroll_view_scanned);
 		    		scrollView.setmScrollable(true);
 		    		gridView.setEnabled(true);
 		    		enableViewElements((ViewGroup) findViewById(R.id.backlayer));
@@ -611,24 +613,23 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 						}
 					}
 				}, ADDCARD_TIMEOUT);
+				// Upon save when online, no matter if save successful, ask whether want to share back
+				// Will check if notification already exists
+				askIfShareBack(true);
 			} else {
 				// if ActivityScanned started out as offline, it means there was no check on ecard existence or collected, cache it for later check
 				// no network, cache to local database
 				cacheScannedIds(scannedUser.getObjId());
+				askIfShareBack(false);
 			}
-
-			askIfShareBack();
-
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
 	}
 
-	
-
 	@SuppressLint("NewApi")
-	private void askIfShareBack() {
+	private void askIfShareBack(final boolean isOnline) {
 		// Get the layout inflater
 		LayoutInflater inflater = getLayoutInflater();
 		View dialogView = inflater.inflate(R.layout.layout_dialog_scanned_peritem, null);
@@ -644,10 +645,22 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 
 		new AlertDialog.Builder(ActivityScanned.this).setView(dialogView).setPositiveButton("Sure", new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int whichButton) {
-				sendPush(scannedUser.getObjId());
+				if(isOnline){
+					if(ECardUtils.isNetworkAvailable(ActivityScanned.this)){
+						// only send push immediately if online
+						shareBackOnline(scannedUser.getObjId());
+					} else {
+						// If no network, cache the share back request then wait till next time app opens with network to send push
+						shareBackOffline(scannedUser.getObjId());
+					}
+				} else{
+					// Offline, but still want to share back
+					shareBackOffline(scannedUser.getObjId());
+				}
 				setResult(RESULT_OK);
 				ActivityScanned.this.finish();
 			}
+			
 		}).setNegativeButton("Nope", new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int whichButton) {
 				setResult(RESULT_OK);
@@ -656,11 +669,25 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 		}).show();
 
 	}
+	
+	private void shareBackOffline(String scannedId) {
+		ECardSQLHelperCachedShares db = new ECardSQLHelperCachedShares(this);
+		List<OfflineDataCachedShares> olDatas = db.getData("partyB", scannedId);
+		if(olDatas.size() == 0){
+			// if the target Id is not among local db records, cache it
+			db.addData(new OfflineDataCachedShares( currentUser.get("ecardId").toString() , scannedId));
+		} else {
+			Toast.makeText(getBaseContext(), "Already in local push queue, but still cached!", Toast.LENGTH_SHORT).show();
+			// flip the flag, give it a chance to be revisited
+			olDatas.get(0).setStored(0);
+			db.updataData(olDatas.get(0));
+		}
+	}
 
 	private void cacheScannedIds(String scannedId) {
 
-		ECardSQLHelper db = new ECardSQLHelper(this);
-		List<OfflineData> olDatas = db.getData("ecardID", scannedId);
+		ECardSQLHelperCachedIds db = new ECardSQLHelperCachedIds(this);
+		List<OfflineDataCachedIds> olDatas = db.getData("ecardID", scannedId);
 		EditText whereMet = (EditText) findViewById(R.id.PlaceAdded2);
 		EditText eventMet = (EditText) findViewById(R.id.EventAdded2);
 		EditText notes = (EditText) findViewById(R.id.EditNotes);
@@ -674,10 +701,10 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 				File newFile = new File(newFilepath);
 			    file.renameTo(newFile);
 			    file.delete();		
-				db.addData(new OfflineData(scannedId, whereMet.getText().toString(), eventMet.getText().toString(), notes.getText().toString(), newFilepath));
+				db.addData(new OfflineDataCachedIds(scannedId, whereMet.getText().toString(), eventMet.getText().toString(), notes.getText().toString(), newFilepath));
 			} else{
 				// no voice note to save
-				db.addData(new OfflineData(scannedId, whereMet.getText().toString(), eventMet.getText().toString(), notes.getText().toString(), "null"));
+				db.addData(new OfflineDataCachedIds(scannedId, whereMet.getText().toString(), eventMet.getText().toString(), notes.getText().toString(), "null"));
 			}			
 			Toast.makeText(getBaseContext(), "Ecard cached, will add when next time connect to internet", Toast.LENGTH_SHORT).show();
 		} else {
@@ -809,7 +836,8 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 	        Toast.makeText(ActivityScanned.this, "Warning: " + what + ", " + extra, Toast.LENGTH_SHORT).show();
 	    }
 	};
-	  protected void disableViewElements(ViewGroup container) {
+	
+	protected void disableViewElements(ViewGroup container) {
 		   for (int i = 0; i < container.getChildCount();  i++) {
 		     if(container.getChildAt(i) instanceof ViewGroup ) {
 		         disableViewElements((ViewGroup) container.getChildAt(i));
@@ -831,7 +859,7 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 		     }
 		   }
 		}
-	  
+	
 	@Override
 	public void onPause( ) {
 		super.onPause();
@@ -904,27 +932,65 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 		}
 	}
 
-	public void sendPush(final String targetEcardId) {
-
+	public void shareBackOnline(final String targetEcardId) {
 		// Meanwhile, create a record in conversations -- so web app can check since it cannot receive notification
 		// need to see how to fix ACL so only both parties can access conversation
-		ParseObject object = new ParseObject("Conversations");
-		object.put("partyA", currentUser.get("ecardId").toString());
-		object.put("partyB", targetEcardId);
-		object.put("read", false);
-		object.saveEventually(new SaveCallback() {
+		// If the other card non-exist, then it doesn't hurt, it'll just be no one will receive notifications
+		ParseQuery<ParseObject> queryConv = ParseQuery.getQuery("Conversations");
+		queryConv.whereEqualTo("partyA", currentUser.get("ecardId").toString());
+		queryConv.whereEqualTo("partyB", targetEcardId);
+		List<ParseObject> listConv = null;
+		try {
+			listConv = queryConv.find();			
+		} catch (ParseException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		if(listConv == null || listConv.size() == 0){
+			// if there is no existing notification, create one
+			ParseObject object = new ParseObject("Conversations");
+			object.put("partyA", currentUser.get("ecardId").toString());
+			object.put("partyB", targetEcardId);
+			object.put("read", false);
+			object.saveEventually(new SaveCallback() {
 
-			@Override
-			public void done(ParseException arg0) {
-				// what if offline? so far so good... no notification, but will create conversations records
-				// make sure the conversation record is created before a notification is sent
-				// Send push to the other party according to their ecardId recorded in an installation
+				@Override
+				public void done(ParseException arg0) {
+					// what if offline? so far so good... no notification, but will create conversations records
+					// make sure the conversation record is created before a notification is sent
+					// Send push to the other party according to their ecardId recorded in an installation
+					ParseQuery pushQuery = ParseInstallation.getQuery();
+					pushQuery.whereEqualTo("ecardId", targetEcardId);
+					JSONObject jsonObject = new JSONObject();
+					try {
+						jsonObject.put("alert", "Hi, this is " + ActivityMain.myselfUserInfo.getFirstName() + " " + ActivityMain.myselfUserInfo.getLastName() + ", please save my card.");
+						jsonObject.put("link", "https://www.micklestudios.com/search?id=" + currentUser.get("ecardId").toString() + "&fn=" + ActivityMain.myselfUserInfo.getFirstName() + "&ln=" + ActivityMain.myselfUserInfo.getLastName());
+						jsonObject.put("action", "EcardOpenConversations");
+					} catch (JSONException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					ParsePush push = new ParsePush();
+					push.setQuery(pushQuery);
+					push.setData(jsonObject);
+					push.sendInBackground();
+				}
+
+			});			
+		} else{
+			// if there is existing notifications
+			// mark that notification as unread no matter it's read or not
+			// By construction, the list should only have 1 record
+			listConv.get(0).put("read", false);
+			try {
+				listConv.get(0).save();
+				// send push after flipping the flag
 				ParseQuery pushQuery = ParseInstallation.getQuery();
 				pushQuery.whereEqualTo("ecardId", targetEcardId);
 				JSONObject jsonObject = new JSONObject();
 				try {
-					jsonObject.put("alert", "Hi, I'm " + currentUser.get("ecardId").toString() + ", save my card now");
-					jsonObject.put("link", "https://ecard.parseapp.com/search?id=" + currentUser.get("ecardId").toString() + "&fn=Udayan&ln=Banerji");
+					jsonObject.put("alert", "Hi, this is " + ActivityMain.myselfUserInfo.getFirstName() + " " + ActivityMain.myselfUserInfo.getLastName() + ", please save my card.");
+					jsonObject.put("link", "https://www.micklestudios.com/search?id=" + currentUser.get("ecardId").toString() + "&fn=" + ActivityMain.myselfUserInfo.getFirstName() + "&ln=" + ActivityMain.myselfUserInfo.getLastName());
 					jsonObject.put("action", "EcardOpenConversations");
 				} catch (JSONException e) {
 					// TODO Auto-generated catch block
@@ -934,8 +1000,10 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 				push.setQuery(pushQuery);
 				push.setData(jsonObject);
 				push.sendInBackground();
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-
-		});
+		}
 	}
 }

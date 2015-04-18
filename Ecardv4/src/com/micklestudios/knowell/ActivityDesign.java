@@ -75,7 +75,6 @@ public class ActivityDesign extends ActionBarActivity {
 	private static final int SELECT_LOGO = 200;
 	private static int currentSource=0;
 	private Uri selectedImage, mCurrentPhotoPath;
-	UserInfo myselfUserInfo= null;
 	
 	Bitmap photo = null;
 	byte[] tmpImgData = null; // temporary storage of byte array for cropped img
@@ -108,13 +107,12 @@ public class ActivityDesign extends ActionBarActivity {
 
 		currentUser = ParseUser.getCurrentUser();
 		Bundle data = getIntent().getExtras();
-		myselfUserInfo = (UserInfo) data.getParcelable("userinfo");
 		displayMyCard();
 
 		// complete list of possible extrainfo items
-		infoIcon = myselfUserInfo.getInfoIcon();
-		infoLink = myselfUserInfo.getInfoLink();
-		shownArrayList = myselfUserInfo.getShownArrayList();
+		infoIcon = ActivityMain.myselfUserInfo.getInfoIcon();
+		infoLink = ActivityMain.myselfUserInfo.getInfoLink();
+		shownArrayList = ActivityMain.myselfUserInfo.getShownArrayList();
 		
 		for (int i = 0; i < allowedArray.length; i++) {
 			// the extra info item
@@ -370,7 +368,6 @@ public class ActivityDesign extends ActionBarActivity {
 			// need to pass this new UserInfo back to ActivityMain. Cannot wait for object.saveinbackground.
 			Intent intent = new Intent();
 			// here myselfUserInfo has been updated
-			intent.putExtra("userinfo", myselfUserInfo);
 			setResult(RESULT_OK, intent);
 			this.finish();
 			return true;
@@ -381,7 +378,7 @@ public class ActivityDesign extends ActionBarActivity {
 	
 	private void saveChangesToUserInfo() {
 		if(portraitChanged){
-			myselfUserInfo.setPortrait(photo);
+			ActivityMain.myselfUserInfo.setPortrait(photo);
 		}
 		EditText name = (EditText) findViewById(R.id.design_name);
 		String fullName = name.getText().toString();
@@ -400,21 +397,21 @@ public class ActivityDesign extends ActionBarActivity {
 		} else {
 			firstName = splitName[0];
 		}
-		myselfUserInfo.setFirstName(firstName);
-		myselfUserInfo.setLastName(lastName);
+		ActivityMain.myselfUserInfo.setFirstName(firstName);
+		ActivityMain.myselfUserInfo.setLastName(lastName);
 		
 		name = (EditText) findViewById(R.id.design_com);
-		myselfUserInfo.setCompany(name.getText().toString());
+		ActivityMain.myselfUserInfo.setCompany(name.getText().toString());
 		name = (EditText) findViewById(R.id.design_job_title);
-		myselfUserInfo.setTitle(name.getText().toString());
+		ActivityMain.myselfUserInfo.setTitle(name.getText().toString());
 		name = (EditText) findViewById(R.id.design_address);
-		myselfUserInfo.setCity(name.getText().toString());
+		ActivityMain.myselfUserInfo.setCity(name.getText().toString());
 		infoIcon.remove(infoIcon.size()-1);
 		infoLink.remove(infoLink.size()-1);
 		shownArrayList.remove(shownArrayList.size()-1);
-		myselfUserInfo.setInfoIcon(infoIcon);
-		myselfUserInfo.setInfoLink(infoLink);
-		myselfUserInfo.setShownArrayList(shownArrayList);
+		ActivityMain.myselfUserInfo.setInfoIcon(infoIcon);
+		ActivityMain.myselfUserInfo.setInfoLink(infoLink);
+		ActivityMain.myselfUserInfo.setShownArrayList(shownArrayList);
 	}
 
 	OnItemClickListener gridViewItemClickListenerBuilder(){
@@ -571,23 +568,23 @@ public class ActivityDesign extends ActionBarActivity {
 
 	public void displayMyCard() {	
 		TextView name = (TextView) findViewById(R.id.design_name);
-		String tmpString = myselfUserInfo.getFirstName();
+		String tmpString = ActivityMain.myselfUserInfo.getFirstName();
 		String nameString = null;
 		if (tmpString != null)
 			nameString = tmpString;
-		tmpString = myselfUserInfo.getLastName();
+		tmpString = ActivityMain.myselfUserInfo.getLastName();
 		if (tmpString != null)
 			nameString = nameString + " " + tmpString;
 		if(nameString != null)
 			name.setText(nameString);
 		name = (TextView) findViewById(R.id.design_com);
-		name.setText(myselfUserInfo.getCompany());
+		name.setText(ActivityMain.myselfUserInfo.getCompany());
 		name = (TextView) findViewById(R.id.design_job_title);
-		name.setText(myselfUserInfo.getTitle());
+		name.setText(ActivityMain.myselfUserInfo.getTitle());
 		name = (TextView) findViewById(R.id.design_address);
-		name.setText(myselfUserInfo.getCity());
+		name.setText(ActivityMain.myselfUserInfo.getCity());
 		ImageView portraitImg = (ImageView) findViewById(R.id.design_portrait);
-		portraitImg.setImageBitmap(myselfUserInfo.getPortrait());
+		portraitImg.setImageBitmap(ActivityMain.myselfUserInfo.getPortrait());
 	}
 
 	@SuppressWarnings("deprecation")

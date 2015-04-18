@@ -1,6 +1,6 @@
 package com.micklestudios.knowell.utils;
 
-public class OfflineData {
+public class OfflineDataCachedIds {
 	private int stored;
 	private String ecardID;
 	private String whereMet;
@@ -8,9 +8,9 @@ public class OfflineData {
 	private String notes;
 	private String voiceNote;
 	
-	public OfflineData(){}
+	public OfflineDataCachedIds(){}
 	
-	public OfflineData(String ecardID, String whereMet, String eventMet, String notes, String voiceNote){
+	public OfflineDataCachedIds(String ecardID, String whereMet, String eventMet, String notes, String voiceNote){
 		super();
 		this.stored = 0;
 		this.ecardID = ecardID;

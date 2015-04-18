@@ -72,7 +72,7 @@ public class ActivityConversations extends ActionBarActivity {
         final UserInfo selectedUser = (UserInfo) listView.getItemAtPosition(position);
 
      // add new card asynchronically
-        if (ECardUtils.isNetworkAvailable(ActivityConversations.this)) {        	
+if (ECardUtils.isNetworkAvailable(ActivityConversations.this)) {        	
         	
             dialog.show();
         	
@@ -92,13 +92,13 @@ public class ActivityConversations extends ActionBarActivity {
                 // network poor, turn to offline mode for card collection
                 
                 // upon failed network, dismiss dialog
-//                Intent intent = new Intent(getBaseContext(),
-//                  ActivityScanned.class);
-//                // passing UserInfo is made possible through Parcelable
-//                intent.putExtra("userinfo", selectedUser);
-//                intent.putExtra("offlineMode", true);
-//      	        intent.putExtra("deletedNoteId", (String)null);
-//      	        startActivityForResult(intent, SAVE_CARD);
+                Intent intent = new Intent(getBaseContext(),
+                  ActivityConversations.class);
+                // passing UserInfo is made possible through Parcelable
+                intent.putExtra("userinfo", selectedUser);
+                intent.putExtra("offlineMode", true);
+      	        intent.putExtra("deletedNoteId", (String)null);
+      	        startActivityForResult(intent, SAVE_CARD);
                 scanQR.cancel(true);
               }
             }
@@ -122,15 +122,15 @@ public class ActivityConversations extends ActionBarActivity {
           dialog.show();
         } else {
           // no network, directly switch to offline card collection mode          
-        	Toast.makeText(getApplicationContext(), "No network ... Please try again",
+        	Toast.makeText(getApplicationContext(), "No network ... ",
                     Toast.LENGTH_SHORT).show();
 
-//          Intent intent = new Intent(getBaseContext(), ActivityScanned.class);
-//          // passing UserInfo is made possible through Parcelable
-//          intent.putExtra("userinfo", selectedUser);
-//          intent.putExtra("offlineMode", false);
-//  	      intent.putExtra("deletedNoteId", (String)null);
-//          startActivityForResult(intent, SAVE_CARD);
+          Intent intent = new Intent(getBaseContext(), ActivityScanned.class);
+          // passing UserInfo is made possible through Parcelable
+          intent.putExtra("userinfo", selectedUser);
+          intent.putExtra("offlineMode", false);
+  	      intent.putExtra("deletedNoteId", (String)null);
+          startActivityForResult(intent, SAVE_CARD);
         }
         
       }

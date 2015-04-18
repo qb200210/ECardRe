@@ -54,7 +54,8 @@ public class ActivityMain extends ActionBarActivity {
   Menu mMenu;
   int currentPosition = 0;
   ParseUser currentUser;
-  UserInfo myselfUserInfo = null;
+  // set myselfUserInfo to be global for each access across the entire app
+  public static UserInfo myselfUserInfo = null;
   boolean imgFromTmpData = false;
 
   public static Context applicationContext;
@@ -121,7 +122,7 @@ public class ActivityMain extends ActionBarActivity {
     myselfUserInfo = new UserInfo(currentUser.get("ecardId").toString(), "",
       "", true, false, imgFromTmpData);
 
-    mAdapter = new MyPagerAdapter(getSupportFragmentManager(), myselfUserInfo);
+    mAdapter = new MyPagerAdapter(getSupportFragmentManager());
 
     mPager = (MyViewPager) findViewById(R.id.pager);
     mPager.setAdapter(mAdapter);
@@ -143,7 +144,6 @@ public class ActivityMain extends ActionBarActivity {
     case R.id.edit_item:
       // Should be replaced by pop up activity of editable welcome page
       Intent intent = new Intent(this, ActivityDesign.class);
-      intent.putExtra("userinfo", myselfUserInfo);
       startActivityForResult(intent, EDIT_CARD);
       return true;
     case R.id.log_out:
@@ -151,9 +151,6 @@ public class ActivityMain extends ActionBarActivity {
       intent = new Intent(this, ActivityPreLogin.class);
       startActivity(intent);
       this.finish();
-      return true;
-    case R.id.test_notif:
-      sendPush();
       return true;
     default:
       return super.onOptionsItemSelected(item);
@@ -164,14 +161,8 @@ public class ActivityMain extends ActionBarActivity {
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     super.onActivityResult(requestCode, resultCode, data);
     if (requestCode == EDIT_CARD && resultCode == RESULT_OK) {
-      Bundle extras = data.getExtras();
-      UserInfo updatedUserInfo = (UserInfo) extras.getParcelable("userinfo");
-      // Update the UserInfo for refreshing fragments
-      ((MyPagerAdapter) mPager.getAdapter()).setMyselfUserInfo(updatedUserInfo);
       // Refreshing fragments
       mPager.getAdapter().notifyDataSetChanged();
-      // Update the UserInfo being holded in ActivityMain
-      myselfUserInfo = updatedUserInfo;
     }
 
   }
@@ -199,34 +190,4 @@ public class ActivityMain extends ActionBarActivity {
     }
   }
 
-  public void sendPush() {
-    // Send push to the other party according to their ecardId recorded in an
-    // installation
-    ParseQuery pushQuery = ParseInstallation.getQuery();
-    pushQuery.whereEqualTo("ecardId", "CRuumzPcTN");
-    JSONObject jsonObject = new JSONObject();
-    try {
-      jsonObject.put("alert", "Hi, I'm "
-        + currentUser.get("ecardId").toString() + ", save my card now");
-      jsonObject.put("link", "https://ecard.parseapp.com/search?id="
-        + currentUser.get("ecardId").toString() + "&fn=Udayan&ln=Banerji");
-      jsonObject.put("action", "EcardOpenConversations");
-    } catch (JSONException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-
-    ParsePush push = new ParsePush();
-    push.setQuery(pushQuery);
-    push.setData(jsonObject);
-    push.sendInBackground();
-
-    // // Meanwhile, create a record in conversations -- so web app can check
-    // since it cannot receive notification
-    // ParseObject object = new ParseObject("Conversations");
-    // object.put("partyA", currentUser.get("ecardId").toString());
-    // object.put("partyB", objId.getText().toString());
-    // object.put("read", false);
-    // object.saveInBackground();
-  }
 }

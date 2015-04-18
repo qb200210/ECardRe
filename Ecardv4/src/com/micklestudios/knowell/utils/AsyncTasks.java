@@ -13,6 +13,9 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.TreeSet;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -33,7 +36,9 @@ import com.parse.FindCallback;
 import com.parse.ParseACL;
 import com.parse.ParseException;
 import com.parse.ParseFile;
+import com.parse.ParseInstallation;
 import com.parse.ParseObject;
+import com.parse.ParsePush;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
@@ -378,9 +383,12 @@ public class AsyncTasks {
 
 		private Context context;
 		private ParseUser currentUser;
-		ECardSQLHelper db;
+		private ECardSQLHelperCachedIds db;
+		private ECardSQLHelperCachedShares dbShares;
 		List<String> scannedIDs;
-		List<OfflineData> olDatas;
+		List<String> partyBs;
+		List<OfflineDataCachedIds> olDatas;
+		List<OfflineDataCachedShares> olDatasShares;
 		private boolean flagShouldSync;
 		private SharedPreferences prefs;
 		private SharedPreferences.Editor prefEditor;
@@ -397,7 +405,7 @@ public class AsyncTasks {
 		@Override
 		protected String doInBackground(String... params) {
 			// Upon opening, if there is Internet connection, try to store cached IDs
-			db = new ECardSQLHelper(context);
+			db = new ECardSQLHelperCachedIds(context);
 			// getting all local db data to check against EcardIds
 			olDatas = db.getAllData();
 			if (olDatas.size() != 0) {
@@ -405,27 +413,163 @@ public class AsyncTasks {
 				Log.i("CachedIds", "Found unsaved Ecards");
 				// If there are unsaved offline list, check and save them
 				scannedIDs = new LinkedList<String>();
-				for (Iterator<OfflineData> iter = olDatas.iterator(); iter.hasNext();) {
-					OfflineData olData = iter.next();
+				for (Iterator<OfflineDataCachedIds> iter = olDatas.iterator(); iter.hasNext();) {
+					OfflineDataCachedIds olData = iter.next();
 					String scannedID = olData.getEcardID();
 					scannedIDs.add(scannedID);
 				}
 				addCachedEcardIds();
+			}			
+
+			// check if there is cached shares too
+			dbShares = new ECardSQLHelperCachedShares(context); 
+			// getting all local db data to check against EcardIds
+			olDatasShares = dbShares.getAllData();
+			if (olDatasShares.size() != 0) {
+				flagShouldSync = true;
+				Log.i("CachedShares", "Found unsent Shares");
+				// If there are unsaved offline list, check and save them
+				partyBs = new LinkedList<String>();
+				for (Iterator<OfflineDataCachedShares> iter = olDatasShares.iterator(); iter.hasNext();) {
+					OfflineDataCachedShares olData = iter.next();
+					String partyB = olData.getPartyB();
+					partyBs.add(partyB);
+				}
+				sendCachedShares();
 			}
+			
 			return null;
 		}
 		
+		private void sendCachedShares() {			
+			// Check whether the partyB (target ecardId) actually exists
+			ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardInfo");
+			query.whereContainedIn("objectId", partyBs);
+			List<ParseObject> infoObjects = null;
+			try {
+				infoObjects = query.find();
+			} catch (ParseException e2) {
+				e2.printStackTrace();
+			}
+			List<String> partyBsRemained = new ArrayList<String>();
+			if (infoObjects != null) {
+				// if at least some of ecardIds in partyBs are valid, record them, then ignore the rest
+				for(Iterator<ParseObject> iter = infoObjects.iterator(); iter.hasNext();){
+					ParseObject obj = iter.next();
+					partyBsRemained.add(obj.getObjectId().toString());
+					partyBs.remove(obj.getObjectId().toString());
+				}
+				for(Iterator<String> iter = partyBs.iterator(); iter.hasNext();){
+					// these Ids that correspond to non-existent ecard will be stored in partyBs, remove them from local
+					final String idsToRemove = iter.next();
+					List<OfflineDataCachedShares> olDatas = dbShares.getData("partyB", idsToRemove);
+					dbShares.deleteData(olDatas.get(0));
+				}
+				// refill the partyBs with valid Ids
+				partyBs = partyBsRemained;
+				// over here should already have a list of valid partyBs				
+				// Now check if the shares exist online, if yes, flip them, then add the rest 
+				ParseQuery<ParseObject> queryConv = ParseQuery.getQuery("Conversations");
+				queryConv.whereEqualTo("partyA", currentUser.get("ecardId").toString());
+				queryConv.whereContainedIn("partyB", partyBs);
+				List<ParseObject> listConvs = null;
+				try {
+					listConvs = queryConv.find();			
+				} catch (ParseException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}		
+				ParseObject self = null;
+				if (listConvs != null) {
+					// If some of the conversations already exist, flip them then add the rest
+					// first get self info because ActivityMain isn't reached yet
+					ParseQuery<ParseObject> querySelf = ParseQuery.getQuery("ECardInfo");
+					querySelf.fromLocalDatastore();
+					try {
+						self = querySelf.get(currentUser.get("ecardId").toString());
+					} catch (ParseException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					for(Iterator<ParseObject> iter = listConvs.iterator(); iter.hasNext();){
+						ParseObject obj = iter.next();
+						obj.put("read", false);
+						try {
+							obj.save();
+						} catch (ParseException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						// remove the already flipped conv from the list
+						partyBs.remove(obj.get("partyB").toString());
+						// remove from local database
+						List<OfflineDataCachedShares> olDatas = dbShares.getData("partyB", obj.get("partyB").toString());
+						dbShares.deleteData(olDatas.get(0));
+						// send push notification
+						sendPushNotification(obj.get("partyB").toString(), self);
+					}
+				}
+				for(Iterator<String> iter = partyBs.iterator(); iter.hasNext();){
+					// these remained are the conv that doesn't exist, create them
+					final String targetEcardId = iter.next();
+					ParseObject object = new ParseObject("Conversations");
+					object.put("partyA", currentUser.get("ecardId").toString());
+					object.put("partyB", targetEcardId);
+					object.put("read", false);
+					try {
+						object.save();
+					} catch (ParseException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					// upon save of the new conversation, send out a push to the other device
+					sendPushNotification(targetEcardId, self);
+				}
+			} else {
+				// none of ecardIds in partyBs is valid, delete them all
+				for(Iterator<String> iter = partyBs.iterator(); iter.hasNext();){
+					// these Ids that correspond to non-existent ecard will be stored in partyBs, remove them from local
+					final String idsToRemove = iter.next();
+					List<OfflineDataCachedShares> olDatas = dbShares.getData("partyB", idsToRemove);
+					dbShares.deleteData(olDatas.get(0));
+				}
+				partyBs.clear();
+			}			
+		}
+
+		private void sendPushNotification(String targetEcardId, ParseObject self) {
+			ParseQuery pushQuery = ParseInstallation.getQuery();
+			pushQuery.whereEqualTo("ecardId", targetEcardId);
+			JSONObject jsonObject = new JSONObject();
+			try {
+				if(self!=null){
+					jsonObject.put("alert", "Hi, this is " + self.get("firstName") + " " + self.get("lastName") + ", please save my card.");
+					jsonObject.put("link", "https://www.micklestudios.com/search?id=" + currentUser.get("ecardId").toString() + "&fn=" + self.get("firstName") + "&ln=" + self.get("lastName"));
+				} else {
+					jsonObject.put("alert", "Hi, please save my card.");
+					jsonObject.put("link", "https://www.micklestudios.com/search?id=" + currentUser.get("ecardId").toString() + "&fn=Mysterious&ln=UserX");
+				}
+				jsonObject.put("action", "EcardOpenConversations");
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			ParsePush push = new ParsePush();
+			push.setQuery(pushQuery);
+			push.setData(jsonObject);
+			push.sendInBackground();		
+		}
+
 		public void addCachedEcardIds() {
 			ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardInfo");
 			query.whereContainedIn("objectId", scannedIDs);
-			List<ParseObject> infoObjectsTmp = null;
+			List<ParseObject> infoObjects = null;
 			try {
-				infoObjectsTmp = query.find();
+				infoObjects = query.find();
 			} catch (ParseException e2) {
 				// TODO Auto-generated catch block
 				e2.printStackTrace();
 			}
-			List<ParseObject> infoObjects = infoObjectsTmp;
 			
 			if (infoObjects == null) {
 				// None in the saved EcardInfo IDs are valid, delete everything
@@ -449,7 +593,7 @@ public class AsyncTasks {
 					if (!(ecardExistList.contains(scannedID))) {
 						// if local record does not correspond to
 						// existing ecardList, delete it
-						List<OfflineData> olDatas = db.getData("ecardID", scannedID);
+						List<OfflineDataCachedIds> olDatas = db.getData("ecardID", scannedID);
 						db.deleteData(olDatas.get(0));
 						// remove this record from scannedIDs
 						iter.remove();
@@ -485,10 +629,10 @@ public class AsyncTasks {
 						// Either way, delete the local db record. 
 						// This is because local db is only a temp storage for offline added Ecards
 						// Should be emptied when cards are collected
-						List<OfflineData> olDatas = db.getData("ecardID", object.get("ecardId").toString());
+						List<OfflineDataCachedIds> olDatas = db.getData("ecardID", object.get("ecardId").toString());
 						if (olDatas.size() != 0) {
 							// if the record exists in local db, delete it
-							OfflineData olData = olDatas.get(0);
+							OfflineDataCachedIds olData = olDatas.get(0);
 							db.deleteData(olData);
 						}
 					}
@@ -527,11 +671,11 @@ public class AsyncTasks {
 						Log.i("addCachedEcardIds", "Ecard " + scannedID + " added!");
 					}
 					
-					List<OfflineData> olDatas = db.getData("ecardID", scannedID);
+					List<OfflineDataCachedIds> olDatas = db.getData("ecardID", scannedID);
 					if (olDatas.size() != 0) {
 						// if the record exists in local db,
 						// delete it
-						OfflineData olData = olDatas.get(0);
+						OfflineDataCachedIds olData = olDatas.get(0);
 						ecardNote.put("event_met", olData.getEventMet());
 						ecardNote.put("where_met", olData.getWhereMet());
 						ecardNote.put("notes", olData.getNotes());
@@ -631,10 +775,10 @@ public class AsyncTasks {
 			if(deletedNoteId != null){
 				// if the note existed but deleted, flip the flag and save note changes
 				ParseQuery<ParseObject> queryNote = ParseQuery.getQuery("ECardNote");
-				ParseObject ecarNote;
+				ParseObject ecardNote;
 				try {
-					ecarNote = queryNote.get(deletedNoteId);
-					saveNote(ecarNote);
+					ecardNote = queryNote.get(deletedNoteId);
+					saveNote(ecardNote);
 				} catch (ParseException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -647,9 +791,9 @@ public class AsyncTasks {
 			return null;
 		}
 		
-		private void saveNote(final ParseObject ecarNote) {
+		private void saveNote(final ParseObject ecardNote) {
 			// if note existed but deleted, directly get the note and flip the flag
-			if(ecarNote != null){		
+			if(ecardNote != null){		
 				// pin corresponding ecard
 				ParseQuery<ParseObject> queryInfo = ParseQuery.getQuery("ECardInfo");
 				ParseObject ecardObject = null;
@@ -666,45 +810,9 @@ public class AsyncTasks {
 						e.printStackTrace();
 					}
 				}
-				ecarNote.put("EcardUpdatedAt", ecardObject.getUpdatedAt());
-				ecarNote.put("isDeleted", false);			 				        
-		        //convert file into array of bytes
-				FileInputStream fileInputStream=null;						 
-		        File file = new File(filepath);				 
-		        byte[] bFile = new byte[(int) file.length()];	
-			    try {
-					fileInputStream = new FileInputStream(file);
-					fileInputStream.read(bFile);
-				    fileInputStream.close();
-				} catch (FileNotFoundException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-				if(ECardUtils.isNetworkAvailable(mActivity)){
-				    final ParseFile voiceFile = new ParseFile("voicenote.mp4", bFile);
-				    voiceFile.saveInBackground(new SaveCallback(){
-
-						@Override
-						public void done(ParseException arg0) {
-							ecarNote.put("voiceNotes", voiceFile);
-							saveChangesToParse(ecarNote);
-						}
-				    	
-				    });
-				} else {
-					// if network not available, save voicenote with unique name then record in local database
-					ecarNote.put("tmpVoiceByteArray", bFile);
-	            	// flush sharedpreferences to 1969 so next time app opens with internet, convert the file
-	            	Date currentDate=new Date(0);
-	    			SharedPreferences prefs = mActivity.getSharedPreferences(ActivityBufferOpening.MY_PREFS_NAME, mActivity.MODE_PRIVATE);
-	    			SharedPreferences.Editor prefEditor = prefs.edit();
-					prefEditor.putLong("DateNoteSynced", currentDate.getTime());
-					prefEditor.commit();
-	            	saveChangesToParse(ecarNote);
-				}
+				ecardNote.put("EcardUpdatedAt", ecardObject.getUpdatedAt());
+				ecardNote.put("isDeleted", false);			 				        
+		        saveAllToParse(ecardNote);
 			}
 			
 		}
@@ -732,12 +840,15 @@ public class AsyncTasks {
 			ecardNote.put("userId", currentUser.getObjectId());
 			ecardNote.put("ecardId", scannedId);
 			ecardNote.put("EcardUpdatedAt", ecardObject.getUpdatedAt());
-			//convert file into array of bytes
-			FileInputStream fileInputStream=null;						 
-	        File file = new File(filepath);		
-			if(file.exists()){
-				// if there is voicenote to be saved
-				byte[] bFile = new byte[(int) file.length()];	
+			saveAllToParse(ecardNote);
+		} 
+		
+		private void saveAllToParse(final ParseObject ecardNote) {
+			//convert file into array of bytes									 
+	        File file = new File(filepath);	
+	        if(file.exists()){				    
+	        	FileInputStream fileInputStream=null;	
+		        byte[] bFile = new byte[(int) file.length()];	
 			    try {
 					fileInputStream = new FileInputStream(file);
 					fileInputStream.read(bFile);
@@ -751,44 +862,43 @@ public class AsyncTasks {
 				}
 				if(ECardUtils.isNetworkAvailable(mActivity)){
 				    final ParseFile voiceFile = new ParseFile("voicenote.mp4", bFile);
-				    voiceFile.saveInBackground(new SaveCallback(){
-	
-						@Override
-						public void done(ParseException arg0) {
-							ecardNote.put("voiceNotes", voiceFile);
-							saveChangesToParse(ecardNote);
-						}
-				    	
-				    });
+				    try {
+						voiceFile.save();
+						ecardNote.put("voiceNotes", voiceFile);
+					} catch (ParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					saveChangesToParse(ecardNote);					    
 				} else {
 					// if network not available, save voicenote with unique name then record in local database
 					ecardNote.put("tmpVoiceByteArray", bFile);
-		        	// flush sharedpreferences to 1969 so next time app opens with internet, convert the file
-		        	Date currentDate=new Date(0);
-					SharedPreferences prefs = mActivity.getSharedPreferences(ActivityBufferOpening.MY_PREFS_NAME, mActivity.MODE_PRIVATE);
-					SharedPreferences.Editor prefEditor = prefs.edit();
+	            	// flush sharedpreferences to 1969 so next time app opens with internet, convert the file
+	            	Date currentDate=new Date(0);
+	    			SharedPreferences prefs = mActivity.getSharedPreferences(ActivityBufferOpening.MY_PREFS_NAME, mActivity.MODE_PRIVATE);
+	    			SharedPreferences.Editor prefEditor = prefs.edit();
 					prefEditor.putLong("DateNoteSynced", currentDate.getTime());
 					prefEditor.commit();
-		        	saveChangesToParse(ecardNote);
+	            	saveChangesToParse(ecardNote);
 				}
-			} else {
-				// if there is no voice note to save, directly save the rest of the note
-				saveChangesToParse(ecardNote);
-			}		
-		} 
-		
+	        } else {
+	        	// there was no voice note, directly proceed
+	        	saveChangesToParse(ecardNote);
+	        }
+		}
+
 		private void saveChangesToParse(ParseObject object) {
 			EditText whereMet = (EditText) mActivity.findViewById(R.id.PlaceAdded2);
 			EditText eventMet = (EditText) mActivity.findViewById(R.id.EventAdded2);
 			EditText notes = (EditText) mActivity.findViewById(R.id.EditNotes);
 			object.put("where_met", whereMet.getText().toString());
 			object.put("event_met", eventMet.getText().toString());
-			object.put("notes", notes.getText().toString());		
-			
-			object.saveEventually();
+			object.put("notes", notes.getText().toString());					
 			try {
+				object.save();
 				object.pin();
 				flag = ECARD_ADDED;
+				Log.i("savetoparse", "flag flipped");
 				deleteLocalVoiceNote();
 			} catch (ParseException e) {
 				// TODO Auto-generated catch block
