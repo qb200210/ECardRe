@@ -32,6 +32,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.OvershootInterpolator;
 import android.view.inputmethod.EditorInfo;
@@ -275,7 +278,27 @@ public class ActivitySearch extends ActionBarActivity {
       @Override
       public void onClick(View v) {
         moveSearchMenuUp();
-        performSearch();
+
+        AlphaAnimation anim = new AlphaAnimation(1.0f, 0.0f);
+        anim.setDuration(250);
+        anim.setAnimationListener(new AnimationListener() {
+          @Override
+          public void onAnimationStart(Animation animation) {
+          }
+
+          @Override
+          public void onAnimationRepeat(Animation animation) {
+          }
+
+          @Override
+          public void onAnimationEnd(Animation animation) {
+            performSearch();
+            AlphaAnimation animRev = new AlphaAnimation(0.0f, 1.0f);
+            animRev.setDuration(250);
+            listView.startAnimation(animRev);
+          }
+        });
+        listView.startAnimation(anim);
 
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
@@ -375,28 +398,27 @@ public class ActivitySearch extends ActionBarActivity {
     // Modified by Jian 04/12
     StringTokenizer keyWordsTokens = new StringTokenizer(keyWords);
     while (keyWordsTokens.hasMoreTokens()) {
-            String token = keyWordsTokens.nextToken().toLowerCase(Locale.ENGLISH);
-            String regex_str = ".*";
-            for (char c : token.toCharArray()){
-                regex_str = regex_str + c + ".*";
-            }
-            Pattern pattern = Pattern.compile(regex_str);
-            for (UserInfo uInfo : filteredUsers) {
-                String user_str = uInfo.getFirstName().toLowerCase(Locale.ENGLISH) + 
-                				  " " + uInfo.getLastName().toLowerCase(Locale.ENGLISH) + 
-                				  " " + uInfo.getCompany().toLowerCase(Locale.ENGLISH);
-                //Log.v("search_user_str", user_str);
-                Matcher matcher = pattern.matcher(user_str);
-                if (user_str.contains(token)) {
-                	tempUserInfoList.add(uInfo);
-                }
-                else if (matcher.matches()) {
-                    tempUserInfoList.add(uInfo);
-                }
-            }
-            filteredUsers.clear();
-            filteredUsers.addAll(tempUserInfoList);
-            tempUserInfoList.clear();
+      String token = keyWordsTokens.nextToken().toLowerCase(Locale.ENGLISH);
+      String regex_str = ".*";
+      for (char c : token.toCharArray()) {
+        regex_str = regex_str + c + ".*";
+      }
+      Pattern pattern = Pattern.compile(regex_str);
+      for (UserInfo uInfo : filteredUsers) {
+        String user_str = uInfo.getFirstName().toLowerCase(Locale.ENGLISH)
+          + " " + uInfo.getLastName().toLowerCase(Locale.ENGLISH) + " "
+          + uInfo.getCompany().toLowerCase(Locale.ENGLISH);
+        // Log.v("search_user_str", user_str);
+        Matcher matcher = pattern.matcher(user_str);
+        if (user_str.contains(token)) {
+          tempUserInfoList.add(uInfo);
+        } else if (matcher.matches()) {
+          tempUserInfoList.add(uInfo);
+        }
+      }
+      filteredUsers.clear();
+      filteredUsers.addAll(tempUserInfoList);
+      tempUserInfoList.clear();
     }
 
     adapter.reSort();

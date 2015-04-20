@@ -321,81 +321,85 @@ public class ActivityDetails extends ActionBarActivity {
     // recorder-related begins
 
     recorderButton.setOnClickListener(new OnClickListener() {
-	    @Override
-	    public void onClick(View v) {
-	    	if(recordstatus1==0) {
-				Toast.makeText(ActivityDetails.this, "Recording...", Toast.LENGTH_SHORT).show();
-				// changebuttontext(R.id.recordButton,"Recording...");
-				replayButtonBar.setVisibility(View.GONE);
-            	replayButtonPanel.setVisibility(View.GONE);
-	            startRecording();
-	            recordstatus1=1;
-	            recorderButton.setImageResource(R.drawable.ic_action_stop);
-	            
-	            findViewById(R.id.timer).setVisibility(View.VISIBLE);
-	    		scrollView = (MyScrollView) findViewById(R.id.scroll_view_scanned);
-	    		scrollView.setmScrollable(false);
-	    		
-	    		disableViewElements((ViewGroup) findViewById(R.id.backlayer));
-	    		gridView.setEnabled(false);
-	    		
-	             t = new CountDownTimer( 30000, 1000) {           //30 seconds recording time
-	            	 TextView counter=(TextView) findViewById(R.id.time_left);
-	            	 
-	                    @Override
-	                    public void onTick(long millisUntilFinished) {
-	                    	counter.setText(millisUntilFinished / 1000 +" seconds remaining.");
-	                    }
-	                    @Override
-	                    public void onFinish() {   
-	                    	stopRecording();
-	                    	recordstatus1=0;
-	                    	Toast.makeText(ActivityDetails.this, "Max Recording Length Reached.", Toast.LENGTH_SHORT).show();
-	                    	recorderButton.setImageResource(R.drawable.recorder);
-	                    	replayButtonBar.setVisibility(View.VISIBLE);
-	                    	replayButtonPanel.setVisibility(View.VISIBLE);
-	    		            findViewById(R.id.timer).setVisibility(View.GONE);
-	    		            enableViewElements((ViewGroup) findViewById(R.id.backlayer));
-	    		    		scrollView = (MyScrollView) findViewById(R.id.scroll_view_scanned);
-	    		    		scrollView.setmScrollable(true);
-	    		    		gridView.setEnabled(true);
-	    		    		
-	                    }
-	                }.start();
-				
-	        } else if (recordstatus1==1) {
-	            stopRecording();
-	            t.cancel();
-	            recordstatus1=0;
-	            recorderButton.setImageResource(R.drawable.recorder);
-	            replayButtonBar.setVisibility(View.VISIBLE);
-            	replayButtonPanel.setVisibility(View.VISIBLE);
-	            findViewById(R.id.timer).setVisibility(View.GONE);
-	            enableViewElements((ViewGroup) findViewById(R.id.backlayer));
-	    		scrollView = (MyScrollView) findViewById(R.id.scroll_view_scanned);
-	    		scrollView.setmScrollable(true);
-	    		gridView.setEnabled(true);
-	        }
-	    }
-	});
-	
-	timerButton.setOnClickListener(new OnClickListener() {
-	    @Override
-	    public void onClick(View v) {
+      @Override
+      public void onClick(View v) {
+        if (recordstatus1 == 0) {
+          Toast.makeText(ActivityDetails.this, "Recording...",
+            Toast.LENGTH_SHORT).show();
+          // changebuttontext(R.id.recordButton,"Recording...");
+          replayButtonBar.setVisibility(View.GONE);
+          replayButtonPanel.setVisibility(View.GONE);
+          startRecording();
+          recordstatus1 = 1;
+          recorderButton.setImageResource(R.drawable.ic_action_stop);
 
-	            stopRecording();
-	            t.cancel();
-	            recordstatus1=0;
-	            recorderButton.setImageResource(R.drawable.recorder);
-	            replayButtonBar.setVisibility(View.VISIBLE);
-            	replayButtonPanel.setVisibility(View.VISIBLE);
-	            findViewById(R.id.timer).setVisibility(View.GONE);
-	            enableViewElements((ViewGroup) findViewById(R.id.backlayer));
-	    		scrollView = (MyScrollView) findViewById(R.id.scroll_view_scanned);
-	    		scrollView.setmScrollable(true);
-	    		gridView.setEnabled(true);
-	    }
-	});
+          findViewById(R.id.timer).setVisibility(View.VISIBLE);
+          scrollView = (MyScrollView) findViewById(R.id.scroll_view_scanned);
+          scrollView.setmScrollable(false);
+
+          disableViewElements((ViewGroup) findViewById(R.id.backlayer));
+          gridView.setEnabled(false);
+
+          t = new CountDownTimer(30000, 1000) { // 30 seconds recording time
+            TextView counter = (TextView) findViewById(R.id.time_left);
+
+            @Override
+            public void onTick(long millisUntilFinished) {
+              counter.setText(millisUntilFinished / 1000
+                + " seconds remaining.");
+            }
+
+            @Override
+            public void onFinish() {
+              stopRecording();
+              recordstatus1 = 0;
+              Toast.makeText(ActivityDetails.this,
+                "Max Recording Length Reached.", Toast.LENGTH_SHORT).show();
+              recorderButton.setImageResource(R.drawable.recorder);
+              replayButtonBar.setVisibility(View.VISIBLE);
+              replayButtonPanel.setVisibility(View.VISIBLE);
+              findViewById(R.id.timer).setVisibility(View.GONE);
+              enableViewElements((ViewGroup) findViewById(R.id.backlayer));
+              scrollView = (MyScrollView) findViewById(R.id.scroll_view_scanned);
+              scrollView.setmScrollable(true);
+              gridView.setEnabled(true);
+
+            }
+          }.start();
+
+        } else if (recordstatus1 == 1) {
+          stopRecording();
+          t.cancel();
+          recordstatus1 = 0;
+          recorderButton.setImageResource(R.drawable.recorder);
+          replayButtonBar.setVisibility(View.VISIBLE);
+          replayButtonPanel.setVisibility(View.VISIBLE);
+          findViewById(R.id.timer).setVisibility(View.GONE);
+          enableViewElements((ViewGroup) findViewById(R.id.backlayer));
+          scrollView = (MyScrollView) findViewById(R.id.scroll_view_scanned);
+          scrollView.setmScrollable(true);
+          gridView.setEnabled(true);
+        }
+      }
+    });
+
+    timerButton.setOnClickListener(new OnClickListener() {
+      @Override
+      public void onClick(View v) {
+
+        stopRecording();
+        t.cancel();
+        recordstatus1 = 0;
+        recorderButton.setImageResource(R.drawable.recorder);
+        replayButtonBar.setVisibility(View.VISIBLE);
+        replayButtonPanel.setVisibility(View.VISIBLE);
+        findViewById(R.id.timer).setVisibility(View.GONE);
+        enableViewElements((ViewGroup) findViewById(R.id.backlayer));
+        scrollView = (MyScrollView) findViewById(R.id.scroll_view_scanned);
+        scrollView.setmScrollable(true);
+        gridView.setEnabled(true);
+      }
+    });
     replayButtonBar.setOnClickListener(new OnClickListener() {
       @Override
       public void onClick(View v) {
@@ -776,29 +780,28 @@ public class ActivityDetails extends ActionBarActivity {
         Toast.LENGTH_SHORT).show();
     }
   };
-  
+
   protected void disableViewElements(ViewGroup container) {
-	   for (int i = 0; i < container.getChildCount();  i++) {
-	     if(container.getChildAt(i) instanceof ViewGroup ) {
-	         disableViewElements((ViewGroup) container.getChildAt(i));
-	     }
-	     else {
-	       View view = container.getChildAt(i);
-	       view.setEnabled(false);
-	     }
-	   }
-	}
+    for (int i = 0; i < container.getChildCount(); i++) {
+      if (container.getChildAt(i) instanceof ViewGroup) {
+        disableViewElements((ViewGroup) container.getChildAt(i));
+      } else {
+        View view = container.getChildAt(i);
+        view.setEnabled(false);
+      }
+    }
+  }
+
   protected void enableViewElements(ViewGroup container) {
-	   for (int i = 0; i < container.getChildCount();  i++) {
-	     if(container.getChildAt(i) instanceof ViewGroup ) {
-	         enableViewElements((ViewGroup) container.getChildAt(i));
-	     }
-	     else {
-	       View view = container.getChildAt(i);
-	       view.setEnabled(true);
-	     }
-	   }
-	}
+    for (int i = 0; i < container.getChildCount(); i++) {
+      if (container.getChildAt(i) instanceof ViewGroup) {
+        enableViewElements((ViewGroup) container.getChildAt(i));
+      } else {
+        View view = container.getChildAt(i);
+        view.setEnabled(true);
+      }
+    }
+  }
 
   @Override
   public void onPause() {
@@ -807,7 +810,7 @@ public class ActivityDetails extends ActionBarActivity {
       mp.pause();
     }
   }
-  
+
   @Override
   public void onDestroy() {
     super.onDestroy();
