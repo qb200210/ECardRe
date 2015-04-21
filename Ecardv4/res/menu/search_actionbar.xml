@@ -3,6 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools" >
 
     <item
+        android:id="@+id/filter_results"
+        android:icon="@drawable/ic_action_filter"
+        android:orderInCategory="5"
+        android:title="Filter Results"
+        app:showAsAction="ifRoom"/>
+    <item
         android:id="@+id/sort_results"
         android:icon="@drawable/ic_action_sort_by_size"
         android:orderInCategory="6"
@@ -13,7 +19,6 @@
         android:orderInCategory="7"
         android:title="@string/download_cards"
         app:showAsAction="never"/>
-
     <item
         android:id="@+id/log_out"
         android:orderInCategory="11"
@@ -29,4 +34,5 @@
         android:orderInCategory="13"
         android:title="Test2"
         app:showAsAction="never"/>
+
 </menu>

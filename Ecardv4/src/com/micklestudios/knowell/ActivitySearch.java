@@ -100,11 +100,9 @@ public class ActivitySearch extends ActionBarActivity {
   public static ArrayList<String> autoCompleteListWhere;
   public static ArrayList<String> autoCompleteListEvent;
 
-  RelativeLayout rLayoutEventMet;
-  RelativeLayout rLayoutWhereMet;
-  RelativeLayout rLayoutCompany;
-
-  Button btnPullDown;
+  LinearLayout lLayoutEventMet;
+  LinearLayout lLayoutWhereMet;
+  LinearLayout lLayoutCompany;
 
   private int searchMenuRetractedHeight = 0;
 
@@ -171,7 +169,6 @@ public class ActivitySearch extends ActionBarActivity {
     mainView.post(new Runnable() {
       @Override
       public void run() {
-        RelativeLayout rLayout = (RelativeLayout) findViewById(R.id.rllayout_search_pull_down);
         int searchWidgetTotalHeight = searchWidget.getMeasuredHeight()
           + searchWidget.getPaddingTop();
         SEARCH_MENU_OVERHANG = searchWidgetTotalHeight;
@@ -192,9 +189,9 @@ public class ActivitySearch extends ActionBarActivity {
     filterTextCompany = (AutoCompleteTextView) findViewById(R.id.txt_company);
 
     // The layouts we need to hide when drop down goes up.
-    rLayoutCompany = (RelativeLayout) findViewById(R.id.rlayout_company);
-    rLayoutWhereMet = (RelativeLayout) findViewById(R.id.rlayout_where_met);
-    rLayoutEventMet = (RelativeLayout) findViewById(R.id.rlayout_event_met);
+    lLayoutCompany = (LinearLayout) findViewById(R.id.llayout_company);
+    lLayoutWhereMet = (LinearLayout) findViewById(R.id.llayout_where_met);
+    lLayoutEventMet = (LinearLayout) findViewById(R.id.llayout_event_met);
 
     // The three frames in the layout.
     searchPanel = (LinearLayout) findViewById(R.id.lnlayout_search_menu);
@@ -244,15 +241,6 @@ public class ActivitySearch extends ActionBarActivity {
     searchPanel.setOnClickListener(new OnClickListener() {
       @Override
       public void onClick(View v) {
-      }
-    });
-
-    // Set the dropdown animation.
-    btnPullDown = (Button) findViewById(R.id.btn_pull_down);
-    btnPullDown.setOnClickListener(new OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        moveSearchMenu();
       }
     });
 
@@ -327,9 +315,9 @@ public class ActivitySearch extends ActionBarActivity {
   private void toggleFiltersVisibility(boolean show) {
     int visibility = show ? View.VISIBLE : View.GONE;
 
-    rLayoutWhereMet.setVisibility(visibility);
-    rLayoutEventMet.setVisibility(visibility);
-    rLayoutCompany.setVisibility(visibility);
+    lLayoutWhereMet.setVisibility(visibility);
+    lLayoutEventMet.setVisibility(visibility);
+    lLayoutCompany.setVisibility(visibility);
   }
 
   private void performSearch() {
@@ -451,7 +439,6 @@ public class ActivitySearch extends ActionBarActivity {
   private void moveSearchMenuUp() {
     if (droppedDown) {
       droppedDown = false;
-      setViewBackground(btnPullDown, R.drawable.semi_rounded_down_empty);
       searchPanel.animate().translationY(searchMenuRetractedHeight)
         .setDuration(SCROLL_ANIMATION_SPEED_MS_FAST)
         .setInterpolator(new LinearInterpolator()).start();
@@ -464,14 +451,13 @@ public class ActivitySearch extends ActionBarActivity {
       toggleFiltersVisibility(true);
       // Drop the shade down.
       droppedDown = true;
-      setViewBackground(btnPullDown, R.drawable.semi_rounded_up_empty);
       searchPanel.animate().translationY(SEARCH_MENU_OVERHANG)
         .setDuration(SCROLL_ANIMATION_SPEED_MS_NORMAL)
         .setInterpolator(new OvershootInterpolator()).start();
 
       // Hide the keyboard
       InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-      imm.hideSoftInputFromWindow(btnPullDown.getWindowToken(), 0);
+      imm.hideSoftInputFromWindow(searchPanel.getWindowToken(), 0);
     }
   }
 
@@ -517,6 +503,9 @@ public class ActivitySearch extends ActionBarActivity {
   public boolean onOptionsItemSelected(MenuItem item) {
     // this function is called when either action bar icon is tapped
     switch (item.getItemId()) {
+    case R.id.filter_results:
+      moveSearchMenu();
+      return true;
     case R.id.sort_results:
       actions.show();
       return true;
