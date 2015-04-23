@@ -2,6 +2,7 @@ package com.micklestudios.knowell;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.StringTokenizer;
@@ -31,6 +32,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
@@ -41,9 +43,11 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -84,8 +88,14 @@ public class ActivitySearch extends ActionBarActivity {
   AutoCompleteTextView filterTextEventMet;
   AutoCompleteTextView filterTextCompany;
 
+  // List of users filtered after search.
   public static ArrayList<UserInfo> filteredUsers;
+
+  // List of all the users in the system.
   public static ArrayList<UserInfo> allUsers;
+
+  // List of users selected by the user.
+  public static HashSet<UserInfo> selectedUsers;
   static ArrayList<String> autoCompleteList;
   SearchListAdapter adapter;
   AlphaInAnimationAdapter animationAdapter;
@@ -113,6 +123,9 @@ public class ActivitySearch extends ActionBarActivity {
   public static final int SORT_MODE_DATE_DSC = 4;
 
   public static int currentSortMode = SORT_MODE_DATE_ASC;
+
+  // Whether in selection mode.
+  public static boolean isSelectionMode = false;
 
   ArrayAdapter<String> autoCompleteAdapter;
   AutoCompleteTextView searchBox;
@@ -146,6 +159,7 @@ public class ActivitySearch extends ActionBarActivity {
     currentUser = ParseUser.getCurrentUser();
 
     filteredUsers = new ArrayList<UserInfo>();
+    selectedUsers = new HashSet<UserInfo>();
     autoCompleteList = new ArrayList<String>();
     searchListToUserListMap = new SparseIntArray();
 
@@ -203,16 +217,56 @@ public class ActivitySearch extends ActionBarActivity {
     searchButton = (Button) findViewById(R.id.btn_search_inside);
   }
 
+  private void showSelectionMenu() {
+
+  }
+
   private void initializeContactList() {
     listView.setOnItemClickListener(new OnItemClickListener() {
       @Override
       public void onItemClick(AdapterView<?> parent, View view, int position,
         long id) {
-        UserInfo selectedUser = (UserInfo) listView.getItemAtPosition(position);
-        Intent intent = new Intent(getBaseContext(), ActivityDetails.class);
-        // passing UserInfo is made possible through Parcelable
-        intent.putExtra("userinfo", selectedUser);
-        startActivity(intent);
+        UserInfo clickedUser = (UserInfo) listView.getItemAtPosition(position);
+
+        if (isSelectionMode == false) {
+          // We are simply browsing through the contacts.
+          Intent intent = new Intent(getBaseContext(), ActivityDetails.class);
+          // passing UserInfo is made possible through Parcelable
+          intent.putExtra("userinfo", clickedUser);
+          startActivity(intent);
+        } else {
+          // Now we are selecting stuff. Get the check box
+          CheckBox selectionBox = (CheckBox) view
+            .findViewById(R.id.chk_contact_select);
+
+          // If this is already selected, remove it.
+          if (selectedUsers.contains(clickedUser)) {
+            selectedUsers.remove(clickedUser);
+            selectionBox.setSelected(false);
+            // If nothing is left selected, stop selection mode.
+            if (selectedUsers.size() == 0) {
+              isSelectionMode = false;
+              searchBox.setHint("Start Searching ...");
+            }
+          } else {
+            selectedUsers.add(clickedUser);
+            selectionBox.setSelected(true);
+          }
+
+          adapter.notifyDataSetChanged();
+        }
+      }
+    });
+
+    listView.setOnItemLongClickListener(new OnItemLongClickListener() {
+      @Override
+      public boolean onItemLongClick(AdapterView<?> parent, View view,
+        int position, long id) {
+        if (isSelectionMode == false) {
+          isSelectionMode = true;
+          searchBox.setHint("SELECTION MODE");
+        }
+        return false;
       }
     });
 

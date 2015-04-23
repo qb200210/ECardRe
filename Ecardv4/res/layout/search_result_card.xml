@@ -22,10 +22,11 @@
 
 
 <!-- </com.micklestudios.knowell.utils.SquareLayoutSpecial> -->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:background="@color/white"
+    android:background="@color/light_blue_F8B"
+    android:orientation="horizontal"
     android:paddingBottom="2dp"
     android:paddingLeft="2dp"
     android:paddingRight="2dp" >
@@ -34,17 +35,13 @@
         android:id="@+id/search_image"
         android:layout_width="72dp"
         android:layout_height="72dp"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
         android:background="@color/light_blue_F8B"
         android:padding="2dp" />
 
     <LinearLayout
-        android:layout_width="fill_parent"
+        android:layout_width="0dp"
         android:layout_height="72dp"
-        android:layout_toEndOf="@id/search_image"
-        android:layout_toRightOf="@id/search_image"
-        android:background="@color/light_blue_F8B"
+        android:layout_weight="0.8"
         android:orientation="vertical"
         android:padding="2dp" >
 
@@ -53,8 +50,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/black"
-            android:textStyle="bold"
-            android:textSize="20sp"  />
+            android:textSize="20sp"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/Text2"
@@ -64,4 +61,13 @@
             android:textSize="14sp" />
     </LinearLayout>
 
-</RelativeLayout>
+    <CheckBox
+        android:id="@+id/chk_contact_select"
+        android:layout_width="0dp"
+        android:layout_height="72dp"
+        android:layout_weight="0.2"
+        android:focusable="false"
+        android:paddingLeft="2dp"
+        android:paddingRight="2dp" />
+
+</LinearLayout>

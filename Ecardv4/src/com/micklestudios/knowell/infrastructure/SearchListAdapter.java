@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -105,6 +106,15 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
 
     ImageView portraitImg = (ImageView) convertView
       .findViewById(R.id.search_image);
+    CheckBox selectionBox = (CheckBox) convertView
+      .findViewById(R.id.chk_contact_select);
+    if (ActivitySearch.isSelectionMode == false) {
+      selectionBox.setVisibility(View.INVISIBLE);
+    } else {
+      selectionBox.setVisibility(View.VISIBLE);
+      selectionBox.setChecked(ActivitySearch.selectedUsers
+        .contains(ActivitySearch.filteredUsers.get(position)));
+    }
     if (ActivitySearch.filteredUsers.get(position).getPortrait() != null) {
       portraitImg.setImageBitmap(ActivitySearch.filteredUsers.get(position)
         .getPortrait());
