@@ -119,6 +119,7 @@ public class ActivityMain extends ActionBarActivity {
 
     currentUser = ParseUser.getCurrentUser();
     // pull myself info from localdatastore
+    Log.i("imgtmp", " " + imgFromTmpData);
     myselfUserInfo = new UserInfo(currentUser.get("ecardId").toString(), "",
       "", true, false, imgFromTmpData);
 

@@ -81,5 +81,6 @@ public class ParseLoginFragmentBase extends Fragment {
     } else {
       return ((ParseLoginActivity) getActivity()).isDestroyed();
     }
+    // can cause crash
   }
 }

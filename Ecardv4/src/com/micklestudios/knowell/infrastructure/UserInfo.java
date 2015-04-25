@@ -17,6 +17,7 @@ import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.micklestudios.knowell.ActivityMain;
+import com.micklestudios.knowell.MyApplication;
 import com.micklestudios.knowell.utils.ECardUtils;
 import com.parse.ParseException;
 import com.parse.ParseFile;
@@ -101,7 +102,7 @@ public class UserInfo implements Parcelable {
   }
 
   private static ParseObject getParseObjectFromObjId(String objId,
-    boolean localData, boolean networkAvailable, boolean imgFromTmpData) {
+    boolean localData, boolean networkAvailable) {
     ParseObject object = null;
     if (localData || networkAvailable) {
       // If either this request is to build userInfo from localData
@@ -129,10 +130,9 @@ public class UserInfo implements Parcelable {
     return object;
   }
 
-  public UserInfo(String objId, boolean localData, boolean networkAvailable,
-    boolean imgFromTmpData) {
-    this(getParseObjectFromObjId(objId, localData, networkAvailable,
-      imgFromTmpData));
+  public UserInfo(String objId, boolean localData, boolean networkAvailable, boolean imgFromTmpData) {
+    // here calls the constructor UserInfo(parseObject, imgFromTmpData) instead of UserInfo(parseObject)
+    this(getParseObjectFromObjId(objId, localData, networkAvailable), imgFromTmpData);
   }
 
   public UserInfo(String objId) {
@@ -161,13 +161,13 @@ public class UserInfo implements Parcelable {
         .w("Knowell", "Last name read from QR code does not match value in DB");
     }
   }
-
+  
   public UserInfo(ParseObject parseObj) {
     if (parseObj == null) {
       // if parseObj is null, assuming the scenario is offline scanning card
       // bypass this constructor
     } else {
-      // get portrait from cached img
+      // get portrait from parsefile
       ParseFile portraitFile = (ParseFile) parseObj.get("portrait");
       if (portraitFile != null) {
         byte[] data;
@@ -177,6 +177,71 @@ public class UserInfo implements Parcelable {
         } catch (ParseException e) {
           // TODO Auto-generated catch block
           e.printStackTrace();
+        }
+      } else {
+        // If portraitFile empty -- FIX: Untested!
+        portrait = BitmapFactory.decodeResource(MyApplication.getContext()
+          .getResources(), R.drawable.emptyprofile);
+      }      
+
+      // main card info
+      objId = parseObj.getObjectId();
+      firstName = parseObj.getString("firstName");
+      lastName = parseObj.getString("lastName");
+      company = parseObj.getString("company");
+      title = parseObj.getString("title");
+      city = parseObj.getString("city");
+
+      // extra info
+      infoIcon.clear();
+      infoLink.clear();
+      shownArrayList.clear();
+      for (int i = 0; i < allowedArray.length; i++) {
+        // the extra info item
+        String item = allowedArray[i];
+        // the value of this extra info item
+        Object value = parseObj.get(item);
+        if (value != null && value.toString() != "") {
+          infoIcon.add(iconSelector(item));
+          infoLink.add(value.toString());
+          // note down the existing extra info items
+          shownArrayList.add(item);
+        }
+      }
+    }
+
+    // Make sure the defaults are set.
+    ensureDefaults();
+  }
+
+  public UserInfo(ParseObject parseObj, boolean imgFromTmpData) {
+    if (parseObj == null) {
+      // if parseObj is null, assuming the scenario is offline scanning card
+      // bypass this constructor
+    } else {
+      if (!imgFromTmpData) {
+        // get portrait from parsefile
+        ParseFile portraitFile = (ParseFile) parseObj.get("portrait");
+        if (portraitFile != null) {
+          byte[] data;
+          try {
+            data = portraitFile.getData();
+            portrait = BitmapFactory.decodeByteArray(data, 0, data.length);
+          } catch (ParseException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+          }
+        } else {
+          // If portraitFile empty -- FIX: Untested!
+          portrait = BitmapFactory.decodeResource(MyApplication.getContext()
+            .getResources(), R.drawable.emptyprofile);
+        }
+      } else {
+        // get portrait from cached img
+        byte[] tmpImgData = (byte[]) parseObj.get("tmpImgByteArray");
+        if (tmpImgData != null) {
+          portrait = BitmapFactory.decodeByteArray(tmpImgData, 0,
+            tmpImgData.length);
         }
       }
 
@@ -268,7 +333,7 @@ public class UserInfo implements Parcelable {
 
   /**
    * Writes the given Matrix on a new Bitmap object.
-   *
+   * 
    * @param matrix
    *          the matrix to write.
    * @return the new {@link Bitmap}-object.
@@ -463,7 +528,7 @@ public class UserInfo implements Parcelable {
   }
 
   public ArrayList<String> getAllStrings() {
-	  ensureDefaults();
+    ensureDefaults();
     ArrayList<String> allStrings = new ArrayList<String>();
     if (getCity().length() > 0)
       allStrings.add(getCity());

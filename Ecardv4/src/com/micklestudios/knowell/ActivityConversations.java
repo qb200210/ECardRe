@@ -42,7 +42,7 @@ public class ActivityConversations extends ActionBarActivity {
 
   protected static final int SAVE_CARD = 0;
   private ParseUser currentUser;
-  public static ArrayList<UserInfo> userNames;
+  public static ArrayList<UserInfo> potentialUsers;
   ConversationsListAdapter adapter;
   AlphaInAnimationAdapter animationAdapter;
   StickyListHeadersAdapterDecorator stickyListHeadersAdapterDecorator;
@@ -55,142 +55,144 @@ public class ActivityConversations extends ActionBarActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_conversations);
     currentUser = ParseUser.getCurrentUser();
-    userNames = new ArrayList<UserInfo>();
     
     dialog = new Dialog(ActivityConversations.this);
     dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
     dialog.setContentView(R.layout.layout_dialog_scanned_process);
-    final ImageView progress_image = (ImageView) dialog
-    	      .findViewById(R.id.process_dialog_image);
-
-    listView = (StickyListHeadersListView) findViewById(R.id.activity_conversations_listview);
-    listView.setOnItemClickListener(new OnItemClickListener() {
-
-	@Override
-      public void onItemClick(AdapterView<?> parent, View view, int position,
-        long id) {
-        final UserInfo selectedUser = (UserInfo) listView.getItemAtPosition(position);
-
-     // add new card asynchronically
-if (ECardUtils.isNetworkAvailable(ActivityConversations.this)) {        	
-        	
-            dialog.show();
-        	
-          final SyncDataTaskScanQR scanQR = new SyncDataTaskScanQR(ActivityConversations.this,
-        		  selectedUser.getObjId(), selectedUser.getFirstName(), selectedUser.getLastName());
-          scanQR.execute();
-          final Runnable myCancellable = new Runnable() {
-
-            @Override
-            public void run() {
-              if (scanQR.getStatus() == AsyncTask.Status.RUNNING) {
-            	  if (dialog.isShowing()) {
-                      dialog.dismiss();
-                    }
-                Toast.makeText(getApplicationContext(), "Poor network ... Please try again",
-                  Toast.LENGTH_SHORT).show();
-                // network poor, turn to offline mode for card collection
-                
-                // upon failed network, dismiss dialog
-                Intent intent = new Intent(getBaseContext(),
-                  ActivityConversations.class);
-                // passing UserInfo is made possible through Parcelable
-                intent.putExtra("userinfo", selectedUser);
-                intent.putExtra("offlineMode", true);
-      	        intent.putExtra("deletedNoteId", (String)null);
-      	        startActivityForResult(intent, SAVE_CARD);
-                scanQR.cancel(true);
-              }
-            }
-          };
-          final Handler handlerScanQR = new Handler();
-          handlerScanQR.postDelayed(myCancellable, SCAN_TIMEOUT);     
-          
-       // upon back button press, cancel both the scanQR AsyncTask and the
-          // timed handler
-          progress_image.setBackgroundResource(R.drawable.progress);
-          dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
-              Toast.makeText(getApplicationContext(), "canceled",
-                Toast.LENGTH_SHORT).show();
-              scanQR.cancel(true);
-              handlerScanQR.removeCallbacks(myCancellable);
-            }
-          });
-          // QB: Need fix! Window leaked
-          dialog.show();
-        } else {
-          // no network, directly switch to offline card collection mode          
-        	Toast.makeText(getApplicationContext(), "No network ... ",
-                    Toast.LENGTH_SHORT).show();
-
-          Intent intent = new Intent(getBaseContext(), ActivityScanned.class);
-          // passing UserInfo is made possible through Parcelable
-          intent.putExtra("userinfo", selectedUser);
-          intent.putExtra("offlineMode", false);
-  	      intent.putExtra("deletedNoteId", (String)null);
-          startActivityForResult(intent, SAVE_CARD);
-        }
-        
-      }
-    });
-
-    getContacts();
+    
+    retrieveAllViews();
+    
+    initializeContactList();
+    
   }
 
-  private void getContacts() {
-    ParseQuery<ParseObject> query = ParseQuery.getQuery("Conversations");
-    query.fromLocalDatastore();
-    query.whereEqualTo("partyB", currentUser.get("ecardId").toString());
-    query.findInBackground(new FindCallback<ParseObject>() {
+  private void retrieveAllViews() {
+    listView = (StickyListHeadersListView) findViewById(R.id.activity_conversations_listview);
+  }
 
-      @Override
-      public void done(List<ParseObject> conversationList, ParseException e) {
-        if (e == null) {
-          if (conversationList.size() != 0) {
-            Toast.makeText(ActivityConversations.this,
-              "conv: " + conversationList.size(), Toast.LENGTH_SHORT).show();
-            for (Iterator<ParseObject> iter = conversationList.iterator(); iter
-              .hasNext();) {
-              ParseObject objectConversation = iter.next();
-              // collect EcardInfo IDs satisfying Note searches
-              // here object is Note object
-              String ecardIdString = (String) objectConversation.get("partyA");
-              // NEED FIX: If somehow the card wasn't cached to local, it will
-              // crash
-              UserInfo contact = new UserInfo(ecardIdString, "", "", true,
-                false, false);
-              userNames.add(contact);
+  private void initializeContactList() {
+  listView.setOnItemClickListener(new OnItemClickListener() {
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position,
+      long id) {
+      final ImageView progress_image = (ImageView) dialog
+          .findViewById(R.id.process_dialog_image);
+      final UserInfo selectedUser = (UserInfo) listView
+        .getItemAtPosition(position);
+
+      // add new card asynchronically
+      if (ECardUtils.isNetworkAvailable(ActivityConversations.this)) {
+
+        dialog.show();
+
+        final SyncDataTaskScanQR scanQR = new SyncDataTaskScanQR(
+          ActivityConversations.this, selectedUser.getObjId(), selectedUser
+            .getFirstName(), selectedUser.getLastName());
+        scanQR.execute();
+        final Runnable myCancellable = new Runnable() {
+
+          @Override
+          public void run() {
+            if (scanQR.getStatus() == AsyncTask.Status.RUNNING) {
+              if (dialog.isShowing()) {
+                dialog.dismiss();
+              }
+              Toast.makeText(getApplicationContext(),
+                "Poor network ... Please try again", Toast.LENGTH_SHORT)
+                .show();
+              // network poor, turn to offline mode for card collection
+
+              // upon failed network, dismiss dialog
+              Intent intent = new Intent(getBaseContext(),
+                ActivityConversations.class);
+              // passing UserInfo is made possible through Parcelable
+              intent.putExtra("userinfo", selectedUser);
+              intent.putExtra("offlineMode", true);
+              intent.putExtra("deletedNoteId", (String) null);
+              startActivityForResult(intent, SAVE_CARD);
+              scanQR.cancel(true);
             }
-            
-            Log.i("usr", userNames.toString());
-
-            adapter = new ConversationsListAdapter(ActivityConversations.this, userNames);
-            animationAdapter = new AlphaInAnimationAdapter(adapter);
-            stickyListHeadersAdapterDecorator = new StickyListHeadersAdapterDecorator(
-              animationAdapter);
-            stickyListHeadersAdapterDecorator
-              .setListViewWrapper(new StickyListHeadersListViewWrapper(listView));
-
-            assert animationAdapter.getViewAnimator() != null;
-            animationAdapter.getViewAnimator().setInitialDelayMillis(500);
-
-            assert stickyListHeadersAdapterDecorator.getViewAnimator() != null;
-            stickyListHeadersAdapterDecorator.getViewAnimator()
-              .setInitialDelayMillis(500);
-
-            listView.setAdapter(stickyListHeadersAdapterDecorator);
-            adapter.reSortName(true);
-            stickyListHeadersAdapterDecorator.notifyDataSetChanged();
           }
-        } else {
-          Toast.makeText(getBaseContext(), "General parse error!",
+        };
+        final Handler handlerScanQR = new Handler();
+        handlerScanQR.postDelayed(myCancellable, SCAN_TIMEOUT);
+
+        // upon back button press, cancel both the scanQR AsyncTask and the
+        // timed handler
+        progress_image.setBackgroundResource(R.drawable.progress);
+        dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+          @Override
+          public void onCancel(DialogInterface dialog) {
+            Toast.makeText(getApplicationContext(), "canceled",
+              Toast.LENGTH_SHORT).show();
+            scanQR.cancel(true);
+            handlerScanQR.removeCallbacks(myCancellable);
+          }
+        });
+        // QB: Need fix! Window leaked
+        dialog.show();
+      } else {
+        // no network, directly switch to offline card collection mode
+        Toast.makeText(getApplicationContext(), "No network ... ",
+          Toast.LENGTH_SHORT).show();
+        
+        // search localdatastore and warn if note already exists
+        ParseQuery<ParseObject> queryNote = ParseQuery.getQuery("ECardNote");
+        queryNote.fromLocalDatastore();
+        Log.i("chk", currentUser.getObjectId().toString() + "  " + selectedUser.getObjId());
+        queryNote.whereEqualTo("userId", currentUser.getObjectId().toString());
+        queryNote.whereEqualTo("ecardId", selectedUser.getObjId());
+        
+        
+        List<ParseObject> noteObjs = null;
+        try {
+          noteObjs = queryNote.find();
+        } catch (ParseException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        }
+        if(noteObjs != null && noteObjs.size() != 0){
+          Toast.makeText(getApplicationContext(), "Ecard may have been collected already ",
             Toast.LENGTH_SHORT).show();
         }
+
+        Intent intent = new Intent(getBaseContext(), ActivityScanned.class);
+        // passing UserInfo is made possible through Parcelable
+        intent.putExtra("userinfo", selectedUser);
+        intent.putExtra("offlineMode", true);
+        intent.putExtra("deletedNoteId", (String) null);
+        startActivityForResult(intent, SAVE_CARD);
+        
+        
+        
       }
-    });
-  }
+      
+      
+
+    }
+  });
+  adapter = new ConversationsListAdapter(getApplicationContext(),
+    potentialUsers);
+  animationAdapter = new AlphaInAnimationAdapter(adapter);
+  stickyListHeadersAdapterDecorator = new StickyListHeadersAdapterDecorator(
+    animationAdapter);
+  stickyListHeadersAdapterDecorator
+    .setListViewWrapper(new StickyListHeadersListViewWrapper(listView));
+
+  assert animationAdapter.getViewAnimator() != null;
+  animationAdapter.getViewAnimator().setInitialDelayMillis(500);
+
+  assert stickyListHeadersAdapterDecorator.getViewAnimator() != null;
+  stickyListHeadersAdapterDecorator.getViewAnimator().setInitialDelayMillis(
+    500);
+
+  listView.setAdapter(stickyListHeadersAdapterDecorator);
+//  currentSortMode = SORT_MODE_NAME_ASC;
+//  adapter.reSort();
+  stickyListHeadersAdapterDecorator.notifyDataSetChanged();
+}
+ 
 
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     super.onActivityResult(requestCode, resultCode, data);

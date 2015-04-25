@@ -35,8 +35,8 @@ public class ConversationsListAdapter extends ArrayAdapter<UserInfo> implements
 
   public ConversationsListAdapter(final Context context, ArrayList<UserInfo> names) {
     mContext = context;
-    for (int i = 0; i < ActivityConversations.userNames.size(); i++) {
-      add(ActivityConversations.userNames.get(i));
+    for (int i = 0; i < ActivityConversations.potentialUsers.size(); i++) {
+      add(ActivityConversations.potentialUsers.get(i));
     }
   }
 
@@ -47,7 +47,7 @@ public class ConversationsListAdapter extends ArrayAdapter<UserInfo> implements
 
   @Override
   public UserInfo getItem(final int position) {
-    return ActivityConversations.userNames.get(position);
+    return ActivityConversations.potentialUsers.get(position);
   }
 
   @Override
@@ -62,7 +62,7 @@ public class ConversationsListAdapter extends ArrayAdapter<UserInfo> implements
     if (ascending == false) {
       comparer = Collections.reverseOrder(comparer);
     }
-    Collections.sort(ActivityConversations.userNames, comparer);
+    Collections.sort(ActivityConversations.potentialUsers, comparer);
   }
 
   public void reSortDate(boolean ascending) {
@@ -73,7 +73,7 @@ public class ConversationsListAdapter extends ArrayAdapter<UserInfo> implements
     if (ascending == false) {
       comparer = Collections.reverseOrder(comparer);
     }
-    Collections.sort(ActivityConversations.userNames, comparer);
+    Collections.sort(ActivityConversations.potentialUsers, comparer);
   }
 
   @SuppressLint("NewApi")
@@ -86,14 +86,14 @@ public class ConversationsListAdapter extends ArrayAdapter<UserInfo> implements
     }
     
     ImageView portraitImg = (ImageView) convertView.findViewById(R.id.conversations_image);
-	if (ActivityConversations.userNames.get(position).getPortrait() != null){
-		portraitImg.setImageBitmap(ActivityConversations.userNames.get(position).getPortrait());
+	if (ActivityConversations.potentialUsers.get(position).getPortrait() != null){
+		portraitImg.setImageBitmap(ActivityConversations.potentialUsers.get(position).getPortrait());
 	}
 
     TextView tv = (TextView) convertView
       .findViewById(R.id.conversations_textview);
 
-    tv.setText(ActivityConversations.userNames.get(position).getFirstName());
+    tv.setText(ActivityConversations.potentialUsers.get(position).getFirstName());
     // tv.setTextAlignment(TextView.TEXT_ALIGNMENT_CENTER);
 
     return convertView;
@@ -108,7 +108,7 @@ public class ConversationsListAdapter extends ArrayAdapter<UserInfo> implements
     }
 
     TextView headerText = (TextView) convertView.findViewById(R.id.conversations_text_header);
-    UserInfo localUser = ActivityConversations.userNames.get(position);
+    UserInfo localUser = ActivityConversations.potentialUsers.get(position);
 
     if (sortModeName) {
       String first = localUser.getFirstName();
@@ -127,9 +127,9 @@ public class ConversationsListAdapter extends ArrayAdapter<UserInfo> implements
   @Override
   public long getHeaderId(final int position) {
     if (sortModeName) {
-      if (ActivityConversations.userNames.get(position).getFirstName() != null
-        && ActivityConversations.userNames.get(position).getFirstName() != "") {
-        return ActivityConversations.userNames.get(position).getFirstName()
+      if (ActivityConversations.potentialUsers.get(position).getFirstName() != null
+        && ActivityConversations.potentialUsers.get(position).getFirstName() != "") {
+        return ActivityConversations.potentialUsers.get(position).getFirstName()
           .toUpperCase(Locale.ENGLISH).toCharArray()[0];
       } else {
         Log.i("getHeaderId", "empty first name");
@@ -137,7 +137,7 @@ public class ConversationsListAdapter extends ArrayAdapter<UserInfo> implements
       }
     } else {
       return dateToHeaderString(
-        ActivityConversations.userNames.get(position).getCreatedAt()).length();
+        ActivityConversations.potentialUsers.get(position).getCreatedAt()).length();
     }
   }
 

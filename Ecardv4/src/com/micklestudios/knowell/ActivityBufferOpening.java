@@ -64,9 +64,13 @@ public class ActivityBufferOpening extends Activity {
       getActionBar().hide();
     }
     setContentView(R.layout.activity_buffer_opening);
-    currentUser = ParseUser.getCurrentUser();
+    currentUser = ParseUser.getCurrentUser();    
     progressButton1 = (ProgressButton) findViewById(R.id.pin_progress_1);
     progressButton1.setProgress(totalProgress);
+    
+    // if tmpImgByteArray not null, need to convert to img file regardless
+    // of network
+    checkPortrait();
 
     if (ECardUtils.isNetworkAvailable(this)) {
       // Below is for the sake of push notification
@@ -99,6 +103,7 @@ public class ActivityBufferOpening extends Activity {
           // if no network, generate userInfo objects directly from
           // localDataStore
           getContacts();
+          getConvContacts();
           totalProgress = 100;
           Message myMessage = new Message();
           myMessage.obj = totalProgress;
@@ -108,12 +113,63 @@ public class ActivityBufferOpening extends Activity {
       }, 500);
     }
 
-    // if tmpImgByteArray not null, need to convert to img file regardless
-    // of network
-    checkPortrait();
+    
     // only display the splash screen for an amount of time
     // should I have it depend on the completion of self-copy sync instead?
 
+  }
+  
+  protected void getConvContacts() {
+    Log.i("actbuf", "inside getconvcontacts");
+    ActivityConversations.potentialUsers = new ArrayList<UserInfo>();
+    /* A map of all the ECardNote objects to the noteID */
+    final HashMap<String, ParseObject> infoIdToConvObjectMap = new HashMap<String, ParseObject>();
+    // During SyncConversations, all conversations should have been synced to local
+    ParseQuery<ParseObject> queryConvs = ParseQuery.getQuery("Conversations");
+    queryConvs.fromLocalDatastore();
+    queryConvs.whereEqualTo("partyB", currentUser.get("ecardId").toString());
+    List<ParseObject> objectConvList = null;
+    try {
+      objectConvList = queryConvs.find();
+    } catch (ParseException e) {
+      e.printStackTrace();
+    }
+    if(objectConvList != null && objectConvList.size() != 0){
+      // If there are conversations, don't worry about notes yet, just create userInfo using ecards
+      for(Iterator<ParseObject> iter = objectConvList.iterator(); iter.hasNext();){
+        ParseObject objectConv = iter.next();
+        // don't need to check if the conversation is deleted, because that should be done by SyncConversations
+        String infoObjectId = objectConv.get("partyA").toString();
+        infoIdToConvObjectMap.put(infoObjectId, objectConv);
+      }
+      /*
+       * Now, query the ECardInfoTable to get all the ECardInfo for the conversations
+       * collected here.
+       */
+      ParseQuery<ParseObject> queryInfo = ParseQuery.getQuery("ECardInfo");
+      queryInfo.fromLocalDatastore();
+      queryInfo.whereContainedIn("objectId", infoIdToConvObjectMap.keySet());
+      List<ParseObject> objectInfoList = null;
+      try {
+        objectInfoList = queryInfo.find();
+      } catch (ParseException e) {
+        e.printStackTrace();
+      }
+      Log.i("actbuf", " "+ objectConvList.size()+ " "+ objectInfoList.size() );
+        
+      if(objectInfoList != null && objectInfoList.size() != 0){
+        for(Iterator<ParseObject> iter = objectInfoList.iterator(); iter.hasNext();){
+          ParseObject objectInfo = iter.next();
+          UserInfo contact = new UserInfo(objectInfo);
+          if(contact != null){
+            Log.i("actbuf", contact.getFirstName());
+            // No need to put note as part of UserInfo -- will execute note_query from localdatastore later
+            // Dont need to keep mapping to actual conversations objects -- they are not as critical
+            ActivityConversations.potentialUsers.add(contact);
+          }
+        }
+      }        
+    }
   }
 
   private void getContacts() {
@@ -303,6 +359,7 @@ public class ActivityBufferOpening extends Activity {
             // when all other syncs complete, generate UserInfo objects from
             // LocalDataStore
             getContacts();
+            getConvContacts();
             totalProgress = 100;
           }
           if ((createSelfCopy.getStatus() != AsyncTask.Status.RUNNING || timeoutFlagSelf)
@@ -350,6 +407,8 @@ public class ActivityBufferOpening extends Activity {
       if (totalProgress == 100) {
         // if there is network, wait till self sync completes before finishing
         // BufferOpening
+        // check portrait again
+        checkPortrait();
         Intent intent = new Intent(ActivityBufferOpening.this,
           ActivityMain.class);
         intent.putExtra("imgFromTmpData", imgFromTmpData);
@@ -371,20 +430,21 @@ public class ActivityBufferOpening extends Activity {
   private void checkPortrait() {
     ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardInfo");
     query.fromLocalDatastore();
-    query.getInBackground(currentUser.get("ecardId").toString(),
-      new GetCallback<ParseObject>() {
+    ParseObject object;
+    try {
+      object = query.get(currentUser.get("ecardId").toString());
+      byte[] tmpImgData = (byte[]) object.get("tmpImgByteArray");
+      if (tmpImgData != null) {
+        imgFromTmpData = true;
+      } else {
+        imgFromTmpData = false;
+      }
+    } catch (ParseException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    
 
-        @Override
-        public void done(ParseObject object, ParseException e) {
-          if (e == null && object != null) {
-            byte[] tmpImgData = (byte[]) object.get("tmpImgByteArray");
-            if (tmpImgData != null) {
-              imgFromTmpData = true;
-            }
-          }
-        }
-
-      });
 
   }
 

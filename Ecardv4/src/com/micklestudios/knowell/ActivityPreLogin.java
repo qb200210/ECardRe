@@ -28,7 +28,8 @@ public class ActivityPreLogin extends Activity {
     super.onStart();
 
     currentUser = ParseUser.getCurrentUser();
-    if (currentUser != null) {
+    
+    if (currentUser != null && currentUser.get("ecardId") != null) {
       // If already logged in, skip this check
       Intent intent = new Intent(getBaseContext(), ActivityBufferOpening.class);
       startActivity(intent);

@@ -6,13 +6,16 @@ import com.parse.PushService;
 import com.micklestudios.knowell.R;
 
 import android.app.Application;
+import android.content.Context;
 
 public class MyApplication extends Application {
+
+  private static Context context;
 
   @Override
   public void onCreate() {
     super.onCreate();
-
+    context = this;
     // Must extend Application, otherwise get errors when opening app again
     // saying enableOfflineStore() called multiple times
     Parse.enableLocalDatastore(this);
@@ -27,4 +30,9 @@ public class MyApplication extends Application {
     PushService.setDefaultPushCallback(this, ActivityConversations.class);
 
   }
+  
+  public static Context getContext(){
+    return context;
+  }
+  
 }

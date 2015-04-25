@@ -21,7 +21,11 @@
 
 package com.parse.ui;
 
+import java.util.Date;
+
 import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.LayoutInflater;
@@ -32,6 +36,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.parse.LogInCallback;
 import com.parse.ParseException;
@@ -66,6 +71,7 @@ public class ParseLoginFragment extends ParseLoginFragmentBase {
   private Button twitterLoginButton;
   private ParseLoginFragmentListener loginFragmentListener;
   private ParseOnLoginSuccessListener onLoginSuccessListener;
+  protected static final String MY_PREFS_NAME = "KnoWellSyncParams";
 
   private ParseLoginConfig config;
 
@@ -173,6 +179,15 @@ public class ParseLoginFragment extends ParseLoginFragmentBase {
 
               if (user != null) {
                 loadingFinish();
+                // clean up defaults for lastSynced time:
+                SharedPreferences prefs = getActivity().getSharedPreferences(MY_PREFS_NAME,
+                  Context.MODE_PRIVATE);
+                SharedPreferences.Editor prefEditor = prefs.edit();
+                Date currentDate=new Date(0);
+                prefEditor.putLong("DateConversationsSynced", currentDate.getTime());
+                prefEditor.putLong("DateNoteSynced", currentDate.getTime());
+                prefEditor.putLong("DateSelfSynced", currentDate.getTime());
+                prefEditor.commit();
                 loginSuccess();
               } else {
                 loadingFinish();
