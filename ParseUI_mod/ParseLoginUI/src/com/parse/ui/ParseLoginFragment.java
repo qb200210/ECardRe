@@ -21,7 +21,11 @@
 
 package com.parse.ui;
 
+import java.util.Date;
+
 import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
@@ -53,7 +57,6 @@ import com.linkedin.platform.listeners.AuthListener;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-
 
 import com.parse.LogInCallback;
 import com.parse.ParseException;
@@ -95,6 +98,7 @@ public class ParseLoginFragment extends ParseLoginFragmentBase {
   private Button linkedinLoginButton;
   private ParseLoginFragmentListener loginFragmentListener;
   private ParseOnLoginSuccessListener onLoginSuccessListener;
+  protected static final String MY_PREFS_NAME = "KnoWellSyncParams";
 
   private ParseLoginConfig config;
 
@@ -207,6 +211,15 @@ public class ParseLoginFragment extends ParseLoginFragmentBase {
 
               if (user != null) {
                 loadingFinish();
+                // clean up defaults for lastSynced time:
+                SharedPreferences prefs = getActivity().getSharedPreferences(MY_PREFS_NAME,
+                  Context.MODE_PRIVATE);
+                SharedPreferences.Editor prefEditor = prefs.edit();
+                Date currentDate=new Date(0);
+                prefEditor.putLong("DateConversationsSynced", currentDate.getTime());
+                prefEditor.putLong("DateNoteSynced", currentDate.getTime());
+                prefEditor.putLong("DateSelfSynced", currentDate.getTime());
+                prefEditor.commit();
                 loginSuccess();
               } else {
                 loadingFinish();
@@ -257,8 +270,6 @@ public class ParseLoginFragment extends ParseLoginFragmentBase {
       }
     });
   }
-
-  
 
   private void setUpTwitterLogin() {
     twitterLoginButton.setVisibility(View.VISIBLE);

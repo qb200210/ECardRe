@@ -3,10 +3,13 @@ package com.parse.ui;
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Date;
 import java.util.Locale;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
@@ -55,6 +58,7 @@ public class ParseSignupFragment extends ParseLoginFragmentBase implements OnCli
   private static final String LOG_TAG = "ParseSignupFragment";
   private static final int DEFAULT_MIN_PASSWORD_LENGTH = 6;
   private static final String USER_OBJECT_NAME_FIELD = "name";
+  protected static final String MY_PREFS_NAME = "KnoWellSyncParams";
 
   public static ParseSignupFragment newInstance(Bundle configOptions, String username, String password) {
     ParseSignupFragment signupFragment = new ParseSignupFragment();
@@ -228,6 +232,15 @@ public class ParseSignupFragment extends ParseLoginFragmentBase implements OnCli
   }
   
   private void initializeMyCard(ParseUser currentUser) {
+    // clean up defaults for lastSynced time:
+    SharedPreferences prefs = getActivity().getSharedPreferences(MY_PREFS_NAME,
+      Context.MODE_PRIVATE);
+    SharedPreferences.Editor prefEditor = prefs.edit();
+    Date currentDate=new Date(0);
+    prefEditor.putLong("DateConversationsSynced", currentDate.getTime());
+    prefEditor.putLong("DateNoteSynced", currentDate.getTime());
+    prefEditor.putLong("DateSelfSynced", currentDate.getTime());
+    prefEditor.commit();
 	  ParseObject object = new ParseObject("ECardInfo");
 		// objectId is only created after the object is saved.
 		// If use saveInBackground, .getObjectId gets nothing since object not saved yet
@@ -302,7 +315,7 @@ public class ParseSignupFragment extends ParseLoginFragmentBase implements OnCli
     return LOG_TAG;
   }
 
-  private void signupSuccess() {
+  private void signupSuccess() { 
     onLoginSuccessListener.onLoginSuccess();
   }
 }

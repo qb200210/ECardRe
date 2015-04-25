@@ -2,6 +2,7 @@ package com.micklestudios.knowell;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.StringTokenizer;
@@ -31,6 +32,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
@@ -41,9 +43,11 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -84,8 +88,14 @@ public class ActivitySearch extends ActionBarActivity {
   AutoCompleteTextView filterTextEventMet;
   AutoCompleteTextView filterTextCompany;
 
+  // List of users filtered after search.
   public static ArrayList<UserInfo> filteredUsers;
+
+  // List of all the users in the system.
   public static ArrayList<UserInfo> allUsers;
+
+  // List of users selected by the user.
+  public static HashSet<UserInfo> selectedUsers;
   static ArrayList<String> autoCompleteList;
   SearchListAdapter adapter;
   AlphaInAnimationAdapter animationAdapter;
@@ -100,11 +110,9 @@ public class ActivitySearch extends ActionBarActivity {
   public static ArrayList<String> autoCompleteListWhere;
   public static ArrayList<String> autoCompleteListEvent;
 
-  RelativeLayout rLayoutEventMet;
-  RelativeLayout rLayoutWhereMet;
-  RelativeLayout rLayoutCompany;
-
-  Button btnPullDown;
+  LinearLayout lLayoutEventMet;
+  LinearLayout lLayoutWhereMet;
+  LinearLayout lLayoutCompany;
 
   private int searchMenuRetractedHeight = 0;
 
@@ -115,6 +123,9 @@ public class ActivitySearch extends ActionBarActivity {
   public static final int SORT_MODE_DATE_DSC = 4;
 
   public static int currentSortMode = SORT_MODE_DATE_ASC;
+
+  // Whether in selection mode.
+  public static boolean isSelectionMode = false;
 
   ArrayAdapter<String> autoCompleteAdapter;
   AutoCompleteTextView searchBox;
@@ -148,6 +159,7 @@ public class ActivitySearch extends ActionBarActivity {
     currentUser = ParseUser.getCurrentUser();
 
     filteredUsers = new ArrayList<UserInfo>();
+    selectedUsers = new HashSet<UserInfo>();
     autoCompleteList = new ArrayList<String>();
     searchListToUserListMap = new SparseIntArray();
 
@@ -171,7 +183,6 @@ public class ActivitySearch extends ActionBarActivity {
     mainView.post(new Runnable() {
       @Override
       public void run() {
-        RelativeLayout rLayout = (RelativeLayout) findViewById(R.id.rllayout_search_pull_down);
         int searchWidgetTotalHeight = searchWidget.getMeasuredHeight()
           + searchWidget.getPaddingTop();
         SEARCH_MENU_OVERHANG = searchWidgetTotalHeight;
@@ -192,9 +203,9 @@ public class ActivitySearch extends ActionBarActivity {
     filterTextCompany = (AutoCompleteTextView) findViewById(R.id.txt_company);
 
     // The layouts we need to hide when drop down goes up.
-    rLayoutCompany = (RelativeLayout) findViewById(R.id.rlayout_company);
-    rLayoutWhereMet = (RelativeLayout) findViewById(R.id.rlayout_where_met);
-    rLayoutEventMet = (RelativeLayout) findViewById(R.id.rlayout_event_met);
+    lLayoutCompany = (LinearLayout) findViewById(R.id.llayout_company);
+    lLayoutWhereMet = (LinearLayout) findViewById(R.id.llayout_where_met);
+    lLayoutEventMet = (LinearLayout) findViewById(R.id.llayout_event_met);
 
     // The three frames in the layout.
     searchPanel = (LinearLayout) findViewById(R.id.lnlayout_search_menu);
@@ -206,16 +217,56 @@ public class ActivitySearch extends ActionBarActivity {
     searchButton = (Button) findViewById(R.id.btn_search_inside);
   }
 
+  private void showSelectionMenu() {
+
+  }
+
   private void initializeContactList() {
     listView.setOnItemClickListener(new OnItemClickListener() {
       @Override
       public void onItemClick(AdapterView<?> parent, View view, int position,
         long id) {
-        UserInfo selectedUser = (UserInfo) listView.getItemAtPosition(position);
-        Intent intent = new Intent(getBaseContext(), ActivityDetails.class);
-        // passing UserInfo is made possible through Parcelable
-        intent.putExtra("userinfo", selectedUser);
-        startActivity(intent);
+        UserInfo clickedUser = (UserInfo) listView.getItemAtPosition(position);
+
+        if (isSelectionMode == false) {
+          // We are simply browsing through the contacts.
+          Intent intent = new Intent(getBaseContext(), ActivityDetails.class);
+          // passing UserInfo is made possible through Parcelable
+          intent.putExtra("userinfo", clickedUser);
+          startActivity(intent);
+        } else {
+          // Now we are selecting stuff. Get the check box
+          CheckBox selectionBox = (CheckBox) view
+            .findViewById(R.id.chk_contact_select);
+
+          // If this is already selected, remove it.
+          if (selectedUsers.contains(clickedUser)) {
+            selectedUsers.remove(clickedUser);
+            selectionBox.setSelected(false);
+            // If nothing is left selected, stop selection mode.
+            if (selectedUsers.size() == 0) {
+              isSelectionMode = false;
+              searchBox.setHint("Start Searching ...");
+            }
+          } else {
+            selectedUsers.add(clickedUser);
+            selectionBox.setSelected(true);
+          }
+
+          adapter.notifyDataSetChanged();
+        }
+      }
+    });
+
+    listView.setOnItemLongClickListener(new OnItemLongClickListener() {
+      @Override
+      public boolean onItemLongClick(AdapterView<?> parent, View view,
+        int position, long id) {
+        if (isSelectionMode == false) {
+          isSelectionMode = true;
+          searchBox.setHint("SELECTION MODE");
+        }
+        return false;
       }
     });
 
@@ -244,15 +295,6 @@ public class ActivitySearch extends ActionBarActivity {
     searchPanel.setOnClickListener(new OnClickListener() {
       @Override
       public void onClick(View v) {
-      }
-    });
-
-    // Set the dropdown animation.
-    btnPullDown = (Button) findViewById(R.id.btn_pull_down);
-    btnPullDown.setOnClickListener(new OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        moveSearchMenu();
       }
     });
 
@@ -327,9 +369,9 @@ public class ActivitySearch extends ActionBarActivity {
   private void toggleFiltersVisibility(boolean show) {
     int visibility = show ? View.VISIBLE : View.GONE;
 
-    rLayoutWhereMet.setVisibility(visibility);
-    rLayoutEventMet.setVisibility(visibility);
-    rLayoutCompany.setVisibility(visibility);
+    lLayoutWhereMet.setVisibility(visibility);
+    lLayoutEventMet.setVisibility(visibility);
+    lLayoutCompany.setVisibility(visibility);
   }
 
   private void performSearch() {
@@ -451,7 +493,6 @@ public class ActivitySearch extends ActionBarActivity {
   private void moveSearchMenuUp() {
     if (droppedDown) {
       droppedDown = false;
-      setViewBackground(btnPullDown, R.drawable.semi_rounded_down_empty);
       searchPanel.animate().translationY(searchMenuRetractedHeight)
         .setDuration(SCROLL_ANIMATION_SPEED_MS_FAST)
         .setInterpolator(new LinearInterpolator()).start();
@@ -464,14 +505,13 @@ public class ActivitySearch extends ActionBarActivity {
       toggleFiltersVisibility(true);
       // Drop the shade down.
       droppedDown = true;
-      setViewBackground(btnPullDown, R.drawable.semi_rounded_up_empty);
       searchPanel.animate().translationY(SEARCH_MENU_OVERHANG)
         .setDuration(SCROLL_ANIMATION_SPEED_MS_NORMAL)
         .setInterpolator(new OvershootInterpolator()).start();
 
       // Hide the keyboard
       InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-      imm.hideSoftInputFromWindow(btnPullDown.getWindowToken(), 0);
+      imm.hideSoftInputFromWindow(searchPanel.getWindowToken(), 0);
     }
   }
 
@@ -517,6 +557,9 @@ public class ActivitySearch extends ActionBarActivity {
   public boolean onOptionsItemSelected(MenuItem item) {
     // this function is called when either action bar icon is tapped
     switch (item.getItemId()) {
+    case R.id.filter_results:
+      moveSearchMenu();
+      return true;
     case R.id.sort_results:
       actions.show();
       return true;
