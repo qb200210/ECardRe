@@ -22,6 +22,7 @@
 package com.parse.ui;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -33,8 +34,14 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.Window;
+import android.widget.Button;
+import android.widget.Toast;
+import android.view.View;
+import android.view.View.OnClickListener;
 
+//import com.micklestudios.knowell.R;
 import com.parse.Parse;
+
 
 /**
  * Encapsulates the Parse login flow. The user can log in by username/password,
@@ -80,24 +87,26 @@ public class ParseLoginActivity extends FragmentActivity implements
 
   private ProgressDialog progressDialog;
   private Bundle configOptions;
-
+  
   // Although Activity.isDestroyed() is in API 17, we implement it anyways for older versions.
   private boolean destroyed = false;
+  
 
+  // 
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-
     this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 
     // Combine options from incoming intent and the activity metadata
     configOptions = getMergedOptions();
 
     // Show the login form
+    // Show the login form
     if (savedInstanceState == null) {
       getSupportFragmentManager().beginTransaction().add(fragmentContainer,
           ParseLoginFragment.newInstance(configOptions)).commit();
-    }
+      }
   }
 
   @Override
@@ -227,4 +236,5 @@ public class ParseLoginActivity extends FragmentActivity implements
 
     return mergedOptions;
   }
+  
 }

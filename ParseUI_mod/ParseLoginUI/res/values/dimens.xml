@@ -7,6 +7,6 @@
     <dimen name="com_parse_ui_large_vertical_spacing">24dp</dimen>
     <dimen name="com_parse_ui_xlarge_vertical_spacing">36dp</dimen>
     <dimen name="com_parse_ui_small_horizontal_spacing">8dp</dimen>
-
+	<dimen name="com_parse_ui_no_spacing">0dp</dimen>
 </resources>
 

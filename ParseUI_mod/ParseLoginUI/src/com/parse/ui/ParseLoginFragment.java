@@ -24,6 +24,7 @@ package com.parse.ui;
 import android.app.Activity;
 import android.os.Bundle;
 import android.text.InputType;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -32,6 +33,27 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
+import android.util.Base64;
+
+
+import com.linkedin.platform.LISession;
+import com.linkedin.platform.LISessionManager;
+import com.linkedin.platform.utils.Scope;
+import com.linkedin.platform.APIHelper;
+import com.linkedin.platform.errors.LIApiError;
+import com.linkedin.platform.errors.LIAuthError;
+import com.linkedin.platform.listeners.ApiListener;
+import com.linkedin.platform.listeners.ApiResponse;
+import com.linkedin.platform.listeners.AuthListener;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 
 import com.parse.LogInCallback;
 import com.parse.ParseException;
@@ -39,6 +61,7 @@ import com.parse.ParseTwitterUtils;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.parse.twitter.Twitter;
+
 
 /**
  * Fragment for the user login screen.
@@ -55,6 +78,11 @@ public class ParseLoginFragment extends ParseLoginFragmentBase {
 
   private static final String LOG_TAG = "ParseLoginFragment";
   private static final String USER_OBJECT_NAME_FIELD = "name";
+  
+  public static final String PACKAGE_MOBILE_ECARD_APP = "com.micklestudios.knowell";
+  private static final String host = "api.linkedin.com";
+  private static final String topCardUrl = "https://" + host + "/v1/people/~:(first-name,last-name,positions,email-address,location,picture-url)";
+
 
   private View parseLogin;
   private EditText usernameField;
@@ -64,6 +92,7 @@ public class ParseLoginFragment extends ParseLoginFragmentBase {
   private Button parseSignupButton;
   private Button facebookLoginButton;
   private Button twitterLoginButton;
+  private Button linkedinLoginButton;
   private ParseLoginFragmentListener loginFragmentListener;
   private ParseOnLoginSuccessListener onLoginSuccessListener;
 
@@ -96,6 +125,8 @@ public class ParseLoginFragment extends ParseLoginFragmentBase {
     parseSignupButton = (Button) v.findViewById(R.id.parse_signup_button);
     facebookLoginButton = (Button) v.findViewById(R.id.facebook_login);
     twitterLoginButton = (Button) v.findViewById(R.id.twitter_login);
+    linkedinLoginButton = (Button) v.findViewById(R.id.linkedin_login);
+    
 
     if (appLogo != null && config.getAppLogo() != null) {
       appLogo.setImageResource(config.getAppLogo());
@@ -106,6 +137,9 @@ public class ParseLoginFragment extends ParseLoginFragmentBase {
     if (allowTwitterLogin()) {
       setUpTwitterLogin();
     }
+    //linkedin login
+    setupLinkedinLogin();
+    
     return v;
   }
 
@@ -283,6 +317,92 @@ public class ParseLoginFragment extends ParseLoginFragmentBase {
     });
   }
 
+  
+  private void setupLinkedinLogin() {
+	  
+	  	setUpdateState();
+	    //linkedinLoginButton.setVisibility(View.VISIBLE);
+	    linkedinLoginButton.setOnClickListener(new OnClickListener() {
+	      @Override
+	      public void onClick(View v) {
+	        loadingStart(false); // Twitter login pop-up already has a spinner
+        	Activity thisActivity = getActivity();
+            LISessionManager.getInstance(thisActivity.getApplicationContext()).init(thisActivity, buildScope(), new AuthListener() {
+                @Override
+                public void onAuthSuccess() {
+                	Log.v("sccess", "before");
+                    setUpdateState();
+                    Log.v("sccess", "after");
+                    /*-----
+                    APIHelper apiHelper = APIHelper.getInstance(getActivity().getParent().getApplicationContext());
+                    apiHelper.getRequest(getActivity().getParent(), topCardUrl, new ApiListener() {
+                        @Override
+                        public void onApiSuccess(ApiResponse s) {
+                            Log.v("fetched string", s.toString());
+                            Toast.makeText(getActivity().getParent().getApplicationContext(), "clicked", Toast.LENGTH_LONG).show();
+                        }
+
+                        @Override
+                        public void onApiError(LIApiError error) {
+                            Log.v("error string", error.toString());
+                            Toast.makeText(getActivity().getParent().getApplicationContext(), error.toString(), Toast.LENGTH_LONG).show();
+                        }
+                    });
+                    --*/
+                    Toast.makeText(getActivity().getApplicationContext(), "success", Toast.LENGTH_LONG).show();
+                }
+                @Override
+                public void onAuthError(LIAuthError error) {
+                	Log.v("error string", "before");
+                    setUpdateState();
+                    Log.v("error string", error.toString());
+                    Toast.makeText(getActivity().getApplicationContext(), "failed " + error.toString(), Toast.LENGTH_LONG).show();
+                }
+            }, true); 
+            
+           
+            try {
+                PackageInfo info = thisActivity.getPackageManager().getPackageInfo(
+                        PACKAGE_MOBILE_ECARD_APP,
+                        PackageManager.GET_SIGNATURES);
+                for (Signature signature : info.signatures) {
+                    MessageDigest md = MessageDigest.getInstance("SHA");
+                    md.update(signature.toByteArray());
+
+                    Log.v("packagename", info.packageName);
+                    Log.v("encode", Base64.encodeToString(md.digest(), Base64.NO_WRAP));
+                }
+            } catch (PackageManager.NameNotFoundException e) {
+                Log.d(LOG_TAG, e.getMessage(), e);
+            } catch (NoSuchAlgorithmException e) {
+                Log.d(LOG_TAG, e.getMessage(), e);
+            }
+          
+	        //Toast.makeText(getActivity().getApplicationContext(), "clicked", Toast.LENGTH_LONG).show();
+        	Log.v("event click", "clicked");
+
+	      }
+  });
+	    
+  }
+
+  private void setUpdateState() {
+      LISessionManager sessionManager = LISessionManager.getInstance(getActivity().getApplicationContext());
+      LISession session = sessionManager.getSession();
+      boolean accessTokenValid = session.isValid();
+      if (accessTokenValid){
+    	  Log.d(LOG_TAG, "valid");
+      }
+      else{
+    	  Log.d(LOG_TAG, "invalid");
+      }
+      
+  }
+
+  private static Scope buildScope() {
+      return Scope.build(Scope.R_BASICPROFILE, Scope.W_SHARE);
+  }
+  
   private boolean allowParseLoginAndSignup() {
     if (!config.isParseLoginEnabled()) {
       return false;

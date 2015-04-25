@@ -12,17 +12,39 @@ import com.parse.ui.ParseLoginActivity;
 import com.parse.ui.ParseLoginBuilder;
 import com.micklestudios.knowell.R;
 
+import android.widget.Button;
+import android.view.View;
+import android.view.View.OnClickListener;
+
+import android.widget.Toast;
+import android.util.Log;
+
+import com.linkedin.platform.APIHelper;
+import com.linkedin.platform.LISession;
+import com.linkedin.platform.LISessionManager;
+import com.linkedin.platform.errors.LIApiError;
+import com.linkedin.platform.errors.LIAuthError;
+import com.linkedin.platform.listeners.ApiListener;
+import com.linkedin.platform.listeners.ApiResponse;
+import com.linkedin.platform.listeners.AuthListener;
+import com.linkedin.platform.utils.Scope;
+
+
 public class ActivityPreLogin extends Activity {
   private static final int LOGIN_REQUEST = 0;
   ParseFile file = null;
   ParseUser currentUser;
-
+  
   @Override
   public void onCreate(Bundle SavedInstances) {
     super.onCreate(SavedInstances);
+    //setContentView(R.layout.com_parse_ui_parse_login_third_party_section);
+    
     ParseAnalytics.trackAppOpened(getIntent());
+       
+    //addListenerOnButton();
   }
-
+    
   @Override
   protected void onStart() {
     super.onStart();
@@ -48,6 +70,7 @@ public class ActivityPreLogin extends Activity {
         .setParseLoginEmailAsUsername(false)
         .setParseSignupSubmitButtonText("Submit registration")
         .setFacebookLoginEnabled(false).setTwitterLoginEnabled(false).build();
+      
       startActivityForResult(loginBuilder.build(), LOGIN_REQUEST);
       // If successful, onStart will be called and there will be currentUser
       // If aborted, it will return to PreLoginActivity, which will be exited as
