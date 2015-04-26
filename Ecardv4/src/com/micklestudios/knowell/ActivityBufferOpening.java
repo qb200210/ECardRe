@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -39,6 +40,7 @@ public class ActivityBufferOpening extends Activity {
   private static final long CACHEIDS_TIMEOUT = 30000;
   private static final long NOTES_TIMEOUT = 30000;
   private static final long CONVERSATIONS_TIMEOUT = 30000;
+  private static final long COMPANYNAME_TIMEOUT = 60000;
   Integer WEIGHT_SELF = 20;
   Integer WEIGHT_NOTES = 20;
   Integer WEIGHT_CONV = 20;
@@ -54,6 +56,7 @@ public class ActivityBufferOpening extends Activity {
   private boolean timeoutFlagConv = false;
   private boolean timeoutFlagNotes = false;
   private boolean timeoutFlagCachedIds = false;
+  private boolean timeoutFlagCompany = false;
   private ProgressButton progressButton1;
 
   @Override
@@ -71,6 +74,11 @@ public class ActivityBufferOpening extends Activity {
     // if tmpImgByteArray not null, need to convert to img file regardless
     // of network
     checkPortrait();
+    
+    // check sharedpreferences
+    final SharedPreferences prefs = getSharedPreferences(MY_PREFS_NAME,
+      MODE_PRIVATE);
+    SharedPreferences.Editor prefEditor = prefs.edit();
 
     if (ECardUtils.isNetworkAvailable(this)) {
       // Below is for the sake of push notification
@@ -84,10 +92,7 @@ public class ActivityBufferOpening extends Activity {
           }
         });
 
-      // check sharedpreferences
-      SharedPreferences prefs = getSharedPreferences(MY_PREFS_NAME,
-        MODE_PRIVATE);
-      SharedPreferences.Editor prefEditor = prefs.edit();
+      
 
       // syncing data within given timeout
       // when self sync done, transition
@@ -104,6 +109,7 @@ public class ActivityBufferOpening extends Activity {
           // localDataStore
           getContacts();
           getConvContacts();
+          createCompanyNamesFromLocal(prefs);
           totalProgress = 100;
           Message myMessage = new Message();
           myMessage.obj = totalProgress;
@@ -119,6 +125,17 @@ public class ActivityBufferOpening extends Activity {
 
   }
   
+  protected void createCompanyNamesFromLocal(SharedPreferences prefs) {
+    //Retrieve the saved company list from sharedpreference
+    // this will be used to populate autocomplete box
+    ActivityDesign.companyNames = new ArrayList<String>();
+    Set<String> tmpCompanyNames = new HashSet<String>();
+    tmpCompanyNames = prefs.getStringSet("listOfCompanyNames", null);
+    if(tmpCompanyNames != null){
+      ActivityDesign.companyNames.addAll(tmpCompanyNames);
+    }    
+  }
+
   protected void getConvContacts() {
     Log.i("actbuf", "inside getconvcontacts");
     ActivityConversations.potentialUsers = new ArrayList<UserInfo>();
@@ -268,6 +285,7 @@ public class ActivityBufferOpening extends Activity {
 
   private void syncAllDataUponOpening(SharedPreferences prefs,
     SharedPreferences.Editor prefEditor) {
+    
     // Create/refresh local copy every time app opens
     final AsyncTasks.SyncDataTaskSelfCopy createSelfCopy = new AsyncTasks.SyncDataTaskSelfCopy(
       this, currentUser, prefs, prefEditor);
@@ -285,6 +303,23 @@ public class ActivityBufferOpening extends Activity {
         }
       }
     }, CREATE_SELF_COPY_TIMEOUT);
+    
+    // update the local string list for available company templates -- only the names, not the actual object
+    final AsyncTasks.SyncDataCompanyNames syncCompanyNames = new AsyncTasks.SyncDataCompanyNames(this, prefs, prefEditor);
+    syncCompanyNames.execute();
+    Handler handlerCompanyNames = new Handler();
+    handlerCompanyNames.postDelayed(new Runnable() {
+
+      @Override
+      public void run() {
+        if (syncCompanyNames.getStatus() == AsyncTask.Status.RUNNING) {
+          Toast.makeText(getApplicationContext(), "Company List Timed Out",
+            Toast.LENGTH_SHORT).show();
+          timeoutFlagCompany = true;
+          syncCompanyNames.cancel(true);
+        }
+      }
+    }, COMPANYNAME_TIMEOUT);
 
     // upon opening, pin online conversations to local
     final AsyncTasks.SyncDataTaskConversations syncConversations = new AsyncTasks.SyncDataTaskConversations(

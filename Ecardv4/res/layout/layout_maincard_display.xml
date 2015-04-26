@@ -108,7 +108,7 @@
                 android:layout_marginRight="24dp"
                 android:adjustViewBounds="true"
                 android:scaleType="fitEnd"
-                android:src="@drawable/testlogo1" />
+                android:src="@drawable/emptylogo" />
 
         </RelativeLayout>
     

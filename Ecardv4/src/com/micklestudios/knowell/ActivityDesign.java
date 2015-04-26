@@ -23,6 +23,7 @@ import com.micklestudios.knowell.utils.MyScrollView;
 import com.micklestudios.knowell.utils.MySimpleListViewAdapter;
 import com.micklestudios.knowell.utils.MyTag;
 import com.micklestudios.knowell.utils.SquareLayout;
+import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseFile;
@@ -43,20 +44,24 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnFocusChangeListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ImageView;
@@ -102,6 +107,10 @@ public class ActivityDesign extends ActionBarActivity {
   String[] selectionDisplayArray;
   AlertDialog actions;
   ExpandableHeightGridView gridView;
+  
+  public static ArrayList<String> companyNames;
+  ParseObject templateToBePinned = null;
+  protected boolean flagLogoSet = false;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -332,6 +341,13 @@ public class ActivityDesign extends ActionBarActivity {
           }
 
           private void saveChangesToParse(ParseObject object) {
+            if (!ECardUtils.isNetworkAvailable(ActivityDesign.this)) {
+              // if there is network, pin the ECardTemplate object to local
+              if(templateToBePinned != null){
+                templateToBePinned.pinInBackground();
+              }
+            }
+            
             EditText name = (EditText) findViewById(R.id.design_name);
             String fullName = name.getText().toString();
             String[] splitName = fullName.split(" ");
@@ -353,8 +369,8 @@ public class ActivityDesign extends ActionBarActivity {
             object.put("firstName", firstName);
             object.put("lastName", lastName);
 
-            name = (EditText) findViewById(R.id.design_com);
-            object.put("company", name.getText().toString());
+            AutoCompleteTextView cmpName = (AutoCompleteTextView) findViewById(R.id.design_com);
+            object.put("company", cmpName.getText().toString());
             name = (EditText) findViewById(R.id.design_job_title);
             object.put("title", name.getText().toString());
             name = (EditText) findViewById(R.id.design_address);
@@ -420,8 +436,8 @@ public class ActivityDesign extends ActionBarActivity {
     ActivityMain.myselfUserInfo.setFirstName(firstName);
     ActivityMain.myselfUserInfo.setLastName(lastName);
 
-    name = (EditText) findViewById(R.id.design_com);
-    ActivityMain.myselfUserInfo.setCompany(name.getText().toString());
+    AutoCompleteTextView cmpName = (AutoCompleteTextView) findViewById(R.id.design_com);
+    ActivityMain.myselfUserInfo.setCompany(cmpName.getText().toString());
     name = (EditText) findViewById(R.id.design_job_title);
     ActivityMain.myselfUserInfo.setTitle(name.getText().toString());
     name = (EditText) findViewById(R.id.design_address);
@@ -620,15 +636,43 @@ public class ActivityDesign extends ActionBarActivity {
       nameString = nameString + " " + tmpString;
     if (nameString != null)
       name.setText(nameString);
-    name = (TextView) findViewById(R.id.design_com);
-    name.setText(ActivityMain.myselfUserInfo.getCompany());
+    
+    
     name = (TextView) findViewById(R.id.design_job_title);
     name.setText(ActivityMain.myselfUserInfo.getTitle());
     name = (TextView) findViewById(R.id.design_address);
     name.setText(ActivityMain.myselfUserInfo.getCity());
     ImageView portraitImg = (ImageView) findViewById(R.id.design_portrait);
     portraitImg.setImageBitmap(ActivityMain.myselfUserInfo.getPortrait());
-  }
+    
+    final ImageView logoImg = (ImageView) findViewById(R.id.design_logo);
+    final AutoCompleteTextView cmpName = (AutoCompleteTextView) findViewById(R.id.design_com);
+    cmpName.setText(ActivityMain.myselfUserInfo.getCompany());
+    ECardUtils.findAndSetLogo(ActivityDesign.this,logoImg, cmpName.getText().toString(), true);
+    
+    Log.i("autoc", companyNames.toString());
+    ArrayAdapter<String> adapterCompanyNames = new ArrayAdapter<String>(this,
+      android.R.layout.select_dialog_item, companyNames);
+    cmpName.setAdapter(adapterCompanyNames);
+    cmpName.setOnItemClickListener(new OnItemClickListener(){
+
+      @Override
+      public void onItemClick(AdapterView<?> parent, View view, int position,
+        long id) {
+        ECardUtils.findAndSetLogo(ActivityDesign.this, logoImg, parent.getItemAtPosition(position).toString(), true);
+      }
+      
+    });
+    cmpName.setOnFocusChangeListener(new OnFocusChangeListener() {          
+
+      public void onFocusChange(View v, boolean hasFocus) {
+          if (!hasFocus) {
+            // code to execute when EditText loses focus
+            ECardUtils.findAndSetLogo(ActivityDesign.this, logoImg, cmpName.getText().toString(), true);
+          }
+      }
+    });
+  }  
 
   @SuppressWarnings("deprecation")
   public static Bitmap decodeSampledBitmapFromFile(String picturePath,

@@ -597,10 +597,7 @@ public class ActivityDetails extends ActionBarActivity {
     if (newUser.getPortrait() != null) {
       portraitImg.setImageBitmap(newUser.getPortrait());
     }
-    ImageView logoImg = (ImageView) findViewById(R.id.my_logo);
-    if (newUser.getPortrait() != null) {
-      logoImg.setImageResource(R.drawable.testlogo1);
-    }
+    
     TextView name = (TextView) findViewById(R.id.my_name);
     String tmpString = newUser.getFirstName();
     String nameString = null;
@@ -612,9 +609,14 @@ public class ActivityDetails extends ActionBarActivity {
     if (nameString != null)
       name.setText(nameString);
     name = (TextView) findViewById(R.id.my_com);
-    tmpString = newUser.getCompany();
-    if (tmpString != null)
+    tmpString = newUser.getCompany();    
+    if (tmpString != null) {
       name.setText(tmpString);
+      ImageView logoImg = (ImageView) findViewById(R.id.my_logo);
+      // display logo
+      ECardUtils.findAndSetLogo(this, logoImg, tmpString, false);
+    }
+    
     name = (TextView) findViewById(R.id.my_job_title);
     tmpString = newUser.getTitle();
     if (tmpString != null)

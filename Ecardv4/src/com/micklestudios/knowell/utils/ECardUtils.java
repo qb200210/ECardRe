@@ -4,17 +4,29 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.StringTokenizer;
 
 import org.apache.http.client.methods.HttpGet;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.util.Log;
+import android.widget.ImageView;
 
 import com.micklestudios.knowell.ActivityMain;
+import com.micklestudios.knowell.MyApplication;
 import com.micklestudios.knowell.R;
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseFile;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 
 public class ECardUtils {
 
@@ -80,5 +92,77 @@ public class ECardUtils {
       .getSystemService(Context.CONNECTIVITY_SERVICE);
     NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
     return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+  }
+  
+  public static void findAndSetLogo(Activity activity, final ImageView logoImg, String companyName, boolean checkOnline) {
+    Log.i("find", companyName);
+    ParseQuery<ParseObject> queryLocal = ParseQuery.getQuery("ECardTemplate");
+    queryLocal.whereEqualTo("companyName", companyName);
+    queryLocal.fromLocalDatastore();
+    List<ParseObject> listTemplateObjectsLocal = null;
+    try {
+      listTemplateObjectsLocal = queryLocal.find();
+    } catch (ParseException e2) {
+      e2.printStackTrace();
+    }
+    if(listTemplateObjectsLocal != null && listTemplateObjectsLocal.size()!= 0 ){
+      ParseFile logoFile = (ParseFile) listTemplateObjectsLocal.get(0).get("companyLogo");
+      byte[] data;
+      try {
+        data = logoFile.getData();
+        if(data != null){
+          Bitmap logo = BitmapFactory.decodeByteArray(data, 0, data.length);
+          logoImg.setImageBitmap(logo);
+          Log.i("found", listTemplateObjectsLocal.get(0).get("companyName").toString());
+        } else {
+          logoImg.setImageResource(R.drawable.emptylogo);
+        }
+      } catch (ParseException e1) {
+        // TODO Auto-generated catch block
+        e1.printStackTrace();
+      }
+    } else {
+      if(checkOnline){
+        // no found from localDataStore, need to pull from Parse
+        if(isNetworkAvailable(activity)){
+          ParseQuery<ParseObject> queryOnline = ParseQuery.getQuery("ECardTemplate");
+          queryOnline.whereEqualTo("companyName", companyName);
+          queryOnline.findInBackground(new FindCallback<ParseObject>(){
+      
+            @Override
+            public void done(List<ParseObject> objects, ParseException e) {
+              if(e == null ){
+                if(objects != null && objects.size()!=0){
+                  ParseFile logoFile = (ParseFile) objects.get(0).get("companyLogo");
+                  byte[] data;
+                  try {
+                    data = logoFile.getData();
+                    if(data != null){
+                      // sloppy: whatever found object, pin it to local
+                      objects.get(0).pinInBackground();
+                      Bitmap logo = BitmapFactory.decodeByteArray(data, 0, data.length);
+                      logoImg.setImageBitmap(logo);
+                      Log.i("found2", objects.get(0).get("companyName").toString());
+                    } else {
+                      logoImg.setImageResource(R.drawable.emptylogo);
+                    }
+                  } catch (ParseException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                  }
+                } else {
+                  logoImg.setImageResource(R.drawable.emptylogo);
+                }
+              } else {
+                e.printStackTrace();
+              }
+            }      
+          });    
+        } else {
+          // logo not found locally and network not available, flush it to be empty
+          logoImg.setImageResource(R.drawable.emptylogo);
+        }
+      }
+    }    
   }
 }

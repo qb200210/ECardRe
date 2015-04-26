@@ -1,6 +1,7 @@
 package com.micklestudios.knowell;
 
 import com.micklestudios.knowell.infrastructure.UserInfo;
+import com.micklestudios.knowell.utils.ECardUtils;
 import com.micklestudios.knowell.utils.UpdateableFragment;
 import com.parse.ParseUser;
 import com.micklestudios.knowell.R;
@@ -84,8 +85,12 @@ private View rootView;
 			name.setText(nameString);
 		name = (TextView) rootView.findViewById(R.id.my_com);
 		tmpString = newUser.getCompany();
-		if (tmpString != null)
+		if (tmpString != null) {
 			name.setText(tmpString);
+	    ImageView logoImg = (ImageView) rootView.findViewById(R.id.my_logo);
+	    // display logo
+	    ECardUtils.findAndSetLogo(getActivity(), logoImg, tmpString, true);
+		}
 		name = (TextView) rootView.findViewById(R.id.my_job_title);
 		tmpString = newUser.getTitle();
 		if (tmpString != null)
@@ -95,11 +100,11 @@ private View rootView;
 		if (tmpString != null)
 			name.setText(tmpString);
 		ImageView portraitImg = (ImageView) rootView.findViewById(R.id.my_portrait);
-		portraitImg.setImageBitmap(newUser.getPortrait());
-		ImageView logoImg = (ImageView) rootView.findViewById(R.id.my_logo);
 		if (newUser.getPortrait() != null){
-			logoImg.setImageResource(R.drawable.testlogo1);
+		  portraitImg.setImageBitmap(newUser.getPortrait());
 		}
+		
+		
 
 
 	}
