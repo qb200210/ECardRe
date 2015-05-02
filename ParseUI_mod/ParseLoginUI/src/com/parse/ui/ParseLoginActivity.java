@@ -42,6 +42,7 @@ import android.view.View.OnClickListener;
 //import com.micklestudios.knowell.R;
 import com.parse.Parse;
 
+import com.linkedin.platform.LISessionManager;
 
 /**
  * Encapsulates the Parse login flow. The user can log in by username/password,
@@ -122,7 +123,9 @@ public class ParseLoginActivity extends FragmentActivity implements
   public void onActivityResult(int requestCode, int resultCode, Intent data) {
     super.onActivityResult(requestCode, resultCode, data);
 
-    // Required for making Facebook login work
+    // Required for making Linkedin login work
+    LISessionManager.getInstance(getApplicationContext()).onActivityResult(this, requestCode, resultCode, data);
+
   }
 
   /**

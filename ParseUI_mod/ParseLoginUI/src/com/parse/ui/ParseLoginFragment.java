@@ -22,11 +22,14 @@
 package com.parse.ui;
 
 import java.util.Date;
+import java.util.Locale;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -38,10 +41,13 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.content.Intent;
 
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.Base64;
 
 
@@ -55,15 +61,28 @@ import com.linkedin.platform.listeners.ApiListener;
 import com.linkedin.platform.listeners.ApiResponse;
 import com.linkedin.platform.listeners.AuthListener;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import com.parse.LogInCallback;
+import com.parse.ParseACL;
 import com.parse.ParseException;
+import com.parse.ParseFile;
+import com.parse.ParseObject;
 import com.parse.ParseTwitterUtils;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
+import com.parse.SignUpCallback;
 import com.parse.twitter.Twitter;
+
+import org.json.*;
+
 
 
 /**
@@ -78,14 +97,17 @@ public class ParseLoginFragment extends ParseLoginFragmentBase {
 
     public void onLoginSuccess();
   }
-
+  
   private static final String LOG_TAG = "ParseLoginFragment";
   private static final String USER_OBJECT_NAME_FIELD = "name";
+  public static int exception_flag = 1;
+  private static String g_json_str = "";
   
   public static final String PACKAGE_MOBILE_ECARD_APP = "com.micklestudios.knowell";
   private static final String host = "api.linkedin.com";
-  private static final String topCardUrl = "https://" + host + "/v1/people/~:(first-name,last-name,positions,email-address,location,picture-url)";
-
+  private static final String topCardUrl = "https://" + host + "/v1/people/~:(id,first-name,last-name,positions,location,picture-url,email-address)";
+  private ParseObject object = null;
+	
 
   private View parseLogin;
   private EditText usernameField;
@@ -288,7 +310,7 @@ public class ParseLoginFragment extends ParseLoginFragmentBase {
             if (isActivityDestroyed()) {
               return;
             }
-
+            
             if (user == null) {
               loadingFinish();
               if (e != null) {
@@ -330,48 +352,131 @@ public class ParseLoginFragment extends ParseLoginFragmentBase {
 
   
   private void setupLinkedinLogin() {
-	  
+	  	
 	  	setUpdateState();
 	    //linkedinLoginButton.setVisibility(View.VISIBLE);
 	    linkedinLoginButton.setOnClickListener(new OnClickListener() {
 	      @Override
 	      public void onClick(View v) {
 	        loadingStart(false); // Twitter login pop-up already has a spinner
-        	Activity thisActivity = getActivity();
+	        Activity thisActivity = getActivity();
             LISessionManager.getInstance(thisActivity.getApplicationContext()).init(thisActivity, buildScope(), new AuthListener() {
                 @Override
                 public void onAuthSuccess() {
-                	Log.v("sccess", "before");
-                    setUpdateState();
-                    Log.v("sccess", "after");
-                    /*-----
-                    APIHelper apiHelper = APIHelper.getInstance(getActivity().getParent().getApplicationContext());
-                    apiHelper.getRequest(getActivity().getParent(), topCardUrl, new ApiListener() {
+                	setUpdateState();
+                    
+                    APIHelper apiHelper = APIHelper.getInstance(getActivity().getApplicationContext());
+                    apiHelper.getRequest(getActivity(), topCardUrl, new ApiListener() {
                         @Override
                         public void onApiSuccess(ApiResponse s) {
-                            Log.v("fetched string", s.toString());
-                            Toast.makeText(getActivity().getParent().getApplicationContext(), "clicked", Toast.LENGTH_LONG).show();
+                            try {
+                            	Log.v("response", s.toString());
+                            	JSONObject responseData = s.getResponseDataAsJson();
+                            	
+                            	String firstName = responseData.getString("firstName");
+								String lastName = responseData.getString("lastName");
+								String picURL = responseData.getString("pictureUrl");
+								String location = responseData.getJSONObject("location").getString("name");
+								String linkedin_id = responseData.getString("id");
+								
+								JSONArray companyArray = responseData.getJSONObject("positions").getJSONArray("values");
+								//Log.v("json String", firstName + " " + lastName + " " + picURL);
+								for (int i = 0; i < companyArray.length(); i++){
+									JSONObject company = companyArray.getJSONObject(i).getJSONObject("company");
+									if ((Boolean) companyArray.getJSONObject(i).get("isCurrent")){
+										String companyName = company.getString("name");
+										String title = companyArray.getJSONObject(i).getString("title");				
+										//Log.v("json String", firstName + " " + lastName + " " + companyName + " " + title);						
+								        
+										ParseUser user = new ParseUser();
+										String sysGenUserName = firstName + lastName + linkedin_id;
+										user.setUsername(sysGenUserName);
+										String password = Integer.toString(linkedin_id.hashCode());
+									    user.setPassword(password);
+									    //user.setEmail(null);
+
+									    g_json_str = firstName + "," + lastName + "," + companyName + "," + title + "," + location + "," + picURL;
+										user.put(USER_OBJECT_NAME_FIELD, firstName + " " + lastName);
+										
+									    user.signUpInBackground(new SignUpCallback() {
+											  @Override
+									          public void done(ParseException e) {
+
+									            if (e == null) {
+										          if (isActivityDestroyed()) {
+											             return;
+											      }
+										          
+									              loadingFinish();
+									              // setting security: as of now parse has bug
+									              ParseUser currentUser = ParseUser.getCurrentUser();
+									              ParseACL userACL = new ParseACL(currentUser);
+									              userACL.setPublicReadAccess(false);
+									              userACL.setPublicWriteAccess(false);
+									              currentUser.setACL(userACL);
+									              
+									              // creating EcardInfo object, QR and portrait
+									              //Log.v("before", "initialization");
+									              initializeMyCard(currentUser);
+									            
+									              //Log.v("after", "initialization");
+									              exception_flag = 0;
+									              onLoginSuccessListener.onLoginSuccess();
+									            }
+									            else {
+										    		  if (!isAdded()){
+										    			  return;
+										    		  }
+
+									            	debugLog(getString(R.string.com_parse_ui_login_warning_parse_signup_failed) +
+									                        e.toString());
+													//Log.v("here exception",  Integer.toString(e.getCode()));
+													exception_flag = 1;
+												}
+											  }
+									    });
+									    
+									    if (exception_flag == 1) {
+									    		  loadingFinish();									    		  
+									    		  try{
+									    			  ParseUser.logIn(user.getUsername(), password);
+									    			  onLoginSuccessListener.onLoginSuccess();
+									    		  }
+									    		  catch(ParseException e){
+									    			  Log.v("exception",  "login exception");
+									    		  }
+									              //onLoginSuccessListener.onLoginSuccess();
+									           }
+									    }
+									    break;
+								}			
+							} catch (JSONException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
                         }
 
                         @Override
                         public void onApiError(LIApiError error) {
-                            Log.v("error string", error.toString());
-                            Toast.makeText(getActivity().getParent().getApplicationContext(), error.toString(), Toast.LENGTH_LONG).show();
+                        	Activity activity = getActivity();
+                        	if (activity != null && isAdded()) {
+                        		//Log.v("error string", error.toString());
+                                Toast.makeText(getActivity().getApplicationContext(), error.toString(), Toast.LENGTH_LONG).show();    	
+                        	}
                         }
                     });
-                    --*/
-                    Toast.makeText(getActivity().getApplicationContext(), "success", Toast.LENGTH_LONG).show();
+                    
+                    Toast.makeText(getActivity().getApplicationContext(), "Login Successfully, Please Wait..", Toast.LENGTH_LONG).show();
                 }
+                
                 @Override
                 public void onAuthError(LIAuthError error) {
-                	Log.v("error string", "before");
-                    setUpdateState();
+                	setUpdateState();
                     Log.v("error string", error.toString());
                     Toast.makeText(getActivity().getApplicationContext(), "failed " + error.toString(), Toast.LENGTH_LONG).show();
                 }
             }, true); 
             
-           
             try {
                 PackageInfo info = thisActivity.getPackageManager().getPackageInfo(
                         PACKAGE_MOBILE_ECARD_APP,
@@ -380,8 +485,8 @@ public class ParseLoginFragment extends ParseLoginFragmentBase {
                     MessageDigest md = MessageDigest.getInstance("SHA");
                     md.update(signature.toByteArray());
 
-                    Log.v("packagename", info.packageName);
-                    Log.v("encode", Base64.encodeToString(md.digest(), Base64.NO_WRAP));
+                    Log.d("packagename", info.packageName);
+                    Log.d("encode", Base64.encodeToString(md.digest(), Base64.NO_WRAP));
                 }
             } catch (PackageManager.NameNotFoundException e) {
                 Log.d(LOG_TAG, e.getMessage(), e);
@@ -390,13 +495,13 @@ public class ParseLoginFragment extends ParseLoginFragmentBase {
             }
           
 	        //Toast.makeText(getActivity().getApplicationContext(), "clicked", Toast.LENGTH_LONG).show();
-        	Log.v("event click", "clicked");
+        	//Log.v("event click", "clicked");
 
 	      }
   });
 	    
   }
-
+  
   private void setUpdateState() {
       LISessionManager sessionManager = LISessionManager.getInstance(getActivity().getApplicationContext());
       LISession session = sessionManager.getSession();
@@ -413,6 +518,46 @@ public class ParseLoginFragment extends ParseLoginFragmentBase {
   private static Scope buildScope() {
       return Scope.build(Scope.R_BASICPROFILE, Scope.W_SHARE);
   }
+  
+  private void initializeMyCard(ParseUser currentUser) {
+	    // clean up defaults for lastSynced time:
+	    SharedPreferences prefs = getActivity().getSharedPreferences(MY_PREFS_NAME,
+	      Context.MODE_PRIVATE);
+	    SharedPreferences.Editor prefEditor = prefs.edit();
+	    Date currentDate=new Date(0);
+	    prefEditor.putLong("DateConversationsSynced", currentDate.getTime());
+	    prefEditor.putLong("DateNoteSynced", currentDate.getTime());
+	    prefEditor.putLong("DateSelfSynced", currentDate.getTime());
+	    prefEditor.commit();
+		object = new ParseObject("ECardInfo");
+			// objectId is only created after the object is saved.
+			// If use saveInBackground, .getObjectId gets nothing since object not saved yet
+			try {
+				object.save();
+				Log.d("ParseSignUp","save EcardInfo successful");
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+			currentUser.put("ecardId", object.getObjectId());
+			// get first and last name then upload
+			//String fullName = (String) currentUser.get("name");		
+			String delims = ",";
+			String[] tokens = g_json_str.split(delims);
+			String picURL = tokens[6];
+			Log.v("here", "before retrieve URL");
+			// initialize portrait with blank one
+			//putBlankPortrait(object);
+			putPortrait(picURL);
+			// createQRCode(object); // the EcardInfo and QR code both created
+			currentUser.saveInBackground();
+		}
+  
+    
+	public void putPortrait(String imgURL) {
+		new DownloadImageTask().execute(imgURL);
+		
+	}
+
   
   private boolean allowParseLoginAndSignup() {
     if (!config.isParseLoginEnabled()) {
@@ -475,4 +620,92 @@ public class ParseLoginFragment extends ParseLoginFragmentBase {
     onLoginSuccessListener.onLoginSuccess();
   }
 
+  private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
+		byte[] imgData;
+		ParseFile file = null;
+			
+		@Override
+		protected Bitmap doInBackground(String... urls) {
+			// TODO Auto-generated method stub
+			String imgURL = urls[0];
+			try{
+				URL url = new URL(imgURL);
+				HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+				connection.setDoInput(true);
+				Log.v("connect", "before");
+				connection.connect();
+				Log.v("connect", "after");
+				Bitmap profileImage = BitmapFactory.decodeStream(connection.getInputStream());
+				Log.v("connect", "get the image");
+				return profileImage;
+			} catch (Exception e0){
+				e0.printStackTrace();
+				Bitmap blankProfile = BitmapFactory.decodeResource(getResources(), R.drawable.emptyprofile);
+				return blankProfile;
+			} 
+		}
+		
+		@Override
+		protected void onPostExecute(Bitmap results){
+			FileOutputStream out = null;		
+			ByteArrayOutputStream stream = new ByteArrayOutputStream();
+			Log.v("post exe", "portrait file done");
+	        try {        	        	
+	        	results.compress(Bitmap.CompressFormat.PNG, 100, stream);
+	            imgData = stream.toByteArray();         
+	            Log.v("compress", "portrait file converted");
+	            file = new ParseFile("portrait.jpg", imgData);
+	            try {
+					file.save();
+				} catch (ParseException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+	        } catch (Exception ee) {
+	            ee.printStackTrace();
+	        } finally {
+	            try {
+	                if (out != null) {
+	                    out.close();
+	                }
+	            } catch (IOException ee) {
+	                ee.printStackTrace();
+	            }
+	        }		
+			String delims = ",";
+			String firstName= "";
+			String lastName= "";
+			String[] tokens = g_json_str.split(delims);
+			firstName = tokens[0];
+			lastName = tokens[1];
+			String fullName = firstName + " " + lastName;
+			String company = tokens[2];
+			String title = tokens[3];		
+			String location = tokens[4];
+			
+			// restore the name field
+			object.put("firstName", firstName);
+			object.put("lastName", lastName);
+			object.put("fullName", fullName.toLowerCase(Locale.ENGLISH));
+			object.put("company", company);
+			object.put("title", title);
+			object.put("city", location);
+			object.put("linkedin", fullName);
+			object.put("portrait", file);
+			Log.v("here", "portrait file done");
+			/*
+			try {
+				object.save();
+				Log.d("update object","save EcardInfo successful");
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+			*/
+			object.saveInBackground();
+			// If new on the server, should not have exist locally. So should make a local copy
+			object.pinInBackground();
+		}
+	}
+  
 }
+
