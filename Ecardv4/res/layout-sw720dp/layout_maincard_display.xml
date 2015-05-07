@@ -17,12 +17,12 @@
 
             <ImageView
                 android:id="@+id/my_portrait"
-                android:layout_width="120dp"
-                android:layout_height="120dp"
+                android:layout_width="360dp"
+                android:layout_height="360dp"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentTop="true"
-                android:layout_marginLeft="24dp"
-                android:layout_marginTop="24dp"
+                android:layout_marginLeft="30dp"
+                android:layout_marginTop="30dp"
                 android:src="@drawable/testp" />
 
             <TextView
@@ -38,7 +38,7 @@
                 android:padding="0dp"
                 android:text="Jianfang (Olena) Zhu"
                 android:textColor="#000000"
-                android:textSize="24sp"
+                android:textSize="55sp"
                 android:textStyle="bold" />
             
             <View android:id="@+id/separator" 
@@ -47,7 +47,7 @@
 				 android:layout_height="1dp"
 				 android:layout_centerVertical ="true"
 				 android:layout_below="@id/my_portrait"
-				 android:layout_marginTop="10dp"
+				 android:layout_marginTop="18dp"
 				 android:layout_marginLeft="24dp"
 				 android:layout_marginRight="24dp"/>
 
@@ -58,14 +58,14 @@
                 android:layout_alignParentLeft="true"
                 android:layout_centerVertical="true"
                 android:layout_below="@id/separator"
-                android:layout_marginTop="10dp"
-                android:layout_marginLeft="24dp"
+                android:layout_marginTop="18dp"
+                android:layout_marginLeft="30dp"
                 android:layout_marginRight="24dp"
                 android:gravity="left"
                 android:padding="0dp"
                 android:text="Staff Hardware Engineer"
                 android:textColor="#000000"
-                android:textSize="20sp" />
+                android:textSize="45sp" />
 
             <TextView
                 android:id="@+id/my_com"
@@ -73,13 +73,13 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_below="@id/my_job_title"
-                android:layout_marginLeft="24dp"
+                android:layout_marginLeft="30dp"
                 android:layout_marginRight="24dp"
                 android:gravity="left"
                 android:padding="0dp"
                 android:text="Intel Corporation"
                 android:textColor="#000000"
-                android:textSize="20sp" />
+                android:textSize="45sp" />
 
             <TextView
                 android:id="@+id/my_add"
@@ -87,20 +87,20 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_below="@id/my_com"
-                android:layout_marginLeft="24dp"
+                android:layout_marginLeft="30dp"
                 android:layout_marginRight="24dp"
                 android:gravity="left"
                 android:padding="0dp"
                 android:text="Portland, OR"
                 android:textColor="#000000"
-                android:textSize="20sp" />
+                android:textSize="45sp" />
 
             
             
             <ImageView
                 android:id="@+id/my_logo"
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
+                android:layout_height="180dp"
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentRight="true"
                 android:layout_marginBottom="24dp"

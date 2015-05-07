@@ -1,0 +1,67 @@
+<!-- <?xml version="1.0" encoding="utf-8"?> -->
+<!-- <com.micklestudios.knowell.utils.SquareLayoutSpecial -->
+<!-- xmlns:android="http://schemas.android.com/apk/res/android" -->
+<!-- xmlns:tools="http://schemas.android.com/tools" -->
+<!-- android:layout_width="match_parent" -->
+<!-- android:layout_height="wrap_content" -->
+<!-- android:background="@drawable/shadow_153254" -->
+<!-- android:gravity="center" -->
+<!-- android:padding="9dp" > -->
+
+
+<!-- <TextView -->
+<!-- android:id="@+id/list_row_draganddrop_textview" -->
+<!-- android:layout_width="match_parent" -->
+<!-- android:layout_height="wrap_content" -->
+<!-- android:fontFamily="sans-serif-light" -->
+<!-- android:minHeight="24dp" -->
+<!-- android:padding="10dp" -->
+<!-- android:textColor="?android:attr/textColorSecondary" -->
+<!-- android:textSize="20sp" -->
+<!-- tools:ignore="UnusedAttribute" /> -->
+
+
+<!-- </com.micklestudios.knowell.utils.SquareLayoutSpecial> -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+    android:paddingBottom="2dp"
+    android:paddingLeft="2dp"
+    android:paddingRight="2dp" >
+
+    <ImageView
+        android:id="@+id/conversations_image"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:background="@color/light_blue_F8B"
+        android:padding="2dp" />
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="72dp"
+        android:layout_toEndOf="@id/conversations_image"
+        android:layout_toRightOf="@id/conversations_image"
+        android:background="@color/light_blue_F8B"
+        android:orientation="vertical"
+        android:padding="2dp" >
+
+        <TextView
+            android:id="@+id/conversations_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:textSize="20sp"  />
+
+        <TextView
+            android:id="@+id/conversations_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#FF267F00"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+</RelativeLayout>

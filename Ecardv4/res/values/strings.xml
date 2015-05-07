@@ -27,5 +27,6 @@
     <string name="date_added">Sometime ...</string>
 	<string name="city_added">Somewhere ...</string>
 	<string name="event_added">Some event ...</string>
+	<string name="share">Share ...</string>
 
 </resources>

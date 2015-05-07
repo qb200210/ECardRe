@@ -14,8 +14,11 @@
         android:orderInCategory="11"
         android:title="@string/logout"
         app:showAsAction="never"/>
+    <item
+        android:id="@+id/share_item"
+        android:icon="@drawable/ic_action_share"
+        android:orderInCategory="9"
+        android:title="@string/share"
+        app:showAsAction="ifRoom"/>
     
-    
-    
-
 </menu>

@@ -24,7 +24,23 @@
 	<permission android:name="com.micklestudios.knowell.permission.C2D_MESSAGE"
 		android:protectionLevel="signature" />
 	<uses-permission android:name="com.micklestudios.knowell.permission.C2D_MESSAGE" />
-
+	
+	 <compatible-screens>
+        <!-- all small size screens -->
+        <screen android:screenSize="small" android:screenDensity="mdpi" />
+        <screen android:screenSize="small" android:screenDensity="hdpi" />
+        <screen android:screenSize="small" android:screenDensity="xhdpi" />
+        <!-- all normal size screens -->
+        <screen android:screenSize="normal" android:screenDensity="mdpi" />
+        <screen android:screenSize="normal" android:screenDensity="hdpi" />
+        <screen android:screenSize="normal" android:screenDensity="xhdpi" />
+        <!-- all normal size screens -->
+        <screen android:screenSize="large" android:screenDensity="ldpi" />
+        <screen android:screenSize="large" android:screenDensity="mdpi" />
+        <screen android:screenSize="large" android:screenDensity="hdpi" />
+        <screen android:screenSize="large" android:screenDensity="xhdpi" />
+    </compatible-screens>
+    
     <application
         android:name="com.micklestudios.knowell.MyApplication"
         android:allowBackup="true"
@@ -45,6 +61,7 @@
         <activity
             android:name="com.parse.ui.ParseLoginActivity"
             android:label="@string/app_name"
+            android:screenOrientation="portrait"
             android:launchMode="singleTop" >
             <meta-data
                 android:name="com.parse.ui.ParseLoginActivity.PARSE_LOGIN_ENABLED"
@@ -62,6 +79,7 @@
         <activity
             android:name="com.micklestudios.knowell.ActivityBufferOpening"
             android:theme="@style/OpenTheme"
+            android:screenOrientation="portrait"
             android:label="BufferOpening" >
         </activity>
         <activity

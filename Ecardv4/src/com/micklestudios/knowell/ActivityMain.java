@@ -4,22 +4,26 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.PopupMenu;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -32,6 +36,7 @@ import com.micklestudios.knowell.infrastructure.UserInfo;
 import com.micklestudios.knowell.utils.CurvedAndTiled;
 import com.micklestudios.knowell.utils.CustomQRScanner;
 import com.micklestudios.knowell.utils.MyPagerAdapter;
+import com.micklestudios.knowell.utils.MyTag;
 import com.micklestudios.knowell.utils.MyViewPager;
 import com.parse.ParseInstallation;
 import com.parse.ParsePush;
@@ -140,7 +145,7 @@ public class ActivityMain extends ActionBarActivity {
 
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
-    // this function is called when either action bar icon is tapped
+	// this function is called when either action bar icon is tapped
     switch (item.getItemId()) {
     case R.id.edit_item:
       // Should be replaced by pop up activity of editable welcome page
@@ -153,6 +158,10 @@ public class ActivityMain extends ActionBarActivity {
       startActivity(intent);
       this.finish();
       return true;
+    case R.id.share_item:
+    	showPopup();
+    	
+    	return true;
     default:
       return super.onOptionsItemSelected(item);
     }
@@ -190,5 +199,45 @@ public class ActivityMain extends ActionBarActivity {
       actionBar.setCustomView(v);
     }
   }
+  
+  public void showPopup(){
+	  	
+	    View menuItemView = findViewById(R.id.share_item);
+	    PopupMenu popup = new PopupMenu(ActivityMain.this, menuItemView);
+	    MenuInflater inflate = popup.getMenuInflater();
+	    inflate.inflate(R.menu.main_popup_menu, popup.getMenu());
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+        	@Override
+            public boolean onMenuItemClick(MenuItem item) {
+        		Intent intent;
+        		switch (item.getItemId()) {
+        		
+        		case R.id.share_qr:
+        			break;
+        		case R.id.share_email:
+        			intent = new Intent(Intent.ACTION_SEND);
+        			intent.setType("text/html");
+        			intent.putExtra(Intent.EXTRA_SUBJECT, "Please connect with me through KnoWell");
+        			intent.putExtra(Intent.EXTRA_TEXT, "Hi, I'd like to connect with you through KnoWell.");
+
+        			startActivity(Intent.createChooser(intent, "Send Email"));
+					break;
+        		case R.id.share_message:
+                    intent = new Intent( Intent.ACTION_VIEW, Uri.parse( "sms:" + "" ) );
+                    intent.putExtra( "Please connect with me through KnoWell", "" );
+					startActivity(intent);
+					break;
+        		case R.id.search_other_users:
+        			break;
+        		}
+        		Toast.makeText(ActivityMain.this,
+                        "Clicked popup menu item " + item.getTitle(),
+                        Toast.LENGTH_SHORT).show();
+                return true;
+            }
+        });
+	    popup.show();
+
+	}
 
 }
