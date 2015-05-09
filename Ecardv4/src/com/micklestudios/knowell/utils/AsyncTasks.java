@@ -74,14 +74,42 @@ public class AsyncTasks {
     protected String doInBackground(String... url) {
       // get the stored shared last sync date, if null, default to 1969
       long millis = prefs.getLong("DateSelfSynced", 0L);
-      Date lastSyncedDate = new Date(millis);
+      long millisUser = prefs.getLong("DateSelfUserSynced", 0L);
+      Date lastSyncedDateSelf = new Date(millis);
+      Date lastSyncedDateSelfUser = new Date(millisUser);
+      
+      ParseQuery<ParseUser> queryUser = ParseUser.getQuery();
+      queryUser.whereGreaterThan("updatedAt", lastSyncedDateSelfUser);
+      queryUser.whereEqualTo("objectId", currentUser.getObjectId());
+      List<ParseUser> userObjects = null;
+      try {
+        userObjects = queryUser.find();
+      } catch (ParseException e1) {
+        // TODO Auto-generated catch block
+        e1.printStackTrace();
+      }
+
+      if (userObjects != null && userObjects.size() != 0) {
+        flagShouldSync = true;
+        try {
+          userObjects.get(0).pin();
+          // flush sharedpreference with today's date
+          Date currentDate = new Date();
+          prefEditor.putLong("DateSelfUserSynced", currentDate.getTime());
+          prefEditor.commit();
+        } catch (ParseException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        }
+        
+      }
 
       ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardInfo");
       // constraint: server value newer
       // if tmpImgByteArray was used, lastSyncedDate will be set to 1969, so
       // that it will make sure the
       // parse object is pulled and the parsefile created from tmpImgByteArray
-      query.whereGreaterThan("updatedAt", lastSyncedDate);
+      query.whereGreaterThan("updatedAt", lastSyncedDateSelf);
       query.whereEqualTo("objectId", currentUser.get("ecardId").toString());
       List<ParseObject> infoObjects = null;
       try {
@@ -224,7 +252,8 @@ public class AsyncTasks {
           // loop over the found templates and pin those not yet in localdatastore
           // loop over found templates and record objId
           ArrayList<String> objIds = new ArrayList<String>();
-          for(ParseObject templateObj : templateObjs1){
+          for(Iterator<ParseObject> iter = templateObjs1.iterator(); iter.hasNext();){
+            ParseObject templateObj = iter.next();
             objIds.add(templateObj.getObjectId().toString());
           }
           // figure out what templates are already in localdatastore
@@ -239,14 +268,16 @@ public class AsyncTasks {
             e1.printStackTrace();
           }
           if(templateObjs2 != null && templateObjs2.size() !=0){
-            for(ParseObject objOnline : templateObjs1){
+            for(Iterator<ParseObject> iter1 = templateObjs1.iterator(); iter1.hasNext();){
+              ParseObject objOnline = iter1.next();              
               // remove already existed local records from found online list
-              for(ParseObject objOffline : templateObjs2) {
+              for(Iterator<ParseObject> iter2 = templateObjs2.iterator(); iter2.hasNext();){
+                ParseObject objOffline = iter2.next();
                 if(objOnline.getObjectId() == objOffline.getObjectId()){
                   // duplicate record found
                   if(! objOnline.getUpdatedAt().after(objOffline.getUpdatedAt())){
                     // if offline record is latest, remove this duplicate online record
-                    templateObjs1.remove(objOnline);
+                    iter1.remove();
                     break;
                   }
                 }

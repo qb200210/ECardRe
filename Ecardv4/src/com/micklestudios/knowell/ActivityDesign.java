@@ -124,9 +124,9 @@ public class ActivityDesign extends ActionBarActivity {
     displayMyCard();
 
     // complete list of possible extrainfo items
-    infoIcon = ActivityMain.myselfUserInfo.getInfoIcon();
-    infoLink = ActivityMain.myselfUserInfo.getInfoLink();
-    shownArrayList = ActivityMain.myselfUserInfo.getShownArrayList();
+    infoIcon = (ArrayList<Integer>) ActivityMain.myselfUserInfo.getInfoIcon().clone();
+    infoLink = (ArrayList<String>) ActivityMain.myselfUserInfo.getInfoLink().clone();
+    shownArrayList = (ArrayList<String>) ActivityMain.myselfUserInfo.getShownArrayList().clone();
 
     for (int i = 0; i < allowedArray.length; i++) {
       // the extra info item

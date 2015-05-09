@@ -1,5 +1,6 @@
 package com.micklestudios.knowell;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,6 +29,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -47,6 +49,7 @@ public class ActivityBufferOpening extends Activity {
   Integer WEIGHT_CACHEDIDS = 20;
   Integer totalProgress = 0;
   public static final String MY_PREFS_NAME = "KnoWellSyncParams";
+  private static final String KNOWELL_ROOT = "KnoWell";
   ParseUser currentUser;
   // flag to see if there is portrait cached offline that cannot be converted
   // to ParseFile yet.
@@ -74,6 +77,7 @@ public class ActivityBufferOpening extends Activity {
     // if tmpImgByteArray not null, need to convert to img file regardless
     // of network
     checkPortrait();
+    checkFolders();
     
     // check sharedpreferences
     final SharedPreferences prefs = getSharedPreferences(MY_PREFS_NAME,
@@ -125,6 +129,14 @@ public class ActivityBufferOpening extends Activity {
 
   }
   
+  private void checkFolders() {
+    String filepath = Environment.getExternalStorageDirectory().getPath();
+    File file = new File(filepath, KNOWELL_ROOT);
+    if (!file.exists()) {
+      file.mkdirs();
+    }
+  }
+
   protected void createCompanyNamesFromLocal(SharedPreferences prefs) {
     //Retrieve the saved company list from sharedpreference
     // this will be used to populate autocomplete box
