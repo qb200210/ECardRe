@@ -19,6 +19,7 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.micklestudios.knowell.R;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -35,6 +36,8 @@ import android.view.Window;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 
@@ -45,16 +48,25 @@ public class ActivityConversations extends ActionBarActivity {
   public static ArrayList<UserInfo> potentialUsers;
   ConversationsListAdapter adapter;
   AlphaInAnimationAdapter animationAdapter;
-  StickyListHeadersAdapterDecorator stickyListHeadersAdapterDecorator;
-  StickyListHeadersListView listView;
+  ListView listView;
   private Dialog dialog;
   private static final long SCAN_TIMEOUT = 5000;
+  
+//Possible modes of sorting.
+ public static final int SORT_MODE_NAME_ASC = 1;
+ public static final int SORT_MODE_NAME_DSC = 2;
+ public static final int SORT_MODE_DATE_ASC = 3;
+ public static final int SORT_MODE_DATE_DSC = 4;
+
+ public static int currentSortMode = SORT_MODE_DATE_DSC;
 
   @Override
   protected void onCreate(final Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_conversations);
     currentUser = ParseUser.getCurrentUser();
+    
+    showActionBar();
     
     dialog = new Dialog(ActivityConversations.this);
     dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -67,7 +79,7 @@ public class ActivityConversations extends ActionBarActivity {
   }
 
   private void retrieveAllViews() {
-    listView = (StickyListHeadersListView) findViewById(R.id.activity_conversations_listview);
+    listView = (ListView) findViewById(R.id.activity_conversations_listview);
   }
 
   private void initializeContactList() {
@@ -76,8 +88,8 @@ public class ActivityConversations extends ActionBarActivity {
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position,
       long id) {
-      final ImageView progress_image = (ImageView) dialog
-          .findViewById(R.id.process_dialog_image);
+//      final ImageView progress_image = (ImageView) dialog
+//          .findViewById(R.id.process_dialog_image);
       final UserInfo selectedUser = (UserInfo) listView
         .getItemAtPosition(position);
 
@@ -118,9 +130,11 @@ public class ActivityConversations extends ActionBarActivity {
         final Handler handlerScanQR = new Handler();
         handlerScanQR.postDelayed(myCancellable, SCAN_TIMEOUT);
 
+        TextView dialog_text = (TextView) dialog.findViewById(R.id.dialog_status);
+        dialog_text.setText("Loading ...");
         // upon back button press, cancel both the scanQR AsyncTask and the
         // timed handler
-        progress_image.setBackgroundResource(R.drawable.progress);
+        // progress_image.setBackgroundResource(R.drawable.progress);
         dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
           @Override
           public void onCancel(DialogInterface dialog) {
@@ -175,24 +189,39 @@ public class ActivityConversations extends ActionBarActivity {
   adapter = new ConversationsListAdapter(getApplicationContext(),
     potentialUsers);
   animationAdapter = new AlphaInAnimationAdapter(adapter);
-  stickyListHeadersAdapterDecorator = new StickyListHeadersAdapterDecorator(
-    animationAdapter);
-  stickyListHeadersAdapterDecorator
-    .setListViewWrapper(new StickyListHeadersListViewWrapper(listView));
-
+  animationAdapter.setAbsListView(listView);
   assert animationAdapter.getViewAnimator() != null;
-  animationAdapter.getViewAnimator().setInitialDelayMillis(500);
+  animationAdapter.getViewAnimator().setInitialDelayMillis(100);
 
-  assert stickyListHeadersAdapterDecorator.getViewAnimator() != null;
-  stickyListHeadersAdapterDecorator.getViewAnimator().setInitialDelayMillis(
-    500);
-
-  listView.setAdapter(stickyListHeadersAdapterDecorator);
-//  currentSortMode = SORT_MODE_NAME_ASC;
-//  adapter.reSort();
-  stickyListHeadersAdapterDecorator.notifyDataSetChanged();
+  listView.setAdapter(animationAdapter);
+  currentSortMode = SORT_MODE_DATE_DSC;
+  adapter.reSort();
+  animationAdapter.notifyDataSetChanged();
 }
  
+  @SuppressLint("InflateParams")
+  private void showActionBar() {
+    LayoutInflater inflator = (LayoutInflater) this
+      .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    View v = inflator.inflate(R.layout.layout_actionbar_search, null);
+    ImageView btnBack = (ImageView) v.findViewById(R.id.btn_back);
+    btnBack.setOnClickListener(new OnClickListener() {
+
+      @Override
+      public void onClick(View v) {
+        onBackPressed();
+      }
+
+    });
+    if (getSupportActionBar() != null) {
+      ActionBar actionBar = getSupportActionBar();
+      actionBar.setDisplayHomeAsUpEnabled(false);
+      actionBar.setDisplayShowHomeEnabled(false);
+      actionBar.setDisplayShowCustomEnabled(true);
+      actionBar.setDisplayShowTitleEnabled(false);
+      actionBar.setCustomView(v);
+    }
+  }
 
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     super.onActivityResult(requestCode, resultCode, data);

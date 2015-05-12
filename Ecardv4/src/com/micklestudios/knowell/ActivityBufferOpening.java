@@ -2,6 +2,7 @@ package com.micklestudios.knowell;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -152,7 +153,7 @@ public class ActivityBufferOpening extends Activity {
     Log.i("actbuf", "inside getconvcontacts");
     ActivityConversations.potentialUsers = new ArrayList<UserInfo>();
     /* A map of all the ECardNote objects to the noteID */
-    final HashMap<String, ParseObject> infoIdToConvObjectMap = new HashMap<String, ParseObject>();
+    final HashMap<String, Date> infoIdToConvDateMap = new HashMap<String, Date>();
     // During SyncConversations, all conversations should have been synced to local
     ParseQuery<ParseObject> queryConvs = ParseQuery.getQuery("Conversations");
     queryConvs.fromLocalDatastore();
@@ -169,7 +170,9 @@ public class ActivityBufferOpening extends Activity {
         ParseObject objectConv = iter.next();
         // don't need to check if the conversation is deleted, because that should be done by SyncConversations
         String infoObjectId = objectConv.get("partyA").toString();
-        infoIdToConvObjectMap.put(infoObjectId, objectConv);
+        Log.i("actbuf", objectConv.getUpdatedAt().toString());
+        
+        infoIdToConvDateMap.put(infoObjectId, objectConv.getUpdatedAt());
       }
       /*
        * Now, query the ECardInfoTable to get all the ECardInfo for the conversations
@@ -177,7 +180,7 @@ public class ActivityBufferOpening extends Activity {
        */
       ParseQuery<ParseObject> queryInfo = ParseQuery.getQuery("ECardInfo");
       queryInfo.fromLocalDatastore();
-      queryInfo.whereContainedIn("objectId", infoIdToConvObjectMap.keySet());
+      queryInfo.whereContainedIn("objectId", infoIdToConvDateMap.keySet());
       List<ParseObject> objectInfoList = null;
       try {
         objectInfoList = queryInfo.find();
@@ -194,6 +197,8 @@ public class ActivityBufferOpening extends Activity {
             Log.i("actbuf", contact.getFirstName());
             // No need to put note as part of UserInfo -- will execute note_query from localdatastore later
             // Dont need to keep mapping to actual conversations objects -- they are not as critical
+            Log.i("actbuf", infoIdToConvDateMap.get(objectInfo.getObjectId()).toString());
+            contact.setWhenMet(infoIdToConvDateMap.get(objectInfo.getObjectId()));
             ActivityConversations.potentialUsers.add(contact);
           }
         }
@@ -266,7 +271,7 @@ public class ActivityBufferOpening extends Activity {
                       String infoObjectId = (String) objectInfo.getObjectId();
                       ParseObject objectNote = noteIdToNoteObjectMap
                         .get(infoObjectId);
-                      contact.setCreatedAt(objectNote.getCreatedAt());
+                      contact.setWhenMet(objectNote.getCreatedAt());
                       contact.setEventMet(objectNote.getString("event_met"));
                       contact.setWhereMet(objectNote.getString("where_met"));
                       contact.setNote(objectNote.getString("notes"));

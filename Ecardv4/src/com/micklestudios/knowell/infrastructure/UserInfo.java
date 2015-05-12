@@ -44,7 +44,8 @@ public class UserInfo implements Parcelable {
   String whereMet;
   String eventMet;
   String notes;
-  Date addedAt;
+  Date whenMet;
+  Date updatedAt;
 
   public class FIELD_TYPE {
     // Giving enum values to the above fields.
@@ -75,6 +76,8 @@ public class UserInfo implements Parcelable {
     this.whereMet = this.whereMet == null ? "Mysterious Place" : this.whereMet;
     this.eventMet = this.eventMet == null ? "Mysterious Event" : this.eventMet;
     this.notes = this.notes == null ? "" : this.notes;
+    this.whenMet = this.whenMet == null ? (new Date()) : this.whenMet;
+    this.updatedAt = this.updatedAt == null ? (new Date()) : this.whenMet;
   }
 
   /*
@@ -287,6 +290,12 @@ public class UserInfo implements Parcelable {
     source.readStringList(this.infoLink);
     source.readList(this.infoIcon, Integer.class.getClassLoader());
 
+    this.whereMet = source.readString();
+    this.eventMet = source.readString();
+    this.whenMet = new Date(source.readLong());
+    this.updatedAt = new Date(source.readLong());
+    this.notes = source.readString();
+    
     // Ensure the defaults are set.
     ensureDefaults();
   }
@@ -303,6 +312,12 @@ public class UserInfo implements Parcelable {
     dest.writeStringList(shownArrayList);
     dest.writeStringList(infoLink);
     dest.writeList(infoIcon);
+    
+    dest.writeString(whereMet);
+    dest.writeString(eventMet);
+    dest.writeLong(whenMet.getTime());
+    dest.writeLong(updatedAt.getTime());
+    dest.writeString(notes);
   }
 
   private Integer iconSelector(String key) {
@@ -463,12 +478,24 @@ public class UserInfo implements Parcelable {
     this.eventMet = eventMet;
   }
 
-  public Date getCreatedAt() {
-    return addedAt;
+  public Date getWhenMet() {
+    return whenMet;
   }
 
-  public void setCreatedAt(Date createdAt) {
-    this.addedAt = createdAt;
+  public void setWhenMet(Date whenMet) {
+    this.whenMet = whenMet;
+  }
+
+  public Date getUpdatedAt() {
+    return updatedAt;
+  }
+
+  public void setUpdatedAt(Date updatedAt) {
+    this.updatedAt = updatedAt;
+  }
+
+  public void setNotes(String notes) {
+    this.notes = notes;
   }
 
   public String[] getAllowedArray() {

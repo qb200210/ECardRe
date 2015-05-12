@@ -21,6 +21,7 @@ import android.widget.TextView;
 
 import com.micklestudios.knowell.ActivityConversations;
 import com.micklestudios.knowell.ActivityMain;
+import com.micklestudios.knowell.ActivitySearch;
 import com.nhaarman.listviewanimations.ArrayAdapter;
 import com.nhaarman.listviewanimations.itemmanipulation.swipedismiss.undo.UndoAdapter;
 import com.micklestudios.knowell.R;
@@ -53,6 +54,23 @@ public class ConversationsListAdapter extends ArrayAdapter<UserInfo> implements
   @Override
   public boolean hasStableIds() {
     return false;
+  }
+  
+  public void reSort() {
+    switch (ActivityConversations.currentSortMode) {
+    case ActivityConversations.SORT_MODE_NAME_ASC:
+      reSortName(true);
+      break;
+    case ActivityConversations.SORT_MODE_NAME_DSC:
+      reSortName(false);
+      break;
+    case ActivityConversations.SORT_MODE_DATE_ASC:
+      reSortDate(true);
+      break;
+    case ActivityConversations.SORT_MODE_DATE_DSC:
+      reSortDate(false);
+      break;
+    }
   }
 
   public void reSortName(boolean ascending) {
@@ -90,11 +108,16 @@ public class ConversationsListAdapter extends ArrayAdapter<UserInfo> implements
 		portraitImg.setImageBitmap(ActivityConversations.potentialUsers.get(position).getPortrait());
 	}
 
-    TextView tv = (TextView) convertView
-      .findViewById(R.id.conversations_textview);
-
-    tv.setText(ActivityConversations.potentialUsers.get(position).getFirstName());
-    // tv.setTextAlignment(TextView.TEXT_ALIGNMENT_CENTER);
+    TextView nameView = (TextView) convertView
+      .findViewById(R.id.conversations_name);
+    nameView.setText(ActivityConversations.potentialUsers.get(position).getFirstName() + " " + ActivityConversations.potentialUsers.get(position).getLastName());
+    TextView msgView = (TextView) convertView.findViewById(R.id.conversations_msg);
+    msgView.setText("Hi, I'm "+ ActivityConversations.potentialUsers.get(position).getFirstName() + " from " + ActivityConversations.potentialUsers.get(position).getCompany());
+    TextView updatedAt = (TextView) convertView.findViewById(R.id.conversations_date);
+    updatedAt.setText(android.text.format.DateFormat.format("MMM",
+      ActivityConversations.potentialUsers.get(position).getWhenMet())
+      + " "
+      + android.text.format.DateFormat.format("dd", ActivityConversations.potentialUsers.get(position).getWhenMet()));
 
     return convertView;
   }
@@ -119,7 +142,7 @@ public class ConversationsListAdapter extends ArrayAdapter<UserInfo> implements
         headerText.setText("null");
       }
     } else {
-      headerText.setText(dateToHeaderString(localUser.getCreatedAt()));
+      headerText.setText(dateToHeaderString(localUser.getWhenMet()));
     }
     return convertView;
   }
@@ -137,7 +160,7 @@ public class ConversationsListAdapter extends ArrayAdapter<UserInfo> implements
       }
     } else {
       return dateToHeaderString(
-        ActivityConversations.potentialUsers.get(position).getCreatedAt()).length();
+        ActivityConversations.potentialUsers.get(position).getWhenMet()).length();
     }
   }
 

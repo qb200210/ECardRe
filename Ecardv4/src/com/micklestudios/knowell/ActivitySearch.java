@@ -278,11 +278,11 @@ public class ActivitySearch extends ActionBarActivity {
       .setListViewWrapper(new StickyListHeadersListViewWrapper(listView));
 
     assert animationAdapter.getViewAnimator() != null;
-    animationAdapter.getViewAnimator().setInitialDelayMillis(500);
+    animationAdapter.getViewAnimator().setInitialDelayMillis(100);
 
     assert stickyListHeadersAdapterDecorator.getViewAnimator() != null;
     stickyListHeadersAdapterDecorator.getViewAnimator().setInitialDelayMillis(
-      500);
+      100);
 
     listView.setAdapter(stickyListHeadersAdapterDecorator);
     currentSortMode = SORT_MODE_NAME_ASC;

@@ -120,10 +120,18 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
         .getPortrait());
     }
 
-    TextView tv = (TextView) convertView
-      .findViewById(R.id.list_row_draganddrop_textview);
-
-    tv.setText(ActivitySearch.filteredUsers.get(position).getFirstName());
+    TextView nameView = (TextView) convertView
+      .findViewById(R.id.search_result_card_name);
+    nameView.setText(ActivitySearch.filteredUsers.get(position).getFirstName()
+      + " " + ActivitySearch.filteredUsers.get(position).getLastName());
+    TextView jobCompanyView = (TextView) convertView
+      .findViewById(R.id.search_result_card_job_company);
+    jobCompanyView.setText(ActivitySearch.filteredUsers.get(position).getTitle()
+      + " at "
+      + ActivitySearch.filteredUsers.get(position).getCompany());
+    TextView addressView = (TextView) convertView
+      .findViewById(R.id.search_result_card_address);
+    addressView.setText(ActivitySearch.filteredUsers.get(position).getCity());
     return convertView;
   }
 
@@ -147,7 +155,7 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
         headerText.setText("null");
       }
     } else {
-      headerText.setText(dateToHeaderString(localUser.getCreatedAt()));
+      headerText.setText(dateToHeaderString(localUser.getWhenMet()));
     }
     return convertView;
   }
@@ -165,7 +173,7 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
       }
     } else {
       return dateToHeaderString(
-        ActivitySearch.filteredUsers.get(position).getCreatedAt()).length();
+        ActivitySearch.filteredUsers.get(position).getWhenMet()).length();
     }
   }
 

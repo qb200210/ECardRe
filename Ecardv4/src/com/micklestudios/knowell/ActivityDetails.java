@@ -565,7 +565,7 @@ public class ActivityDetails extends ActionBarActivity {
   }
 
   public boolean onCreateOptionsMenu(Menu menu) {
-    getMenuInflater().inflate(R.menu.notes_search_actionbar, menu);
+    getMenuInflater().inflate(R.menu.details_actionbar, menu);
     return true;
   }
 
@@ -573,14 +573,14 @@ public class ActivityDetails extends ActionBarActivity {
   public boolean onOptionsItemSelected(MenuItem item) {
     // this function is called when either action bar icon is tapped
     switch (item.getItemId()) {
-    case R.id.notes_search_discard:
+    case R.id.details_discard:
       Toast.makeText(this, "Discarded Notes changes!", Toast.LENGTH_SHORT)
         .show();
       setResult(RESULT_CANCELED);
       deleteLocalVoiceNote();
       this.finish();
       return true;
-    case R.id.notes_search_save:
+    case R.id.details_save:
       // save scanned card either online or cache it offline
       saveNoteChanges(noteId);
       setResult(RESULT_OK);

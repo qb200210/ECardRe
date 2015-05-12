@@ -7,8 +7,8 @@ public class UserInfoDateComparator implements Comparator<UserInfo> {
 
   @Override
   public int compare(UserInfo lhs, UserInfo rhs) {
-    Date lhsDate = lhs.getCreatedAt();
-    Date rhsDate = rhs.getCreatedAt();
+    Date lhsDate = lhs.getWhenMet();
+    Date rhsDate = rhs.getWhenMet();
 
     if (lhsDate == null && rhsDate == null) {
       return 0;

@@ -59,15 +59,15 @@ public class CustomQRScanner extends CaptureActivity {
     dialog.setContentView(R.layout.layout_dialog_scanned_process);
 
     TextView dialog_text = (TextView) dialog.findViewById(R.id.dialog_status);
-    ImageView progress_image = (ImageView) dialog
-      .findViewById(R.id.process_dialog_image);
+//    ImageView progress_image = (ImageView) dialog
+//      .findViewById(R.id.process_dialog_image);
 
     HashMap<String, String> valuesMap = ECardUtils.parseQRString(rawResult
       .toString());
 
     if (valuesMap == null) {
       dialog_text.setText("The scanned QR is invalid");
-      progress_image.setBackgroundResource(R.drawable.ic_action_cancel);
+      // progress_image.setBackgroundResource(R.drawable.ic_action_cancel);
 
       dialog.show();
 
@@ -87,7 +87,7 @@ public class CustomQRScanner extends CaptureActivity {
 
       handler.postDelayed(runnable, 2000);
     } else {
-      // dialog_text.setText("Successfully Identified QR Code. Processing...");
+      dialog_text.setText("Successfully Identified QR Code. Processing...");
       // progress_image.setBackgroundResource(R.drawable.ic_action_done);
 
       final String scannedId = valuesMap.get("id");
@@ -133,7 +133,7 @@ public class CustomQRScanner extends CaptureActivity {
 
         // upon back button press, cancel both the scanQR AsyncTask and the
         // timed handler
-        progress_image.setBackgroundResource(R.drawable.progress);
+        // progress_image.setBackgroundResource(R.drawable.progress);
         dialog_text.setText("Processing");
         dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
           @Override

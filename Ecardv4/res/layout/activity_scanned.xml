@@ -9,7 +9,7 @@
     android:id="@+id/scroll_view_scanned"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/background_gradient"
+    android:background="@color/blue_100"
     android:scrollbars="none" >
 	<RelativeLayout
 	    android:id="@+id/backlayer"
