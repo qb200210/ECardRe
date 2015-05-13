@@ -122,7 +122,7 @@
 	                        android:layout_height="22dp"
 	                        android:layout_gravity="center"
 	                        android:padding="0dp"
-	                        android:src="@drawable/clock" >
+	                        android:src="@drawable/ic_clock" >
 	                    </ImageView>
 	
 	                    <com.micklestudios.knowell.utils.RobotoTextView
@@ -149,7 +149,7 @@
 	                        android:layout_height="22dp"
 	                        android:layout_gravity="center"
 	                        android:padding="0dp"
-	                        android:src="@drawable/location" >
+	                        android:src="@drawable/ic_location" >
 	                    </ImageView>
 	
 	                    <com.micklestudios.knowell.utils.RobotoTextView
@@ -309,7 +309,7 @@
                         android:layout_height="30dp"
                         android:layout_gravity="center"
                         android:padding="2dp"
-                        android:src="@drawable/clock" >
+                        android:src="@drawable/ic_clock" >
                     </ImageView>
 
                     <com.micklestudios.knowell.utils.RobotoEditText
@@ -337,7 +337,7 @@
                         android:layout_height="30dp"
                         android:layout_gravity="center"
                         android:padding="2dp"
-                        android:src="@drawable/location" >
+                        android:src="@drawable/ic_location" >
                     </ImageView>
 
                     <com.micklestudios.knowell.utils.RobotoEditText
@@ -367,7 +367,7 @@
                         android:layout_height="30dp"
                         android:layout_gravity="center"
                         android:padding="2dp"
-                        android:src="@drawable/event" >
+                        android:src="@drawable/ic_event" >
                     </ImageView>
 
                     <com.micklestudios.knowell.utils.RobotoEditText

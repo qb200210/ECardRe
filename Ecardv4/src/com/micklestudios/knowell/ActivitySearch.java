@@ -24,6 +24,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.KeyEvent;
@@ -80,8 +82,8 @@ public class ActivitySearch extends ActionBarActivity {
   static final int SCROLL_ANIMATION_SPEED_MS_FAST = 250;
 
   View mainView;
-  LinearLayout searchWidget;
-  Button searchButton;
+  RelativeLayout searchWidget;
+  ImageView searchButton;
   LinearLayout searchPanel;
 
   AutoCompleteTextView filterTextWhereMet;
@@ -121,6 +123,12 @@ public class ActivitySearch extends ActionBarActivity {
   public static final int SORT_MODE_NAME_DSC = 2;
   public static final int SORT_MODE_DATE_ASC = 3;
   public static final int SORT_MODE_DATE_DSC = 4;
+  
+  // search filter flags
+  private boolean flagMainClean = true;
+  private boolean flagWhereMetClean = true;
+  private boolean flagCompanyClean = true;
+  private boolean flagEventMetClean = true;
 
   public static int currentSortMode = SORT_MODE_DATE_ASC;
 
@@ -141,6 +149,12 @@ public class ActivitySearch extends ActionBarActivity {
   List<Integer> idsCardView = Arrays.asList(R.id.query_company_name,
     R.id.query_where_work);
   List<String> fieldsNote = Arrays.asList("event_met_lc", "where_met_lc");
+  private LinearLayout searchBar;
+  private ImageView advSearchToggle;
+  private ImageView btnClearMain;
+  private ImageView btnClearWhereMet;
+  private ImageView btnClearCompany;
+  private ImageView btnClearEventMet;
 
   @SuppressLint("InflateParams")
   @Override
@@ -199,8 +213,8 @@ public class ActivitySearch extends ActionBarActivity {
   private void retrieveAllViews() {
     // Retrieve all the filters and layouts.
     filterTextWhereMet = (AutoCompleteTextView) findViewById(R.id.txt_where_met);
-    filterTextEventMet = (AutoCompleteTextView) findViewById(R.id.txt_event_met);
     filterTextCompany = (AutoCompleteTextView) findViewById(R.id.txt_company);
+    filterTextEventMet = (AutoCompleteTextView) findViewById(R.id.txt_event_met);
 
     // The layouts we need to hide when drop down goes up.
     lLayoutCompany = (LinearLayout) findViewById(R.id.llayout_company);
@@ -209,12 +223,19 @@ public class ActivitySearch extends ActionBarActivity {
 
     // The three frames in the layout.
     searchPanel = (LinearLayout) findViewById(R.id.lnlayout_search_menu);
+    searchBar = (LinearLayout) findViewById(R.id.lnlayout_search_menu_main);
     layoutNoResults = (LinearLayout) findViewById(R.id.lnlayout_no_results);
     listView = (StickyListHeadersListView) findViewById(R.id.activity_stickylistheaders_listview);
 
-    searchWidget = (LinearLayout) findViewById(R.id.lnlayout_search_widget);
+    searchWidget = (RelativeLayout) findViewById(R.id.lnlayout_search_widget);
     searchBox = (AutoCompleteTextView) findViewById(R.id.txt_autocomplete_search);
-    searchButton = (Button) findViewById(R.id.btn_search_inside);
+    searchButton = (ImageView) findViewById(R.id.btn_search_inside);    
+
+    advSearchToggle = (ImageView) findViewById(R.id.btn_toggle_advsearch);
+    btnClearMain = (ImageView) findViewById(R.id.clear_all);
+    btnClearWhereMet = (ImageView) findViewById(R.id.clear_wheremet);
+    btnClearCompany = (ImageView) findViewById(R.id.clear_company);
+    btnClearEventMet = (ImageView) findViewById(R.id.clear_eventmet);
   }
 
   private void showSelectionMenu() {
@@ -288,6 +309,7 @@ public class ActivitySearch extends ActionBarActivity {
     currentSortMode = SORT_MODE_NAME_ASC;
     adapter.reSort();
     stickyListHeadersAdapterDecorator.notifyDataSetChanged();
+    
   }
 
   private void initializeSearchPanel() {
@@ -297,6 +319,243 @@ public class ActivitySearch extends ActionBarActivity {
       public void onClick(View v) {
       }
     });
+    
+    // Intercept all touch events to the drop down.
+    searchBar.setOnClickListener(new OnClickListener() {
+      @Override
+      public void onClick(View v) {
+      }
+    });
+    
+    searchBox.addTextChangedListener(new TextWatcher(){
+
+      @Override
+      public void beforeTextChanged(CharSequence s, int start, int count,
+        int after) {
+        // TODO Auto-generated method stub
+        
+      }
+
+      @Override
+      public void onTextChanged(CharSequence s, int start, int before, int count) {
+        // TODO Auto-generated method stub
+        
+      }
+
+      @Override
+      public void afterTextChanged(Editable s) {
+        if(!searchBox.getText().toString().isEmpty()){
+          btnClearMain.setVisibility(View.VISIBLE);
+          flagMainClean = false;          
+          if(droppedDown){
+            advSearchToggle.setImageResource(R.drawable.ic_tri_up_filled);
+          } else {
+            advSearchToggle.setImageResource(R.drawable.ic_tri_down_filled);
+          }          
+        } else {
+          flagMainClean = true;
+          if(flagMainClean && flagWhereMetClean && flagCompanyClean && flagEventMetClean){
+            btnClearMain.setVisibility(View.GONE);
+            if(droppedDown){
+              advSearchToggle.setImageResource(R.drawable.ic_tri_up_open);
+            } else {
+              advSearchToggle.setImageResource(R.drawable.ic_tri_down_open);
+            }
+          }
+        }        
+      }
+      
+    });
+    
+    filterTextWhereMet.addTextChangedListener(new TextWatcher(){
+
+      @Override
+      public void beforeTextChanged(CharSequence s, int start, int count,
+        int after) {
+        // TODO Auto-generated method stub
+        
+      }
+
+      @Override
+      public void onTextChanged(CharSequence s, int start, int before, int count) {
+        // TODO Auto-generated method stub
+        
+      }
+
+      @Override
+      public void afterTextChanged(Editable s) {
+        if(!filterTextWhereMet.getText().toString().isEmpty()){
+          btnClearMain.setVisibility(View.VISIBLE);
+          btnClearWhereMet.setVisibility(View.VISIBLE);
+          flagWhereMetClean = false;
+          if(droppedDown){
+            advSearchToggle.setImageResource(R.drawable.ic_tri_up_filled);
+          } else {
+            advSearchToggle.setImageResource(R.drawable.ic_tri_down_filled);
+          }   
+        } else {
+          btnClearWhereMet.setVisibility(View.GONE);
+          flagWhereMetClean = true;
+          if(flagMainClean && flagWhereMetClean && flagCompanyClean && flagEventMetClean){
+            btnClearMain.setVisibility(View.GONE);
+            if(droppedDown){
+              advSearchToggle.setImageResource(R.drawable.ic_tri_up_open);
+            } else {
+              advSearchToggle.setImageResource(R.drawable.ic_tri_down_open);
+            }
+          }
+        }        
+      }
+      
+    });
+    
+    filterTextCompany.addTextChangedListener(new TextWatcher(){
+
+      @Override
+      public void beforeTextChanged(CharSequence s, int start, int count,
+        int after) {
+        // TODO Auto-generated method stub
+        
+      }
+
+      @Override
+      public void onTextChanged(CharSequence s, int start, int before, int count) {
+        // TODO Auto-generated method stub
+        
+      }
+
+      @Override
+      public void afterTextChanged(Editable s) {
+        if(!filterTextCompany.getText().toString().isEmpty()){
+          btnClearMain.setVisibility(View.VISIBLE);
+          btnClearCompany.setVisibility(View.VISIBLE);
+          flagCompanyClean = false;
+          if(droppedDown){
+            advSearchToggle.setImageResource(R.drawable.ic_tri_up_filled);
+          } else {
+            advSearchToggle.setImageResource(R.drawable.ic_tri_down_filled);
+          }   
+        } else {
+          btnClearCompany.setVisibility(View.GONE);
+          flagCompanyClean = true;
+          if(flagMainClean && flagWhereMetClean && flagCompanyClean && flagEventMetClean){
+            btnClearMain.setVisibility(View.GONE);
+            if(droppedDown){
+              advSearchToggle.setImageResource(R.drawable.ic_tri_up_open);
+            } else {
+              advSearchToggle.setImageResource(R.drawable.ic_tri_down_open);
+            }
+          }
+        }        
+      }
+      
+    });
+    
+    filterTextEventMet.addTextChangedListener(new TextWatcher(){
+
+      @Override
+      public void beforeTextChanged(CharSequence s, int start, int count,
+        int after) {
+        // TODO Auto-generated method stub
+        
+      }
+
+      @Override
+      public void onTextChanged(CharSequence s, int start, int before, int count) {
+        // TODO Auto-generated method stub
+        
+      }
+
+      @Override
+      public void afterTextChanged(Editable s) {
+        if(!filterTextEventMet.getText().toString().isEmpty()){
+          btnClearMain.setVisibility(View.VISIBLE);
+          btnClearEventMet.setVisibility(View.VISIBLE);
+          flagEventMetClean = false;
+          if(droppedDown){
+            advSearchToggle.setImageResource(R.drawable.ic_tri_up_filled);
+          } else {
+            advSearchToggle.setImageResource(R.drawable.ic_tri_down_filled);
+          }   
+        } else {
+          btnClearEventMet.setVisibility(View.GONE);
+          flagEventMetClean = true;
+          if(flagMainClean && flagWhereMetClean && flagCompanyClean && flagEventMetClean){
+            btnClearMain.setVisibility(View.GONE);
+            if(droppedDown){
+              advSearchToggle.setImageResource(R.drawable.ic_tri_up_open);
+            } else {
+              advSearchToggle.setImageResource(R.drawable.ic_tri_down_open);
+            }
+          }
+        }        
+      }
+      
+    });
+    
+    btnClearMain.setOnClickListener(new OnClickListener(){
+
+      @Override
+      public void onClick(View v) {
+        if(droppedDown){
+          searchBox.setText("");
+          flagMainClean = true;
+          if(flagMainClean && flagWhereMetClean && flagCompanyClean && flagEventMetClean){
+            advSearchToggle.setImageResource(R.drawable.ic_tri_up_open);
+          }
+        } else {
+          searchBox.setText("");
+          filterTextWhereMet.setText("");
+          filterTextCompany.setText("");
+          filterTextEventMet.setText("");
+          flagWhereMetClean = true;
+          flagCompanyClean = true;
+          flagEventMetClean = true;
+          flagMainClean = true;
+          advSearchToggle.setImageResource(R.drawable.ic_tri_down_open);
+        }
+      }
+      
+    });
+    
+    btnClearWhereMet.setOnClickListener(new OnClickListener(){
+
+      @Override
+      public void onClick(View v) {
+        filterTextWhereMet.setText("");
+        flagWhereMetClean = true;
+        if(flagMainClean && flagWhereMetClean && flagCompanyClean && flagEventMetClean){
+          advSearchToggle.setImageResource(R.drawable.ic_tri_up_open);
+        }
+      }
+      
+    });
+    
+    btnClearCompany.setOnClickListener(new OnClickListener(){
+
+      @Override
+      public void onClick(View v) {
+        filterTextCompany.setText("");
+        flagCompanyClean = true;
+        if(flagMainClean && flagWhereMetClean && flagCompanyClean && flagEventMetClean){
+          advSearchToggle.setImageResource(R.drawable.ic_tri_up_open);
+        }
+      }
+      
+    });
+    
+    btnClearEventMet.setOnClickListener(new OnClickListener(){
+
+      @Override
+      public void onClick(View v) {
+        filterTextEventMet.setText("");
+        flagEventMetClean = true;
+        if(flagMainClean && flagWhereMetClean && flagCompanyClean && flagEventMetClean){
+          advSearchToggle.setImageResource(R.drawable.ic_tri_up_open);
+        }
+      }
+      
+    });    
 
     searchBox.setOnEditorActionListener(new TextView.OnEditorActionListener() {
       @Override
@@ -345,6 +604,15 @@ public class ActivitySearch extends ActionBarActivity {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
       }
+    });
+    
+    advSearchToggle.setOnClickListener(new OnClickListener(){
+
+      @Override
+      public void onClick(View v) {
+        moveSearchMenu();        
+      }
+      
     });
 
     // Set the autocomplete lists.
@@ -493,6 +761,11 @@ public class ActivitySearch extends ActionBarActivity {
   private void moveSearchMenuUp() {
     if (droppedDown) {
       droppedDown = false;
+      if(flagMainClean && flagWhereMetClean && flagCompanyClean && flagEventMetClean){
+        advSearchToggle.setImageResource(R.drawable.ic_tri_down_open);
+      } else {
+        advSearchToggle.setImageResource(R.drawable.ic_tri_down_filled);
+      }
       searchPanel.animate().translationY(searchMenuRetractedHeight)
         .setDuration(SCROLL_ANIMATION_SPEED_MS_FAST)
         .setInterpolator(new LinearInterpolator()).start();
@@ -505,6 +778,11 @@ public class ActivitySearch extends ActionBarActivity {
       toggleFiltersVisibility(true);
       // Drop the shade down.
       droppedDown = true;
+      if(flagMainClean && flagWhereMetClean && flagCompanyClean && flagEventMetClean){
+        advSearchToggle.setImageResource(R.drawable.ic_tri_up_open);
+      } else {
+        advSearchToggle.setImageResource(R.drawable.ic_tri_up_filled);
+      }
       searchPanel.animate().translationY(SEARCH_MENU_OVERHANG)
         .setDuration(SCROLL_ANIMATION_SPEED_MS_NORMAL)
         .setInterpolator(new OvershootInterpolator()).start();
@@ -557,9 +835,6 @@ public class ActivitySearch extends ActionBarActivity {
   public boolean onOptionsItemSelected(MenuItem item) {
     // this function is called when either action bar icon is tapped
     switch (item.getItemId()) {
-    case R.id.filter_results:
-      moveSearchMenu();
-      return true;
     case R.id.sort_results:
       actions.show();
       return true;

@@ -3,12 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools" >
 
     <item
-        android:id="@+id/filter_results"
-        android:icon="@drawable/ic_action_filter"
-        android:orderInCategory="5"
-        android:title="Filter Results"
-        app:showAsAction="ifRoom"/>
-    <item
         android:id="@+id/sort_results"
         android:icon="@drawable/ic_action_sort_by_size"
         android:orderInCategory="6"
