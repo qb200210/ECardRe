@@ -26,7 +26,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -34,7 +33,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnLongClickListener;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
@@ -48,7 +46,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -85,6 +82,7 @@ public class ActivitySearch extends ActionBarActivity {
   RelativeLayout searchWidget;
   ImageView searchButton;
   LinearLayout searchPanel;
+  LinearLayout contactListContainerLayout;
 
   AutoCompleteTextView filterTextWhereMet;
   AutoCompleteTextView filterTextEventMet;
@@ -200,7 +198,7 @@ public class ActivitySearch extends ActionBarActivity {
         int searchWidgetTotalHeight = searchWidget.getMeasuredHeight()
           + searchWidget.getPaddingTop();
         SEARCH_MENU_OVERHANG = searchWidgetTotalHeight;
-        listView.setPadding(0, searchWidgetTotalHeight, 0, 0);
+        contactListContainerLayout.setPadding(0, searchWidgetTotalHeight, 0, 0);
         searchMenuRetractedHeight = 0 - searchPanel.getMeasuredHeight();
         searchPanel.setTranslationY(searchMenuRetractedHeight);
       }
@@ -226,6 +224,7 @@ public class ActivitySearch extends ActionBarActivity {
     searchBar = (LinearLayout) findViewById(R.id.lnlayout_search_menu_main);
     layoutNoResults = (LinearLayout) findViewById(R.id.lnlayout_no_results);
     listView = (StickyListHeadersListView) findViewById(R.id.activity_stickylistheaders_listview);
+    contactListContainerLayout = (LinearLayout) findViewById(R.id.lnlayout_list_container);
 
     searchWidget = (RelativeLayout) findViewById(R.id.lnlayout_search_widget);
     searchBox = (AutoCompleteTextView) findViewById(R.id.txt_autocomplete_search);
