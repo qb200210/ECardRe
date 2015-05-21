@@ -121,7 +121,7 @@ public class ActivitySearch extends ActionBarActivity {
   public static final int SORT_MODE_NAME_DSC = 2;
   public static final int SORT_MODE_DATE_ASC = 3;
   public static final int SORT_MODE_DATE_DSC = 4;
-  
+
   // search filter flags
   private boolean flagMainClean = true;
   private boolean flagWhereMetClean = true;
@@ -148,6 +148,7 @@ public class ActivitySearch extends ActionBarActivity {
     R.id.query_where_work);
   List<String> fieldsNote = Arrays.asList("event_met_lc", "where_met_lc");
   private LinearLayout searchBar;
+  private LinearLayout selectionBar;
   private ImageView advSearchToggle;
   private ImageView btnClearMain;
   private ImageView btnClearWhereMet;
@@ -222,13 +223,14 @@ public class ActivitySearch extends ActionBarActivity {
     // The three frames in the layout.
     searchPanel = (LinearLayout) findViewById(R.id.lnlayout_search_menu);
     searchBar = (LinearLayout) findViewById(R.id.lnlayout_search_menu_main);
+    selectionBar = (LinearLayout) findViewById(R.id.lnlayout_selection_menu_main);
     layoutNoResults = (LinearLayout) findViewById(R.id.lnlayout_no_results);
     listView = (StickyListHeadersListView) findViewById(R.id.activity_stickylistheaders_listview);
     contactListContainerLayout = (LinearLayout) findViewById(R.id.lnlayout_list_container);
 
     searchWidget = (RelativeLayout) findViewById(R.id.lnlayout_search_widget);
     searchBox = (AutoCompleteTextView) findViewById(R.id.txt_autocomplete_search);
-    searchButton = (ImageView) findViewById(R.id.btn_search_inside);    
+    searchButton = (ImageView) findViewById(R.id.btn_search_inside);
 
     advSearchToggle = (ImageView) findViewById(R.id.btn_toggle_advsearch);
     btnClearMain = (ImageView) findViewById(R.id.clear_all);
@@ -237,8 +239,21 @@ public class ActivitySearch extends ActionBarActivity {
     btnClearEventMet = (ImageView) findViewById(R.id.clear_eventmet);
   }
 
-  private void showSelectionMenu() {
+  private void setSelectionMode(boolean set) {
+    // Selection mode is already as what is needed.
+    if (isSelectionMode == set) {
+      return;
+    }
 
+    isSelectionMode = set;
+
+    if (set) {
+      selectionBar.setVisibility(View.VISIBLE);
+      searchBar.setVisibility(View.INVISIBLE);
+    } else {
+      selectionBar.setVisibility(View.INVISIBLE);
+      searchBar.setVisibility(View.VISIBLE);
+    }
   }
 
   private void initializeContactList() {
@@ -255,22 +270,11 @@ public class ActivitySearch extends ActionBarActivity {
           intent.putExtra("userinfo", clickedUser);
           startActivity(intent);
         } else {
-          // Now we are selecting stuff. Get the check box
-          CheckBox selectionBox = (CheckBox) view
-            .findViewById(R.id.chk_contact_select);
-
           // If this is already selected, remove it.
           if (selectedUsers.contains(clickedUser)) {
             selectedUsers.remove(clickedUser);
-            selectionBox.setSelected(false);
-            // If nothing is left selected, stop selection mode.
-            if (selectedUsers.size() == 0) {
-              isSelectionMode = false;
-              searchBox.setHint("Start Searching ...");
-            }
           } else {
             selectedUsers.add(clickedUser);
-            selectionBox.setSelected(true);
           }
 
           adapter.notifyDataSetChanged();
@@ -282,10 +286,7 @@ public class ActivitySearch extends ActionBarActivity {
       @Override
       public boolean onItemLongClick(AdapterView<?> parent, View view,
         int position, long id) {
-        if (isSelectionMode == false) {
-          isSelectionMode = true;
-          searchBox.setHint("SELECTION MODE");
-        }
+        setSelectionMode(true);
         return false;
       }
     });
@@ -308,7 +309,7 @@ public class ActivitySearch extends ActionBarActivity {
     currentSortMode = SORT_MODE_NAME_ASC;
     adapter.reSort();
     stickyListHeadersAdapterDecorator.notifyDataSetChanged();
-    
+
   }
 
   private void initializeSearchPanel() {
@@ -318,188 +319,193 @@ public class ActivitySearch extends ActionBarActivity {
       public void onClick(View v) {
       }
     });
-    
+
     // Intercept all touch events to the drop down.
     searchBar.setOnClickListener(new OnClickListener() {
       @Override
       public void onClick(View v) {
       }
     });
-    
-    searchBox.addTextChangedListener(new TextWatcher(){
+
+    searchBox.addTextChangedListener(new TextWatcher() {
 
       @Override
       public void beforeTextChanged(CharSequence s, int start, int count,
         int after) {
         // TODO Auto-generated method stub
-        
+
       }
 
       @Override
       public void onTextChanged(CharSequence s, int start, int before, int count) {
         // TODO Auto-generated method stub
-        
+
       }
 
       @Override
       public void afterTextChanged(Editable s) {
-        if(!searchBox.getText().toString().isEmpty()){
+        if (!searchBox.getText().toString().isEmpty()) {
           btnClearMain.setVisibility(View.VISIBLE);
-          flagMainClean = false;          
-          if(droppedDown){
+          flagMainClean = false;
+          if (droppedDown) {
             advSearchToggle.setImageResource(R.drawable.ic_tri_up_filled);
           } else {
             advSearchToggle.setImageResource(R.drawable.ic_tri_down_filled);
-          }          
+          }
         } else {
           flagMainClean = true;
-          if(flagMainClean && flagWhereMetClean && flagCompanyClean && flagEventMetClean){
+          if (flagMainClean && flagWhereMetClean && flagCompanyClean
+            && flagEventMetClean) {
             btnClearMain.setVisibility(View.GONE);
-            if(droppedDown){
+            if (droppedDown) {
               advSearchToggle.setImageResource(R.drawable.ic_tri_up_open);
             } else {
               advSearchToggle.setImageResource(R.drawable.ic_tri_down_open);
             }
           }
-        }        
+        }
       }
-      
+
     });
-    
-    filterTextWhereMet.addTextChangedListener(new TextWatcher(){
+
+    filterTextWhereMet.addTextChangedListener(new TextWatcher() {
 
       @Override
       public void beforeTextChanged(CharSequence s, int start, int count,
         int after) {
         // TODO Auto-generated method stub
-        
+
       }
 
       @Override
       public void onTextChanged(CharSequence s, int start, int before, int count) {
         // TODO Auto-generated method stub
-        
+
       }
 
       @Override
       public void afterTextChanged(Editable s) {
-        if(!filterTextWhereMet.getText().toString().isEmpty()){
+        if (!filterTextWhereMet.getText().toString().isEmpty()) {
           btnClearMain.setVisibility(View.VISIBLE);
           btnClearWhereMet.setVisibility(View.VISIBLE);
           flagWhereMetClean = false;
-          if(droppedDown){
+          if (droppedDown) {
             advSearchToggle.setImageResource(R.drawable.ic_tri_up_filled);
           } else {
             advSearchToggle.setImageResource(R.drawable.ic_tri_down_filled);
-          }   
+          }
         } else {
           btnClearWhereMet.setVisibility(View.GONE);
           flagWhereMetClean = true;
-          if(flagMainClean && flagWhereMetClean && flagCompanyClean && flagEventMetClean){
+          if (flagMainClean && flagWhereMetClean && flagCompanyClean
+            && flagEventMetClean) {
             btnClearMain.setVisibility(View.GONE);
-            if(droppedDown){
+            if (droppedDown) {
               advSearchToggle.setImageResource(R.drawable.ic_tri_up_open);
             } else {
               advSearchToggle.setImageResource(R.drawable.ic_tri_down_open);
             }
           }
-        }        
+        }
       }
-      
+
     });
-    
-    filterTextCompany.addTextChangedListener(new TextWatcher(){
+
+    filterTextCompany.addTextChangedListener(new TextWatcher() {
 
       @Override
       public void beforeTextChanged(CharSequence s, int start, int count,
         int after) {
         // TODO Auto-generated method stub
-        
+
       }
 
       @Override
       public void onTextChanged(CharSequence s, int start, int before, int count) {
         // TODO Auto-generated method stub
-        
+
       }
 
       @Override
       public void afterTextChanged(Editable s) {
-        if(!filterTextCompany.getText().toString().isEmpty()){
+        if (!filterTextCompany.getText().toString().isEmpty()) {
           btnClearMain.setVisibility(View.VISIBLE);
           btnClearCompany.setVisibility(View.VISIBLE);
           flagCompanyClean = false;
-          if(droppedDown){
+          if (droppedDown) {
             advSearchToggle.setImageResource(R.drawable.ic_tri_up_filled);
           } else {
             advSearchToggle.setImageResource(R.drawable.ic_tri_down_filled);
-          }   
+          }
         } else {
           btnClearCompany.setVisibility(View.GONE);
           flagCompanyClean = true;
-          if(flagMainClean && flagWhereMetClean && flagCompanyClean && flagEventMetClean){
+          if (flagMainClean && flagWhereMetClean && flagCompanyClean
+            && flagEventMetClean) {
             btnClearMain.setVisibility(View.GONE);
-            if(droppedDown){
+            if (droppedDown) {
               advSearchToggle.setImageResource(R.drawable.ic_tri_up_open);
             } else {
               advSearchToggle.setImageResource(R.drawable.ic_tri_down_open);
             }
           }
-        }        
+        }
       }
-      
+
     });
-    
-    filterTextEventMet.addTextChangedListener(new TextWatcher(){
+
+    filterTextEventMet.addTextChangedListener(new TextWatcher() {
 
       @Override
       public void beforeTextChanged(CharSequence s, int start, int count,
         int after) {
         // TODO Auto-generated method stub
-        
+
       }
 
       @Override
       public void onTextChanged(CharSequence s, int start, int before, int count) {
         // TODO Auto-generated method stub
-        
+
       }
 
       @Override
       public void afterTextChanged(Editable s) {
-        if(!filterTextEventMet.getText().toString().isEmpty()){
+        if (!filterTextEventMet.getText().toString().isEmpty()) {
           btnClearMain.setVisibility(View.VISIBLE);
           btnClearEventMet.setVisibility(View.VISIBLE);
           flagEventMetClean = false;
-          if(droppedDown){
+          if (droppedDown) {
             advSearchToggle.setImageResource(R.drawable.ic_tri_up_filled);
           } else {
             advSearchToggle.setImageResource(R.drawable.ic_tri_down_filled);
-          }   
+          }
         } else {
           btnClearEventMet.setVisibility(View.GONE);
           flagEventMetClean = true;
-          if(flagMainClean && flagWhereMetClean && flagCompanyClean && flagEventMetClean){
+          if (flagMainClean && flagWhereMetClean && flagCompanyClean
+            && flagEventMetClean) {
             btnClearMain.setVisibility(View.GONE);
-            if(droppedDown){
+            if (droppedDown) {
               advSearchToggle.setImageResource(R.drawable.ic_tri_up_open);
             } else {
               advSearchToggle.setImageResource(R.drawable.ic_tri_down_open);
             }
           }
-        }        
+        }
       }
-      
+
     });
-    
-    btnClearMain.setOnClickListener(new OnClickListener(){
+
+    btnClearMain.setOnClickListener(new OnClickListener() {
 
       @Override
       public void onClick(View v) {
-        if(droppedDown){
+        if (droppedDown) {
           searchBox.setText("");
           flagMainClean = true;
-          if(flagMainClean && flagWhereMetClean && flagCompanyClean && flagEventMetClean){
+          if (flagMainClean && flagWhereMetClean && flagCompanyClean
+            && flagEventMetClean) {
             advSearchToggle.setImageResource(R.drawable.ic_tri_up_open);
           }
         } else {
@@ -514,47 +520,50 @@ public class ActivitySearch extends ActionBarActivity {
           advSearchToggle.setImageResource(R.drawable.ic_tri_down_open);
         }
       }
-      
+
     });
-    
-    btnClearWhereMet.setOnClickListener(new OnClickListener(){
+
+    btnClearWhereMet.setOnClickListener(new OnClickListener() {
 
       @Override
       public void onClick(View v) {
         filterTextWhereMet.setText("");
         flagWhereMetClean = true;
-        if(flagMainClean && flagWhereMetClean && flagCompanyClean && flagEventMetClean){
+        if (flagMainClean && flagWhereMetClean && flagCompanyClean
+          && flagEventMetClean) {
           advSearchToggle.setImageResource(R.drawable.ic_tri_up_open);
         }
       }
-      
+
     });
-    
-    btnClearCompany.setOnClickListener(new OnClickListener(){
+
+    btnClearCompany.setOnClickListener(new OnClickListener() {
 
       @Override
       public void onClick(View v) {
         filterTextCompany.setText("");
         flagCompanyClean = true;
-        if(flagMainClean && flagWhereMetClean && flagCompanyClean && flagEventMetClean){
+        if (flagMainClean && flagWhereMetClean && flagCompanyClean
+          && flagEventMetClean) {
           advSearchToggle.setImageResource(R.drawable.ic_tri_up_open);
         }
       }
-      
+
     });
-    
-    btnClearEventMet.setOnClickListener(new OnClickListener(){
+
+    btnClearEventMet.setOnClickListener(new OnClickListener() {
 
       @Override
       public void onClick(View v) {
         filterTextEventMet.setText("");
         flagEventMetClean = true;
-        if(flagMainClean && flagWhereMetClean && flagCompanyClean && flagEventMetClean){
+        if (flagMainClean && flagWhereMetClean && flagCompanyClean
+          && flagEventMetClean) {
           advSearchToggle.setImageResource(R.drawable.ic_tri_up_open);
         }
       }
-      
-    });    
+
+    });
 
     searchBox.setOnEditorActionListener(new TextView.OnEditorActionListener() {
       @Override
@@ -604,14 +613,14 @@ public class ActivitySearch extends ActionBarActivity {
         imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
       }
     });
-    
-    advSearchToggle.setOnClickListener(new OnClickListener(){
+
+    advSearchToggle.setOnClickListener(new OnClickListener() {
 
       @Override
       public void onClick(View v) {
-        moveSearchMenu();        
+        moveSearchMenu();
       }
-      
+
     });
 
     // Set the autocomplete lists.
@@ -760,7 +769,8 @@ public class ActivitySearch extends ActionBarActivity {
   private void moveSearchMenuUp() {
     if (droppedDown) {
       droppedDown = false;
-      if(flagMainClean && flagWhereMetClean && flagCompanyClean && flagEventMetClean){
+      if (flagMainClean && flagWhereMetClean && flagCompanyClean
+        && flagEventMetClean) {
         advSearchToggle.setImageResource(R.drawable.ic_tri_down_open);
       } else {
         advSearchToggle.setImageResource(R.drawable.ic_tri_down_filled);
@@ -777,7 +787,8 @@ public class ActivitySearch extends ActionBarActivity {
       toggleFiltersVisibility(true);
       // Drop the shade down.
       droppedDown = true;
-      if(flagMainClean && flagWhereMetClean && flagCompanyClean && flagEventMetClean){
+      if (flagMainClean && flagWhereMetClean && flagCompanyClean
+        && flagEventMetClean) {
         advSearchToggle.setImageResource(R.drawable.ic_tri_up_open);
       } else {
         advSearchToggle.setImageResource(R.drawable.ic_tri_up_filled);
@@ -823,6 +834,12 @@ public class ActivitySearch extends ActionBarActivity {
       actionBar.setDisplayShowTitleEnabled(false);
       actionBar.setCustomView(v);
     }
+  }
+
+  @Override
+  public void onBackPressed() {
+    setSelectionMode(false);
+    return;
   }
 
   public boolean onCreateOptionsMenu(Menu menu) {
