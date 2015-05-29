@@ -62,13 +62,13 @@ public class ActivityPreLogin extends Activity {
         ActivityPreLogin.this);
       Intent parseLoginIntent = loginBuilder
         .setParseLoginEnabled(true)
-        .setAppLogo(R.drawable.logo)
-        .setParseLoginButtonText("Go")
+        .setAppLogo(R.drawable.splash)
+        .setParseLoginButtonText("Login")
         .setParseSignupButtonText("Register")
         .setParseLoginHelpText("Forgot password?")
         .setParseLoginInvalidCredentialsToastText(
           "You email and/or password is not correct")
-        .setParseLoginEmailAsUsername(false)
+        .setParseLoginEmailAsUsername(true)
         .setParseSignupSubmitButtonText("Submit registration")
         .setFacebookLoginEnabled(false).setTwitterLoginEnabled(false).build();
       

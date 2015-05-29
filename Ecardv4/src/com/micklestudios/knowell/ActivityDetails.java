@@ -9,14 +9,18 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.ToxicBakery.viewpager.transforms.FlipHorizontalTransformer;
 import com.micklestudios.knowell.infrastructure.UserInfo;
 import com.micklestudios.knowell.utils.CurvedAndTiled;
+import com.micklestudios.knowell.utils.DetailsPagerAdapter;
 import com.micklestudios.knowell.utils.ECardUtils;
 import com.micklestudios.knowell.utils.ExpandableHeightGridView;
 import com.micklestudios.knowell.utils.MyDetailsGridViewAdapter;
 import com.micklestudios.knowell.utils.MyGridViewAdapter;
+import com.micklestudios.knowell.utils.MyPagerAdapter;
 import com.micklestudios.knowell.utils.MyScrollView;
 import com.micklestudios.knowell.utils.MyTag;
+import com.micklestudios.knowell.utils.MyViewPager;
 import com.micklestudios.knowell.utils.SquareLayout;
 import com.parse.FindCallback;
 import com.parse.GetCallback;
@@ -45,8 +49,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Environment;
+import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -68,15 +74,9 @@ import android.widget.Toast;
 public class ActivityDetails extends ActionBarActivity {
 
   private MyScrollView scrollView;
-  ArrayList<String> shownArrayList = new ArrayList<String>();
-  ArrayList<Integer> infoIcon = new ArrayList<Integer>();
-  ArrayList<String> infoLink = new ArrayList<String>();
-
-  ExpandableHeightGridView gridView;
   ParseUser currentUser;
   private MediaRecorder recorder = null;
   private MediaPlayer mp = null;
-  private ImageView replayButtonBar;
   private ImageView replayButtonPanel;
   private ImageView recorderButton;
   private ImageView timerButton;
@@ -96,7 +96,6 @@ public class ActivityDetails extends ActionBarActivity {
     setContentView(R.layout.activity_scanned);
     currentUser = ParseUser.getCurrentUser();
 
-    replayButtonBar = (ImageView) findViewById(R.id.bar_play_button);
     replayButtonPanel = (ImageView) findViewById(R.id.panel_play_button);
     recorderButton = (ImageView) findViewById(R.id.panel_recorder_button);
     timerButton = (ImageView) findViewById(R.id.stop_recording);
@@ -107,93 +106,14 @@ public class ActivityDetails extends ActionBarActivity {
 
     Bundle data = getIntent().getExtras();
     final UserInfo newUser = (UserInfo) data.getParcelable("userinfo");
+    
+    DetailsPagerAdapter mAdapter = new DetailsPagerAdapter(getSupportFragmentManager(), newUser, this);
 
-    // setOnclickListener for note bar/panel switcher
-    ImageView barNoteButton = (ImageView) findViewById(R.id.bar_note_button);
-    barNoteButton.setOnClickListener(new OnClickListener() {
-
-      @Override
-      public void onClick(View v) {
-        RelativeLayout notePanelLayout = (RelativeLayout) findViewById(R.id.note_panel);
-        notePanelLayout.setVisibility(View.VISIBLE);
-        RelativeLayout noteBarLayout = (RelativeLayout) findViewById(R.id.note_bar);
-        noteBarLayout.setVisibility(View.GONE);
-      }
-
-    });
-    ImageView panelNoteButton = (ImageView) findViewById(R.id.panel_note_button);
-    panelNoteButton.setOnClickListener(new OnClickListener() {
-
-      @Override
-      public void onClick(View v) {
-        RelativeLayout notePanelLayout = (RelativeLayout) findViewById(R.id.note_panel);
-        notePanelLayout.setVisibility(View.GONE);
-        RelativeLayout noteBarLayout = (RelativeLayout) findViewById(R.id.note_bar);
-        noteBarLayout.setVisibility(View.VISIBLE);
-        TextView whereMet1 = (TextView) findViewById(R.id.PlaceAdded1);
-        EditText whereMet2 = (EditText) findViewById(R.id.PlaceAdded2);
-        if (whereMet2.getText() != null) {
-          whereMet1.setText(whereMet2.getText().toString());
-        }
-      }
-
-    });
-
-    // display the main card
-    displayCard(newUser);
-
-    // display extra info
-    infoIcon = newUser.getInfoIcon();
-    infoLink = newUser.getInfoLink();
-    shownArrayList = newUser.getShownArrayList();
-
-    gridView = (ExpandableHeightGridView) findViewById(R.id.gridView1);
-    gridView.setAdapter(new MyDetailsGridViewAdapter(ActivityDetails.this,
-      shownArrayList, infoLink, infoIcon));
-    gridView.setOnItemClickListener(new OnItemClickListener() {
-
-      @SuppressLint("NewApi")
-      @Override
-      public void onItemClick(AdapterView<?> parent, View view, int position,
-        long id) {
-
-        MyTag tag = (MyTag) view.getTag();
-        if (tag != null) {
-          Intent intent;
-          switch (((MyTag) view.getTag()).getKey().toString()) {
-          case "phone":
-            intent = new Intent(Intent.ACTION_VIEW, Uri.parse("tel:"
-              + ((MyTag) view.getTag()).getValue().toString()));
-            startActivity(intent);
-            break;
-          case "message":
-            intent = new Intent(Intent.ACTION_VIEW, Uri.parse("smsto:"
-              + ((MyTag) view.getTag()).getValue().toString()));
-            startActivity(intent);
-            break;
-          case "email":
-            intent = new Intent(Intent.ACTION_VIEW, Uri.parse("mailto:"
-              + ((MyTag) view.getTag()).getValue().toString()));
-            startActivity(intent);
-            break;
-          case "about":
-            buildAboutMeDialog(view);
-            break;
-          default:
-            String url = ((MyTag) view.getTag()).getValue().toString();
-            if (!url.startsWith("http://") && !url.startsWith("https://")
-              && !url.startsWith("ftp://")) {
-              url = "http://www.google.com/#q=" + url;
-            }
-            intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-            startActivity(intent);
-          }
-        }
-
-      }
-
-    });
-
+    final MyViewPager mPager = (MyViewPager) findViewById(R.id.pager22);
+    mPager.setAdapter(mAdapter);
+    mPager.setCurrentItem(0x40000000);
+    mPager.setPageTransformer(true, new FlipHorizontalTransformer());
+    
     // display note
     ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardNote");
     query.fromLocalDatastore();
@@ -221,25 +141,16 @@ public class ActivityDetails extends ActionBarActivity {
           + android.text.format.DateFormat.format("dd", object.getUpdatedAt())
           + ", "
           + android.text.format.DateFormat.format("yyyy", object.getUpdatedAt()));
-        TextView whenMet1 = (TextView) findViewById(R.id.DateAdded1);
         TextView whenMet2 = (TextView) findViewById(R.id.DateAdded2);
-        whenMet1.setText(android.text.format.DateFormat.format("MMM",
-          object.getCreatedAt())
-          + " "
-          + android.text.format.DateFormat.format("dd", object.getCreatedAt())
-          + ", "
-          + android.text.format.DateFormat.format("yyyy", object.getCreatedAt()));
         whenMet2.setText(android.text.format.DateFormat.format("MMM",
           object.getCreatedAt())
           + " "
           + android.text.format.DateFormat.format("dd", object.getCreatedAt())
           + ", "
           + android.text.format.DateFormat.format("yyyy", object.getCreatedAt()));
-        TextView whereMet1 = (TextView) findViewById(R.id.PlaceAdded1);
         EditText whereMet2 = (EditText) findViewById(R.id.PlaceAdded2);
         String cityName = object.getString("where_met");
         if (cityName != null) {
-          whereMet1.setText(cityName);
           whereMet2.setText(cityName);
         }
         EditText eventMet = (EditText) findViewById(R.id.EventAdded2);
@@ -310,7 +221,6 @@ public class ActivityDetails extends ActionBarActivity {
           } else {
             // if both tmparray and voiceNotes are null, then it means no voice
             // note at all
-            replayButtonBar.setVisibility(View.GONE);
             replayButtonPanel.setVisibility(View.GONE);
           }
         }
@@ -327,7 +237,6 @@ public class ActivityDetails extends ActionBarActivity {
           Toast.makeText(ActivityDetails.this, "Recording...",
             Toast.LENGTH_SHORT).show();
           // changebuttontext(R.id.recordButton,"Recording...");
-          replayButtonBar.setVisibility(View.GONE);
           replayButtonPanel.setVisibility(View.GONE);
           startRecording();
           recordstatus1 = 1;
@@ -338,7 +247,6 @@ public class ActivityDetails extends ActionBarActivity {
           scrollView.setmScrollable(false);
 
           disableViewElements((ViewGroup) findViewById(R.id.backlayer));
-          gridView.setEnabled(false);
 
           t = new CountDownTimer(30000, 1000) { // 30 seconds recording time
             TextView counter = (TextView) findViewById(R.id.time_left);
@@ -356,13 +264,11 @@ public class ActivityDetails extends ActionBarActivity {
               Toast.makeText(ActivityDetails.this,
                 "Max Recording Length Reached.", Toast.LENGTH_SHORT).show();
               recorderButton.setImageResource(R.drawable.recorder);
-              replayButtonBar.setVisibility(View.VISIBLE);
               replayButtonPanel.setVisibility(View.VISIBLE);
               findViewById(R.id.timer).setVisibility(View.GONE);
               enableViewElements((ViewGroup) findViewById(R.id.backlayer));
               scrollView = (MyScrollView) findViewById(R.id.scroll_view_scanned);
               scrollView.setmScrollable(true);
-              gridView.setEnabled(true);
 
             }
           }.start();
@@ -372,13 +278,11 @@ public class ActivityDetails extends ActionBarActivity {
           t.cancel();
           recordstatus1 = 0;
           recorderButton.setImageResource(R.drawable.recorder);
-          replayButtonBar.setVisibility(View.VISIBLE);
           replayButtonPanel.setVisibility(View.VISIBLE);
           findViewById(R.id.timer).setVisibility(View.GONE);
           enableViewElements((ViewGroup) findViewById(R.id.backlayer));
           scrollView = (MyScrollView) findViewById(R.id.scroll_view_scanned);
           scrollView.setmScrollable(true);
-          gridView.setEnabled(true);
         }
       }
     });
@@ -391,71 +295,24 @@ public class ActivityDetails extends ActionBarActivity {
         t.cancel();
         recordstatus1 = 0;
         recorderButton.setImageResource(R.drawable.recorder);
-        replayButtonBar.setVisibility(View.VISIBLE);
         replayButtonPanel.setVisibility(View.VISIBLE);
         findViewById(R.id.timer).setVisibility(View.GONE);
         enableViewElements((ViewGroup) findViewById(R.id.backlayer));
         scrollView = (MyScrollView) findViewById(R.id.scroll_view_scanned);
         scrollView.setmScrollable(true);
-        gridView.setEnabled(true);
       }
     });
-    replayButtonBar.setOnClickListener(new OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        if (null != mp && mp.isPlaying()) {
-          mp.pause();
-          flag = 1;
-          replayButtonBar.setImageResource(R.drawable.play);
-          replayButtonPanel.setImageResource(R.drawable.play);
-        } else if (null != mp && flag == 1) {
-          mp.start();
-          flag = 0;
-        } else {
-          stopRecording();
-          mp = new MediaPlayer();
-          replayButtonBar.setImageResource(R.drawable.pause);
-          replayButtonPanel.setImageResource(R.drawable.pause);
-          try {
-            mp.setDataSource(filepath);
-          } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-          } catch (SecurityException e) {
-            e.printStackTrace();
-          } catch (IllegalStateException e) {
-            e.printStackTrace();
-          } catch (IOException e) {
-            e.printStackTrace();
-          }
-          try {
-            mp.prepare();
-          } catch (IllegalStateException | IOException e) {
-            e.printStackTrace();
-          }
-          mp.start();
-
-          mp.setOnCompletionListener(new OnCompletionListener() {
-            // @Override
-            public void onCompletion(MediaPlayer mp) {
-              replayButtonBar.setImageResource(R.drawable.play);
-              replayButtonPanel.setImageResource(R.drawable.play);
-            }
-          });
-        }
-      }
-    });
+    
     replayButtonPanel.setOnClickListener(new OnClickListener() {
       @Override
       public void onClick(View v) {
         if (null != mp && mp.isPlaying()) {
           mp.pause();
           flag = 1;
-          replayButtonBar.setImageResource(R.drawable.play);
           replayButtonPanel.setImageResource(R.drawable.play);
         } else if (null != mp && flag == 1) {
           mp.start();
           flag = 0;
-          replayButtonBar.setImageResource(R.drawable.pause);
           replayButtonPanel.setImageResource(R.drawable.pause);
         } else {
           stopRecording();
@@ -477,13 +334,11 @@ public class ActivityDetails extends ActionBarActivity {
             e.printStackTrace();
           }
           mp.start();
-          replayButtonBar.setImageResource(R.drawable.pause);
           replayButtonPanel.setImageResource(R.drawable.pause);
 
           mp.setOnCompletionListener(new OnCompletionListener() {
             // @Override
             public void onCompletion(MediaPlayer mp) {
-              replayButtonBar.setImageResource(R.drawable.play);
               replayButtonPanel.setImageResource(R.drawable.play);
             }
           });
@@ -495,8 +350,8 @@ public class ActivityDetails extends ActionBarActivity {
     // This is the life-saver! It fixes the bug that scrollView will go to the
     // bottom of GridView upon open
     // below is to re-scroll to the first view in the LinearLayout
-    SquareLayout mainCardContainer = (SquareLayout) findViewById(R.id.main_card_container);
-    scrollView.requestChildFocus(mainCardContainer, null);
+//    SquareLayout mainCardContainer = (SquareLayout) findViewById(R.id.details_maincard_container);
+//    scrollView.requestChildFocus(mainCardContainer, null);
 
   }
 
@@ -504,7 +359,9 @@ public class ActivityDetails extends ActionBarActivity {
     LayoutInflater inflator = (LayoutInflater) this
       .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     View v = inflator.inflate(R.layout.layout_actionbar_search, null);
-    ImageView btnBack = (ImageView) v.findViewById(R.id.btn_back);
+    LinearLayout btnBack = (LinearLayout) v.findViewById(R.id.btn_back);
+    TextView title = (TextView) v.findViewById(R.id.search_actionbar_title);
+    title.setText("Notes");
     btnBack.setOnClickListener(new OnClickListener() {
 
       @Override
@@ -523,35 +380,7 @@ public class ActivityDetails extends ActionBarActivity {
     }
   }
 
-  @SuppressLint("NewApi")
-  protected void buildAboutMeDialog(View view) {
-    // Get the layout inflater
-    LayoutInflater inflater = getLayoutInflater();
-    View dialogView = inflater.inflate(R.layout.layout_dialog_scanned_peritem,
-      null);
-    LinearLayout dialogHeader = (LinearLayout) dialogView
-      .findViewById(R.id.dialog_header);
-    final TextView dialogText = (TextView) dialogView
-      .findViewById(R.id.dialog_text);
-    TextView dialogTitle = (TextView) dialogView
-      .findViewById(R.id.dialog_title);
-    // Set dialog header background with rounded corner
-    Bitmap bm = BitmapFactory
-      .decodeResource(getResources(), R.drawable.striped);
-    BitmapDrawable bmDrawable = new BitmapDrawable(getResources(), bm);
-    dialogHeader.setBackground(new CurvedAndTiled(bmDrawable.getBitmap(), 5));
-    // Set dialog title and main EditText
-    dialogTitle.setText("About Me");
-    dialogText.setText(((MyTag) view.getTag()).getValue().toString());
-
-    new AlertDialog.Builder(ActivityDetails.this).setView(dialogView)
-      .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-        public void onClick(DialogInterface dialog, int whichButton) {
-
-        }
-      }).show();
-
-  }
+  
 
   private void deleteLocalVoiceNote() {
     File myFile = new File(filepath);

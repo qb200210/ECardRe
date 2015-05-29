@@ -12,10 +12,12 @@ import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.ToxicBakery.viewpager.transforms.FlipHorizontalTransformer;
 import com.micklestudios.knowell.infrastructure.UserInfo;
 import com.micklestudios.knowell.utils.AsyncResponse;
 import com.micklestudios.knowell.utils.AsyncTasks;
 import com.micklestudios.knowell.utils.CurvedAndTiled;
+import com.micklestudios.knowell.utils.DetailsPagerAdapter;
 import com.micklestudios.knowell.utils.ECardSQLHelperCachedIds;
 import com.micklestudios.knowell.utils.ECardSQLHelperCachedShares;
 import com.micklestudios.knowell.utils.ECardUtils;
@@ -24,6 +26,7 @@ import com.micklestudios.knowell.utils.GeocoderHelper;
 import com.micklestudios.knowell.utils.MyDetailsGridViewAdapter;
 import com.micklestudios.knowell.utils.MyScrollView;
 import com.micklestudios.knowell.utils.MyTag;
+import com.micklestudios.knowell.utils.MyViewPager;
 import com.micklestudios.knowell.utils.OfflineDataCachedIds;
 import com.micklestudios.knowell.utils.OfflineDataCachedShares;
 import com.micklestudios.knowell.utils.SquareLayout;
@@ -62,6 +65,7 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Environment;
 import android.os.Handler;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -94,7 +98,6 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 	private UserInfo scannedUser;
 	private MediaRecorder recorder = null;
 	private MediaPlayer mp=null;
-	private ImageView replayButtonBar; 
 	private ImageView replayButtonPanel; 
 	private ImageView recorderButton;
 	private ImageView timerButton;
@@ -121,6 +124,7 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 		
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_scanned);
+		showActionBar();
 		filepath=getFilename();
 		currentUser = ParseUser.getCurrentUser();
 
@@ -131,6 +135,13 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 		scannedUser = (UserInfo) data.getParcelable("userinfo");
 		flagOfflineMode = (boolean) data.get("offlineMode");
 		deletedNoteId  = (String) data.get("deletedNoteId");
+		
+		DetailsPagerAdapter mAdapter = new DetailsPagerAdapter(getSupportFragmentManager(), scannedUser, this);
+
+    final MyViewPager mPager = (MyViewPager) findViewById(R.id.pager22);
+    mPager.setAdapter(mAdapter);
+    mPager.setCurrentItem(0x40000000);
+    mPager.setPageTransformer(true, new FlipHorizontalTransformer());
 		
 		if(!flagOfflineMode){
 			// get location only when online
@@ -150,87 +161,12 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 			}
 		}
 		
-		// setOnclickListener for note bar/panel switcher
-		ImageView barNoteButton = (ImageView) findViewById(R.id.bar_note_button);
-		barNoteButton.setOnClickListener(new OnClickListener(){
-
-			@Override
-			public void onClick(View v) {
-				RelativeLayout notePanelLayout = (RelativeLayout) findViewById(R.id.note_panel);
-				notePanelLayout.setVisibility(View.VISIBLE);
-				RelativeLayout noteBarLayout = (RelativeLayout) findViewById(R.id.note_bar);
-				noteBarLayout.setVisibility(View.GONE);
-			}
-			
-		});
-		ImageView panelNoteButton = (ImageView) findViewById(R.id.panel_note_button);		
-		panelNoteButton.setOnClickListener(new OnClickListener(){
-
-			@Override
-			public void onClick(View v) {
-				RelativeLayout notePanelLayout = (RelativeLayout) findViewById(R.id.note_panel);
-				notePanelLayout.setVisibility(View.GONE);
-				RelativeLayout noteBarLayout = (RelativeLayout) findViewById(R.id.note_bar);
-				noteBarLayout.setVisibility(View.VISIBLE);
-				TextView whereMet1 = (TextView) findViewById(R.id.PlaceAdded1);
-				EditText whereMet2 = (EditText) findViewById(R.id.PlaceAdded2);				
-				if(whereMet2.getText() != null) {
-					whereMet1.setText(whereMet2.getText().toString());
-				}
-			}
-			
-		});
-
-		// display the main card
-		displayCard(scannedUser);
 		// display extra info
 		infoIcon = scannedUser.getInfoIcon();
 		infoLink = scannedUser.getInfoLink();
 		shownArrayList = scannedUser.getShownArrayList();
-
-		gridView = (ExpandableHeightGridView) findViewById(R.id.gridView1);
-		gridView.setAdapter(new MyDetailsGridViewAdapter(ActivityScanned.this, shownArrayList, infoLink, infoIcon));
-		gridView.setOnItemClickListener(new OnItemClickListener() {
-
-			@SuppressLint("NewApi")
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-				MyTag tag = (MyTag) view.getTag();
-				if (tag != null) {
-					Intent intent;
-					switch (((MyTag) view.getTag()).getKey().toString()) {
-					case "phone":
-						intent = new Intent(Intent.ACTION_VIEW, Uri.parse("tel:" + ((MyTag) view.getTag()).getValue().toString()));
-						startActivity(intent);
-						break;
-					case "message":
-						intent = new Intent(Intent.ACTION_VIEW, Uri.parse("smsto:" + ((MyTag) view.getTag()).getValue().toString()));
-						startActivity(intent);
-						break;
-					case "email":
-						intent = new Intent(Intent.ACTION_VIEW, Uri.parse("mailto:" + ((MyTag) view.getTag()).getValue().toString()));
-						startActivity(intent);
-						break;
-					case "about":
-						buildAboutMeDialog(view);
-						break;
-					default:
-						String url = ((MyTag) view.getTag()).getValue().toString();
-						if (!url.startsWith("http://") && !url.startsWith("https://") && !url.startsWith("ftp://")) {
-							url = "http://www.google.com/#q=" + url;
-						}
-						intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-						startActivity(intent);
-					}
-				}
-
-			}
-
-		});
 		
 		// replay related
-		replayButtonBar = (ImageView) findViewById(R.id.bar_play_button);
 		replayButtonPanel = (ImageView) findViewById(R.id.panel_play_button);
 		recorderButton = (ImageView) findViewById(R.id.panel_recorder_button);
 		timerButton = (ImageView) findViewById(R.id.stop_recording);
@@ -255,23 +191,17 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 				}
 
 				private void displayNote(final ParseObject object) {
-					TextView whenMet1 = (TextView) findViewById(R.id.DateAdded1);
 					TextView whenMet2 = (TextView) findViewById(R.id.DateAdded2);
 					TextView updatedAt = (TextView) findViewById(R.id.LastUpdated);
-					whenMet1.setText(android.text.format.DateFormat.format("MMM", object.getCreatedAt()) + " " + 
-							android.text.format.DateFormat.format("dd", object.getCreatedAt()) + ", " +
-							android.text.format.DateFormat.format("yyyy", object.getCreatedAt()));
 					whenMet2.setText(android.text.format.DateFormat.format("MMM", object.getCreatedAt()) + " " + 
 							android.text.format.DateFormat.format("dd", object.getCreatedAt()) + ", " +
 							android.text.format.DateFormat.format("yyyy", object.getCreatedAt()));
 					updatedAt.setText(android.text.format.DateFormat.format("MMM", object.getUpdatedAt()) + " " + 
 							android.text.format.DateFormat.format("dd", object.getUpdatedAt()) + ", " +
 							android.text.format.DateFormat.format("yyyy", object.getUpdatedAt()));
-					TextView whereMet1 = (TextView) findViewById(R.id.PlaceAdded1);
 					EditText whereMet2 = (EditText) findViewById(R.id.PlaceAdded2);
 					String cityName = object.getString("where_met");
 					if(cityName != null) {
-						whereMet1.setText(cityName);
 						whereMet2.setText(cityName);
 					}
 					EditText eventMet = (EditText) findViewById(R.id.EventAdded2);
@@ -338,7 +268,6 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 						  }
 			            } else {
 			            	// if both tmparray and voiceNotes are null, then it means no voice note at all
-			            	replayButtonBar.setVisibility(View.GONE);
 			            	replayButtonPanel.setVisibility(View.GONE);
 			            }
 					}
@@ -347,13 +276,9 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 			});		
 		} else {
 			// this is a new note
-			TextView whenMet1 = (TextView) findViewById(R.id.DateAdded1);
 			TextView whenMet2 = (TextView) findViewById(R.id.DateAdded2);
 			TextView updatedAt = (TextView) findViewById(R.id.LastUpdated);					
 			Date today = new Date();
-			whenMet1.setText(android.text.format.DateFormat.format("MMM", today) + " " + 
-					android.text.format.DateFormat.format("dd", today) + ", " +
-					android.text.format.DateFormat.format("yyyy", today));
 			whenMet2.setText(android.text.format.DateFormat.format("MMM", today) + " " + 
 					android.text.format.DateFormat.format("dd", today) + ", " +
 					android.text.format.DateFormat.format("yyyy", today));
@@ -361,7 +286,6 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 					android.text.format.DateFormat.format("dd", today) + ", " +
 					android.text.format.DateFormat.format("yyyy", today));
 			// disable replay button!
-			replayButtonBar.setVisibility(View.GONE);
 	    	replayButtonPanel.setVisibility(View.GONE);
 		}
 				
@@ -375,7 +299,6 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 		    	if(recordstatus==0) {
 					Toast.makeText(ActivityScanned.this, "Recording...", Toast.LENGTH_SHORT).show();
 					// changebuttontext(R.id.recordButton,"Recording...");
-					replayButtonBar.setVisibility(View.GONE);
                 	replayButtonPanel.setVisibility(View.GONE);
 		            startRecording();
 		            recordstatus=1;
@@ -400,7 +323,6 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 		                    	recordstatus=0;
 		                    	Toast.makeText(ActivityScanned.this, "Max Recording Length Reached.", Toast.LENGTH_SHORT).show();
 		                    	recorderButton.setImageResource(R.drawable.recorder);
-		                    	replayButtonBar.setVisibility(View.VISIBLE);
 		                    	replayButtonPanel.setVisibility(View.VISIBLE);
 		    		            findViewById(R.id.timer).setVisibility(View.GONE);
 		    		            scrollView = (MyScrollView) findViewById(R.id.scroll_view_scanned);
@@ -415,8 +337,7 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 		            t.cancel();
 		            recordstatus=0;
 		            recorderButton.setImageResource(R.drawable.recorder);
-		            replayButtonBar.setVisibility(View.VISIBLE);
-                	replayButtonPanel.setVisibility(View.VISIBLE);
+		            replayButtonPanel.setVisibility(View.VISIBLE);
 		            findViewById(R.id.timer).setVisibility(View.GONE);
 		            scrollView = (MyScrollView) findViewById(R.id.scroll_view_scanned);
 		    		scrollView.setmScrollable(true);
@@ -434,8 +355,7 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 		            t.cancel();
 		            recordstatus=0;
 		            recorderButton.setImageResource(R.drawable.recorder);
-		            replayButtonBar.setVisibility(View.VISIBLE);
-                	replayButtonPanel.setVisibility(View.VISIBLE);
+		            replayButtonPanel.setVisibility(View.VISIBLE);
 		            findViewById(R.id.timer).setVisibility(View.GONE);
 		            enableViewElements((ViewGroup) findViewById(R.id.backlayer));
 		    		scrollView = (MyScrollView) findViewById(R.id.scroll_view_scanned);
@@ -443,63 +363,18 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 		    		gridView.setEnabled(true);
 		    }
 		});
-		replayButtonBar.setOnClickListener(new OnClickListener() {
-		    @Override
-		    public void onClick(View v) {
-		    		if (null!=mp && mp.isPlaying()) {
-		                mp.pause();
-		                flag=1;
-		                replayButtonBar.setImageResource(R.drawable.play);
-		                replayButtonPanel.setImageResource(R.drawable.play);
-		            } else if (null!=mp && flag==1){
-		            	mp.start(); 
-		            	flag=0;
-		            } else {
-			    		stopRecording();
-			    		mp = new MediaPlayer();
-		            	replayButtonBar.setImageResource(R.drawable.pause);
-		                replayButtonPanel.setImageResource(R.drawable.pause);
-			    		try {
-							mp.setDataSource(filepath);
-						} catch (IllegalArgumentException e) {
-							e.printStackTrace();
-						} catch (SecurityException e) {
-							e.printStackTrace();
-						} catch (IllegalStateException e) {
-							e.printStackTrace();
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-			    		try {
-							mp.prepare();
-						} catch (IllegalStateException | IOException e) {
-							e.printStackTrace();
-						}
-			    		mp.start();
-			    		
-			    		mp.setOnCompletionListener(new OnCompletionListener() {        
-					        //@Override
-					        public void onCompletion(MediaPlayer mp) {
-				            	replayButtonBar.setImageResource(R.drawable.play);
-				                replayButtonPanel.setImageResource(R.drawable.play);
-						    }
-						});
-		            }
-		    	} 
-		});
+		
 		replayButtonPanel.setOnClickListener(new OnClickListener() {
 		    @Override
 		    public void onClick(View v) {
 		    		if (null!=mp && mp.isPlaying()) {
 		                mp.pause();
 		                flag=1;
-		                replayButtonBar.setImageResource(R.drawable.play);
 		                replayButtonPanel.setImageResource(R.drawable.play);
 		            } else if (null!=mp && flag==1){
 		            	mp.start(); 
 		            	flag=0;
-		            	replayButtonBar.setImageResource(R.drawable.pause);
-		                replayButtonPanel.setImageResource(R.drawable.pause);
+		            	replayButtonPanel.setImageResource(R.drawable.pause);
 		            } else {
 			    		stopRecording();
 			    		mp = new MediaPlayer();
@@ -520,14 +395,12 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 							e.printStackTrace();
 						}
 			    		mp.start();
-		            	replayButtonBar.setImageResource(R.drawable.pause);
-		                replayButtonPanel.setImageResource(R.drawable.pause);
+		            	replayButtonPanel.setImageResource(R.drawable.pause);
 			    		
 			    		mp.setOnCompletionListener(new OnCompletionListener() {        
 					        //@Override
 					        public void onCompletion(MediaPlayer mp) {
-				            	replayButtonBar.setImageResource(R.drawable.play);
-				                replayButtonPanel.setImageResource(R.drawable.play);
+				            	replayButtonPanel.setImageResource(R.drawable.play);
 						    }
 						});
 		            }
@@ -538,8 +411,8 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 		// This is the life-saver! It fixes the bug that scrollView will go to the
 		// bottom of GridView upon open
 		// below is to re-scroll to the first view in the LinearLayout
-		SquareLayout mainCardContainer = (SquareLayout) findViewById(R.id.main_card_container);
-		scrollView.requestChildFocus(mainCardContainer, null);
+//		SquareLayout mainCardContainer = (SquareLayout) findViewById(R.id.details_maincard_container);
+//		scrollView.requestChildFocus(mainCardContainer, null);
 
 	}
 
@@ -551,10 +424,11 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 		LinearLayout dialogHeader = (LinearLayout) dialogView.findViewById(R.id.dialog_header);
 		final TextView dialogText = (TextView) dialogView.findViewById(R.id.dialog_text);
 		TextView dialogTitle = (TextView) dialogView.findViewById(R.id.dialog_title);
-		// Set dialog header background with rounded corner
-		Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.striped);
-		BitmapDrawable bmDrawable = new BitmapDrawable(getResources(), bm);
-		dialogHeader.setBackground(new CurvedAndTiled(bmDrawable.getBitmap(), 5));
+//		// Set dialog header background with rounded corner
+//		Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.striped);
+//		BitmapDrawable bmDrawable = new BitmapDrawable(getResources(), bm);
+//		dialogHeader.setBackground(new CurvedAndTiled(bmDrawable.getBitmap(), 5)); \n vvvvvvvv
+		dialogHeader.setBackgroundColor(getResources().getColor(R.color.blue_extra));
 		// Set dialog title and main EditText
 		dialogTitle.setText("About Me");
 		dialogText.setText(((MyTag) view.getTag()).getValue().toString());
@@ -582,6 +456,31 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 		getMenuInflater().inflate(R.menu.scanned_actionbar, menu);
 		return true;
 	}
+	
+	private void showActionBar() {
+    LayoutInflater inflator = (LayoutInflater) this
+      .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    View v = inflator.inflate(R.layout.layout_actionbar_search, null);
+    LinearLayout btnBack = (LinearLayout) v.findViewById(R.id.btn_back);
+    TextView title = (TextView) v.findViewById(R.id.search_actionbar_title);
+    title.setText("Add Card");
+    btnBack.setOnClickListener(new OnClickListener() {
+
+      @Override
+      public void onClick(View v) {
+        onBackPressed();
+      }
+
+    });
+    if (getSupportActionBar() != null) {
+      ActionBar actionBar = getSupportActionBar();
+      actionBar.setDisplayHomeAsUpEnabled(false);
+      actionBar.setDisplayShowHomeEnabled(false);
+      actionBar.setDisplayShowCustomEnabled(true);
+      actionBar.setDisplayShowTitleEnabled(false);
+      actionBar.setCustomView(v);
+    }
+  }
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
@@ -636,10 +535,11 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 		LinearLayout dialogHeader = (LinearLayout) dialogView.findViewById(R.id.dialog_header);
 		final TextView dialogText = (TextView) dialogView.findViewById(R.id.dialog_text);
 		TextView dialogTitle = (TextView) dialogView.findViewById(R.id.dialog_title);
-		// Set dialog header background with rounded corner
-		Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.striped);
-		BitmapDrawable bmDrawable = new BitmapDrawable(getResources(), bm);
-		dialogHeader.setBackground(new CurvedAndTiled(bmDrawable.getBitmap(), 5));
+//		// Set dialog header background with rounded corner
+//		Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.striped);
+//		BitmapDrawable bmDrawable = new BitmapDrawable(getResources(), bm);
+//		dialogHeader.setBackground(new CurvedAndTiled(bmDrawable.getBitmap(), 5)); \n vvvvvvvv
+		dialogHeader.setBackgroundColor(getResources().getColor(R.color.blue_extra));
 		// Set dialog title and main EditText
 		dialogTitle.setText("Share back?");
 
@@ -924,10 +824,8 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 		Toast.makeText(this, output, Toast.LENGTH_SHORT).show();
 		// save the obtained cityName to global variable to be passed to ActivityNotes
 		whereMet = output;
-		TextView whereMet1 = (TextView) findViewById(R.id.PlaceAdded1);
 		EditText whereMet2 = (EditText) findViewById(R.id.PlaceAdded2);
 		if(whereMet != null) {
-			whereMet1.setText(whereMet);
 			whereMet2.setText(whereMet);
 		}
 	}

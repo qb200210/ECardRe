@@ -518,6 +518,10 @@ public class ActivitySearch extends ActionBarActivity {
           flagEventMetClean = true;
           flagMainClean = true;
           advSearchToggle.setImageResource(R.drawable.ic_tri_down_open);
+          performSearch();
+          AlphaAnimation animRev = new AlphaAnimation(0.0f, 1.0f);
+          animRev.setDuration(SCROLL_ANIMATION_SPEED_MS_NORMAL);
+          listView.startAnimation(animRev);
         }
       }
 
@@ -817,7 +821,7 @@ public class ActivitySearch extends ActionBarActivity {
     LayoutInflater inflator = (LayoutInflater) this
       .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     View v = inflator.inflate(R.layout.layout_actionbar_search, null);
-    ImageView btnBack = (ImageView) v.findViewById(R.id.btn_back);
+    LinearLayout btnBack = (LinearLayout) v.findViewById(R.id.btn_back);
     btnBack.setOnClickListener(new OnClickListener() {
 
       @Override
@@ -839,6 +843,7 @@ public class ActivitySearch extends ActionBarActivity {
   @Override
   public void onBackPressed() {
     setSelectionMode(false);
+    super.onBackPressed();
     return;
   }
 

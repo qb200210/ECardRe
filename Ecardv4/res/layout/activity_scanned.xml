@@ -1,15 +1,15 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/relativeLayout"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent" >
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
 
 <com.micklestudios.knowell.utils.MyScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/scroll_view_scanned"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/blue_100"
+    android:background="@color/blue_300"
     android:scrollbars="none" >
 	<RelativeLayout
 	    android:id="@+id/backlayer"
@@ -21,167 +21,23 @@
         android:layout_height="match_parent"
         android:orientation="vertical" >
 
-        <com.micklestudios.knowell.utils.SquareLayout
-            android:id="@+id/main_card_container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingBottom="0dp"
-            android:paddingLeft="20dp"
-            android:paddingRight="20dp"
-            android:paddingTop="20dp" >
-
-            <include 
-                android:id="@+id/include1"
-                layout="@layout/layout_maincard_display" 
-                android:visibility="visible"/>
-        </com.micklestudios.knowell.utils.SquareLayout>
-
-        <!-- This is the note bar -->
-
-        <RelativeLayout
-            android:id="@+id/note_bar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
-            android:background="@drawable/myrect_note"
-            android:orientation="horizontal" >
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="72dp"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentTop="true"
-                android:orientation="horizontal" >
-
-                <com.micklestudios.knowell.utils.SquareLayoutSpecial
-                    xmlns:android="http://schemas.android.com/apk/res/android"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/shadow"
-                    android:gravity="center"
-                    android:padding="6dp" >
-
-                    <com.micklestudios.knowell.utils.SquareLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@drawable/myrect_note"
-                        android:gravity="center"
-                        android:padding="0dp" >
-
-                        <ImageView
-                			android:id="@+id/bar_note_button"
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:layout_gravity="center"
-                            android:padding="2dp"
-                            android:src="@drawable/note" >
-                        </ImageView>
-                    </com.micklestudios.knowell.utils.SquareLayout>
-                </com.micklestudios.knowell.utils.SquareLayoutSpecial>
-
-	            <LinearLayout
-	                android:layout_width="50dp"
-	                android:layout_height="match_parent"
-	                android:layout_alignParentRight="true"
-	                android:layout_centerVertical="true"
-	                android:layout_margin="5dp"
-	                android:gravity="center_vertical|left" >
-	
-	                <ImageView
-	                    android:id="@+id/bar_play_button"
-	                    android:layout_width="40dp"
-	                    android:layout_height="40dp"
-	                    android:padding="2dp"
-	                    android:src="@drawable/play" >
-	                </ImageView>
-	            </LinearLayout>
-
-	            <LinearLayout
-	                android:layout_width="match_parent"
-	                android:layout_height="match_parent"
-	                android:layout_alignParentRight="true"
-	                android:layout_centerVertical="true"
-	                android:layout_marginBottom="9dp"
-	                android:layout_marginLeft="75dp"
-	                android:layout_marginRight="60dp"
-	                android:layout_marginTop="9dp"
-	                android:gravity="center_vertical"
-	                android:orientation="vertical" >
-	
-	                <LinearLayout
-	                    android:layout_width="match_parent"
-	                    android:layout_height="match_parent"
-	                    android:layout_margin="0dp"
-	                    android:layout_weight="1"
-	                    android:gravity="center_vertical"
-	                    android:orientation="horizontal" >
-	
-	                    <ImageView
-	                        android:layout_width="22dp"
-	                        android:layout_height="22dp"
-	                        android:layout_gravity="center"
-	                        android:padding="0dp"
-	                        android:src="@drawable/ic_clock" >
-	                    </ImageView>
-	
-	                    <com.micklestudios.knowell.utils.RobotoTextView
-	                        android:id="@+id/DateAdded1"
-	                        android:layout_width="match_parent"
-	                        android:layout_height="wrap_content"
-	                        android:layout_marginLeft="5dp"
-	                        android:textColor="@color/white"
-	                        android:textSize="14sp"
-	                        android:textStyle="normal"
-	                        app:robotoFont="Roboto-Bold.ttf" />
-	                </LinearLayout>
-	
-	                <LinearLayout
-	                    android:layout_width="match_parent"
-	                    android:layout_height="match_parent"
-	                    android:layout_margin="0dp"
-	                    android:layout_weight="1"
-	                    android:gravity="center_vertical"
-	                    android:orientation="horizontal" >
-	
-	                    <ImageView
-	                        android:layout_width="22dp"
-	                        android:layout_height="22dp"
-	                        android:layout_gravity="center"
-	                        android:padding="0dp"
-	                        android:src="@drawable/ic_location" >
-	                    </ImageView>
-	
-	                    <com.micklestudios.knowell.utils.RobotoTextView
-	                        android:id="@+id/PlaceAdded1"
-	                        android:layout_width="match_parent"
-	                        android:layout_height="wrap_content"
-	                        android:layout_marginLeft="5dp"
-	                        android:hint="Mysterious Place"
-	                        android:textColorHint="@color/white"
-	                        android:textColor="@color/white"
-	                        android:textSize="14sp"
-	                        android:textStyle="normal"
-	                        app:robotoFont="Roboto-Bold.ttf" />
-	                </LinearLayout>
-	            </LinearLayout>
-	        </RelativeLayout>
-        </RelativeLayout>
-
-        <!-- This is the end of note bar -->
-
+        <com.micklestudios.knowell.utils.MyViewPager
+        android:id="@+id/pager22"
+        android:layout_width="match_parent"
+        android:layout_height="0dp" />
 
         <!-- This is the note panel -->
 
         <RelativeLayout
             android:id="@+id/note_panel"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
-            android:background="@drawable/myrect_note"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="0dp"
+            android:layout_marginRight="0dp"
+            android:paddingBottom="30dp"
+            android:background="@color/green_300"
             android:orientation="horizontal" 
-            android:visibility="gone">
+            android:visibility="visible">"
 
             <RelativeLayout
                 android:id="@+id/panel_bar"
@@ -191,31 +47,23 @@
                 android:layout_alignParentTop="true"
                 android:orientation="horizontal" >
 
-                <com.micklestudios.knowell.utils.SquareLayoutSpecial
-                    xmlns:android="http://schemas.android.com/apk/res/android"
-                    android:layout_width="match_parent"
+                <LinearLayout
+                    android:layout_width="50dp"
                     android:layout_height="match_parent"
-                    android:background="@drawable/shadow"
-                    android:gravity="center"
-                    android:padding="6dp" >
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentLeft="true"
+                    android:paddingLeft="5dp"
+                    android:layout_margin="5dp"
+                    android:gravity="center_vertical|left" >
 
-                    <com.micklestudios.knowell.utils.SquareLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@drawable/myrect_note"
-                        android:gravity="center"
-                        android:padding="0dp" >
-
-                        <ImageView
-                			android:id="@+id/panel_note_button"
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:layout_gravity="center"
-                            android:padding="2dp"
-                            android:src="@drawable/note" >
-                        </ImageView>
-                    </com.micklestudios.knowell.utils.SquareLayout>
-                </com.micklestudios.knowell.utils.SquareLayoutSpecial>
+                    <ImageView
+                        android:id="@+id/panel_note_button"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:padding="2dp"
+                        android:src="@drawable/note" >
+                    </ImageView>
+                </LinearLayout>
 
                 <LinearLayout
                     android:id="@+id/panel_recorder_holder"
@@ -258,7 +106,7 @@
                     android:layout_alignParentRight="true"
                     android:layout_alignParentTop="true"
                     android:layout_marginBottom="9dp"
-                    android:layout_marginLeft="75dp"
+                    android:layout_marginLeft="60dp"
                     android:layout_marginRight="120dp"
                     android:layout_marginTop="9dp"
                     android:gravity="center_vertical"
@@ -346,8 +194,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="10dp"
                         android:background="@null"
-                        android:hint="Mysterious Place"
-                        android:textColorHint="@color/white"
+                        android:hint="Where did you meet? \ne.g.: Portland, OR"
+                        android:maxLines="2"
                         android:textColor="@color/white"
                         android:textSize="16sp"
                         android:textStyle="normal"
@@ -376,8 +224,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="10dp"
                         android:background="@null"
-                        android:hint="Mysterious Event"
-                        android:textColorHint="@color/white"
+                        android:hint="In what event did you meet? \ne.g.: Portland Beer Festival"
+                        android:maxLines="2"
                         android:textColor="@color/white"
                         android:textSize="16sp"
                         android:textStyle="normal"
@@ -401,7 +249,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="10dp"
                     android:background="@null"
-                    android:hint="Something you want to remember about her/him"
+                    android:hint="Something you want to note down about her/him"
                     android:textColor="@color/white"
                     android:textSize="16sp"
                     android:textStyle="normal"
@@ -410,28 +258,7 @@
         </RelativeLayout>
 
         <!-- This is the end of note panel -->
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginBottom="10dp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
-            android:layout_marginTop="10dp"
-            android:gravity="center_vertical"
-            android:orientation="vertical" >
-
-            <com.micklestudios.knowell.utils.ExpandableHeightGridView
-                android:id="@+id/gridView1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:horizontalSpacing="10dp"
-                android:isScrollContainer="false"
-                android:numColumns="4"
-                android:padding="0dp"
-                android:stretchMode="columnWidth"
-                android:verticalSpacing="10dp" />
-        </LinearLayout>
+        
     </LinearLayout>
 	</RelativeLayout>
 </com.micklestudios.knowell.utils.MyScrollView>

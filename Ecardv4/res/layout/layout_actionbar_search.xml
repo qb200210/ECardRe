@@ -1,17 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_gravity="fill_horizontal" >
-
-    <ImageView
+    android:background="@null"
+    android:gravity="left" >
+	<LinearLayout
         android:id="@+id/btn_back"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:clickable="true"
-        android:src="@drawable/ic_action_back" />
-
-    
+	    android:clickable="true"
+	    android:layout_width="wrap_content"
+	    android:layout_height="30dp"
+	    android:layout_alignParentLeft="true"
+	    android:layout_gravity="fill_horizontal"
+	    android:gravity="left|center_vertical" 
+	    android:orientation="horizontal">
+	    <ImageView
+	        android:layout_width="20dp"
+	        android:layout_height="wrap_content"
+	        android:src="@drawable/back" />
+	
+	    <TextView
+        	android:id="@+id/search_actionbar_title"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:paddingLeft="5dp"
+	        android:textColor="#ffffff"
+        	android:textSize="18sp"
+	        android:text="Collected Cards" />
+    </LinearLayout>
 
 </RelativeLayout>

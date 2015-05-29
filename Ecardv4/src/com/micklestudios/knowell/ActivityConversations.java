@@ -36,6 +36,7 @@ import android.view.Window;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -79,7 +80,12 @@ public class ActivityConversations extends ActionBarActivity {
   }
 
   private void retrieveAllViews() {
-    listView = (ListView) findViewById(R.id.activity_conversations_listview);
+    listView = (ListView) findViewById(R.id.activity_conversations_listview);  
+    LinearLayout noNotifView = (LinearLayout) findViewById(R.id.no_notifications);
+    if(potentialUsers == null || potentialUsers.size() == 0){
+      listView.setVisibility(View.GONE);
+      noNotifView.setVisibility(View.VISIBLE);
+    }
   }
 
   private void initializeContactList() {
@@ -197,6 +203,8 @@ public class ActivityConversations extends ActionBarActivity {
   currentSortMode = SORT_MODE_DATE_DSC;
   adapter.reSort();
   animationAdapter.notifyDataSetChanged();
+  
+  
 }
  
   @SuppressLint("InflateParams")
@@ -204,7 +212,9 @@ public class ActivityConversations extends ActionBarActivity {
     LayoutInflater inflator = (LayoutInflater) this
       .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     View v = inflator.inflate(R.layout.layout_actionbar_search, null);
-    ImageView btnBack = (ImageView) v.findViewById(R.id.btn_back);
+    LinearLayout btnBack = (LinearLayout) v.findViewById(R.id.btn_back);
+    TextView title = (TextView) v.findViewById(R.id.search_actionbar_title);
+    title.setText("Notifications");
     btnBack.setOnClickListener(new OnClickListener() {
 
       @Override

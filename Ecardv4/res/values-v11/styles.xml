@@ -12,10 +12,10 @@
     </style>
     
     <style name="MyActionBar" parent="@android:style/Widget.Holo.Light.ActionBar">
-        <item name="android:background">@drawable/striped_background</item>
+        <item name="android:background">@color/blue_extra</item>
         <item name="android:icon">@color/transparent</item>
         <item name="android:displayOptions"></item>
-        <item name="background">@drawable/striped_background</item>
+        <item name="background">@color/blue_extra</item>
         <item name="icon">@color/transparent</item>
         <item name="displayOptions"></item>
     </style>

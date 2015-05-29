@@ -3,18 +3,20 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical" >
+    
 
-
-        <com.micklestudios.knowell.utils.SquareLayout
-            android:id="@+id/details_maincard_container"
+        <com.micklestudios.knowell.utils.SquareLayout 
+            android:id="@+id/details_info_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingBottom="0dp"
             android:paddingLeft="20dp"
             android:paddingRight="20dp"
-            android:paddingTop="20dp" >
+            android:paddingTop="20dp"
+            android:paddingBottom="0dp"
+            >
+            <include layout="@layout/layout_info_display" />
 
-            <include layout="@layout/layout_maincard_display" />
         </com.micklestudios.knowell.utils.SquareLayout>
+        
 
 </LinearLayout>

@@ -7,7 +7,7 @@
         android:id="@+id/lnlayout_list_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/blue_100"
+        android:background="@color/blue_300"
         android:orientation="vertical" >
 
         <se.emilsjolander.stickylistheaders.StickyListHeadersListView

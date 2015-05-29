@@ -7,6 +7,7 @@ package com.micklestudios.knowell.utils;
 
 import java.util.Locale;
 
+import android.app.Activity;
 import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -15,13 +16,20 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.micklestudios.knowell.ActivityMain;
+import com.micklestudios.knowell.FragmentCollectedCard;
+import com.micklestudios.knowell.FragmentInfoDisplay;
 import com.micklestudios.knowell.FragmentMaincard;
 import com.micklestudios.knowell.infrastructure.UserInfo;
 
-public class MyPagerAdapter extends FragmentPagerAdapter {
+public class DetailsPagerAdapter extends FragmentPagerAdapter {
 
-public MyPagerAdapter(FragmentManager fm) {
+private UserInfo newUser;
+private Activity activity;
+
+public DetailsPagerAdapter(FragmentManager fm, UserInfo newUser, Activity activity) {
     super(fm);
+    this.activity = activity;
+    this.newUser = newUser;
   }
 
   @Override
@@ -31,11 +39,11 @@ public MyPagerAdapter(FragmentManager fm) {
     // below).
     switch (position % 2) {
     case 0:
-      return FragmentMaincard.newInstance(1);
+      return FragmentCollectedCard.newInstance(1, newUser);
     case 1:
-      return FragmentMaincard.newInstance(2);
+      return FragmentInfoDisplay.newInstance(2, newUser);
     default:
-      return FragmentMaincard.newInstance(2);
+      return FragmentInfoDisplay.newInstance(2, newUser);
     }
   }
   
@@ -56,15 +64,5 @@ public MyPagerAdapter(FragmentManager fm) {
     // return getString(R.string.title_section2).toUpperCase(l);
     // }
     return null;
-  }
-  
-  @Override
-  public int getItemPosition(Object object) {
-   FragmentMaincard f = (FragmentMaincard) object;
-     if (f != null) {
-      // this myselfUserInfo should have been set to new data
-        f.update(ActivityMain.myselfUserInfo);
-     }
-    return super.getItemPosition(object);
   }
 }

@@ -36,6 +36,7 @@ import com.micklestudios.knowell.R;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -49,6 +50,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -57,6 +59,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -90,10 +93,8 @@ public class ActivityDesign extends ActionBarActivity {
   private ArrayList<Integer> infoIcon = new ArrayList<Integer>();
   private ArrayList<String> infoLink = new ArrayList<String>();
   ArrayList<String> shownArrayList = new ArrayList<String>();
-  String[] allowedArray = { "about", "linkedin", "phone", "message", "email",
-    "facebook", "twitter", "googleplus", "web" };
-  String[] allowedDisplayArray = { "About Me", "LinkedIn", "Phone", "Message",
-    "Email", "Facebook", "Twitter", "Google +", "Web Link" };
+  String[] allowedArray = { "about", "email", "message", "phone", "web", "linkedin", "facebook", "twitter", "googleplus" };
+  String[] allowedDisplayArray = { "About Me", "Email", "Message", "Phone", "Web Link", "LinkedIn", "Facebook", "Twitter", "Google +" };
   ArrayList<String> allowedArrayList = new ArrayList<String>(
     Arrays.asList(allowedArray));
   ArrayList<String> selectionArrayList = new ArrayList<String>(
@@ -118,7 +119,7 @@ public class ActivityDesign extends ActionBarActivity {
     setContentView(R.layout.activity_design);
     scrollView = (MyScrollView) findViewById(R.id.design_scroll_view);
     scrollView.setmScrollable(true);
-
+    showActionBar();
     currentUser = ParseUser.getCurrentUser();
     Bundle data = getIntent().getExtras();
     displayMyCard();
@@ -170,7 +171,7 @@ public class ActivityDesign extends ActionBarActivity {
     // This is the life-saver! It fixes the bug that scrollView will go to the
     // bottom of GridView upon open
     // below is to re-scroll to the first view in the LinearLayout
-    SquareLayout mainCardContainer = (SquareLayout) findViewById(R.id.main_card_container);
+    SquareLayout mainCardContainer = (SquareLayout) findViewById(R.id.design_maincard_container);
     scrollView.requestChildFocus(mainCardContainer, null);
 
     ImageView pbPortrait = (ImageView) findViewById(R.id.design_portrait);
@@ -180,6 +181,23 @@ public class ActivityDesign extends ActionBarActivity {
       }
     });
 
+  }
+  
+  private void showActionBar() {
+    LayoutInflater inflator = (LayoutInflater) this
+      .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    View v = inflator.inflate(R.layout.layout_actionbar_design, null);
+    TextView title = (TextView) v.findViewById(R.id.design_actionbar_title);
+    title.setText("Edit My Card");
+
+    if (getSupportActionBar() != null) {
+      ActionBar actionBar = getSupportActionBar();
+      actionBar.setDisplayHomeAsUpEnabled(false);
+      actionBar.setDisplayShowHomeEnabled(false);
+      actionBar.setDisplayShowCustomEnabled(true);
+      actionBar.setDisplayShowTitleEnabled(false);
+      actionBar.setCustomView(v);
+    }
   }
 
   @Override
@@ -614,14 +632,46 @@ public class ActivityDesign extends ActionBarActivity {
       .findViewById(R.id.dialog_text);
     TextView dialogTitle = (TextView) dialogView
       .findViewById(R.id.dialog_title);
-    // Set dialog header background with rounded corner
-    Bitmap bm = BitmapFactory
-      .decodeResource(getResources(), R.drawable.striped);
-    BitmapDrawable bmDrawable = new BitmapDrawable(getResources(), bm);
-    dialogHeader.setBackground(new CurvedAndTiled(bmDrawable.getBitmap(), 5));
+//    // Set dialog header background with rounded corner
+//    Bitmap bm = BitmapFactory
+//      .decodeResource(getResources(), R.drawable.striped);
+//    BitmapDrawable bmDrawable = new BitmapDrawable(getResources(), bm);
+//    dialogHeader.setBackground(new CurvedAndTiled(bmDrawable.getBitmap(), 5)); \n vvvvvvvv
+    dialogHeader.setBackgroundColor(getResources().getColor(R.color.blue_extra));
     // Set dialog title and main EditText
     dialogTitle.setText("Edit " + title);
     dialogText.setText(text);
+    switch(title){
+      case "About Me":
+        dialogText.setHint("Highlight and summary of yourself.");
+        break;
+      case "Email":
+        dialogText.setHint("Your email address.");
+        break;
+      case "Message":
+        dialogText.setHint("Your number that text messages can be sent to. ");
+        break;
+      case "Phone":
+        dialogText.setHint("Your phone number that you can be reached at.");
+        break;
+      case "Web Link":
+        dialogText.setHint("Paste your website link here.");
+        break;
+      case "LinkedIn":
+        dialogText.setHint("Paste your LinkedIn profile link here.");
+        break;
+      case "Facebook":
+        dialogText.setHint("Paste your Facebook profile link here.");
+        break;
+      case "Twitter":
+        dialogText.setHint("Paste your Twitter profile link here.");
+        break;
+      case "Google +":
+        dialogText.setHint("Paste your Google+ profile link here.");
+        break;
+      default:
+        break;
+    }
     return dialogView;
   }
 
@@ -825,12 +875,13 @@ public class ActivityDesign extends ActionBarActivity {
       .findViewById(R.id.dialog_header);
     TextView dialogTitle = (TextView) dialogAddMoreView
       .findViewById(R.id.dialog_title);
-    // Set dialog header background with rounded corner
-    Bitmap bm = BitmapFactory
-      .decodeResource(getResources(), R.drawable.striped);
-    BitmapDrawable bmDrawable = new BitmapDrawable(getResources(), bm);
-    dialogHeader.setBackgroundDrawable(new CurvedAndTiled(bmDrawable
-      .getBitmap(), 5));
+//    // Set dialog header background with rounded corner
+//    Bitmap bm = BitmapFactory
+//      .decodeResource(getResources(), R.drawable.striped);
+//    BitmapDrawable bmDrawable = new BitmapDrawable(getResources(), bm);
+//    dialogHeader.setBackgroundDrawable(new CurvedAndTiled(bmDrawable
+//      .getBitmap(), 5));
+    dialogHeader.setBackgroundColor(getResources().getColor(R.color.blue_extra));
     // Set dialog title and main EditText
     dialogTitle.setText("Add Info");
 

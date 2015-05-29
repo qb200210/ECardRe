@@ -4,31 +4,29 @@
     android:layout_height="wrap_content"
     android:paddingLeft="14dp"
     android:paddingRight="14dp"
-    android:background="@color/blue_100"
+    android:background="@color/blue_300"
     android:paddingTop="10dp" >
     
 
     <TextView
         android:id="@+id/text_header"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="0.33"
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        android:gravity="center"
+        android:layout_weight="0.67"
         android:background="@drawable/semi_rounded"
-        android:minHeight="24dp"
-        android:paddingEnd="5dp"
-        android:paddingLeft="25dp"
-        android:paddingRight="5dp"
-        android:paddingStart="25dp"
-        android:paddingTop="2dp"
-        android:textColor="@android:color/black"
-        android:textSize="20sp"
-        android:textStyle="bold" />
+       	android:ellipsize="end"
+        android:maxLines="1"
+        android:padding="0dp"
+        android:textColor="@color/white"
+        android:textSize="14sp"
+        android:textStyle="normal" />"
 
     <TextView
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="0.67"
-        android:minHeight="24dp"
-        android:paddingTop="2dp"
-        android:textSize="20sp" />
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:layout_weight="0.33"
+        android:padding="0dp"
+        android:textSize="14sp" />
 </LinearLayout>

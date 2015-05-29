@@ -2,27 +2,71 @@
     android:layout_height="wrap_content"
     android:layout_width="match_parent"
     android:orientation="vertical"
+    android:background="@null"
     android:gravity="center"
     android:id="@+id/parse_login"
     android:visibility="gone">
 
-    <EditText
-        android:id="@+id/login_username_input"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        style="@style/ParseLoginUI.EditText"
-        android:hint="@string/com_parse_ui_username_input_hint" />
-
-    <EditText
-        android:id="@+id/login_password_input"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        style="@style/ParseLoginUI.EditText"
-        android:layout_marginTop="@dimen/com_parse_ui_small_vertical_spacing"
-        android:fontFamily="sans-serif"
-        android:hint="@string/com_parse_ui_password_input_hint"
-        android:inputType="textPassword"
-        android:selectAllOnFocus="true" />
+    <LinearLayout 
+	    android:layout_height="match_parent"
+	    android:layout_width="match_parent"
+	    android:orientation="vertical"
+	    android:background="@drawable/card"
+	    android:padding="20dp"
+	    android:gravity="center">
+	       
+        <LinearLayout 
+		    android:layout_height="match_parent"
+		    android:layout_width="match_parent"
+		    android:orientation="horizontal"
+		    android:background="@null"
+		    android:padding="0dp"
+		    android:gravity="left|center_vertical">
+	    	<ImageView
+	    	    android:layout_width="20dp"
+	    	    android:layout_height="20dp"
+				android:src="@drawable/user" />
+		    <EditText
+		        android:id="@+id/login_username_input"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:layout_marginLeft="10dp"
+		        style="@style/ParseLoginUI.EditText"
+	            android:background="@color/grey_100"
+			    android:lines="1"
+			    android:maxLines="1"
+		        android:fontFamily="sans-serif"
+		        android:hint="Username"
+	            android:textSize="18sp"/>
+		</LinearLayout>
+		<LinearLayout 
+		    android:layout_height="match_parent"
+		    android:layout_width="match_parent"
+		    android:orientation="horizontal"
+		    android:background="@null"
+		    android:layout_marginTop="@dimen/com_parse_ui_small_vertical_spacing"
+		    android:padding="0dp"
+		    android:gravity="left|center_vertical">
+		    <ImageView
+	    	    android:layout_width="20dp"
+	    	    android:layout_height="20dp"
+				android:src="@drawable/lock" />
+		    <EditText
+		        android:id="@+id/login_password_input"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:layout_marginLeft="10dp"
+		        style="@style/ParseLoginUI.EditText"
+		        android:background="@color/grey_100"
+			    android:lines="1"
+			    android:maxLines="1"
+		        android:fontFamily="sans-serif"
+		        android:hint="Password"
+	            android:textSize="18sp"
+		        android:inputType="textPassword"
+		        android:selectAllOnFocus="true" />
+		 </LinearLayout>
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/parse_buttons"

@@ -15,6 +15,7 @@ import com.micklestudios.knowell.utils.CustomQRScanner;
 import com.micklestudios.knowell.utils.ECardUtils;
 import com.micklestudios.knowell.utils.MyTag;
 import com.micklestudios.knowell.utils.RobotoEditText;
+import com.micklestudios.knowell.utils.SquareLayout;
 import com.micklestudios.knowell.utils.UpdateableFragment;
 import com.parse.ParseUser;
 import com.micklestudios.knowell.R;
@@ -43,15 +44,16 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class FragmentMaincard extends Fragment implements UpdateableFragment {
+public class FragmentCollectedCard extends Fragment implements UpdateableFragment {
 
   private static final String ARG_SECTION_NUMBER = "section_number";
 
-  public static FragmentMaincard newInstance(int sectionNumber) {
+  public static FragmentCollectedCard newInstance(int sectionNumber, UserInfo newUser) {
     Log.i("maincard", "newinstance");
-    FragmentMaincard fragment = new FragmentMaincard();
+    FragmentCollectedCard fragment = new FragmentCollectedCard();
     Bundle args = new Bundle();
     args.putInt(ARG_SECTION_NUMBER, sectionNumber);
+    args.putParcelable("newUser", newUser);
     fragment.setArguments(args);
     return fragment;
   }
@@ -59,10 +61,10 @@ public class FragmentMaincard extends Fragment implements UpdateableFragment {
   private View rootView;
   
 
-  public FragmentMaincard() {
+  public FragmentCollectedCard() {
 
   }
-
+  
   @Override
   public void onSaveInstanceState(Bundle outState) {
     super.onSaveInstanceState(outState);
@@ -73,29 +75,19 @@ public class FragmentMaincard extends Fragment implements UpdateableFragment {
   public View onCreateView(LayoutInflater inflater, ViewGroup container,
     Bundle savedInstanceState) {
     Bundle bundle = this.getArguments();
+    UserInfo newUser = bundle.getParcelable("newUser");
 
     Log.i("maincard", "oncreateview");
-    if (getArguments().getInt(ARG_SECTION_NUMBER, 1) == 1) {
-      // if this is to create maincard fragment
-      rootView = inflater.inflate(R.layout.fragment_maincard, container, false);
-  
-      // display the main card
-      if (ActivityMain.myselfUserInfo != null) {
-        displayCard(rootView, ActivityMain.myselfUserInfo);
-      }
-      setHasOptionsMenu(true);
-      return rootView;
+    // if this is to create maincard fragment
+    rootView = inflater.inflate(R.layout.fragment_maincard, container, false);
+
+    // display the main card
+    if (newUser != null) {
+      displayCard(rootView, newUser);
     }
-    if (getArguments().getInt(ARG_SECTION_NUMBER, 1) == 2) {
-      View rootView = inflater.inflate(R.layout.fragment_qr, container, false);    
-      if (ActivityMain.myselfUserInfo != null) {
-        ImageView qrCode = (ImageView) rootView.findViewById(R.id.qr_container);
-        qrCode.setImageBitmap(ActivityMain.myselfUserInfo.getQRCode());
-      }
-      setHasOptionsMenu(true);
-      return rootView;
-    }
-    return null;
+    setHasOptionsMenu(true);
+    return rootView;
+
   }
 
   

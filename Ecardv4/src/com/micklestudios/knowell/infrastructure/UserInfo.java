@@ -62,9 +62,8 @@ public class UserInfo implements Parcelable {
   ArrayList<String> shownArrayList = new ArrayList<String>();
   ArrayList<Integer> infoIcon = new ArrayList<Integer>();
   ArrayList<String> infoLink = new ArrayList<String>();
-  String[] allowedArray = { "about", "linkedin", "phone", "message", "email",
-    "facebook", "twitter", "googleplus", "web" };
-
+  String[] allowedArray = { "about", "email", "message", "phone", "web", "linkedin", "facebook", "twitter", "googleplus" };
+  
   private void ensureDefaults() {
     this.objId = this.objId == null ? "Unspecified" : this.objId;
     this.firstName = this.firstName == null ? "Mysterious User X"
