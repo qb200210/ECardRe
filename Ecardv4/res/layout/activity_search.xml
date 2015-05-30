@@ -135,7 +135,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="@null"
-                        android:hint="Where met ?"
+                        android:hint="Where did you meet?"
                         android:inputType="text"
                         android:maxLines="1"
                         android:paddingLeft="10dp"
@@ -204,7 +204,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="@null"
-                        android:hint="What company ?"
+                        android:hint="Who do they work for?"
                         android:inputType="text"
                         android:maxLines="1"
                         android:paddingLeft="10dp"
@@ -274,7 +274,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="@null"
-                        android:hint="Which event ?"
+                        android:hint="In what event did you meet?"
                         android:inputType="text"
                         android:maxLines="1"
                         android:paddingLeft="10dp"
@@ -360,13 +360,13 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="@null"
-                        android:hint="Search here ..."
+                        android:hint="Search e.g.: Jim Engineer"
                         android:imeOptions="actionSearch"
                         android:inputType="text"
                         android:maxLines="1"
                         android:paddingLeft="10dp"
                         android:paddingRight="100dp"
-                        android:textSize="18sp" />
+                        android:textSize="16sp" />
                 </LinearLayout>
 
                 <ImageView

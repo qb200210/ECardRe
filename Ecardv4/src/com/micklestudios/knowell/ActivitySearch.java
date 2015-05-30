@@ -842,8 +842,11 @@ public class ActivitySearch extends ActionBarActivity {
 
   @Override
   public void onBackPressed() {
-    setSelectionMode(false);
-    super.onBackPressed();
+    if(isSelectionMode != false){
+      setSelectionMode(false);
+    } else {
+      super.onBackPressed();
+    }
     return;
   }
 
