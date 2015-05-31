@@ -1,0 +1,100 @@
+<!-- <?xml version="1.0" encoding="utf-8"?> -->
+<!-- <com.micklestudios.knowell.utils.SquareLayoutSpecial -->
+<!-- xmlns:android="http://schemas.android.com/apk/res/android" -->
+<!-- xmlns:tools="http://schemas.android.com/tools" -->
+<!-- android:layout_width="match_parent" -->
+<!-- android:layout_height="wrap_content" -->
+<!-- android:background="@drawable/shadow_153254" -->
+<!-- android:gravity="center" -->
+<!-- android:padding="9dp" > -->
+
+
+<!-- <TextView -->
+<!-- android:id="@+id/list_row_draganddrop_textview" -->
+<!-- android:layout_width="match_parent" -->
+<!-- android:layout_height="wrap_content" -->
+<!-- android:fontFamily="sans-serif-light" -->
+<!-- android:minHeight="24dp" -->
+<!-- android:padding="10dp" -->
+<!-- android:textColor="?android:attr/textColorSecondary" -->
+<!-- android:textSize="20sp" -->
+<!-- tools:ignore="UnusedAttribute" /> -->
+
+
+<!-- </com.micklestudios.knowell.utils.SquareLayoutSpecial> -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:background="@color/white"
+    android:paddingBottom="0dp" >
+
+    <com.micklestudios.knowell.utils.SquareLayout
+        android:id="@+id/dialog_addinfo_icon_container"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:layout_margin="0dp"
+        android:background="@null"
+    	android:gravity="center"
+        android:padding="0dp" >
+
+        <ImageView
+            android:id="@+id/history_image"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:padding="0dp" >
+        </ImageView>
+    </com.micklestudios.knowell.utils.SquareLayout>
+    
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingLeft="72dp"
+        android:paddingRight="12dp"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/history_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+        	android:paddingTop="12dp"
+        	android:paddingRight="70dp"
+        	android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:textSize="20sp"  />
+
+        <TextView
+            android:id="@+id/history_msg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/grey_700"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textSize="14sp" />
+    </LinearLayout>
+    
+    <LinearLayout
+        android:layout_width="70dp"
+        android:layout_height="wrap_content"
+        android:paddingRight="12dp"
+        android:paddingTop="18dp"
+        android:layout_alignParentRight="true"
+        android:gravity="right"
+        android:orientation="vertical" >
+        
+        <TextView
+            android:id="@+id/history_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/grey_400"
+            android:text="01/07/14"
+            android:textSize="12sp" />
+        
+    </LinearLayout>
+
+</RelativeLayout>

@@ -11,6 +11,11 @@
         android:layout_height="50dp"
         android:gravity="center"
         android:orientation="horizontal" >
+        
+        <ImageView
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/doc_button" />
 
         <com.micklestudios.knowell.utils.RobotoTextView
             android:id="@+id/dialog_title"
@@ -60,7 +65,7 @@
                 android:layout_marginLeft="72dp"
                 android:layout_marginRight="45dp"
                 android:background="@null"
-                android:hint="To this email address"
+                android:hint="To this email"
                 android:singleLine="true"
                 android:text=""
                 android:textColor="@color/black"
@@ -73,21 +78,11 @@
         
     </RelativeLayout>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_below="@id/my_portrait"
-        android:layout_centerVertical="true"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginTop="0dp"
-        android:background="@color/grey_500" />
-
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:layout_marginBottom="0dp"
+        android:layout_marginTop="0dp"
+        android:layout_marginBottom="10dp"
         android:gravity="left|center_vertical" >
 
         <com.micklestudios.knowell.utils.SquareLayout
@@ -116,50 +111,8 @@
             android:layout_marginLeft="72dp"
             android:layout_marginRight="16dp"
             android:background="@null"
-            android:hint="Opt.: Who is this for?"
+            android:hint="Who is this for?"
             android:singleLine="true"
-            android:textColor="@color/black"
-            android:textSize="16sp"
-            android:textStyle="normal"
-            app:robotoFont="Roboto-Bold.ttf" />
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="0dp"
-        android:layout_marginBottom="12dp"
-        android:gravity="left|center_vertical" >
-
-        <com.micklestudios.knowell.utils.SquareLayout
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:gravity="center"
-            android:padding="0dp" >
-
-            <ImageView
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true"
-                android:padding="2dp"
-                android:src="@drawable/note_lite" >
-            </ImageView>
-        </com.micklestudios.knowell.utils.SquareLayout>
-
-        <com.micklestudios.knowell.utils.RobotoEditText
-            android:id="@+id/target_note"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-        	android:layout_marginTop="4dp"
-            android:layout_marginLeft="72dp"
-            android:layout_marginRight="16dp"
-            android:background="@null"
-            android:gravity="top"
-            android:hint="Opt.: Note for yourself"
-            android:maxLength="500"
             android:textColor="@color/black"
             android:textSize="16sp"
             android:textStyle="normal"

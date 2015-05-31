@@ -52,7 +52,9 @@ import com.micklestudios.knowell.utils.CustomQRScanner;
 import com.micklestudios.knowell.utils.MyPagerAdapter;
 import com.micklestudios.knowell.utils.MyViewPager;
 import com.micklestudios.knowell.utils.RobotoEditText;
+import com.parse.ParseACL;
 import com.parse.ParseInstallation;
+import com.parse.ParseObject;
 import com.parse.ParsePush;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
@@ -63,6 +65,10 @@ public class ActivityMain extends ActionBarActivity {
   private static final int EDIT_CARD = 1000;
   protected static final int UPLOAD_DOC = 1001;
   private static final String KNOWELL_ROOT = "KnoWell";
+  protected static final int SHARE_QR_MSG = 1002;
+  protected static final int SHARE_QR_EMAIL = 1003;
+  protected static final int SHARE_DOC = 1004;
+  protected static final int SHARE_GENERIC = 2001;
   /**
    * The {@link ViewPager} that will host the section contents.
    */
@@ -77,6 +83,9 @@ public class ActivityMain extends ActionBarActivity {
   boolean imgFromTmpData = false;
   private AlertDialog uploadDialog;
   boolean flagShareEmail = true;
+  private String targetEmail = null;
+  private String targetName = null;
+  protected String targetSMS = null;
 
   public static Context applicationContext;
 
@@ -203,12 +212,14 @@ public class ActivityMain extends ActionBarActivity {
       .findViewById(R.id.dialog_text);
     TextView dialogTitle = (TextView) dialogView
       .findViewById(R.id.dialog_title);
-//    // Set dialog header background with rounded corner
-//    Bitmap bm = BitmapFactory
-//      .decodeResource(getResources(), R.drawable.striped);
-//    BitmapDrawable bmDrawable = new BitmapDrawable(getResources(), bm);
-//    dialogHeader.setBackground(new CurvedAndTiled(bmDrawable.getBitmap(), 5)); \n vvvvvvvv
-    dialogHeader.setBackgroundColor(getResources().getColor(R.color.blue_extra));
+    // // Set dialog header background with rounded corner
+    // Bitmap bm = BitmapFactory
+    // .decodeResource(getResources(), R.drawable.striped);
+    // BitmapDrawable bmDrawable = new BitmapDrawable(getResources(), bm);
+    // dialogHeader.setBackground(new CurvedAndTiled(bmDrawable.getBitmap(),
+    // 5)); \n vvvvvvvv
+    dialogHeader
+      .setBackgroundColor(getResources().getColor(R.color.blue_extra));
     // Set dialog title and main EditText
     dialogTitle.setText("You have no document yet ...");
 
@@ -256,27 +267,29 @@ public class ActivityMain extends ActionBarActivity {
       .findViewById(R.id.dialog_text);
     TextView dialogTitle = (TextView) dialogView
       .findViewById(R.id.dialog_title);
-//    // Set dialog header background with rounded corner
-//    Bitmap bm = BitmapFactory
-//      .decodeResource(getResources(), R.drawable.striped);
-//    BitmapDrawable bmDrawable = new BitmapDrawable(getResources(), bm);
-//    dialogHeader.setBackground(new CurvedAndTiled(bmDrawable.getBitmap(), 5)); \n vvvvvvvv
-    dialogHeader.setBackgroundColor(getResources().getColor(R.color.blue_extra));
+    // // Set dialog header background with rounded corner
+    // Bitmap bm = BitmapFactory
+    // .decodeResource(getResources(), R.drawable.striped);
+    // BitmapDrawable bmDrawable = new BitmapDrawable(getResources(), bm);
+    // dialogHeader.setBackground(new CurvedAndTiled(bmDrawable.getBitmap(),
+    // 5)); \n vvvvvvvv
+    dialogHeader
+      .setBackgroundColor(getResources().getColor(R.color.blue_extra));
     // Set dialog title and main EditText
     dialogTitle.setText("Share " + docName + " to ...");
 
     new AlertDialog.Builder(this).setView(dialogView)
       .setPositiveButton("Send", new DialogInterface.OnClickListener() {
+
         public void onClick(DialogInterface dialog, int whichButton) {
           String link = getLink();
           RobotoEditText targetEmailView = (RobotoEditText) dialogView
             .findViewById(R.id.target_email);
           RobotoEditText targetNameView = (RobotoEditText) dialogView
             .findViewById(R.id.target_name);
-          String targetEmail = targetEmailView.getText().toString();
-          String targetName = targetNameView.getText().toString();
-          if (targetEmail == null || targetEmail.isEmpty()) {
-          } else {
+          targetEmail = targetEmailView.getText().toString();
+          targetName = targetNameView.getText().toString();
+          
 
             Intent sendIntent = new Intent(Intent.ACTION_SEND);
             sendIntent.setType("message/rfc822");
@@ -318,9 +331,9 @@ public class ActivityMain extends ActionBarActivity {
             sendIntent.putExtra(Intent.EXTRA_TEXT, msgBody);
 
             sendIntent.putExtra(Intent.EXTRA_STREAM, uri);
-            startActivity(sendIntent);
+            startActivityForResult(sendIntent, SHARE_DOC);
 
-          }
+          
         }
       }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
         public void onClick(DialogInterface dialog, int whichButton) {
@@ -341,21 +354,31 @@ public class ActivityMain extends ActionBarActivity {
       .findViewById(R.id.dialog_text);
     TextView dialogTitle = (TextView) dialogView
       .findViewById(R.id.dialog_title);
-//    // Set dialog header background with rounded corner
-//    Bitmap bm = BitmapFactory
-//      .decodeResource(getResources(), R.drawable.striped);
-//    BitmapDrawable bmDrawable = new BitmapDrawable(getResources(), bm);
-//    dialogHeader.setBackground(new CurvedAndTiled(bmDrawable.getBitmap(), 5)); \n vvvvvvvv
-    dialogHeader.setBackgroundColor(getResources().getColor(R.color.blue_extra));
+    // // Set dialog header background with rounded corner
+    // Bitmap bm = BitmapFactory
+    // .decodeResource(getResources(), R.drawable.striped);
+    // BitmapDrawable bmDrawable = new BitmapDrawable(getResources(), bm);
+    // dialogHeader.setBackground(new CurvedAndTiled(bmDrawable.getBitmap(),
+    // 5)); \n vvvvvvvv
+    dialogHeader
+      .setBackgroundColor(getResources().getColor(R.color.blue_extra));
     // Set dialog title and main EditText
     dialogTitle.setText("Share QR code");
-    
+
     flagShareEmail = true;
-    ImageView switch2message = (ImageView) dialogView.findViewById(R.id.share_switch2message);
-    ImageView switch2email = (ImageView) dialogView.findViewById(R.id.share_switch2email);
-    final RelativeLayout messagePanel = (RelativeLayout) dialogView.findViewById(R.id.share_message_panel);
-    final RelativeLayout emailPanel = (RelativeLayout) dialogView.findViewById(R.id.share_email_panel);
-    switch2message.setOnClickListener(new View.OnClickListener(){
+    ImageView switch2message = (ImageView) dialogView
+      .findViewById(R.id.share_switch2message);
+    ImageView switch2email = (ImageView) dialogView
+      .findViewById(R.id.share_switch2email);
+    ImageView directLink1 = (ImageView) dialogView
+        .findViewById(R.id.share_direct_link1);
+    ImageView directLink2 = (ImageView) dialogView
+        .findViewById(R.id.share_direct_link2);
+    final RelativeLayout messagePanel = (RelativeLayout) dialogView
+      .findViewById(R.id.share_message_panel);
+    final RelativeLayout emailPanel = (RelativeLayout) dialogView
+      .findViewById(R.id.share_email_panel);
+    switch2message.setOnClickListener(new View.OnClickListener() {
 
       @Override
       public void onClick(View v) {
@@ -363,9 +386,9 @@ public class ActivityMain extends ActionBarActivity {
         messagePanel.setVisibility(View.VISIBLE);
         emailPanel.setVisibility(View.GONE);
       }
-      
+
     });
-    switch2email.setOnClickListener(new View.OnClickListener(){
+    switch2email.setOnClickListener(new View.OnClickListener() {
 
       @Override
       public void onClick(View v) {
@@ -373,10 +396,12 @@ public class ActivityMain extends ActionBarActivity {
         emailPanel.setVisibility(View.VISIBLE);
         messagePanel.setVisibility(View.GONE);
       }
-      
-    });
 
-    new AlertDialog.Builder(this).setView(dialogView)
+    });
+    
+    
+    
+    final AlertDialog dialog = new AlertDialog.Builder(this).setView(dialogView)
       .setPositiveButton("Send", new DialogInterface.OnClickListener() {
         public void onClick(DialogInterface dialog, int whichButton) {
           String link = getLink();
@@ -386,12 +411,12 @@ public class ActivityMain extends ActionBarActivity {
             .findViewById(R.id.target_sms);
           RobotoEditText targetNameView = (RobotoEditText) dialogView
             .findViewById(R.id.target_name);
-          
-          String targetEmail = targetEmailView.getText().toString();
-          String targetSMS = targetSMSView.getText().toString();
-          String targetName = targetNameView.getText().toString();
 
-          if (!flagShareEmail && !targetSMS.isEmpty()) {
+          targetEmail = targetEmailView.getText().toString();
+          targetSMS = targetSMSView.getText().toString();
+          targetName = targetNameView.getText().toString();
+
+          if (!flagShareEmail) {
             // send to message
             String msgBody;
             if (ActivityMain.currentUser.get("defaultMsgBody") != null
@@ -414,9 +439,9 @@ public class ActivityMain extends ActionBarActivity {
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("smsto:"
               + targetSMS));
             intent.putExtra("sms_body", msgBody);
-            startActivity(intent);
+            startActivityForResult(intent, SHARE_QR_MSG);
           }
-          if (flagShareEmail && !targetEmail.isEmpty()) {
+          if (flagShareEmail) {
             String msgSubject = "Greetings from "
               + ActivityMain.myselfUserInfo.getFirstName() + " "
               + ActivityMain.myselfUserInfo.getLastName();
@@ -447,7 +472,7 @@ public class ActivityMain extends ActionBarActivity {
                 + "\n\nPlease accept my business card here: " + link;
             }
             sendIntent.putExtra(Intent.EXTRA_TEXT, msgBody);
-            startActivity(sendIntent);
+            startActivityForResult(sendIntent, SHARE_QR_EMAIL);
 
           }
         }
@@ -457,6 +482,33 @@ public class ActivityMain extends ActionBarActivity {
         }
       }).setCancelable(false).show();
 
+    
+      directLink1.setOnClickListener(new View.OnClickListener() {
+      
+      @Override
+      public void onClick(View v) {
+        String link = getLink();
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_SEND);
+        intent.putExtra(Intent.EXTRA_TEXT, link);
+        intent.setType("text/plain");
+        startActivityForResult(Intent.createChooser(intent, "Share link to:"), SHARE_GENERIC);
+        dialog.dismiss();
+      }
+    });
+      directLink2.setOnClickListener(new View.OnClickListener() {
+        
+        @Override
+        public void onClick(View v) {
+          String link = getLink();
+          Intent sendIntent = new Intent();
+          sendIntent.setAction(Intent.ACTION_SEND);
+          sendIntent.putExtra(Intent.EXTRA_TEXT, link);
+          sendIntent.setType("text/plain");
+          startActivityForResult(sendIntent, SHARE_GENERIC);
+          dialog.dismiss();
+        }
+      });
   }
 
   private String getLink() {
@@ -521,12 +573,14 @@ public class ActivityMain extends ActionBarActivity {
       .findViewById(R.id.dialog_text);
     TextView dialogTitle = (TextView) dialogView
       .findViewById(R.id.dialog_title);
-//    // Set dialog header background with rounded corner
-//    Bitmap bm = BitmapFactory
-//      .decodeResource(getResources(), R.drawable.striped);
-//    BitmapDrawable bmDrawable = new BitmapDrawable(getResources(), bm);
-//    dialogHeader.setBackground(new CurvedAndTiled(bmDrawable.getBitmap(), 5)); \n vvvvvvvv
-    dialogHeader.setBackgroundColor(getResources().getColor(R.color.blue_extra));
+    // // Set dialog header background with rounded corner
+    // Bitmap bm = BitmapFactory
+    // .decodeResource(getResources(), R.drawable.striped);
+    // BitmapDrawable bmDrawable = new BitmapDrawable(getResources(), bm);
+    // dialogHeader.setBackground(new CurvedAndTiled(bmDrawable.getBitmap(),
+    // 5)); \n vvvvvvvv
+    dialogHeader
+      .setBackgroundColor(getResources().getColor(R.color.blue_extra));
     // Set dialog title and main EditText
     dialogTitle.setText("Upload successful!");
     RobotoEditText docFilenameView = (RobotoEditText) dialogView
@@ -589,17 +643,21 @@ public class ActivityMain extends ActionBarActivity {
       return super.onOptionsItemSelected(item);
     }
   }
+  
+  
 
   @Override
   public void onActivityResult(int requestCode, int resultCode, Intent data) {
-    if (resultCode == Activity.RESULT_OK) {
-
-      switch (requestCode) {
-      case EDIT_CARD:
-        // Refreshing fragments
-        mAdapter.notifyDataSetChanged();        
-        break;
-      case UPLOAD_DOC:
+    
+    switch (requestCode) {
+    case EDIT_CARD:
+      // Refreshing fragments
+      if (resultCode == Activity.RESULT_OK) {
+        mAdapter.notifyDataSetChanged();
+      }
+      break;
+    case UPLOAD_DOC:
+      if (resultCode == Activity.RESULT_OK) {
         uploadDialog.dismiss();
         // Get the Uri of the selected file
         Uri uri = data.getData();
@@ -628,11 +686,89 @@ public class ActivityMain extends ActionBarActivity {
           // TODO Auto-generated catch block
           e.printStackTrace();
         }
-
-        break;
       }
+      break;
+    case SHARE_QR_EMAIL:
+      addToHistory(SHARE_QR_EMAIL);
+      break;
+    case SHARE_QR_MSG:
+      addToHistory(SHARE_QR_MSG);
+      break;
+    case SHARE_DOC:
+      addToHistory(SHARE_DOC);
+      break;
+    case SHARE_GENERIC:
+      addToHistory(SHARE_GENERIC);
+      break;
     }
+    
     super.onActivityResult(requestCode, resultCode, data);
+  }
+
+  private void addToHistory(final int code) {
+    
+    LayoutInflater inflater = getLayoutInflater();
+    final View dialogView = inflater.inflate(R.layout.layout_add_history, null);
+    LinearLayout dialogHeader = (LinearLayout) dialogView
+      .findViewById(R.id.dialog_header);
+    final TextView dialogText = (TextView) dialogView
+      .findViewById(R.id.dialog_text);
+    TextView dialogTitle = (TextView) dialogView
+      .findViewById(R.id.dialog_title);
+    dialogHeader
+      .setBackgroundColor(getResources().getColor(R.color.blue_extra));
+    // Set dialog title and main EditText
+    dialogTitle.setText("Keep record?");
+    
+    final RobotoEditText addHistoryNameView = (RobotoEditText) dialogView.findViewById(R.id.add_history_name);
+    final RobotoEditText addHistoryEmailView = (RobotoEditText) dialogView.findViewById(R.id.add_history_email);
+    final RobotoEditText addHistorySmsView = (RobotoEditText) dialogView.findViewById(R.id.add_history_sms);
+    final RobotoEditText addHistoryNotesView = (RobotoEditText) dialogView.findViewById(R.id.add_history_note);
+    
+    if(targetName != null && !targetName.isEmpty()){
+      addHistoryNameView.setText(targetName);
+    }
+    if(targetEmail != null && !targetEmail.isEmpty()){
+      addHistoryEmailView.setText(targetEmail);
+    }
+    if(targetSMS != null && !targetSMS.isEmpty()){
+      addHistorySmsView.setText(targetSMS);
+    }
+    
+    new AlertDialog.Builder(this).setView(dialogView)
+    .setPositiveButton("Save", new DialogInterface.OnClickListener() {
+      public void onClick(DialogInterface dialog, int whichButton) {
+        ParseObject historyObj = new ParseObject("History");
+        historyObj.setACL(new ParseACL(currentUser));
+        historyObj.put("userId", currentUser.getObjectId());
+
+        String nameString = addHistoryNameView.getText().toString();
+        String emailString = addHistoryEmailView.getText().toString();
+        String messageString = addHistorySmsView.getText().toString();
+        String notesString = addHistoryNotesView.getText().toString();
+        
+        if(nameString!=null && !nameString.isEmpty()){
+          historyObj.put("fullName", nameString);
+        }
+        if(emailString!=null && !emailString.isEmpty()){
+          historyObj.put("email", emailString);
+        }
+        if(messageString!=null && !messageString.isEmpty()){
+          historyObj.put("message", messageString);
+        }
+        if(notesString!=null && !notesString.isEmpty()){
+          historyObj.put("notes", notesString);
+        }
+        historyObj.put("type", code);
+        historyObj.saveEventually();
+        historyObj.pinInBackground();
+        
+      }
+    }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+      public void onClick(DialogInterface dialog, int whichButton) {
+
+      }
+    }).setCancelable(false).show();
   }
 
   private void showActionBar() {
@@ -645,6 +781,15 @@ public class ActivityMain extends ActionBarActivity {
       public void onClick(View v) {
         Intent intent = new Intent(getApplicationContext(),
           ActivityConversations.class);
+        startActivity(intent);
+      }
+    });
+    ImageView btnHistory = (ImageView) v.findViewById(R.id.btn_history);
+    btnHistory.setOnClickListener(new OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        Intent intent = new Intent(getApplicationContext(),
+          ActivityHistory.class);
         startActivity(intent);
       }
     });

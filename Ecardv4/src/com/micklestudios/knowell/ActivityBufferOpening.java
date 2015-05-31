@@ -274,7 +274,7 @@ public class ActivityBufferOpening extends Activity {
                       contact.setWhenMet(objectNote.getCreatedAt());
                       contact.setEventMet(objectNote.getString("event_met"));
                       contact.setWhereMet(objectNote.getString("where_met"));
-                      contact.setNote(objectNote.getString("notes"));
+                      contact.setNotes(objectNote.getString("notes"));
 
                       ActivitySearch.allUsers.add(contact);
 
@@ -302,6 +302,10 @@ public class ActivityBufferOpening extends Activity {
 
   private void syncAllDataUponOpening(SharedPreferences prefs,
     SharedPreferences.Editor prefEditor) {
+    
+    // To-do: sync history
+    
+    //////////////////////////////////////
     
     // Create/refresh local copy every time app opens
     final AsyncTasks.SyncDataTaskSelfCopy createSelfCopy = new AsyncTasks.SyncDataTaskSelfCopy(

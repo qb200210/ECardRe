@@ -549,10 +549,6 @@ public class UserInfo implements Parcelable {
     return notes;
   }
 
-  public void setNote(String note) {
-    this.notes = note;
-  }
-
   public ArrayList<String> getAllStrings() {
     ensureDefaults();
     ArrayList<String> allStrings = new ArrayList<String>();
