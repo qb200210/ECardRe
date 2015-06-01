@@ -39,11 +39,13 @@ import android.widget.Toast;
 
 public class ActivityBufferOpening extends Activity {
 
-  private static final long CREATE_SELF_COPY_TIMEOUT = 30000;
-  private static final long CACHEIDS_TIMEOUT = 30000;
-  private static final long NOTES_TIMEOUT = 30000;
-  private static final long CONVERSATIONS_TIMEOUT = 30000;
+  private static final long CREATE_SELF_COPY_TIMEOUT = 10000;
+  private static final long CACHEIDS_TIMEOUT = 10000;
+  private static final long NOTES_TIMEOUT = 10000;
+  private static final long CONVERSATIONS_TIMEOUT = 10000;
   private static final long COMPANYNAME_TIMEOUT = 60000;
+  private static final long HISTORY_TIMEOUT = 60000;
+  
   Integer WEIGHT_SELF = 20;
   Integer WEIGHT_NOTES = 20;
   Integer WEIGHT_CONV = 20;
@@ -303,9 +305,23 @@ public class ActivityBufferOpening extends Activity {
   private void syncAllDataUponOpening(SharedPreferences prefs,
     SharedPreferences.Editor prefEditor) {
     
-    // To-do: sync history
-    
-    //////////////////////////////////////
+    // sync history, Supposely not critical, so don't need to wait on it
+    final AsyncTasks.SyncDataTaskHistory syncHistory = new AsyncTasks.SyncDataTaskHistory(
+      this, currentUser, prefs, prefEditor);
+    syncHistory.execute();
+    Handler handlerHistory = new Handler();
+    handlerHistory.postDelayed(new Runnable() {
+
+      @Override
+      public void run() {
+        if (syncHistory.getStatus() == AsyncTask.Status.RUNNING) {
+          Toast.makeText(getApplicationContext(),
+            "Sync Conversations Timed Out", Toast.LENGTH_SHORT).show();
+          timeoutFlagConv = true;
+          syncHistory.cancel(true);
+        }
+      }
+    }, HISTORY_TIMEOUT);
     
     // Create/refresh local copy every time app opens
     final AsyncTasks.SyncDataTaskSelfCopy createSelfCopy = new AsyncTasks.SyncDataTaskSelfCopy(

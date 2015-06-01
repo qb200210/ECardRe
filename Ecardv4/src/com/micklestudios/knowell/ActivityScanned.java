@@ -307,8 +307,7 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 		            findViewById(R.id.timer).setVisibility(View.VISIBLE);
 		    		scrollView = (MyScrollView) findViewById(R.id.scroll_view_scanned);
 		    		scrollView.setmScrollable(false);
-		    		disableViewElements((ViewGroup) findViewById(R.id.backlayer));
-		    		gridView.setEnabled(false);
+		    		disableViewElements((ViewGroup) findViewById(R.id.backlayer));		    		
 		            					
 		             t = new CountDownTimer( 30000, 1000) {           //30 seconds recording time
 		            	 TextView counter=(TextView) findViewById(R.id.time_left);
@@ -327,7 +326,6 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 		    		            findViewById(R.id.timer).setVisibility(View.GONE);
 		    		            scrollView = (MyScrollView) findViewById(R.id.scroll_view_scanned);
 		    		    		scrollView.setmScrollable(true);
-		    		    		gridView.setEnabled(true);
 		    		    		enableViewElements((ViewGroup) findViewById(R.id.backlayer));
 		                    }
 		                }.start();
@@ -341,7 +339,6 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 		            findViewById(R.id.timer).setVisibility(View.GONE);
 		            scrollView = (MyScrollView) findViewById(R.id.scroll_view_scanned);
 		    		scrollView.setmScrollable(true);
-		    		gridView.setEnabled(true);
 		    		enableViewElements((ViewGroup) findViewById(R.id.backlayer));
 		        }
 		    }
@@ -360,7 +357,6 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 		            enableViewElements((ViewGroup) findViewById(R.id.backlayer));
 		    		scrollView = (MyScrollView) findViewById(R.id.scroll_view_scanned);
 		    		scrollView.setmScrollable(true);
-		    		gridView.setEnabled(true);
 		    }
 		});
 		

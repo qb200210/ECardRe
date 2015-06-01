@@ -49,6 +49,83 @@ import com.micklestudios.knowell.R;
 
 public class AsyncTasks {
 
+  public static class SyncDataTaskHistory extends
+      AsyncTask<String, Void, String> {
+
+    private Context context;
+    private ParseUser currentUser;
+    private SharedPreferences prefs;
+    private SharedPreferences.Editor prefEditor;
+    private boolean flagShouldSync;
+
+    public SyncDataTaskHistory(Context context, ParseUser currentUser,
+      SharedPreferences prefs, SharedPreferences.Editor prefEditor) {
+      this.context = context;
+      this.currentUser = currentUser;
+      this.prefs = prefs;
+      this.prefEditor = prefEditor;
+      this.flagShouldSync = false;
+    }
+
+    @Override
+    protected String doInBackground(String... params) {
+      // get the stored shared last sync date, if null, default to 1969
+      long millis = prefs.getLong("DateHistorySynced", 0L);
+      Date lastSyncedDate = new Date(millis);
+
+      ParseQuery<ParseObject> query = ParseQuery.getQuery("History");
+      query.whereEqualTo("userId", currentUser.getObjectId().toString());
+      query.whereGreaterThan("updatedAt", lastSyncedDate);
+      List<ParseObject> histObjects = null;
+      try {
+        histObjects = query.find();
+      } catch (ParseException e2) {
+        // TODO Auto-generated catch block
+        e2.printStackTrace();
+      }
+      if (histObjects != null && histObjects.size() != 0) {
+        flagShouldSync = true;
+        for (Iterator<ParseObject> iter = histObjects.iterator(); iter
+          .hasNext();) {
+          ParseObject objHist = iter.next();
+          if (objHist.get("isDeleted") != null) {
+            if ((boolean) objHist.get("isDeleted") == true) {
+              try {
+                // unpin the "deleted" object
+                objHist.unpin();
+                // remove it from the to-be-pinned list
+                iter.remove();
+              } catch (ParseException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+              }
+            }
+          }
+        }
+        // pin histObjects
+        try {
+          ParseObject.pinAll(histObjects);
+        } catch (ParseException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        }
+      }
+      // flush sharedpreference with today's date after all notes saved
+      Date currentDate = new Date();
+      prefEditor.putLong("DateHistorySynced", currentDate.getTime());
+      prefEditor.commit();
+      return null;
+    }
+
+    @Override
+    protected void onPostExecute(String result) {
+      if (flagShouldSync) {
+        Toast.makeText(context, "synced history", Toast.LENGTH_SHORT).show();
+      }
+    }
+
+  }
+
   // sync local copy of self ecard
   // now server always wins, should change to check date
   public static class SyncDataTaskSelfCopy extends
@@ -77,7 +154,7 @@ public class AsyncTasks {
       long millisUser = prefs.getLong("DateSelfUserSynced", 0L);
       Date lastSyncedDateSelf = new Date(millis);
       Date lastSyncedDateSelfUser = new Date(millisUser);
-      
+
       ParseQuery<ParseUser> queryUser = ParseUser.getQuery();
       queryUser.whereGreaterThan("updatedAt", lastSyncedDateSelfUser);
       queryUser.whereEqualTo("objectId", currentUser.getObjectId());
@@ -101,7 +178,7 @@ public class AsyncTasks {
           // TODO Auto-generated catch block
           e.printStackTrace();
         }
-        
+
       }
 
       ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardInfo");
@@ -166,16 +243,18 @@ public class AsyncTasks {
   }
 
   // sync local copy of notes and corresponding ecards
-  // this one is not critically depended on, so it doesn't have to be blocking upon opening
+  // this one is not critically depended on, so it doesn't have to be blocking
+  // upon opening
   public static class SyncDataCompanyNames extends
       AsyncTask<String, Void, String> {
-    
+
     private Context context;
     private SharedPreferences prefs;
     private SharedPreferences.Editor prefEditor;
     private boolean flagShouldSync;
 
-    public SyncDataCompanyNames(Context context, SharedPreferences prefs, SharedPreferences.Editor prefEditor) {
+    public SyncDataCompanyNames(Context context, SharedPreferences prefs,
+      SharedPreferences.Editor prefEditor) {
       this.context = context;
       this.prefs = prefs;
       this.prefEditor = prefEditor;
@@ -183,20 +262,22 @@ public class AsyncTasks {
     }
 
     @Override
-    protected String doInBackground(String... params) {      
-      //Retrieve the saved company list from sharedpreference
+    protected String doInBackground(String... params) {
+      // Retrieve the saved company list from sharedpreference
       // this will be used to populate autocomplete box
       ActivityDesign.companyNames = new ArrayList<String>();
       Set<String> tmpCompanyNames = new HashSet<String>();
-      Set<String> fetchedCompanyList = prefs.getStringSet("listOfCompanyNames", null);
-      if(fetchedCompanyList != null){
+      Set<String> fetchedCompanyList = prefs.getStringSet("listOfCompanyNames",
+        null);
+      if (fetchedCompanyList != null) {
         tmpCompanyNames.addAll(fetchedCompanyList);
       }
 
       // get the stored shared last sync date, if null, default to 1969
       long millis = prefs.getLong("DateCompanySynced", 0L);
       Date lastSyncedDate = new Date(millis);
-      ParseQuery<ParseObject> queryTemplate = ParseQuery.getQuery("ECardTemplate");
+      ParseQuery<ParseObject> queryTemplate = ParseQuery
+        .getQuery("ECardTemplate");
       queryTemplate.whereGreaterThan("updatedAt", lastSyncedDate);
       List<ParseObject> templateObjs = null;
       try {
@@ -205,20 +286,21 @@ public class AsyncTasks {
         // TODO Auto-generated catch block
         e.printStackTrace();
       }
-      Log.i("cmpname", " "+ templateObjs.size());
-      if(templateObjs != null && templateObjs.size() !=0){
-        for(Iterator<ParseObject> iter =templateObjs.iterator(); iter.hasNext(); ){
+      Log.i("cmpname", " " + templateObjs.size());
+      if (templateObjs != null && templateObjs.size() != 0) {
+        for (Iterator<ParseObject> iter = templateObjs.iterator(); iter
+          .hasNext();) {
           ParseObject templateObj = iter.next();
           tmpCompanyNames.add(templateObj.get("companyName").toString());
         }
-        //Set the values        
+        // Set the values
         prefEditor.putStringSet("listOfCompanyNames", tmpCompanyNames);
         prefEditor.commit();
       }
-      if(tmpCompanyNames != null){
+      if (tmpCompanyNames != null) {
         ActivityDesign.companyNames.addAll(tmpCompanyNames);
-      }      
-      
+      }
+
       // pin down logos for those ecards that are already in localstore
       ParseQuery<ParseObject> queryInfo = ParseQuery.getQuery("ECardInfo");
       queryInfo.fromLocalDatastore();
@@ -229,17 +311,18 @@ public class AsyncTasks {
         // TODO Auto-generated catch block
         e.printStackTrace();
       }
-      if(infoObjs != null && infoObjs.size()!=0){
+      if (infoObjs != null && infoObjs.size() != 0) {
         HashSet<String> companyNames = new HashSet<String>();
         Object tmpString;
-        for(ParseObject infoObj : infoObjs){
+        for (ParseObject infoObj : infoObjs) {
           tmpString = infoObj.get("company");
-          if(tmpString != null) {
+          if (tmpString != null) {
             companyNames.add(tmpString.toString());
           }
         }
         // find the templates for local ecards
-        ParseQuery<ParseObject> queryTemplate1 = ParseQuery.getQuery("ECardTemplate");
+        ParseQuery<ParseObject> queryTemplate1 = ParseQuery
+          .getQuery("ECardTemplate");
         queryTemplate1.whereContainedIn("companyName", companyNames);
         List<ParseObject> templateObjs1 = null;
         try {
@@ -247,17 +330,20 @@ public class AsyncTasks {
           templateObjs1 = queryTemplate1.find();
         } catch (ParseException e) {
           e.printStackTrace();
-        } 
-        if(templateObjs1 != null && templateObjs1.size() !=0){
-          // loop over the found templates and pin those not yet in localdatastore
+        }
+        if (templateObjs1 != null && templateObjs1.size() != 0) {
+          // loop over the found templates and pin those not yet in
+          // localdatastore
           // loop over found templates and record objId
           ArrayList<String> objIds = new ArrayList<String>();
-          for(Iterator<ParseObject> iter = templateObjs1.iterator(); iter.hasNext();){
+          for (Iterator<ParseObject> iter = templateObjs1.iterator(); iter
+            .hasNext();) {
             ParseObject templateObj = iter.next();
             objIds.add(templateObj.getObjectId().toString());
           }
           // figure out what templates are already in localdatastore
-          ParseQuery<ParseObject> queryTemplateLocal = ParseQuery.getQuery("ECardTemplate");
+          ParseQuery<ParseObject> queryTemplateLocal = ParseQuery
+            .getQuery("ECardTemplate");
           queryTemplateLocal.fromLocalDatastore();
           queryTemplateLocal.whereContainedIn("objectId", objIds);
           List<ParseObject> templateObjs2 = null;
@@ -267,16 +353,20 @@ public class AsyncTasks {
           } catch (ParseException e1) {
             e1.printStackTrace();
           }
-          if(templateObjs2 != null && templateObjs2.size() !=0){
-            for(Iterator<ParseObject> iter1 = templateObjs1.iterator(); iter1.hasNext();){
-              ParseObject objOnline = iter1.next();              
+          if (templateObjs2 != null && templateObjs2.size() != 0) {
+            for (Iterator<ParseObject> iter1 = templateObjs1.iterator(); iter1
+              .hasNext();) {
+              ParseObject objOnline = iter1.next();
               // remove already existed local records from found online list
-              for(Iterator<ParseObject> iter2 = templateObjs2.iterator(); iter2.hasNext();){
+              for (Iterator<ParseObject> iter2 = templateObjs2.iterator(); iter2
+                .hasNext();) {
                 ParseObject objOffline = iter2.next();
-                if(objOnline.getObjectId() == objOffline.getObjectId()){
+                if (objOnline.getObjectId() == objOffline.getObjectId()) {
                   // duplicate record found
-                  if(! objOnline.getUpdatedAt().after(objOffline.getUpdatedAt())){
-                    // if offline record is latest, remove this duplicate online record
+                  if (!objOnline.getUpdatedAt()
+                    .after(objOffline.getUpdatedAt())) {
+                    // if offline record is latest, remove this duplicate online
+                    // record
                     iter1.remove();
                     break;
                   }
@@ -286,7 +376,7 @@ public class AsyncTasks {
           }
           try {
             // pin down the template list
-            if(templateObjs1 != null && templateObjs1.size()!= 0){
+            if (templateObjs1 != null && templateObjs1.size() != 0) {
               ParseObject.pinAll(templateObjs1);
             }
           } catch (ParseException e) {
@@ -294,15 +384,14 @@ public class AsyncTasks {
             e.printStackTrace();
           }
         }
-        
+
       }
-      
-      
+
       // flush sharedpreference with today's date
       Date currentDate = new Date();
       prefEditor.putLong("DateCompanySynced", currentDate.getTime());
       prefEditor.commit();
-      
+
       return null;
     }
 

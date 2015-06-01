@@ -24,6 +24,7 @@ import com.google.zxing.Result;
 import com.google.zxing.client.android.CaptureActivity;
 import com.micklestudios.knowell.ActivityDetails;
 import com.micklestudios.knowell.ActivityScanned;
+import com.micklestudios.knowell.ActivityWebView;
 import com.micklestudios.knowell.infrastructure.UserInfo;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -33,6 +34,7 @@ import com.micklestudios.knowell.R;
 
 public class CustomQRScanner extends CaptureActivity {
   private static final long SCAN_TIMEOUT = 5000;
+  private static final int OPEN_WEB = 3001;
   private Dialog dialog;
 
   @Override
@@ -67,6 +69,10 @@ public class CustomQRScanner extends CaptureActivity {
 
     if (valuesMap == null) {
       dialog_text.setText("The scanned QR is invalid");
+      Intent intent = new Intent(getBaseContext(), ActivityWebView.class);
+      intent.putExtra("url", rawResult.toString());      
+      startActivityForResult(intent, OPEN_WEB);
+      
       // progress_image.setBackgroundResource(R.drawable.ic_action_cancel);
 
       dialog.show();
@@ -80,8 +86,8 @@ public class CustomQRScanner extends CaptureActivity {
             dialog.dismiss();
           }
 
-          onPause();
-          onResume();
+//          onPause();
+//          onResume();
         }
       };
 

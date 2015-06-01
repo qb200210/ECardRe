@@ -138,7 +138,12 @@ public class ActivityHistory extends ActionBarActivity {
     dialogHeader
       .setBackgroundColor(getResources().getColor(R.color.blue_extra));
     // Set dialog title and main EditText
-    dialogTitle.setText("Keep record?");
+
+    dialogTitle.setText(android.text.format.DateFormat.format("MMM",
+      selectedRecord.getCreatedAt())
+      + " "
+      + android.text.format.DateFormat.format("dd", selectedRecord.getCreatedAt())+ " "
+          + android.text.format.DateFormat.format("yyyy", selectedRecord.getCreatedAt()));
     
     final RobotoEditText addHistoryNameView = (RobotoEditText) dialogView.findViewById(R.id.add_history_name);
     final RobotoEditText addHistoryEmailView = (RobotoEditText) dialogView.findViewById(R.id.add_history_email);
