@@ -27,6 +27,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -678,27 +679,35 @@ public class ActivitySearch extends ActionBarActivity {
 
         // Get the selected users.
         for (UserInfo uInfoSelected : selectedUsers) {
-          // TODO: Add the e-mail from userInfo to the list.
-          // String email = uInfoSelected.getEmail();
-          // if (email == null) {
-          // failedEmailCount++;
-          // } else {
-          // TO.add(uInfoSelected.getEmail());
-          // }
-          //
+          String email = uInfoSelected.getEmail();
+          if (email == null || ECardUtils.isValidEmail(email) == false) {
+            failedEmailCount++;
+            Log.e("Knowell", "The failed email is " + email);
+          } else {
+            TO.add(email);
+          }
+        }
+
+        if (failedEmailCount != 0) {
+          Toast.makeText(getApplicationContext(),
+            failedEmailCount + " selected users have invalid emails",
+            Toast.LENGTH_LONG).show();
+        }
+
+        if (TO.size() == 0) {
+          return;
         }
 
         // Send e-mail to selected users.
         Intent emailIntent = new Intent(Intent.ACTION_SEND);
         emailIntent.setData(Uri.parse("mailto:"));
-        emailIntent.setType("text/plain");
+        emailIntent.setType("message/rfc822");
         emailIntent.putExtra(Intent.EXTRA_EMAIL, TO);
-        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Your subject");
-        emailIntent.putExtra(Intent.EXTRA_TEXT, "Email message goes here");
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "");
+        emailIntent.putExtra(Intent.EXTRA_TEXT, "Sent from KnoWell");
 
         try {
-          startActivity(Intent.createChooser(emailIntent, "Send mail..."));
-          finish();
+          startActivity(emailIntent);
         } catch (android.content.ActivityNotFoundException ex) {
           Toast.makeText(ActivitySearch.this,
             "There is no email client installed.", Toast.LENGTH_SHORT).show();

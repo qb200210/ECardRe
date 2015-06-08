@@ -44,6 +44,7 @@ public class UserInfo implements Parcelable {
   String whereMet;
   String eventMet;
   String notes;
+  String email;
   Date whenMet;
   Date updatedAt;
 
@@ -57,6 +58,9 @@ public class UserInfo implements Parcelable {
     public static final int TYPE_WHERE_MET = 6;
     public static final int TYPE_EVENT_MET = 7;
     public static final int TYPE_NOTES = 8;
+    public static final int TYPE_EMAIL = 9;
+    public static final int TYPE_WHENMET = 10;
+    public static final int TYPE_UPDATEDAT = 11;
   }
 
   ArrayList<String> shownArrayList = new ArrayList<String>();
@@ -197,6 +201,7 @@ public class UserInfo implements Parcelable {
       company = parseObj.getString("company");
       title = parseObj.getString("title");
       city = parseObj.getString("city");
+      email = parseObj.getString("email");
 
       // extra info
       infoIcon.clear();
@@ -551,6 +556,14 @@ public class UserInfo implements Parcelable {
 
   public String getNotes() {
     return notes;
+  }
+  
+  public String getEmail() {
+    return email;
+  }
+  
+  public void setEmail(String email) {
+    this.email = email;
   }
 
   public ArrayList<String> getAllStrings() {
