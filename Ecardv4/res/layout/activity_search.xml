@@ -309,7 +309,13 @@
             android:id="@+id/lnlayout_selection_menu_main"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:orientation="vertical" >
+            android:orientation="horizontal" >
+
+            <Button
+                android:id="@+id/btn_email_sel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="E-mail" />
 
             <CheckBox
                 android:id="@+id/chk_select_all"
@@ -318,8 +324,8 @@
 
             <Button
                 android:id="@+id/btn_delete_sel"
-                android:layout_width="20dp"
-                android:layout_height="fill_parent" />
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
         </LinearLayout>
 
         <LinearLayout

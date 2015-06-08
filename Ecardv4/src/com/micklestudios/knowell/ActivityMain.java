@@ -289,51 +289,47 @@ public class ActivityMain extends ActionBarActivity {
             .findViewById(R.id.target_name);
           targetEmail = targetEmailView.getText().toString();
           targetName = targetNameView.getText().toString();
-          
 
-            Intent sendIntent = new Intent(Intent.ACTION_SEND);
-            sendIntent.setType("message/rfc822");
-            sendIntent.putExtra(Intent.EXTRA_EMAIL,
-              new String[] { targetEmail });
+          Intent sendIntent = new Intent(Intent.ACTION_SEND);
+          sendIntent.setType("message/rfc822");
+          sendIntent.putExtra(Intent.EXTRA_EMAIL, new String[] { targetEmail });
 
-            String msgSubject = "Greetings from "
-              + ActivityMain.myselfUserInfo.getFirstName() + " "
-              + ActivityMain.myselfUserInfo.getLastName();
-            if (ActivityMain.currentUser.get("docMsgSubject") != null
-              && !ActivityMain.currentUser.get("docMsgSubject").toString()
-                .isEmpty()) {
-              msgSubject = ActivityMain.currentUser.get("docMsgSubject")
-                .toString();
-            }
+          String msgSubject = "Greetings from "
+            + ActivityMain.myselfUserInfo.getFirstName() + " "
+            + ActivityMain.myselfUserInfo.getLastName();
+          if (ActivityMain.currentUser.get("docMsgSubject") != null
+            && !ActivityMain.currentUser.get("docMsgSubject").toString()
+              .isEmpty()) {
+            msgSubject = ActivityMain.currentUser.get("docMsgSubject")
+              .toString();
+          }
 
-            sendIntent.putExtra(Intent.EXTRA_SUBJECT, msgSubject);
+          sendIntent.putExtra(Intent.EXTRA_SUBJECT, msgSubject);
 
-            String msgBody = "Hi "
-              + targetName
-              + ",\n\nThis is "
-              + ActivityMain.myselfUserInfo.getFirstName()
-              + " "
-              + ActivityMain.myselfUserInfo.getLastName()
-              + " from "
-              + ActivityMain.myselfUserInfo.getCompany()
-              + ". Please find my "
-              + docName
-              + " in attachment. \n\nIt was great to meet you! Keep in touch! \n\nBest,\n"
-              + ActivityMain.myselfUserInfo.getFirstName()
-              + "\n\nPlease accept my business card here: " + link;
+          String msgBody = "Hi "
+            + targetName
+            + ",\n\nThis is "
+            + ActivityMain.myselfUserInfo.getFirstName()
+            + " "
+            + ActivityMain.myselfUserInfo.getLastName()
+            + " from "
+            + ActivityMain.myselfUserInfo.getCompany()
+            + ". Please find my "
+            + docName
+            + " in attachment. \n\nIt was great to meet you! Keep in touch! \n\nBest,\n"
+            + ActivityMain.myselfUserInfo.getFirstName()
+            + "\n\nPlease accept my business card here: " + link;
 
-            if (ActivityMain.currentUser.get("docMsgBody") != null
-              && !ActivityMain.currentUser.get("docMsgBody").toString()
-                .isEmpty()) {
-              msgBody = ActivityMain.currentUser.get("docMsgBody").toString();
-            }
+          if (ActivityMain.currentUser.get("docMsgBody") != null
+            && !ActivityMain.currentUser.get("docMsgBody").toString().isEmpty()) {
+            msgBody = ActivityMain.currentUser.get("docMsgBody").toString();
+          }
 
-            sendIntent.putExtra(Intent.EXTRA_TEXT, msgBody);
+          sendIntent.putExtra(Intent.EXTRA_TEXT, msgBody);
 
-            sendIntent.putExtra(Intent.EXTRA_STREAM, uri);
-            startActivityForResult(sendIntent, SHARE_DOC);
+          sendIntent.putExtra(Intent.EXTRA_STREAM, uri);
+          startActivityForResult(sendIntent, SHARE_DOC);
 
-          
         }
       }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
         public void onClick(DialogInterface dialog, int whichButton) {
@@ -371,9 +367,9 @@ public class ActivityMain extends ActionBarActivity {
     ImageView switch2email = (ImageView) dialogView
       .findViewById(R.id.share_switch2email);
     ImageView directLink1 = (ImageView) dialogView
-        .findViewById(R.id.share_direct_link1);
+      .findViewById(R.id.share_direct_link1);
     ImageView directLink2 = (ImageView) dialogView
-        .findViewById(R.id.share_direct_link2);
+      .findViewById(R.id.share_direct_link2);
     final RelativeLayout messagePanel = (RelativeLayout) dialogView
       .findViewById(R.id.share_message_panel);
     final RelativeLayout emailPanel = (RelativeLayout) dialogView
@@ -398,10 +394,9 @@ public class ActivityMain extends ActionBarActivity {
       }
 
     });
-    
-    
-    
-    final AlertDialog dialog = new AlertDialog.Builder(this).setView(dialogView)
+
+    final AlertDialog dialog = new AlertDialog.Builder(this)
+      .setView(dialogView)
       .setPositiveButton("Send", new DialogInterface.OnClickListener() {
         public void onClick(DialogInterface dialog, int whichButton) {
           String link = getLink();
@@ -482,9 +477,8 @@ public class ActivityMain extends ActionBarActivity {
         }
       }).setCancelable(false).show();
 
-    
-      directLink1.setOnClickListener(new View.OnClickListener() {
-      
+    directLink1.setOnClickListener(new View.OnClickListener() {
+
       @Override
       public void onClick(View v) {
         String link = getLink();
@@ -492,23 +486,24 @@ public class ActivityMain extends ActionBarActivity {
         intent.setAction(Intent.ACTION_SEND);
         intent.putExtra(Intent.EXTRA_TEXT, link);
         intent.setType("text/plain");
-        startActivityForResult(Intent.createChooser(intent, "Share link to:"), SHARE_GENERIC);
+        startActivityForResult(Intent.createChooser(intent, "Share link to:"),
+          SHARE_GENERIC);
         dialog.dismiss();
       }
     });
-      directLink2.setOnClickListener(new View.OnClickListener() {
-        
-        @Override
-        public void onClick(View v) {
-          String link = getLink();
-          Intent sendIntent = new Intent();
-          sendIntent.setAction(Intent.ACTION_SEND);
-          sendIntent.putExtra(Intent.EXTRA_TEXT, link);
-          sendIntent.setType("text/plain");
-          startActivityForResult(sendIntent, SHARE_GENERIC);
-          dialog.dismiss();
-        }
-      });
+    directLink2.setOnClickListener(new View.OnClickListener() {
+
+      @Override
+      public void onClick(View v) {
+        String link = getLink();
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        sendIntent.putExtra(Intent.EXTRA_TEXT, link);
+        sendIntent.setType("text/plain");
+        startActivityForResult(sendIntent, SHARE_GENERIC);
+        dialog.dismiss();
+      }
+    });
   }
 
   private String getLink() {
@@ -643,12 +638,10 @@ public class ActivityMain extends ActionBarActivity {
       return super.onOptionsItemSelected(item);
     }
   }
-  
-  
 
   @Override
   public void onActivityResult(int requestCode, int resultCode, Intent data) {
-    
+
     switch (requestCode) {
     case EDIT_CARD:
       // Refreshing fragments
@@ -701,12 +694,12 @@ public class ActivityMain extends ActionBarActivity {
       addToHistory(SHARE_GENERIC);
       break;
     }
-    
+
     super.onActivityResult(requestCode, resultCode, data);
   }
 
   private void addToHistory(final int code) {
-    
+
     LayoutInflater inflater = getLayoutInflater();
     final View dialogView = inflater.inflate(R.layout.layout_add_history, null);
     LinearLayout dialogHeader = (LinearLayout) dialogView
@@ -719,56 +712,60 @@ public class ActivityMain extends ActionBarActivity {
       .setBackgroundColor(getResources().getColor(R.color.blue_extra));
     // Set dialog title and main EditText
     dialogTitle.setText("Keep record?");
-    
-    final RobotoEditText addHistoryNameView = (RobotoEditText) dialogView.findViewById(R.id.add_history_name);
-    final RobotoEditText addHistoryEmailView = (RobotoEditText) dialogView.findViewById(R.id.add_history_email);
-    final RobotoEditText addHistorySmsView = (RobotoEditText) dialogView.findViewById(R.id.add_history_sms);
-    final RobotoEditText addHistoryNotesView = (RobotoEditText) dialogView.findViewById(R.id.add_history_note);
-    
-    if(targetName != null && !targetName.isEmpty()){
+
+    final RobotoEditText addHistoryNameView = (RobotoEditText) dialogView
+      .findViewById(R.id.add_history_name);
+    final RobotoEditText addHistoryEmailView = (RobotoEditText) dialogView
+      .findViewById(R.id.add_history_email);
+    final RobotoEditText addHistorySmsView = (RobotoEditText) dialogView
+      .findViewById(R.id.add_history_sms);
+    final RobotoEditText addHistoryNotesView = (RobotoEditText) dialogView
+      .findViewById(R.id.add_history_note);
+
+    if (targetName != null && !targetName.isEmpty()) {
       addHistoryNameView.setText(targetName);
     }
-    if(targetEmail != null && !targetEmail.isEmpty()){
+    if (targetEmail != null && !targetEmail.isEmpty()) {
       addHistoryEmailView.setText(targetEmail);
     }
-    if(targetSMS != null && !targetSMS.isEmpty()){
+    if (targetSMS != null && !targetSMS.isEmpty()) {
       addHistorySmsView.setText(targetSMS);
     }
-    
+
     new AlertDialog.Builder(this).setView(dialogView)
-    .setPositiveButton("Save", new DialogInterface.OnClickListener() {
-      public void onClick(DialogInterface dialog, int whichButton) {
-        ParseObject historyObj = new ParseObject("History");
-        historyObj.setACL(new ParseACL(currentUser));
-        historyObj.put("userId", currentUser.getObjectId());
+      .setPositiveButton("Save", new DialogInterface.OnClickListener() {
+        public void onClick(DialogInterface dialog, int whichButton) {
+          ParseObject historyObj = new ParseObject("History");
+          historyObj.setACL(new ParseACL(currentUser));
+          historyObj.put("userId", currentUser.getObjectId());
 
-        String nameString = addHistoryNameView.getText().toString();
-        String emailString = addHistoryEmailView.getText().toString();
-        String messageString = addHistorySmsView.getText().toString();
-        String notesString = addHistoryNotesView.getText().toString();
-        
-        if(nameString!=null && !nameString.isEmpty()){
-          historyObj.put("fullName", nameString);
-        }
-        if(emailString!=null && !emailString.isEmpty()){
-          historyObj.put("email", emailString);
-        }
-        if(messageString!=null && !messageString.isEmpty()){
-          historyObj.put("message", messageString);
-        }
-        if(notesString!=null && !notesString.isEmpty()){
-          historyObj.put("notes", notesString);
-        }
-        historyObj.put("type", code);
-        historyObj.saveEventually();
-        historyObj.pinInBackground();
-        
-      }
-    }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-      public void onClick(DialogInterface dialog, int whichButton) {
+          String nameString = addHistoryNameView.getText().toString();
+          String emailString = addHistoryEmailView.getText().toString();
+          String messageString = addHistorySmsView.getText().toString();
+          String notesString = addHistoryNotesView.getText().toString();
 
-      }
-    }).setCancelable(false).show();
+          if (nameString != null && !nameString.isEmpty()) {
+            historyObj.put("fullName", nameString);
+          }
+          if (emailString != null && !emailString.isEmpty()) {
+            historyObj.put("email", emailString);
+          }
+          if (messageString != null && !messageString.isEmpty()) {
+            historyObj.put("message", messageString);
+          }
+          if (notesString != null && !notesString.isEmpty()) {
+            historyObj.put("notes", notesString);
+          }
+          historyObj.put("type", code);
+          historyObj.saveEventually();
+          historyObj.pinInBackground();
+
+        }
+      }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        public void onClick(DialogInterface dialog, int whichButton) {
+
+        }
+      }).setCancelable(false).show();
   }
 
   private void showActionBar() {

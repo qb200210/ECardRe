@@ -62,8 +62,9 @@ public class UserInfo implements Parcelable {
   ArrayList<String> shownArrayList = new ArrayList<String>();
   ArrayList<Integer> infoIcon = new ArrayList<Integer>();
   ArrayList<String> infoLink = new ArrayList<String>();
-  String[] allowedArray = { "about", "email", "message", "phone", "web", "linkedin", "facebook", "twitter", "googleplus" };
-  
+  String[] allowedArray = { "about", "email", "message", "phone", "web",
+    "linkedin", "facebook", "twitter", "googleplus" };
+
   private void ensureDefaults() {
     this.objId = this.objId == null ? "Unspecified" : this.objId;
     this.firstName = this.firstName == null ? "Mysterious User X"
@@ -132,9 +133,12 @@ public class UserInfo implements Parcelable {
     return object;
   }
 
-  public UserInfo(String objId, boolean localData, boolean networkAvailable, boolean imgFromTmpData) {
-    // here calls the constructor UserInfo(parseObject, imgFromTmpData) instead of UserInfo(parseObject)
-    this(getParseObjectFromObjId(objId, localData, networkAvailable), imgFromTmpData);
+  public UserInfo(String objId, boolean localData, boolean networkAvailable,
+    boolean imgFromTmpData) {
+    // here calls the constructor UserInfo(parseObject, imgFromTmpData) instead
+    // of UserInfo(parseObject)
+    this(getParseObjectFromObjId(objId, localData, networkAvailable),
+      imgFromTmpData);
   }
 
   public UserInfo(String objId) {
@@ -163,7 +167,7 @@ public class UserInfo implements Parcelable {
         .w("Knowell", "Last name read from QR code does not match value in DB");
     }
   }
-  
+
   public UserInfo(ParseObject parseObj) {
     if (parseObj == null) {
       // if parseObj is null, assuming the scenario is offline scanning card
@@ -184,7 +188,7 @@ public class UserInfo implements Parcelable {
         // If portraitFile empty -- FIX: Untested!
         portrait = BitmapFactory.decodeResource(MyApplication.getContext()
           .getResources(), R.drawable.emptyprofile);
-      }      
+      }
 
       // main card info
       objId = parseObj.getObjectId();
@@ -294,7 +298,7 @@ public class UserInfo implements Parcelable {
     this.whenMet = new Date(source.readLong());
     this.updatedAt = new Date(source.readLong());
     this.notes = source.readString();
-    
+
     // Ensure the defaults are set.
     ensureDefaults();
   }
@@ -311,7 +315,7 @@ public class UserInfo implements Parcelable {
     dest.writeStringList(shownArrayList);
     dest.writeStringList(infoLink);
     dest.writeList(infoIcon);
-    
+
     dest.writeString(whereMet);
     dest.writeString(eventMet);
     dest.writeLong(whenMet.getTime());

@@ -104,6 +104,8 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
         R.layout.search_result_card, parent, false);
     }
 
+    UserInfo uInfo = ActivitySearch.filteredUsers.get(position);
+
     ImageView portraitImg = (ImageView) convertView
       .findViewById(R.id.search_image);
     CheckBox selectionBox = (CheckBox) convertView
@@ -112,10 +114,11 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
       selectionBox.setVisibility(View.INVISIBLE);
     } else {
       selectionBox.setVisibility(View.VISIBLE);
-      selectionBox.setChecked(ActivitySearch.selectedUsers
-        .contains(ActivitySearch.filteredUsers.get(position)));
     }
-    if (ActivitySearch.filteredUsers.get(position).getPortrait() != null) {
+
+    selectionBox.setChecked(ActivitySearch.selectedUsers.contains(uInfo));
+
+    if (uInfo.getPortrait() != null) {
       portraitImg.setImageBitmap(ActivitySearch.filteredUsers.get(position)
         .getPortrait());
     }
@@ -126,7 +129,8 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
       + " " + ActivitySearch.filteredUsers.get(position).getLastName());
     TextView jobCompanyView = (TextView) convertView
       .findViewById(R.id.search_result_card_job_company);
-    jobCompanyView.setText(ActivitySearch.filteredUsers.get(position).getTitle()
+    jobCompanyView.setText(ActivitySearch.filteredUsers.get(position)
+      .getTitle()
       + " at "
       + ActivitySearch.filteredUsers.get(position).getCompany());
     TextView addressView = (TextView) convertView

@@ -19,6 +19,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -46,7 +47,10 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -155,6 +159,9 @@ public class ActivitySearch extends ActionBarActivity {
   private ImageView btnClearCompany;
   private ImageView btnClearEventMet;
 
+  private CheckBox chkSelectAll;
+  private Button btnEmailSel;
+
   @SuppressLint("InflateParams")
   @Override
   protected void onCreate(final Bundle savedInstanceState) {
@@ -237,6 +244,9 @@ public class ActivitySearch extends ActionBarActivity {
     btnClearWhereMet = (ImageView) findViewById(R.id.clear_wheremet);
     btnClearCompany = (ImageView) findViewById(R.id.clear_company);
     btnClearEventMet = (ImageView) findViewById(R.id.clear_eventmet);
+
+    chkSelectAll = (CheckBox) findViewById(R.id.chk_select_all);
+    btnEmailSel = (Button) findViewById(R.id.btn_email_sel);
   }
 
   private void setSelectionMode(boolean set) {
@@ -251,9 +261,12 @@ public class ActivitySearch extends ActionBarActivity {
       selectionBar.setVisibility(View.VISIBLE);
       searchBar.setVisibility(View.INVISIBLE);
     } else {
+      selectedUsers.clear();
       selectionBar.setVisibility(View.INVISIBLE);
       searchBar.setVisibility(View.VISIBLE);
     }
+
+    adapter.notifyDataSetChanged();
   }
 
   private void initializeContactList() {
@@ -643,6 +656,55 @@ public class ActivitySearch extends ActionBarActivity {
     ArrayAdapter<String> adapterAll = new ArrayAdapter<String>(this,
       android.R.layout.select_dialog_item, autoCompleteListAll);
     searchBox.setAdapter(adapterAll);
+
+    chkSelectAll.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+      @Override
+      public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        selectedUsers.clear();
+        if (isChecked) {
+          selectedUsers.addAll(filteredUsers);
+        }
+        adapter.notifyDataSetChanged();
+      }
+    });
+
+    btnEmailSel.setOnClickListener(new OnClickListener() {
+
+      @Override
+      public void onClick(View v) {
+        int failedEmailCount = 0;
+
+        ArrayList<String> TO = new ArrayList<String>();
+
+        // Get the selected users.
+        for (UserInfo uInfoSelected : selectedUsers) {
+          // TODO: Add the e-mail from userInfo to the list.
+          // String email = uInfoSelected.getEmail();
+          // if (email == null) {
+          // failedEmailCount++;
+          // } else {
+          // TO.add(uInfoSelected.getEmail());
+          // }
+          //
+        }
+
+        // Send e-mail to selected users.
+        Intent emailIntent = new Intent(Intent.ACTION_SEND);
+        emailIntent.setData(Uri.parse("mailto:"));
+        emailIntent.setType("text/plain");
+        emailIntent.putExtra(Intent.EXTRA_EMAIL, TO);
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Your subject");
+        emailIntent.putExtra(Intent.EXTRA_TEXT, "Email message goes here");
+
+        try {
+          startActivity(Intent.createChooser(emailIntent, "Send mail..."));
+          finish();
+        } catch (android.content.ActivityNotFoundException ex) {
+          Toast.makeText(ActivitySearch.this,
+            "There is no email client installed.", Toast.LENGTH_SHORT).show();
+        }
+      }
+    });
   }
 
   // Hide all the filter text views
@@ -842,7 +904,7 @@ public class ActivitySearch extends ActionBarActivity {
 
   @Override
   public void onBackPressed() {
-    if(isSelectionMode != false){
+    if (isSelectionMode != false) {
       setSelectionMode(false);
     } else {
       super.onBackPressed();
