@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../favicon.ico">
+    <script src="../assets/js/jquery.min.js"></script>	
+    <title>KnoWell - Know Each Other Well</title>
+	
+    <!-- Bootstrap core CSS -->
+    <link href="../dist/css/bootstrap.min.css" rel="stylesheet">
+	<!-- Custom styles for this template -->
+    <link href="../assets/css/signin.css" rel="stylesheet">
+	<!-- Custom styles for this template -->
+	<link href="../assets/css/carousel.css" rel="stylesheet">
+    <style type="text/css">
+	
+		body {
+		  padding-bottom: 40px;
+		  background-color: #64b5f6;
+		}
+		
+		.navbar-default {
+  background-color: #0064c8;
+  border-color: #64b5f6;
+}
+.navbar-default .navbar-brand {
+  color: #ecf0f1;
+}
+.navbar-default .navbar-brand:hover, .navbar-default .navbar-brand:focus {
+  color: #ffffff;
+}
+.navbar-default .navbar-text {
+  color: #ecf0f1;
+}
+.navbar-default .navbar-nav > li > a {
+  color: #ecf0f1;
+}
+.navbar-default .navbar-nav > li > a:hover, .navbar-default .navbar-nav > li > a:focus {
+  color: #ffffff;
+}
+.navbar-default .navbar-nav > .active > a, .navbar-default .navbar-nav > .active > a:hover, .navbar-default .navbar-nav > .active > a:focus {
+  color: #ffffff;
+  background-color: #64b5f6;
+}
+.navbar-default .navbar-nav > .open > a, .navbar-default .navbar-nav > .open > a:hover, .navbar-default .navbar-nav > .open > a:focus {
+  color: #ffffff;
+  background-color: #64b5f6;
+}
+.navbar-default .navbar-toggle {
+  border-color: #64b5f6;
+}
+.navbar-default .navbar-toggle:hover, .navbar-default .navbar-toggle:focus {
+  background-color: #64b5f6;
+}
+.navbar-default .navbar-toggle .icon-bar {
+  background-color: #ecf0f1;
+}
+.navbar-default .navbar-collapse,
+.navbar-default .navbar-form {
+  border-color: #ecf0f1;
+}
+.navbar-default .navbar-link {
+  color: #ecf0f1;
+}
+.navbar-default .navbar-link:hover {
+  color: #ffffff;
+}
+
+@media (max-width: 767px) {
+  .navbar-default .navbar-nav .open .dropdown-menu > li > a {
+    color: #ecf0f1;
+  }
+  .navbar-default .navbar-nav .open .dropdown-menu > li > a:hover, .navbar-default .navbar-nav .open .dropdown-menu > li > a:focus {
+    color: #ffffff;
+  }
+  .navbar-default .navbar-nav .open .dropdown-menu > .active > a, .navbar-default .navbar-nav .open .dropdown-menu > .active > a:hover, .navbar-default .navbar-nav .open .dropdown-menu > .active > a:focus {
+    color: #ffffff;
+    background-color: #64b5f6;
+  }
+}
+		
+		.fromtop {
+			margin: 60px auto 0px;		
+		}
+
+      .form-signin {
+        max-width: 300px;
+        padding: 19px 29px 29px;
+        margin: 0px auto 0px;
+        background-color: #fff;
+        border: 1px solid #e5e5e5;
+        -webkit-border-radius: 2px;
+           -moz-border-radius: 2px;
+                border-radius: 2px;
+        -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+           -moz-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+                box-shadow: 0 1px 2px rgba(0,0,0,.05);
+      }
+	  
+	  .switcher {
+		max-width: 300px;
+		margin-bottom: auto;
+		margin-top: 10px;
+	  }
+	  
+      
+	  .greeting {
+				max-width: 300px;
+				padding: 0px 20px 0px;
+				margin: 0px auto 0px;
+				background-color: #00fff;
+			}
+			
+	  .container-card {
+				max-width: 300px;
+				padding: 20px 20px 20px;
+				margin: 0px auto 40px;
+				background-color: #fff;
+				border: 1px solid #e5e5e5;
+				-webkit-border-radius: 2px;
+				-moz-border-radius: 2px;
+				border-radius: 2px;
+				-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+				-moz-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+				box-shadow: 0 1px 2px rgba(0,0,0,.05);
+			}
+
+			.maincard {
+				display: table-cell;
+				width: 260px;
+				height: 260px;
+				vertical-align: top;
+				padding: 0 0 0;
+				margin: 10px 20px 10px;
+				background-color: #ffffff;
+			}
+
+			.center-block {
+				display: inline-block;
+				max-width: 160px;
+				max-height: 200px;
+				padding: 0 0 0;
+				margin: 0 auto 0;
+				vertical-align: middle;
+			}
+			
+			.toppart{
+				width: 260px;
+				height: 110px;
+				margin: 0 0 0;
+				vertical-align: middle;
+			}
+			
+			.botpart{
+				width: 260px;
+				height: 130px;				
+				margin: 0 0 0;
+			}
+			
+			.profile {
+				float: left;
+				width: 110px;
+				height: 110px;
+				margin: 0px 0 0px;
+			}
+			
+			
+			.profile img {
+				width: 110px;
+				height: 110px;
+			}
+
+			.name {
+				float: left;
+				margin-left: 10px;
+				max-width: 120px;
+				margin-bottom: 20px;
+				margin-top: 30px;
+			}
+			
+			.hr {
+				margin : 15px 0 0;
+			}
+
+    </style>
+  
+	<script>
+		function switchSignInRegister(){
+			if(document.getElementById('submitBtn').innerHTML == 'Sign Up') {
+				document.getElementById('submitBtn').style.marginTop = '0px';		
+				document.getElementById('name').type = 'hidden';	
+				document.getElementById('password').type = 'password';	
+				document.getElementById('submitBtn').innerHTML = 'Sign In';
+				document.getElementById('signinform').style.display = 'inherit';
+				document.getElementById('signupform').style.display = 'none';
+				document.getElementById('switcher').innerHTML = 'Have not got an account?';
+				document.getElementById('saveHeader').innerHTML = 'Please Sign In.';
+				document.getElementById('signForm').action = '/login';
+			} else {
+				document.getElementById('submitBtn').style.marginTop = '10px';		
+				document.getElementById('name').type = 'text';	
+				document.getElementById('password').type = 'hidden';			
+				document.getElementById('submitBtn').innerHTML = 'Sign Up';
+				document.getElementById('signinform').style.display = 'none';
+				document.getElementById('signupform').style.display = 'inherit';
+				document.getElementById('switcher').innerHTML = 'Already have an account?';
+				document.getElementById('saveHeader').innerHTML = 'Welcome to KnoWell';
+				document.getElementById('signForm').action = '/signup';
+			}
+		}
+	</script>
+  </head>
+
+  <body>
+  
+		<div class="navbar-wrapper">
+			<div class="container">
+
+				<nav class="navbar navbar-default navbar-static-top">
+					<div class="container">
+						<div class="navbar-header">							
+							<a class="navbar-brand" href="/">KnoWell</a>
+						</div>
+					</div>
+				</nav>
+
+			</div>
+		</div>
+		<div class="row fromtop">
+			<div class="col-md-4 col-md-offset-2">
+				<div class="greeting">
+					<h4>Hey, here is my card:</h4>
+				</div>
+				<div class="container-card">
+					<div class="maincard">
+						<div class="toppart">
+							<div class="profile">
+								<img src="<%=portrait_url%>">
+							</div>
+							<div class= "name">
+								<h5> <b><%= firstName %> <%= lastName %></b> </h5> 
+							</div>
+						</div>
+						<div class="botpart">						
+						<hr class= "hr">
+						<address style="margin-top: 10px">
+							<%= title %><br>
+							<%= company %> <br>
+							<%= city %>
+						</address>
+						</div>
+					</div>
+					
+				</div>
+			</div>
+			<div class="col-md-4 ">			  
+			  <form id="signForm" class="form-signin" action='/signup' method='POST'>
+				<h4 id="saveHeader" class="form-signin-heading">Please Join to Accept It.</h4>
+				<div id="signupform">
+					<div class="media-left">
+						<img src="../assets/img/user.png" style="width: 45px; height: 45px">
+					</div>
+					<div class="media-body">
+						<label for="inputName" class="sr-only">Your name</label>
+						<input name="name" id="name" type="text" class="form-control" placeholder="Your name" required>
+					</div>
+				</div>
+				<div>
+					<div class="media-left">
+						<img src="../assets/img/mail.png" style="width: 45px; height: 45px">
+					</div>
+					<div class="media-body">
+						<label for="inputEmail" class="sr-only">Email address</label>
+						<input name="email" type="email" class="form-control" placeholder="Email address" required>
+					</div>
+				</div>
+				<div id="signinform" style="display:none">
+					<div class="media-left">
+						<img src="../assets/img/lock.png" style="width: 45px; height: 45px">
+					</div>
+					<div class="media-body">
+						<label for="inputPassword" class="sr-only">Password</label>
+						<input name="password" id="password" type="hidden" class="form-control" placeholder="Password" required>
+					</div>
+				</div>
+				<input type="hidden" name="_csrf" value="<%= csrf_field %>" />
+				<button id="submitBtn" class="btn btn-lg btn-primary btn-block" type="submit">Sign Up</button>
+				<a id="switcher" href="javascript:switchSignInRegister()" class="switcher">Already have an account?</a>
+			  </form>
+			</div>	
+		</div>
+	
+	  <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="../dist/js/bootstrap.min.js"></script>
+    <!-- Just to make our placeholder images work. Don't actually copy the next line! -->
+    <script src="../assets/js/vendor/holder.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../assets/js/ie10-viewport-bug-workaround.js"></script>
+
+  </body>
+</html>

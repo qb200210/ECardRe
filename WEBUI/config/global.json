@@ -1,0 +1,14 @@
+{
+    "applications": {
+        "KnoWell": {
+            "applicationId": "eXr5eE3ff6vTMkTqsWe373eVZbuOLtafn7mFwlI2", 
+            "masterKey": "2ktdh8JJNsL3EFR8bFBTDBCG1AOmashJhEIsjxdf"
+        }, 
+        "_default": {
+            "link": "KnoWell"
+        }
+    }, 
+    "global": {
+        "parseVersion": "1.3.5"
+    }
+}

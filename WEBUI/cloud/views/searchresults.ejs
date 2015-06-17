@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../favicon.ico">
+    <script src="../assets/js/jquery.min.js"></script>	
+    <title>KnoWell - Know Each Other Well</title>
+	
+    <!-- Bootstrap core CSS -->
+    <link href="../dist/css/bootstrap.min.css" rel="stylesheet">
+	<!-- Custom styles for this template -->
+    <link href="../assets/css/sticky-footer.css" rel="stylesheet">
+	<!-- Custom styles for this template -->
+	<link href="../assets/css/carousel.css" rel="stylesheet">
+
+		<style type="text/css">
+			body {
+				  padding-bottom: 40px;
+				  background-color: #64b5f6;
+				}
+				
+					.navbar-default {
+  background-color: #0064c8;
+  border-color: #64b5f6;
+}
+.navbar-default .navbar-brand {
+  color: #ecf0f1;
+}
+.navbar-default .navbar-brand:hover, .navbar-default .navbar-brand:focus {
+  color: #ffffff;
+}
+.navbar-default .navbar-text {
+  color: #ecf0f1;
+}
+.navbar-default .navbar-nav > li > a {
+  color: #ecf0f1;
+}
+.navbar-default .navbar-nav > li > a:hover, .navbar-default .navbar-nav > li > a:focus {
+  color: #ffffff;
+}
+.navbar-default .navbar-nav > .active > a, .navbar-default .navbar-nav > .active > a:hover, .navbar-default .navbar-nav > .active > a:focus {
+  color: #ffffff;
+  background-color: #64b5f6;
+}
+.navbar-default .navbar-nav > .open > a, .navbar-default .navbar-nav > .open > a:hover, .navbar-default .navbar-nav > .open > a:focus {
+  color: #ffffff;
+  background-color: #64b5f6;
+}
+.navbar-default .navbar-toggle {
+  border-color: #64b5f6;
+}
+.navbar-default .navbar-toggle:hover, .navbar-default .navbar-toggle:focus {
+  background-color: #64b5f6;
+}
+.navbar-default .navbar-toggle .icon-bar {
+  background-color: #ecf0f1;
+}
+.navbar-default .navbar-collapse,
+.navbar-default .navbar-form {
+  border-color: #ecf0f1;
+}
+.navbar-default .navbar-link {
+  color: #ecf0f1;
+}
+.navbar-default .navbar-link:hover {
+  color: #ffffff;
+}
+
+@media (max-width: 767px) {
+  .navbar-default .navbar-nav .open .dropdown-menu > li > a {
+    color: #ecf0f1;
+  }
+  .navbar-default .navbar-nav .open .dropdown-menu > li > a:hover, .navbar-default .navbar-nav .open .dropdown-menu > li > a:focus {
+    color: #ffffff;
+  }
+  .navbar-default .navbar-nav .open .dropdown-menu > .active > a, .navbar-default .navbar-nav .open .dropdown-menu > .active > a:hover, .navbar-default .navbar-nav .open .dropdown-menu > .active > a:focus {
+    color: #ffffff;
+    background-color: #64b5f6;
+  }
+}
+
+.ellipsis {
+white-space: nowrap;
+text-overflow: ellipsis;
+width: 200px;
+overflow: hidden;
+}
+				
+				.fromtop {
+					margin: 100px auto 0px;		
+				}
+
+			  .form-signin {
+				max-width: 300px;
+				padding: 19px 19px 19px;
+				margin: 0px auto 10px;
+				background-color: #fff;
+				border: 1px solid #e5e5e5;
+				-webkit-border-radius: 2px;
+				   -moz-border-radius: 2px;
+						border-radius: 2px;
+				-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+				   -moz-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+						box-shadow: 0 1px 2px rgba(0,0,0,.05);
+			  }
+			  
+			  .advSearch {
+				max-width: 300px;
+				padding: 19px 19px 19px;
+				margin: 0px auto 10px;
+				background-color: #fff;
+				border: 1px solid #e5e5e5;
+				-webkit-border-radius: 2px;
+				   -moz-border-radius: 2px;
+						border-radius: 2px;
+				-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+				   -moz-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+						box-shadow: 0 1px 2px rgba(0,0,0,.05);
+			  }
+			  
+			.maincard {
+				max-width: 300px;
+				min-height: 80px;
+				padding: 9px 9px 9px;
+				margin: 0px auto 10px;
+				background-color: #ffffff;
+				border: 1px solid #e5e5e5;
+				-webkit-border-radius: 2px;
+				-moz-border-radius: 2px;
+				border-radius: 2px;
+				-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+				-moz-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+				box-shadow: 0 1px 2px rgba(0,0,0,.05);
+			}
+			.maincard img{
+				float: left;
+				width: 60px;
+				height: 60px;
+				display: block; 
+				vertical-align: top;  
+				margin-right: 8px;
+			}
+			.maincard span{
+				margin-left: 68px;
+				max-width: 200px;
+				display: block; 
+				overflow: auto;
+			}
+			
+		</style>
+		
+		<script>
+			function toggleAdvSearch(){
+				if(document.getElementById('advSearchPanel').style.display == "none"){
+					document.getElementById('advSearchPanel').style.display = "inherit";	
+					document.getElementById('toggleAdvSearch').innerHTML = "Quick Search";
+				} else {
+					document.getElementById('advSearchPanel').style.display = "none";	
+					document.getElementById('toggleAdvSearch').innerHTML = "Advanced Search";
+					clear_criteria();
+				}
+						
+			}
+			
+			function clear_criteria(){
+				document.getElementById('search_whenmet').value = '';
+				document.getElementById('search_company').value = '';
+				document.getElementById('search_city').value = '';
+				document.getElementById('search_eventmet').value = '';
+				document.getElementById('search_wheremet').value = '';
+			}
+		</script>
+		
+		<script>
+			var allNotes = [];
+			var localNumNotes;
+			<% for(i=0; i<  numNotes  ; i++){ %>
+				noteObj = { 
+					noteId: "<%= usrobjs[i].noteId %>",
+					cardId: "<%= usrobjs[i].cardId %>",
+					firstName: "<%= usrobjs[i].firstName %>",
+					lastName : "<%= usrobjs[i].lastName %>",
+					title : "<%= usrobjs[i].title %>",
+					company : "<%= usrobjs[i].company %>",
+					city : "<%= usrobjs[i].city %>",
+					portrait_url : "<%= usrobjs[i].portrait_url %>",
+					wheremet : "<%= usrobjs[i].wheremet %>",
+					eventmet : "<%= usrobjs[i].eventmet %>",
+				} 
+				allNotes.push(noteObj);
+			<% } %>
+			
+			localNumNotes = <%= numNotes %>;
+			
+			function check_criteria(){
+				var foundNumNotes = 0;
+				var foundNotes = [];
+				queryName = document.getElementById('name').value;
+				queryTitle = document.getElementById('title').value;
+				queryCompany = document.getElementById('company').value;
+				queryCity = document.getElementById('city').value;
+				queryEventmet = document.getElementById('eventmet').value;
+				queryWheremet = document.getElementById('wheremet').value;
+				for(i = 0; i< localNumNotes; i++){
+					if( ((allNotes[i].firstName.indexOf(queryName) > -1) || (allNotes[i].lastName.indexOf(queryName) > -1)) 
+						&& allNotes[i].title.indexOf(queryTitle) > -1
+						&& allNotes[i].company.indexOf(queryCompany) > -1
+						&& allNotes[i].city.indexOf(queryCity) > -1
+						&& allNotes[i].eventmet.indexOf(queryEventmet) > -1
+						&& allNotes[i].wheremet.indexOf(queryWheremet) > -1 ) {
+						foundNotes[foundNumNotes] = allNotes[i];
+						foundNumNotes = foundNumNotes + 1;
+					}
+				}
+				updateResults(foundNotes, foundNumNotes);
+			}
+			
+			function updateResults(foundNotes, foundNumNotes){
+				var mainContainer = document.getElementById("maincontainer");
+				var leftColumn = document.getElementById("leftcolumn");
+				var newLeftColumn = document.createElement("div");
+				newLeftColumn.className = "span4";
+				newLeftColumn.id = "leftcolumn";
+				for(i = 0 ; i< Math.ceil(foundNumNotes/2); i++){
+					var cardElm = document.createElement("div");
+					cardElm.className = "maincard";
+					cardElm.innerHTML="<img src='./picture1.jpg'>" + foundNotes[i].firstName + " " + foundNotes[i].lastName;
+					newLeftColumn.appendChild(cardElm);
+				}
+				mainContainer.replaceChild(newLeftColumn, leftColumn);
+				
+				var rightColumn = document.getElementById("rightcolumn");
+				var newRightColumn = document.createElement("div");
+				newRightColumn.className = "span4";
+				newRightColumn.id = "rightcolumn";
+				for(i = Math.ceil(foundNumNotes/2) ; i< foundNumNotes; i++){
+					var cardElm = document.createElement("div");
+					cardElm.className = "maincard";
+					cardElm.innerHTML="<img src='./picture1.jpg'>" + foundNotes[i].firstName + " " + foundNotes[i].lastName;
+					newRightColumn.appendChild(cardElm);
+				}
+				mainContainer.replaceChild(newRightColumn, rightColumn);
+			}
+			
+			function goBack() {
+				window.history.back();
+			}
+			
+			function doNothing(){
+			}
+			
+			
+		</script>
+	</head>
+
+	<body data-spy="scroll" data-target=".bs-docs-sidebar">
+						
+		<div class="navbar-wrapper">
+			<div class="container">
+
+				<nav class="navbar navbar-default navbar-static-top">
+					<div class="container">
+						<div class="navbar-header">
+							<a class="navbar-brand" href="javascript:void(0)" onclick="goBack();">KnoWell</a>
+						</div>
+					</div>
+				</nav>
+
+			</div>
+		</div>
+		<div class="container">
+			<div class="row fromtop">
+				<div class="col-sm-6 col-md-6 col-lg-3 col-lg-offset-1">
+					
+					<div id="advSearchPanel" class="advSearch" style="display : none">
+						<div class="input-group">
+							<span class="glyphicon glyphicon-map-marker input-group-addon" aria-hidden="true"></span>
+							<input id="search_wheremet" name="search_wheremet" class="form-control" type="text" placeholder="Where Met">
+						</div>
+						<div class="input-group">
+							<span class="glyphicon glyphicon-time input-group-addon" aria-hidden="true"></span>
+							<input id="search_whenmet" name="search_whenmet" class="form-control" type="text" placeholder="When Met">
+						</div>
+						<div class="input-group">
+							<span class="glyphicon glyphicon-glass input-group-addon" aria-hidden="true"></span>
+							<input id="search_eventmet" name="search_eventmet" class="form-control" type="text" placeholder="Event Met">
+						</div>
+					</div>
+					<div id="signForm" class="form-signin">	
+						<div class="input-group" style="margin-bottom: 3px">
+						  <input type="text" class="form-control" placeholder="Search for...">
+						  <span class="input-group-btn">
+							<button class="btn btn-primary" type="button">Go!</button>
+						  </span>
+						</div><!-- /input-group -->
+						<button type="button" id="toggleAdvSearch" class="btn btn-default btn-block" name="clearquery" onclick="javascript:toggleAdvSearch();">Advanced Search</button>
+						
+					</div>					
+				</div>
+				<div class="col-sm-6 col-md-6 col-lg-4" id="leftcolumn">
+					<div id="emptyPanel" class="form-signin" style="display:none">
+						<p>You haven't collected any card yet ...</p>
+					</div>
+					<script>
+						if(<%= numNotes %> == 0){
+							document.getElementById('emptyPanel').style.display = "inherit";
+						}
+					</script>
+					<% for(i=0; i<Math.ceil(numNotes/2) ; i++){ %>					
+						<div class="maincard">
+							<a href="/note?id=<%= usrobjs[i].noteId %>">							
+								<div class="media">
+								  <div class="media-left">
+									<img src="<%= usrobjs[i].portrait_url %>">
+								  </div>
+								  <div class="media-body minicard">
+									<b><%= usrobjs[i].firstName %> <%= usrobjs[i].lastName %></b>  <br>
+									<div class="ellipsis"><%= usrobjs[i].title %> at <%= usrobjs[i].company %></div>
+									<%= usrobjs[i].city %>
+								  </div>
+								</div>								
+							</a>
+						</div>					
+					<%    } %>
+				</div>
+				<div class="col-sm-6 col-sm-offset-6 col-md-6 col-md-offset-6 col-lg-4 col-lg-offset-0" id="rightcolumn">
+					<% for(i=Math.ceil(numNotes/2); i<numNotes; i++){ %>					
+						<div class="maincard">
+							<a href="/note?id=<%= usrobjs[i].noteId %>">
+								<div class="media">
+								  <div class="media-left">
+									<img src="<%= usrobjs[i].portrait_url %>">
+								  </div>
+								  <div class="media-body ">
+									<b><%= usrobjs[i].firstName %> <%= usrobjs[i].lastName %></b>  <br>
+									<div class="ellipsis"><%= usrobjs[i].title %> at <%= usrobjs[i].company %></div>
+									<%= usrobjs[i].city %>
+								  </div>
+								</div>		
+							</a>
+						</div>
+					<%    } %>		
+				</div>
+			</div>
+		</div>
+
+	  
+	  <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="../dist/js/bootstrap.min.js"></script>
+    <!-- Just to make our placeholder images work. Don't actually copy the next line! -->
+    <script src="../assets/js/vendor/holder.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../assets/js/ie10-viewport-bug-workaround.js"></script>
+	
+	
+
+  </body>
+</html>

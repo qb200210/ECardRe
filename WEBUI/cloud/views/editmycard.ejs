@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+		<meta name="description" content="">
+		<meta name="author" content="">
+		<link rel="icon" href="../../favicon.ico">
+		<script src="../assets/js/jquery.min.js"></script>
+		<title>KnoWell - Know Each Other Well</title>
+
+		<!-- Bootstrap core CSS -->
+		<link href="../dist/css/bootstrap.min.css" rel="stylesheet">
+		<!-- Custom styles for this template -->
+		<link href="../assets/css/signin.css" rel="stylesheet">
+		<!-- Custom styles for this template -->
+		<link href="../assets/css/sticky-footer.css" rel="stylesheet">
+		<!-- Custom styles for this template -->
+		<link href="../assets/css/carousel.css" rel="stylesheet">
+		<link href="../dist/css/cropper.css" rel="stylesheet">
+		<link href="../dist/css/main.css" rel="stylesheet">
+		<style type="text/css">
+
+			body {
+				  padding-bottom: 40px;
+				  background-color: #81c784;
+				}
+				
+					.navbar-default {
+  background-color: #388e3c;
+  border-color: #66bb6a;
+}
+.navbar-default .navbar-brand {
+  color: #ecf0f1;
+}
+.navbar-default .navbar-brand:hover, .navbar-default .navbar-brand:focus {
+  color: #ffffff;
+}
+.navbar-default .navbar-text {
+  color: #ecf0f1;
+}
+.navbar-default .navbar-nav > li > a {
+  color: #ecf0f1;
+}
+.navbar-default .navbar-nav > li > a:hover, .navbar-default .navbar-nav > li > a:focus {
+  color: #ffffff;
+}
+.navbar-default .navbar-nav > .active > a, .navbar-default .navbar-nav > .active > a:hover, .navbar-default .navbar-nav > .active > a:focus {
+  color: #ffffff;
+  background-color: #66bb6a;
+}
+.navbar-default .navbar-nav > .open > a, .navbar-default .navbar-nav > .open > a:hover, .navbar-default .navbar-nav > .open > a:focus {
+  color: #ffffff;
+  background-color: #66bb6a;
+}
+.navbar-default .navbar-toggle {
+  border-color: #66bb6a;
+}
+.navbar-default .navbar-toggle:hover, .navbar-default .navbar-toggle:focus {
+  background-color: #66bb6a;
+}
+.navbar-default .navbar-toggle .icon-bar {
+  background-color: #ecf0f1;
+}
+.navbar-default .navbar-collapse,
+.navbar-default .navbar-form {
+  border-color: #ecf0f1;
+}
+.navbar-default .navbar-link {
+  color: #ecf0f1;
+}
+.navbar-default .navbar-link:hover {
+  color: #ffffff;
+}
+
+@media (max-width: 767px) {
+  .navbar-default .navbar-nav .open .dropdown-menu > li > a {
+    color: #ecf0f1;
+  }
+  .navbar-default .navbar-nav .open .dropdown-menu > li > a:hover, .navbar-default .navbar-nav .open .dropdown-menu > li > a:focus {
+    color: #ffffff;
+  }
+  .navbar-default .navbar-nav .open .dropdown-menu > .active > a, .navbar-default .navbar-nav .open .dropdown-menu > .active > a:hover, .navbar-default .navbar-nav .open .dropdown-menu > .active > a:focus {
+    color: #ffffff;
+    background-color: #66bb6a;
+  }
+}
+
+			.fromtop {
+				margin: 60px auto 0px;
+			}
+
+			.form-signin {
+				max-width: 300px;
+				padding: 19px 29px 29px;
+				margin: 0px auto 0px;
+				background-color: #fff;
+				border: 1px solid #e5e5e5;
+				-webkit-border-radius: 5px;
+				-moz-border-radius: 5px;
+				border-radius: 5px;
+				-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+				-moz-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+				box-shadow: 0 1px 2px rgba(0,0,0,.05);
+			}
+
+			.switcher {
+				max-width: 300px;
+				margin-bottom: auto;
+				margin-top: 10px;
+			}
+
+
+
+			.container-card {
+				max-width: 300px;
+				padding: 20px 20px 20px;
+				margin: 0px auto 40px;
+				background-color: #fff;
+				border: 1px solid #e5e5e5;
+				-webkit-border-radius: 5px;
+				-moz-border-radius: 5px;
+				border-radius: 5px;
+				-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+				-moz-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+				box-shadow: 0 1px 2px rgba(0,0,0,.05);
+			}
+
+			.infoicon{
+				margin: 0px 10px 0px;
+				
+			}
+
+			.infoicon .peritem {
+				padding: 15px 5px 5px;
+				margin: 0px auto 0px;
+			}
+
+			.infoicon img{
+				width: 56px;
+				height: 56px;
+				margin: 0 0 0;
+				padding: 10px 10px 10px;
+				background-color:#00ffffff;
+			}
+
+			.container-card {
+				max-width: 300px;
+				padding: 20px 20px 20px;
+				margin: 0px auto 40px;
+				background-color: #fff;
+				border: 1px solid #e5e5e5;
+				-webkit-border-radius: 2px;
+				-moz-border-radius: 2px;
+				border-radius: 2px;
+				-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+				-moz-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+				box-shadow: 0 1px 2px rgba(0,0,0,.05);
+			}
+
+			.maincard {
+				display: table-cell;
+				width: 260px;
+				height: 260px;
+				vertical-align: middle;
+				padding: 0 0 0;
+				margin: 10px 20px 10px;
+				background-color: #ffffff;
+				overflow: auto
+				border: 1px solid #e5e5e5;
+				-webkit-border-radius: 2px;
+				-moz-border-radius: 2px;
+				border-radius: 2px;
+			}
+			
+			.center-block {
+				display: inline-block;
+				max-width: 160px;
+				max-height: 200px;
+				padding: 0 0 0;
+				margin: 0 auto 0;
+				vertical-align: middle;
+			}
+			
+			.toppart{
+				width: 260px;
+				height: 110px;
+				margin: 0 0 0;
+				vertical-align: middle;
+			}
+			
+			.botpart{
+				width: 260px;
+				height: 130px;				
+				margin: 0 0 0;
+			}
+			
+			.profile {
+				float: left;
+				width: 110px;
+				height: 110px;
+				margin: 0px 0 0px;
+			}
+			
+			.profile img {
+				width: 110px;
+				height: 110px;
+			}
+
+			.name {
+				float: left;
+				margin-left: 10px;
+				max-width: 120px;
+				margin-bottom: 20px;
+				margin-top: 30px;
+			}
+			
+			.hr {
+				margin : 15px 0 0;
+			}
+			
+			.aboutme_text {
+				width: 100%;
+				max-width: 100%;
+				margin: 15px 0px 2px;
+				padding: 10px 10px 10px;		
+			}
+			
+			.input_text {
+				width: 100%;
+				max-width: 100%;
+				margin: 15px 0px 2px;
+				padding: 10px 10px 10px;		
+			}
+			
+			.cropper_buttons {
+				width: 100%;
+				max-width: 100%;
+				margin: 2px auto 2px;
+				padding: 10px 10px 10px;
+			}
+
+		</style>
+
+		<!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+		<!--[if lt IE 9]>
+		<script src="../js/html5shiv.js"></script>
+		<![endif]-->
+
+		<!-- Fav and touch icons -->
+		<link rel="apple-touch-icon-precomposed" sizes="144x144" href="../ico/apple-touch-icon-144-precomposed.png">
+		<link rel="apple-touch-icon-precomposed" sizes="114x114" href="../ico/apple-touch-icon-114-precomposed.png">
+		<link rel="apple-touch-icon-precomposed" sizes="72x72" href="../ico/apple-touch-icon-72-precomposed.png">
+		<link rel="apple-touch-icon-precomposed" href="../ico/apple-touch-icon-57-precomposed.png">
+		<link rel="shortcut icon" href="../ico/favicon.png">
+
+
+		<script>
+			var flagRefreshHome = false;
+			var flagCropPanel = false;
+			var flagPortraitChanged = false;
+			var stringArray = ["about", "linkedin", "phone", "message", "email", "facebook", "twitter", "googleplus", "web"];
+
+			function additem(infoitem) {
+				document.getElementById(infoitem+'_button').style.display="inherit";
+				document.getElementById('list_'+infoitem).style.display="none";
+				fill_content(infoitem);
+				$('#myModal').modal({backdrop: 'static'})
+				$('#myModal').modal('show');
+				document.getElementById('recorder').innerHTML = infoitem;
+			}
+
+			function close_window() {
+				if (confirm("Exit App?")) {
+					window.close();
+				}
+			}
+
+			function fill_content(infoitem) {
+				document.getElementById(infoitem+'_dialog').value = document.getElementById(''+infoitem).value;
+				document.getElementById(infoitem+'_dialog').style.display="inherit";
+				document.getElementById('recorder').innerHTML = infoitem;
+				switch(infoitem) {
+					case 'about':
+					document.getElementById('myModalLabel').innerHTML = 'Edit ' + 'About Me';
+					break;
+					case 'linkedin':
+					document.getElementById('myModalLabel').innerHTML = 'Edit ' + 'LinkedIn Address';
+					break;
+					case 'phone':
+					document.getElementById('myModalLabel').innerHTML = 'Edit ' + 'Phone No.';
+					break;
+					case 'message':
+					document.getElementById('myModalLabel').innerHTML = 'Edit ' + 'SMS No.';
+					break;
+					case 'email':
+					document.getElementById('myModalLabel').innerHTML = 'Edit ' + 'Email';
+					break;
+					case 'facebook':
+					document.getElementById('myModalLabel').innerHTML = 'Edit ' + 'Facebook Address';
+					break;
+					case 'twitter':
+					document.getElementById('myModalLabel').innerHTML = 'Edit ' + 'Twitter Address';
+					break;
+					case 'googleplus':
+					document.getElementById('myModalLabel').innerHTML = 'Edit ' + 'Google+ Address';
+					break;
+					case 'web':
+					document.getElementById('myModalLabel').innerHTML = 'Edit ' + 'Website Address';
+					break;
+					default:
+					document.getElementById('myModalLabel').innerHTML = 'Edit ' + 'Something ...';
+				}
+			}
+
+			function save_content(infoitem) {
+				document.getElementById(''+infoitem).value = document.getElementById(infoitem+'_dialog').value;
+				document.getElementById(infoitem+'_dialog').style.display="none";
+				document.getElementById('textarea_feedback').style.display="none";	
+			}
+
+			function dismiss_content(infoitem) {
+				document.getElementById(infoitem+'_dialog').style.display="none";
+				document.getElementById('textarea_feedback').style.display="none";				
+			}
+
+			function delete_content(infoitem) {
+				document.getElementById(infoitem+'_dialog').style.display="none";
+				document.getElementById(infoitem+'_button').style.display="none";
+				document.getElementById(''+infoitem).value = "";
+				document.getElementById('list_'+infoitem).style.display="inherit";
+				document.getElementById('textarea_feedback').style.display="none";	
+			}
+			
+			function goBack() {
+				if(!flagRefreshHome){
+					window.history.back();
+				} else {
+					window.location.replace("/");
+				}
+				
+			}
+			
+			function doNothing(){
+			}
+			
+			$(function() {  
+				$("textarea[maxlength]").bind('input propertychange', function() {  
+					var maxLength = $(this).attr('maxlength');  
+					$('#textarea_feedback').html((maxLength -$(this).val().length) +' characters remaining');
+					if ($(this).val().length > maxLength) {  
+						$(this).val($(this).val().substring(0, maxLength));  
+					}  
+				})  
+			});
+			
+			$(document).ready(function(){
+			   var $form = $('form');
+			   $form.submit(function(e){				
+				  e.preventDefault();
+				  // post to server without refreshing page
+				  $.post($(this).attr('action'), $(this).serialize(), function(response){
+					if(response.successful){
+						document.getElementById("save_div").style.display="none";
+						document.getElementById("textarea_feedback").style.display="none";
+						$('#saveResults').modal('show');
+						document.getElementById("display_save_results").innerHTML = "Successfully Saved!"
+						flagRefreshHome = true;
+					} else {
+						$('#saveResults').modal('show');
+						document.getElementById("display_save_results").innerHTML = "Something wrong while saving ..."
+					}
+				  },'json');
+				  return false;
+			   });
+			});
+			
+			$(function() {
+				var file;
+
+				// Set an event listener on the Choose File field.
+				$('#inputImage').bind("change", function(e) {
+					var files = e.target.files || e.dataTransfer.files;
+					// Our file var now holds the selected file
+					file = files[0];
+					flagPortraitChanged = true;
+				});
+
+				// This function is called when the user clicks on Upload to Parse. It will create the REST API request to upload this image to Parse.
+				$('#uploadbutton').click(function() {
+					if(flagPortraitChanged){
+					  var serverUrl = 'https://api.parse.com/1/files/' + file.name;
+
+					  $.ajax({
+						type: "POST",
+						beforeSend: function(request) {
+						  request.setRequestHeader("X-Parse-Application-Id", 'eXr5eE3ff6vTMkTqsWe373eVZbuOLtafn7mFwlI2');
+						  request.setRequestHeader("X-Parse-REST-API-Key", '8IsuYaBL1qcGJZYgWHqpsiweMs0BTblFEsXMzPCx');
+						  request.setRequestHeader("Content-Type", file.type);
+						},
+						url: serverUrl,
+						data: file,
+						processData: false,
+						contentType: false,
+						success: function(data) {
+						  // save cropbox size upon upload
+						  saveDim();
+						  document.getElementById('img_url').value = data.url;
+						  document.getElementById('action').value = "save";
+						},
+						error: function(data) {
+						  var obj = jQuery.parseJSON(data);
+						  alert(obj.error);
+						}
+					  });
+					} else{
+						document.getElementById('action').value = "save";
+					}
+				});
+
+
+			});
+			  
+			  function saveDim(){
+					relative_box_left = $('.cropper-example-1 > img').cropper("getCropBoxData").left - $('.cropper-example-1 > img').cropper("getImageData").left;
+					relative_box_top = $('.cropper-example-1 > img').cropper("getCropBoxData").top - $('.cropper-example-1 > img').cropper("getImageData").top;
+					relative_box_width = $('.cropper-example-1 > img').cropper("getCropBoxData").width;
+					relative_box_height = $('.cropper-example-1 > img').cropper("getCropBoxData").height;
+					document.getElementById('perc_left').value = relative_box_left/ $('.cropper-example-1 > img').cropper("getImageData").width;
+					document.getElementById('perc_top').value = relative_box_top/ $('.cropper-example-1 > img').cropper("getImageData").height;
+					document.getElementById('perc_width').value = relative_box_width/ $('.cropper-example-1 > img').cropper("getImageData").width;
+					document.getElementById('perc_height').value = relative_box_height/ $('.cropper-example-1 > img').cropper("getImageData").height;
+				}
+				
+			function imgSwitcher(saveChanges){
+				
+				if(saveChanges == 0){
+				// 0: changed portrait
+					offerSave(false);
+					flagPortraitChanged = true;
+					saveDim();
+					flagCropPanel = false;
+					document.getElementById('portrait').style.display = "none";
+					document.getElementById('crop_panel').style.display = "none";
+					document.getElementById('crop_preview').style.display = "inherit";
+				} else if (saveChanges == 1) {
+				// 1: discarded portrait change
+					flagPortraitChanged = false;
+					flagCropPanel = false;
+					document.getElementById('portrait').style.display = "inherit";
+					document.getElementById('crop_panel').style.display = "none";
+					document.getElementById('crop_preview').style.display = "none";
+				} else {
+					// neutral, only display/hide crop_panel
+					flagCropPanel = true;
+					// this is to trigger the image selection upon portrait click
+					$('#inputImage').trigger('click');
+					document.getElementById('portrait').style.display = "none";
+					document.getElementById('crop_panel').style.display = "inherit";
+					document.getElementById('crop_preview').style.display = "inherit";
+				}
+				
+			}
+			
+			function offerSave(aboutme){
+				if(aboutme) {
+					document.getElementById("textarea_feedback").style.display="inherit";
+				}
+				document.getElementById("save_div").style.display="inherit";
+			}
+
+		</script>
+
+	</head>
+
+	<body>
+		<!-- Navbar
+		================================================== -->
+
+		<div class="navbar-wrapper">
+			<div class="container">
+
+				<nav class="navbar navbar-default navbar-static-top">
+					<div class="container">
+						<div class="navbar-header">							
+							<a class="navbar-brand" href="javascript:void(0)" onclick="goBack();">KnoWell</a>
+						</div>
+					</div>
+				</nav>
+
+			</div>
+		</div>
+
+		<!-- General Modal -->
+		<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-lg">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="myModalLabel"></h4>
+					</div>
+					<div class="modal-body">
+						<textarea maxlength="1000" id="about_dialog" class="aboutme_text" rows="3" onchange="offerSave(true);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();"></textarea>
+						<small id="textarea_feedback" style="padding: 0px 5px 0px; display: none"></small>
+						<input class="input-small input_text" id="phone_dialog" type="text" style="display: none" onchange="offerSave(false);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();">
+						<input class="input-small input_text" id="message_dialog" type="text" style="display: none" onchange="offerSave(false);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();">
+						<input class="input-small input_text" id="email_dialog" type="text" style="display: none" onchange="offerSave(false);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();">
+						<input class="input-small input_text" id="linkedin_dialog" type="text" style="display: none" onchange="offerSave(false);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();">
+						<input class="input-small input_text" id="facebook_dialog" type="text" style="display: none" onchange="offerSave(false);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();">
+						<input class="input-small input_text" id="twitter_dialog" type="text" style="display: none" onchange="offerSave(false);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();">
+						<input class="input-small input_text" id="googleplus_dialog" type="text" style="display: none" onchange="offerSave(false);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();">
+						<input class="input-small input_text" id="web_dialog" type="text" style="display: none" onchange="offerSave(false);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();">
+						<p id="recorder" style="display: none"></p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal" onclick="javascript:dismiss_content(document.getElementById('recorder').innerHTML);">Cancel</button>
+						<button type="button" class="btn btn-default" data-dismiss="modal" onclick="javascript:delete_content(document.getElementById('recorder').innerHTML);">Delete</button>
+						<button type="button" class="btn btn-primary" data-dismiss="modal" onclick="javascript:save_content(document.getElementById('recorder').innerHTML);">Save changes</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- AddMore Modal -->
+		<div class="modal fade" id="addMoreModal" tabindex="-1" role="dialog" aria-labelledby="addMoreModalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-sm">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="addMoreModalLabel">Add Info</h4>
+					</div>
+					<div class="modal-body">
+						<div class="list-group">
+							<a id="list_about" href="" onclick="javascript:additem('about')" data-dismiss="modal" class="list-group-item" style="display : inherit">About Me</a>
+							<a id="list_phone" href="" onclick="javascript:additem('phone')" data-dismiss="modal" class="list-group-item" style="display : inherit">Phone</a>
+							<a id="list_message" href="" onclick="javascript:additem('message')" data-dismiss="modal" class="list-group-item" style="display : inherit">SMS</a>
+							<a id="list_email" href="" onclick="javascript:additem('email')" data-dismiss="modal" class="list-group-item" style="display : inherit">Email</a>
+							<a id="list_linkedin" href="" onclick="javascript:additem('linkedin')" data-dismiss="modal" class="list-group-item" style="display : inherit">LinkedIn</a>
+							<a id="list_facebook" href="" onclick="javascript:additem('facebook')" data-dismiss="modal" class="list-group-item" style="display : inherit">Facebook</a>
+							<a id="list_twitter" href="" onclick="javascript:additem('twitter')" data-dismiss="modal" class="list-group-item" style="display : inherit">Twitter</a>
+							<a id="list_googleplus" href="" onclick="javascript:additem('googleplus')" data-dismiss="modal" class="list-group-item" style="display : inherit">Google+</a>
+							<a id="list_web" href="" onclick="javascript:additem('web')" data-dismiss="modal" class="list-group-item" style="display : inherit">Website</a>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="modal fade bs-example-modal-sm" id="saveResults" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+		  <div class="modal-dialog modal-sm">
+			<div class="modal-content">			  
+			  <div class="modal-body">
+			    <p id="display_save_results"></p>
+			  </div>
+			  <div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">OK</button>						
+			  </div>
+			</div>
+		  </div>
+		</div>
+
+		<div class="hidden">
+			<input id="about" name="about" form="designForm" value="<%=about%>">
+			<input id="phone" name="phone" form="designForm" value="<%=phone%>">
+			<input id="message" name="message" form="designForm" value="<%=message%>">
+			<input id="email" name="email" form="designForm" value="<%=email%>">
+			<input id="linkedin" name="linkedin" form="designForm" value="<%=linkedin%>">
+			<input id="facebook" name="facebook" form="designForm" value="<%=facebook%>">
+			<input id="twitter" name="twitter" form="designForm" value="<%=twitter%>">
+			<input id="googleplus" name="googleplus" form="designForm" value="<%=googleplus%>">
+			<input id="web" name="web" form="designForm" value="<%=web%>">
+			<input id="perc_left" name="perc_left" class="input-small" type="text" form="designForm" value=""><br>
+			<input id="perc_top"  name="perc_top" class="input-small" type="text" form="designForm" value=""><br>
+			<input id="perc_width" name="perc_width" class="input-small" type="text" form="designForm" value=""><br>
+			<input id="perc_height" name="perc_height" class="input-small" type="text" form="designForm" value=""><br>
+			<input id="img_url" name="img_url" class="input-small" type="text" form="designForm" value=""><br>
+			<input id="action" name="action" class="input-small" type="text" form="designForm" value=""><br>
+		</div>
+
+
+		
+		<div class="row fromtop">
+			<div class="col-sm-5 col-sm-offset-1 col-md-4 col-md-offset-2 col-lg-3 col-lg-offset-3">
+				<div id="crop_panel" class="container-card" style="display:none">
+					<!-- Ack: http://fengyuanchen.github.io/cropper/ -->
+					<div class="img-container cropper-example-1">
+						<img src="" alt="Upload a Picture">
+					</div>
+					<div class="cropper_buttons"> 
+						<div class="btn-group">
+							<label class="btn btn-primary btn-upload" for="inputImage" title="Upload image file">
+								<input class="sr-only" id="inputImage" name="file" type="file" accept="image/*" form="fileupload">
+								<span class="docs-tooltip" data-toggle="tooltip" title="Import image">
+									<span class="icon icon-upload"></span>
+								</span>
+							</label>
+						</div>		
+						<button class="btn btn-primary" data-method="zoom" data-option="0.1" type="button" title="Zoom In">
+							<span class="docs-tooltip" data-toggle="tooltip" title="Zoom In">
+								<span class="icon icon-zoom-in"></span>
+							</span>
+						</button>
+						<button class="btn btn-primary" data-method="zoom" data-option="-0.1" type="button" title="Zoom Out">
+							<span class="docs-tooltip" data-toggle="tooltip" title="Zoom Out">
+								<span class="icon icon-zoom-out"></span>
+							</span>
+						</button>
+						<button class="btn btn-primary" data-method="rotate" data-option="-90" type="button" title="Rotate Counter-Clockwise">
+							<span class="docs-tooltip" data-toggle="tooltip" title="Rotate Counter-Clockwise">
+							  <span class="icon icon-rotate-left"></span>
+							</span>
+						  </button>
+						<button class="btn btn-primary" data-method="rotate" data-option="90" type="button" title="Rotate Clockwise">
+							<span class="docs-tooltip" data-toggle="tooltip" title="Rotate Clockwise">
+							  <span class="icon icon-rotate-right"></span>
+							</span>
+						  </button>
+					</div>
+
+					<button id="uploadbutton" class="btn btn-primary btn-block" type="button" onclick="javascript:imgSwitcher(0);">Save</button>
+					<button class="btn btn-default btn-block" type="button" onclick="javascript:imgSwitcher(1);">Cancel</button>
+
+				</div>
+				
+				<div class="container-card">
+					<form id="designForm" class="maincard" action='/savedesign' method='POST'>
+							<div class="toppart">
+								<div class="profile">
+									<img id="portrait" src="<%=portrait_url%>" class="profile" style="display:inherit" onclick="javascript:imgSwitcher(2);">
+									<div id="crop_preview" class="img-preview preview-md" style="display:none" onclick="javascript:imgSwitcher(2);"></div>
+						
+								</div>
+								<div class= "name">
+									<input id="name" name="name" class="input-small" style="width: 130px" type="text" value="<%= firstName %> <%= lastName %>" placeholder="Your name" onchange="offerSave(false);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();"><br>
+						
+								</div>
+							</div>
+							<div class="botpart">						
+							<hr class= "hr">
+							<address style="margin-top: 10px">
+								<input id="title" name="title" class="input-small" style="width: 250px" type="text" value="<%= title %>" placeholder="Your job title, e.g.: Math Instructor" onchange="offerSave(false);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();"><br>
+						<input id="company" name="company" class="input-small" style="width: 250px" type="text" value="<%= company %>" placeholder="Who do you work for, e.g.: Alpha University" onchange="offerSave(false);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();"><br>
+						<input id="city" name="city" class="input-small" style="width: 250px" type="text" value="<%= city %>" placeholder="Where do you work, e.g.: Portland, OR" onchange="offerSave(false);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();"><br>
+						
+							</address>
+							</div>
+						<input type="hidden" name="_csrf" value="<%= csrf_field %>" />
+
+					</form>
+				</div>
+			</div>
+
+			<div class="col-md-4">
+				<div id="contact" class="container-card" style="display : inherit">
+					<div class="maincard">
+					<div class="container-fluid">
+						<div class="row infoicon">
+							<div id="about_button" class="col-xs-4 col-sm-4 peritem" style="display : none">
+								<img src="../assets/img/me.png"  class="img-responsive" data-toggle="modal" data-target="#myModal" data-backdrop="static" onclick="javascript:fill_content('about');">
+							</div>
+							<div id="email_button" class="col-xs-4 col-sm-4 peritem" style="display : none">
+								<img src="../assets/img/mail.png"  class="img-responsive" data-toggle="modal" data-target="#myModal" data-backdrop="static" onclick="javascript:fill_content('email');">
+							</div>
+							<div id="message_button" class="col-xs-4 col-sm-4 peritem" style="display : none">
+								<img src="../assets/img/message.png"  class="img-responsive" data-toggle="modal" data-target="#myModal" data-backdrop="static" onclick="javascript:fill_content('message');">
+							</div>
+							<div id="phone_button" class="col-xs-4 col-sm-4 peritem" style="display : none">
+								<img src="../assets/img/phone.png"  class="img-responsive" data-toggle="modal" data-target="#myModal" data-backdrop="static" onclick="javascript:fill_content('phone');">
+							</div>
+							<div id="web_button" class="col-xs-4 col-sm-4 peritem" style="display : none">
+								<img src="../assets/img/web.png"  class="img-responsive" data-toggle="modal" data-target="#myModal" data-backdrop="static" onclick="javascript:fill_content('web');">
+							</div>
+							<div id="linkedin_button" class="col-xs-4 col-sm-4 peritem" style="display : none">
+								<img src="../assets/img/linkedin.png"  class="img-responsive" data-toggle="modal" data-target="#myModal" data-backdrop="static" onclick="javascript:fill_content('linkedin');">
+							</div>
+							<div id="facebook_button" class="col-xs-4 col-sm-4 peritem" style="display : none">
+								<img src="../assets/img/facebook.png"  class="img-responsive" data-toggle="modal" data-target="#myModal" data-backdrop="static" onclick="javascript:fill_content('facebook');">
+							</div>
+							<div id="twitter_button" class="col-xs-4 col-sm-4 peritem" style="display : none">
+								<img src="../assets/img/twitter.png"  class="img-responsive" data-toggle="modal" data-target="#myModal" data-backdrop="static" onclick="javascript:fill_content('twitter');">
+							</div>
+							<div id="googleplus_button" class="col-xs-4 col-sm-4 peritem" style="display : none">
+								<img src="../assets/img/googleplus.png"  class="img-responsive" data-toggle="modal" data-target="#myModal" data-backdrop="static" onclick="javascript:fill_content('googleplus');">
+							</div>
+							<div class="col-xs-4 col-sm-4 peritem">
+								<img src="../assets/img/addmore.png"  class="img-responsive" data-toggle="modal" data-target="#addMoreModal" onclick="">
+							</div>
+						</div>
+					</div>
+					</div>
+				</div>
+
+				<div class="container-card" id="save_div" style="display: none">
+					<button class="btn btn-md btn-primary btn-block" type="submit" form="designForm" name="action">Save Changes</button>
+					<button class="btn btn-md btn-default btn-block" onclick="javascript:goBack();">Forget it</button>
+				</div>
+			</div>
+		</div>
+
+		<script>
+			for(var j=0; j< stringArray.length ; j++){
+				if(document.getElementById(stringArray[j]).value != 'undefined'){
+					document.getElementById(stringArray[j]+"_button").style.display="inherit";
+					document.getElementById('list_'+stringArray[j]).style.display="none";
+					document.getElementById(stringArray[j]+'_dialog').style.display="none";
+				} else{
+					document.getElementById(stringArray[j]).value = "";
+					document.getElementById(stringArray[j]+'_dialog').style.display="none";
+				}
+			}
+		</script>
+
+
+		<!-- Bootstrap core JavaScript
+		================================================== -->
+		<!-- Placed at the end of the document so the pages load faster -->
+		<script src="../dist/js/bootstrap.min.js"></script>
+		<!-- Just to make our placeholder images work. Don't actually copy the next line! -->
+		<script src="../assets/js/vendor/holder.js"></script>
+		<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+		<script src="../assets/js/ie10-viewport-bug-workaround.js"></script>
+		<script src="../dist/js/cropper.js"></script>
+		<script src="../dist/js/main.js"></script>
+
+
+	</body>
+</html>

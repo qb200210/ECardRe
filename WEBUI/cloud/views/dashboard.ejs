@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../favicon.ico">
+    <script src="../assets/js/jquery.min.js"></script>
+	<script src="../dist/js/jquery.qrcode.min.js"></script>
+	<script>			
+		jQuery(function(){
+			jQuery('#output').qrcode("https://www.micklestudios.com/search?id="+"<%=ecardId%>"+"&fn="+"<%=firstName%>"+"&ln="+"<%=lastName%>");
+		})
+		
+		function doNothing(){
+		}
+	</script>
+    <title>KnoWell - Know Each Other Well</title>
+	
+    <!-- Bootstrap core CSS -->
+    <link href="../dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <link href="../dist/css/bootstrap-touch-carousel.css" rel="stylesheet">
+	<style type="text/css">
+	
+	body {
+		  padding-bottom: 40px;
+		  background-color: #64b5f6;
+		}
+		
+	.navbar-default {
+  background-color: #0064c8;
+  border-color: #64b5f6;
+}
+.navbar-default .navbar-brand {
+  color: #ecf0f1;
+}
+.navbar-default .navbar-brand:hover, .navbar-default .navbar-brand:focus {
+  color: #ffffff;
+}
+.navbar-default .navbar-text {
+  color: #ecf0f1;
+}
+.navbar-default .navbar-nav > li > a {
+  color: #ecf0f1;
+}
+.navbar-default .navbar-nav > li > a:hover, .navbar-default .navbar-nav > li > a:focus {
+  color: #ffffff;
+}
+.navbar-default .navbar-nav > .active > a, .navbar-default .navbar-nav > .active > a:hover, .navbar-default .navbar-nav > .active > a:focus {
+  color: #ffffff;
+  background-color: #64b5f6;
+}
+.navbar-default .navbar-nav > .open > a, .navbar-default .navbar-nav > .open > a:hover, .navbar-default .navbar-nav > .open > a:focus {
+  color: #ffffff;
+  background-color: #64b5f6;
+}
+.navbar-default .navbar-toggle {
+  border-color: #64b5f6;
+}
+.navbar-default .navbar-toggle:hover, .navbar-default .navbar-toggle:focus {
+  background-color: #64b5f6;
+}
+.navbar-default .navbar-toggle .icon-bar {
+  background-color: #ecf0f1;
+}
+.navbar-default .navbar-collapse,
+.navbar-default .navbar-form {
+  border-color: #ecf0f1;
+}
+.navbar-default .navbar-link {
+  color: #ecf0f1;
+}
+.navbar-default .navbar-link:hover {
+  color: #ffffff;
+}
+
+@media (max-width: 767px) {
+  .navbar-default .navbar-nav .open .dropdown-menu > li > a {
+    color: #ecf0f1;
+  }
+  .navbar-default .navbar-nav .open .dropdown-menu > li > a:hover, .navbar-default .navbar-nav .open .dropdown-menu > li > a:focus {
+    color: #ffffff;
+  }
+  .navbar-default .navbar-nav .open .dropdown-menu > .active > a, .navbar-default .navbar-nav .open .dropdown-menu > .active > a:hover, .navbar-default .navbar-nav .open .dropdown-menu > .active > a:focus {
+    color: #ffffff;
+    background-color: #64b5f6;
+  }
+}
+
+	.maincardqr {
+	  position:relative;
+	    display: table-cell;
+        width: 260px;		
+		height: 260px;
+		vertical-align: middle;
+        padding: 0 0 0;
+        margin: 100px auto 10px;
+        background-color: #00000000;
+      }
+	  
+	  .center-block-qr {
+		display: inline-block;
+	    max-width: 160px;		
+		max-height: 200px;
+        padding: 0px 0px 0;
+        margin: 0 50px 0;
+		vertical-align: middle;
+	  }
+
+	  .container-card {
+				max-width: 300px;
+				padding: 20px 20px 20px;
+				margin: 0px auto 40px;
+				background-color: #fff;
+				border: 1px solid #e5e5e5;
+				-webkit-border-radius: 2px;
+				-moz-border-radius: 2px;
+				border-radius: 2px;
+				-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+				-moz-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+				box-shadow: 0 1px 2px rgba(0,0,0,.05);
+			}
+
+			.maincard {
+				display: table-cell;
+				width: 260px;
+				height: 260px;
+				vertical-align: top;
+				padding: 0 0 0;
+				margin: 10px 20px 10px;
+				background-color: #ffffff;
+				overflow: auto
+			}
+
+			.center-block {
+				display: inline-block;
+				max-width: 160px;
+				max-height: 200px;
+				padding: 0 0 0;
+				margin: 0 auto 0;
+				vertical-align: middle;
+			}
+			
+			.toppart{
+				width: 260px;
+				height: 110px;
+				margin: 0 0 0;
+				vertical-align: middle;
+			}
+			
+			.botpart{
+				width: 260px;
+				height: 130px;				
+				margin: 0 0 0;
+			}
+			
+			.profile {
+				float: left;
+				width: 110px;
+				height: 110px;
+				margin: 0px 0 0px;
+			}
+			
+			.profile img {
+				width: 110px;
+				height: 110px;
+			}
+
+			.name {
+				float: left;
+				margin-left: 10px;
+				max-width: 120px;
+				margin-bottom: 20px;
+				margin-top: 30px;
+			}
+			
+			.hr {
+				margin : 15px 0 0;
+			}
+			
+			.indicator{
+				margin: 0px auto 0px;
+			}
+	  
+	  
+	  
+	  .logo {
+	  position:absolute;
+		width: 50px;
+		height: 50px;
+		bottom: 10px;
+		right: 10px;
+	  }
+	  
+	  .margintop {
+		margin-top: 10px
+	  }
+	</style>
+
+  </head>
+<!-- NAVBAR
+================================================== -->
+  <body>
+    <div class="navbar-wrapper">
+      <div class="container">
+
+        <nav class="navbar navbar-default navbar-static-top">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              <a class="navbar-brand" href="javascript:void(0)" onclick="doNothing();">KnoWell</a>
+            </div>
+            <div id="navbar" class="navbar-collapse collapse">
+              <ul class="nav navbar-nav">
+                <li><a href="/notif">Notifications</a></li>
+                <li><a href="/design">Edit My Card</a></li>
+				<li><a href="/logout">Logout</a></li>                
+              </ul>
+            </div>
+          </div>
+        </nav>
+
+      </div>
+    </div>
+
+
+    <!-- Carousel
+    ================================================== -->
+    <div id="myCarousel" class="carousel slide" data-ride="carousel" data-interval="5000000">
+      <!-- Indicators -->
+      <ol class="carousel-indicators">
+        <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+        <li data-target="#myCarousel" data-slide-to="1"></li>
+      </ol>
+      <div class="carousel-inner" role="listbox">
+        <div class="item active">
+            <div class="container-card">
+					<div class="maincard">
+						<div class="toppart">
+							<div class="profile">
+								<img src="<%=portrait_url%>">
+							</div>
+							<div class= "name">
+								<h5> <b><%= firstName %> <%= lastName %></b> </h5> 
+							</div>
+						</div>
+						<div class="botpart">						
+						<hr class= "hr">
+						<address style="margin-top: 10px">
+							<%= title %><br>
+							<%= company %> <br>
+							<%= city %>
+						</address>
+						</div>
+					</div>
+					
+				</div>
+        </div>
+        <div class="item">
+          <div class="container">
+            <div class="container-card">	
+				<div class="maincardqr">
+					<div id="output" class="center-block-qr">
+					</div>
+				</div>				
+			</div>
+          </div>
+        </div>        
+      </div>
+	  <a class="left carousel-control" href="#myCarousel" role="button" data-slide="prev">
+        <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+        <span class="sr-only">Previous</span>
+      </a>
+      <a class="right carousel-control" href="#myCarousel" role="button" data-slide="next">
+        <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+        <span class="sr-only">Next</span>
+      </a>
+    </div><!-- /.carousel -->
+	
+	<!-- General Modal -->
+		<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-lg">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="myModalLabel"></h4>
+					</div>
+					<div class="modal-body">
+						<a class="btn btn-lg btn-primary btn-block" href="mailto:?subject=Greetings&body=Hi,%0D%0A%0D%0AThis is <%= firstName %> from <%= company %>%0D%0A%0D%0APlease accept my business card here: %0D%0Ahttps://www.micklestudios.com/search?id=<%=ecardId%>&fn=<%=firstName%>&ln=<%=lastName%>">via Email</a>
+						<a class="btn btn-lg btn-success btn-block" href="sms:?body=Hi,%0D%0A%0D%0AThis is <%= firstName %> from <%= company %>%0D%0A%0D%0APlease accept my business card here: %0D%0Ahttps://www.micklestudios.com/search?id=<%=ecardId%>&fn=<%=firstName%>&ln=<%=lastName%>">via SMS</a>
+						<a class="btn btn-lg btn-primary btn-block" href="https://www.facebook.com/sharer/sharer.php?u={PAGEURL}&t={PAGETITLE}" target="_blank" title="Share on Facebook">via Facebook</a>
+						<a class="btn btn-lg btn-info btn-block" href="https://twitter.com/intent/tweet?source={PAGEURL}&text={PAGETITLE}:{PAGEURL}&via={TWITTERUSERNAME}" target="_blank" title="Tweet">via Twitter</a>
+						<a class="btn btn-lg btn-warning btn-block" href="https://plus.google.com/share?url={PAGEURL}" target="_blank" title="Share on Google+">via Google+</a>
+						<a class="btn btn-lg btn-danger btn-block" href="http://pinterest.com/pin/create/button/?url={PAGEURL}&media={PAGEIMAGEURL}&description={PAGEDESCRIPTION}" target="_blank" title="Pin it">via Pinterest</a>
+
+					</div>
+				</div>
+			</div>
+		</div>
+	
+	<div class="container">
+		<div class="col-lg-2 col-lg-offset-4 col-md-2 col-md-offset-4 col-sm-2 col-sm-offset-4 margintop">
+			<a class="btn btn-lg btn-warning btn-block" data-toggle="modal" data-target="#myModal" role="button">Share</a>
+		</div>
+		<div class="col-lg-2 col-md-2 col-sm-2 margintop">
+			<a class="btn btn-lg btn-success btn-block" href="/searchcards" role="button">Search Cards</a>
+		</div>
+	</div>
+
+  </script>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="../dist/js/bootstrap.min.js"></script>
+    <!-- Just to make our placeholder images work. Don't actually copy the next line! -->
+    <script src="../assets/js/vendor/holder.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+	<script src="../dist/js/bootstrap-touch-carousel.js"></script>
+	
+    <script src="../assets/js/ie10-viewport-bug-workaround.js"></script>
+  </body>
+</html>

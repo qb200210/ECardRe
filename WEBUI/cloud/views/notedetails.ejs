@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+		<meta name="description" content="">
+		<meta name="author" content="">
+		<link rel="icon" href="../../favicon.ico">
+		<script src="../assets/js/jquery.min.js"></script>
+		<title>KnoWell - Know Each Other Well</title>
+
+		<!-- Bootstrap core CSS -->
+		<link href="../dist/css/bootstrap.min.css" rel="stylesheet">
+		<!-- Custom styles for this template -->
+		<link href="../assets/css/signin.css" rel="stylesheet">
+		<!-- Custom styles for this template -->
+		<link href="../assets/css/sticky-footer.css" rel="stylesheet">
+		<!-- Custom styles for this template -->
+		<link href="../assets/css/carousel.css" rel="stylesheet">
+		<link href="../dist/css/cropper.css" rel="stylesheet">
+		<link href="../dist/css/main.css" rel="stylesheet">
+		<style type="text/css">
+
+			body {
+				  padding-bottom: 40px;
+				  background-color: #64b5f6;
+				}
+				
+					.navbar-default {
+  background-color: #0064c8;
+  border-color: #64b5f6;
+}
+.navbar-default .navbar-brand {
+  color: #ecf0f1;
+}
+.navbar-default .navbar-brand:hover, .navbar-default .navbar-brand:focus {
+  color: #ffffff;
+}
+.navbar-default .navbar-text {
+  color: #ecf0f1;
+}
+.navbar-default .navbar-nav > li > a {
+  color: #ecf0f1;
+}
+.navbar-default .navbar-nav > li > a:hover, .navbar-default .navbar-nav > li > a:focus {
+  color: #ffffff;
+}
+.navbar-default .navbar-nav > .active > a, .navbar-default .navbar-nav > .active > a:hover, .navbar-default .navbar-nav > .active > a:focus {
+  color: #ffffff;
+  background-color: #64b5f6;
+}
+.navbar-default .navbar-nav > .open > a, .navbar-default .navbar-nav > .open > a:hover, .navbar-default .navbar-nav > .open > a:focus {
+  color: #ffffff;
+  background-color: #64b5f6;
+}
+.navbar-default .navbar-toggle {
+  border-color: #64b5f6;
+}
+.navbar-default .navbar-toggle:hover, .navbar-default .navbar-toggle:focus {
+  background-color: #64b5f6;
+}
+.navbar-default .navbar-toggle .icon-bar {
+  background-color: #ecf0f1;
+}
+.navbar-default .navbar-collapse,
+.navbar-default .navbar-form {
+  border-color: #ecf0f1;
+}
+.navbar-default .navbar-link {
+  color: #ecf0f1;
+}
+.navbar-default .navbar-link:hover {
+  color: #ffffff;
+}
+
+@media (max-width: 767px) {
+  .navbar-default .navbar-nav .open .dropdown-menu > li > a {
+    color: #ecf0f1;
+  }
+  .navbar-default .navbar-nav .open .dropdown-menu > li > a:hover, .navbar-default .navbar-nav .open .dropdown-menu > li > a:focus {
+    color: #ffffff;
+  }
+  .navbar-default .navbar-nav .open .dropdown-menu > .active > a, .navbar-default .navbar-nav .open .dropdown-menu > .active > a:hover, .navbar-default .navbar-nav .open .dropdown-menu > .active > a:focus {
+    color: #ffffff;
+    background-color: #64b5f6;
+  }
+}
+
+			.fromtop {
+				margin: 60px auto 0px;
+			}
+
+			.switcher {
+				max-width: 300px;
+				margin-bottom: auto;
+				margin-top: 10px;
+			}
+			
+			.infoicon{
+				margin: 0px 10px 0px;
+				
+			}
+
+			.infoicon .peritem {
+				padding: 15px 5px 5px;
+				margin: 0px auto 0px;
+			}
+
+			.infoicon img{
+				width: 56px;
+				height: 56px;
+				margin: 0 0 0;
+				padding: 10px 10px 10px;
+				background-color:#00ffffff;
+			}
+			
+			.container-note {
+				max-width: 300px;
+				padding: 5px 5px 5px;
+				margin: 0px auto 40px;
+				background-color: #8bc34a;
+				border: 1px solid #8bc34a;
+				-webkit-border-radius: 2px;
+				-moz-border-radius: 2px;
+				border-radius: 2px;
+				-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+				-moz-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+				box-shadow: 0 1px 2px rgba(0,0,0,.05);
+			}
+			
+			.noteicon .peritem {
+				padding: 5px 5px 5px;
+			}
+			
+			.noteicon .peritem1 {
+				padding: 0px 0px 0px;
+			}
+			
+			.noteicon .snapshot {
+				display: table-cell;
+				max-width: 140px;
+				vertical-align: middle;
+				padding: 0 0 0;
+				margin: 10px 0px 0px;
+			}
+			.media-text {
+				vertical-align: middle;
+				margin: 3px 0px 0px;
+			}
+			
+			.panelbar {
+				max-width: 300px;
+				padding: 0px 0 0;
+				background-color: #8bc34a;
+				
+				margin: 10px 5px 10px;
+			}
+			.panelbar img{
+				float: left;
+				width: 45px;
+				height: 45px;
+				display: block; 
+				vertical-align: top;  
+				margin-right: 8px;
+			}
+			
+			.panellower {
+				max-width: 300px;
+				padding: 0px 0 0;
+				background-color: #8bc34a;
+				
+				margin: 10px 5px 10px;
+			}
+			.panellower img{
+				float: left;
+				width: 30px;
+				height: 30px;
+				display: block; 
+				vertical-align: top;  
+				margin-right: 8px;
+			}
+			
+			.savdiv {
+				display: table-cell;
+				vertical-align: middle;
+				max-width: 240px;
+				padding: 10px 10px 10px;
+				margin: 0px auto 2px;
+			}
+			
+			
+			.notetext{
+				max-width: 275px;
+				margin: 10px 0px 0px;
+				padding: 10px 10px 10px;				
+			}
+
+			.container-card {
+				max-width: 300px;
+				padding: 20px 20px 20px;
+				margin: 0px auto 40px;
+				background-color: #fff;
+				border: 1px solid #e5e5e5;
+				-webkit-border-radius: 2px;
+				-moz-border-radius: 2px;
+				border-radius: 2px;
+				-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+				-moz-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+				box-shadow: 0 1px 2px rgba(0,0,0,.05);
+			}
+
+			.maincard {
+				display: table-cell;
+				width: 260px;
+				height: 260px;
+				vertical-align: middle;
+				padding: 0 0 0;
+				margin: 10px 20px 10px;
+				background-color: #ffffff;
+				overflow: auto
+				border: 1px solid #e5e5e5;
+				-webkit-border-radius: 2px;
+				-moz-border-radius: 2px;
+				border-radius: 2px;
+			}
+			
+			.center-block {
+				display: inline-block;
+				max-width: 160px;
+				max-height: 200px;
+				padding: 0 0 0;
+				margin: 0 auto 0;
+				vertical-align: middle;
+			}
+			
+			.toppart{
+				width: 260px;
+				height: 110px;
+				margin: 0 0 0;
+				vertical-align: middle;
+			}
+			
+			.botpart{
+				width: 260px;
+				height: 130px;				
+				margin: 0 0 0;
+			}
+			
+			.profile {
+				float: left;
+				width: 110px;
+				height: 110px;
+				margin: 0px 0 0px;
+			}
+			
+			.profile img {
+				width: 110px;
+				height: 110px;
+			}
+
+			.name {
+				float: left;
+				margin-left: 10px;
+				max-width: 120px;
+				margin-bottom: 20px;
+				margin-top: 30px;
+			}
+			
+			.hr {
+				margin : 15px 0 0;
+			}
+
+			
+
+			
+			.inputstyle {
+				background: transparent;
+				border: none;
+			}
+
+		</style>
+
+		<!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+		<!--[if lt IE 9]>
+		<script src="../js/html5shiv.js"></script>
+		<![endif]-->
+
+		<!-- Fav and touch icons -->
+		<link rel="apple-touch-icon-precomposed" sizes="144x144" href="../ico/apple-touch-icon-144-precomposed.png">
+		<link rel="apple-touch-icon-precomposed" sizes="114x114" href="../ico/apple-touch-icon-114-precomposed.png">
+		<link rel="apple-touch-icon-precomposed" sizes="72x72" href="../ico/apple-touch-icon-72-precomposed.png">
+		<link rel="apple-touch-icon-precomposed" href="../ico/apple-touch-icon-57-precomposed.png">
+		<link rel="shortcut icon" href="../ico/favicon.png">
+
+
+		<script>			
+			var flagCropPanel = false;
+			var flagPortraitChanged = false;
+			var stringArray = ["about", "email", "message", "phone", "web", "linkedin", "facebook", "twitter", "googleplus"];
+			
+			if (typeof String.prototype.startsWith != 'function') {
+			  // see below for better implementation!
+			  String.prototype.startsWith = function (str){
+				return this.indexOf(str) === 0;
+			  };
+			}
+			
+			function close_window() {
+				if (confirm("Exit App?")) {
+					window.close();
+				}
+			}
+
+			function fill_content(infoitem) {
+				document.getElementById(infoitem+'_dialog').innerHTML = document.getElementById(''+infoitem).value;
+				document.getElementById(infoitem+'_dialog').style.display="inherit";
+				document.getElementById('recorder').innerHTML = infoitem;
+				switch(infoitem) {
+					case 'about':
+					document.getElementById('myModalLabel').innerHTML = 'About Me';
+					break;
+					case 'linkedin':
+					document.getElementById('myModalLabel').innerHTML = 'Edit ' + 'LinkedIn Address';
+					break;
+					case 'phone':
+					document.getElementById('myModalLabel').innerHTML = 'Edit ' + 'Phone No.';
+					break;
+					case 'message':
+					document.getElementById('myModalLabel').innerHTML = 'Edit ' + 'SMS No.';
+					break;
+					case 'email':
+					document.getElementById('myModalLabel').innerHTML = 'Edit ' + 'Email';
+					break;
+					case 'facebook':
+					document.getElementById('myModalLabel').innerHTML = 'Edit ' + 'Facebook Address';
+					break;
+					case 'twitter':
+					document.getElementById('myModalLabel').innerHTML = 'Edit ' + 'Twitter Address';
+					break;
+					case 'googleplus':
+					document.getElementById('myModalLabel').innerHTML = 'Edit ' + 'Google+ Address';
+					break;
+					case 'web':
+					document.getElementById('myModalLabel').innerHTML = 'Edit ' + 'Website Address';
+					break;
+					default:
+					document.getElementById('myModalLabel').innerHTML = 'Edit ' + 'Something ...';
+				}
+			}
+
+			function save_content(infoitem) {
+				document.getElementById(''+infoitem).value = document.getElementById(infoitem+'_dialog').value;
+				document.getElementById(infoitem+'_dialog').style.display="none";
+			}
+
+			function dismiss_content(infoitem) {
+				document.getElementById(infoitem+'_dialog').style.display="none";
+			}
+			
+			function switchtopanel(){
+				document.getElementById('notes_bar').style.display="none";
+				document.getElementById('notes_panel').style.display="inherit";
+			}
+
+			function switchtobar(){
+				document.getElementById('notes_panel').style.display="none";
+				document.getElementById('notes_bar').style.display="inherit";
+			}
+			
+			function goBack() {
+				window.history.back();
+			}
+			
+			function doNothing(){
+			}
+			
+			function offerSave(notes){
+				if(notes) {
+					document.getElementById("textarea_feedback").style.display="inherit";
+				}
+				document.getElementById("save_div").style.display="inherit";
+			}
+
+			$(document).ready(function(){
+			   var $form = $('form');
+			   $form.submit(function(e){
+				  e.preventDefault();
+				  $.post($(this).attr('action'), $(this).serialize(), function(response){
+					if(response.successful){
+						document.getElementById("save_div").style.display="none";
+						document.getElementById("textarea_feedback").style.display="none";
+						$('#saveResults').modal('show');
+						document.getElementById("display_save_results").innerHTML = "Successfully Saved!"
+					} else {
+						$('#saveResults').modal('show');
+						document.getElementById("display_save_results").innerHTML = "Something wrong while saving ..."
+					}
+				  },'json');
+				  return false;
+			   });
+			});
+		</script>
+
+	</head>
+
+	<body>
+		<!-- Navbar
+		================================================== -->
+
+		<div class="navbar-wrapper">
+			<div class="container">
+
+				<nav class="navbar navbar-default navbar-static-top">
+					<div class="container">
+						<div class="navbar-header">							
+							<a class="navbar-brand" href="javascript:void(0)" onclick="goBack();">KnoWell</a>
+						</div>
+					</div>
+				</nav>
+
+			</div>
+		</div>
+
+		<!-- General Modal -->
+		<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-lg">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="myModalLabel"></h4>
+					</div>
+					<div class="modal-body">
+						<p id="about_dialog" style="display: none"></p>
+						<input class="input-small" id="phone_dialog" type="text" style="display: none">
+						<input class="input-small" id="message_dialog" type="text" style="display: none">
+						<input class="input-small" id="email_dialog" type="text" style="display: none">
+						<input class="input-small" id="linkedin_dialog" type="text" style="display: none">
+						<input class="input-small" id="facebook_dialog" type="text" style="display: none">
+						<input class="input-small" id="twitter_dialog" type="text" style="display: none">
+						<input class="input-small" id="googleplus_dialog" type="text" style="display: none">
+						<input class="input-small" id="web_dialog" type="text" style="display: none">
+						<p id="recorder" style="display: none"></p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal" onclick="javascript:dismiss_content(document.getElementById('recorder').innerHTML);">OK</button>						
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="modal fade bs-example-modal-sm" id="saveResults" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+		  <div class="modal-dialog modal-sm">
+			<div class="modal-content">			  
+			  <div class="modal-body">
+			    <p id="display_save_results"></p>
+			  </div>
+			  <div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">OK</button>						
+			  </div>
+			</div>
+		  </div>
+		</div>
+
+		<div class="hidden">
+			<input id="about" name="about"  value="<%=about%>">
+			<input id="phone" name="phone"  value="<%=phone%>">
+			<input id="message" name="message"  value="<%=message%>">
+			<input id="email" name="email"  value="<%=email%>">
+			<input id="linkedin" name="linkedin"  value="<%=linkedin%>">
+			<input id="facebook" name="facebook"  value="<%=facebook%>">
+			<input id="twitter" name="twitter"  value="<%=twitter%>">
+			<input id="googleplus" name="googleplus"  value="<%=googleplus%>">
+			<input id="web" name="web"  value="<%=web%>">
+			<input id="perc_left" name="perc_left" class="input-small" type="text"  value=""><br>
+			<input id="perc_top"  name="perc_top" class="input-small" type="text"  value=""><br>
+			<input id="perc_width" name="perc_width" class="input-small" type="text"  value=""><br>
+			<input id="perc_height" name="perc_height" class="input-small" type="text"  value=""><br>
+			<input id="img_url" name="img_url" class="input-small" type="text"  value=""><br>
+			<input id="action" name="action" class="input-small" type="text"  value=""><br>
+		</div>
+
+		
+		<div class="container-fluid">
+			<div class="row fromtop">
+				<div class="col-sm-5 col-sm-offset-1 col-md-4 col-md-offset-2 col-lg-3 col-lg-offset-3" style="min-width: 330px">
+					
+					<div class="container-card">
+						<div class="maincard">
+							<div class="toppart">
+								<div class="profile">
+									<img src="<%=portrait_url%>">
+								</div>
+								<div class= "name">
+									<h5> <b><%= firstName %> <%= lastName %></b> </h5> 
+								</div>
+							</div>
+							<div class="botpart">						
+							<hr class= "hr">
+							<address style="margin-top: 10px">
+								<%= title %><br>
+								<%= company %> <br>
+								<%= city %>
+							</address>
+							</div>
+						</div>
+					</div>
+					<div id="contact" class="container-card" style="display : inherit">
+						<div class="maincard">
+						<div class="container-fluid">
+							<div class="row infoicon">
+								<div id="about_button" class="col-xs-4 col-sm-4 peritem" style="display : none">
+									<img src="../assets/img/me.png"  class="img-responsive" data-toggle="modal" data-target="#myModal" data-backdrop="static" onclick="javascript:fill_content('about');">
+								</div>
+								<div id="email_button" class="col-xs-4 col-sm-4 peritem" style="display : none">
+									<a href="mailto:<%=email%>"><img src="../assets/img/mail.png"  class="img-responsive"></a>
+								</div>
+								<div id="message_button" class="col-xs-4 col-sm-4 peritem" style="display : none">
+									<a href="sms:<%=message%>"><img src="../assets/img/message.png"  class="img-responsive"></a>
+								</div>
+								<div id="phone_button" class="col-xs-4 col-sm-4 peritem" style="display : none">
+									<a href="tel:<%=phone%>"><img src="../assets/img/phone.png"  class="img-responsive"></a>
+								</div>
+								<div id="web_button" class="col-xs-4 col-sm-4 peritem" style="display : none">								
+									<a id="web_url" href="#" target="_blank"><img src="../assets/img/web.png"  class="img-responsive"></a>
+									<script>
+										var web_url = "<%=web%>";
+										if(! web_url.startsWith("http://") && !web_url.startsWith("https://") && !web_url.startsWith("ftp://")){	
+											web_url= "http://www.google.com/#q="+web_url;
+										}
+										$("#web_url").attr("href", web_url);
+									</script>
+								</div>
+								<div id="linkedin_button" class="col-xs-4 col-sm-4 peritem" style="display : none">
+									<a id="linkedin_url" href="#" target="_blank"><img src="../assets/img/linkedin.png"  class="img-responsive"></a>
+									<script>
+										var linkedin_url = "<%=linkedin%>";
+										if(! linkedin_url.startsWith("http://") && !linkedin_url.startsWith("https://") && !linkedin_url.startsWith("ftp://")){	
+											linkedin_url= "http://www.google.com/#q="+linkedin_url;
+										}
+										$("#linkedin_url").attr("href", linkedin_url);
+									</script>
+								</div>
+								<div id="facebook_button" class="col-xs-4 col-sm-4 peritem" style="display : none">
+									<a id="facebook_url" href="#" target="_blank"><img src="../assets/img/facebook.png"  class="img-responsive"></a>
+									<script>
+										var facebook_url = "<%=facebook%>";
+										if(! facebook_url.startsWith("http://") && !facebook_url.startsWith("https://") && !facebook_url.startsWith("ftp://")){	
+											facebook_url= "http://www.google.com/#q="+facebook_url;
+										}
+										$("#facebook_url").attr("href", facebook_url);
+									</script>
+								</div>
+								<div id="twitter_button" class="col-xs-4 col-sm-4 peritem" style="display : none">
+									<a id="twitter_url" href="#" target="_blank"><img src="../assets/img/twitter.png"  class="img-responsive"></a>
+									<script>
+										var twitter_url = "<%=twitter%>";
+										if(! twitter_url.startsWith("http://") && !twitter_url.startsWith("https://") && !twitter_url.startsWith("ftp://")){	
+											twitter_url= "http://www.google.com/#q="+twitter_url;
+										}
+										$("#twitter_url").attr("href", twitter_url);
+									</script>
+								</div>
+								<div id="googleplus_button" class="col-xs-4 col-sm-4 peritem" style="display : none">								
+									<a id="googleplus_url" target="_blank"><img src="../assets/img/googleplus.png"  class="img-responsive"></a>
+									<script>
+										var googleplus_url = "<%=googleplus%>";
+										if(! googleplus_url.startsWith("http://") && !googleplus_url.startsWith("https://") && !googleplus_url.startsWith("ftp://")){	
+											googleplus_url= "http://www.google.com/#q="+googleplus_url;
+										}
+										$("#googleplus_url").attr("href", googleplus_url);
+									</script>
+								</div>
+							</div>
+						</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-sm-5 col-md-4 col-lg-3">
+					
+					<script>
+						$(function() {  
+							$("textarea[maxlength]").bind('input propertychange', function() {  
+								var maxLength = $(this).attr('maxlength');  
+								$('#textarea_feedback').html((maxLength -$(this).val().length) +' characters remaining');
+								if ($(this).val().length > maxLength) {  
+									$(this).val($(this).val().substring(0, maxLength));  
+								}  
+							})  
+						});
+					</script>
+					
+					<div id="notes_panel" class="container-note" style="display : inherit; min-width: 300px">
+							<div class="panelbar">
+								<div class="media">
+								  <div class="media-left">
+									<img src="../assets/img/note.png">
+								  </div>
+								  <div class="media-body media-text">
+									<b><%= updatedAt %> </b><br>
+									<small>Last Modified </small>
+								  </div>
+								</div>					
+							</div>	
+						
+							<div class="panellower">
+								<div class="media" style="margin-left: 10px">
+								  <div class="media-left">
+									<img src="../assets/img/clock.png">
+								  </div>
+								  <div class="media-body media-text">
+									<%= whenMet %>
+								  </div>
+								</div>	
+								<div class="media" style="margin-left: 10px">
+								  <div class="media-left">
+									<img src="../assets/img/location.png">
+								  </div>
+								  <div class="media-body media-text">
+									<input form="noteForm" name="whereMet" class="input-small inputstyle" id="about_dialog" type="text" value="<%= whereMet %>" onchange="offerSave(false);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();"> 
+								  </div>
+								</div>	
+								<div class="media" style="margin-left: 10px">
+								  <div class="media-left">
+									<img src="../assets/img/event.png">
+								  </div>
+								  <div class="media-body media-text">
+									<input form="noteForm" name="eventMet" class="input-small inputstyle" id="about_dialog" type="text" value="<%= eventMet %>" onchange="offerSave(false);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();">
+								  </div>
+								</div>	
+								<textarea form="noteForm" name="notes" maxlength="1000" id="textarea" class="form-control notetext" rows="3" placeholder="Something you want to remember about her/him" onchange="offerSave(true);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();"><%= notes%></textarea>
+								<small id="textarea_feedback" style="padding: 0px 5px 0px; display: none"></small>
+							</div>							
+						
+							<div id="save_div" class="savdiv" style="display: none">
+								<form id="noteForm" action='/savenote' method='POST' style="display: none">
+									<input name="noteId" value="<%=noteId%>">
+									<input type="hidden" name="_csrf" value="<%= csrf_field %>" />
+								</form>
+								<button id="uploadbutton" class="btn btn-sm btn-success btn-block" type="submit" form="noteForm" name="action">Save Changes</button>
+								<button class="btn btn-sm btn-default btn-block" onclick="javascript:goBack();">Forget it</button>
+							</div>	
+					</div>
+				
+				
+					
+				</div>
+			</div>
+		</div>
+
+		<script>
+			var flagHideInfoPanel = true;
+			for(var j=0; j< stringArray.length ; j++){
+				if(document.getElementById(stringArray[j]).value != 'undefined'){
+					flagHideInfoPanel = false;
+					document.getElementById(stringArray[j]+"_button").style.display="inherit";
+					document.getElementById(stringArray[j]+'_dialog').style.display="none";
+				} else{
+					document.getElementById(stringArray[j]).value = "";
+					document.getElementById(stringArray[j]+'_dialog').style.display="none";
+				}
+			}
+			if(flagHideInfoPanel){
+				document.getElementById("contact").style.display="none";
+			}
+		</script>
+
+
+
+		<!-- Bootstrap core JavaScript
+		================================================== -->
+		<!-- Placed at the end of the document so the pages load faster -->
+		<script src="../dist/js/bootstrap.min.js"></script>
+		<!-- Just to make our placeholder images work. Don't actually copy the next line! -->
+		<script src="../assets/js/vendor/holder.js"></script>
+		<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+		<script src="../assets/js/ie10-viewport-bug-workaround.js"></script>
+		<script src="../dist/js/cropper.js"></script>
+		<script src="../dist/js/main.js"></script>
+
+
+	</body>
+</html>
