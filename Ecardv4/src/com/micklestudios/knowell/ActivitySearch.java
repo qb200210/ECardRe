@@ -222,7 +222,7 @@ public class ActivitySearch extends ActionBarActivity {
     filterTextWhereMet = (AutoCompleteTextView) findViewById(R.id.txt_where_met);
     filterTextCompany = (AutoCompleteTextView) findViewById(R.id.txt_company);
     filterTextEventMet = (AutoCompleteTextView) findViewById(R.id.txt_event_met);
-
+    
     // The layouts we need to hide when drop down goes up.
     lLayoutCompany = (LinearLayout) findViewById(R.id.llayout_company);
     lLayoutWhereMet = (LinearLayout) findViewById(R.id.llayout_where_met);
@@ -767,7 +767,7 @@ public class ActivitySearch extends ActionBarActivity {
         tempUserInfoList.clear();
       }
 
-      // Then look at the Event Met filter.
+      // Then look at the Event filter.
       filterKey = filterTextEventMet.getText().toString()
         .toLowerCase(Locale.ENGLISH);
       if (filterKey != "") {
@@ -781,6 +781,7 @@ public class ActivitySearch extends ActionBarActivity {
         filteredUsers.addAll(tempUserInfoList);
         tempUserInfoList.clear();
       }
+  
     }
 
     /*
@@ -798,14 +799,20 @@ public class ActivitySearch extends ActionBarActivity {
       }
       Pattern pattern = Pattern.compile(regex_str);
       for (UserInfo uInfo : filteredUsers) {
-        String user_str = uInfo.getFirstName().toLowerCase(Locale.ENGLISH)
-          + " " + uInfo.getLastName().toLowerCase(Locale.ENGLISH) + " "
-          + uInfo.getCompany().toLowerCase(Locale.ENGLISH);
+        String name_str = uInfo.getFirstName().toLowerCase(Locale.ENGLISH)
+          + " " + uInfo.getLastName().toLowerCase(Locale.ENGLISH);
+        String company_str = uInfo.getCompany().toLowerCase(Locale.ENGLISH);
+        String title_str = uInfo.getTitle().toLowerCase(Locale.ENGLISH);
+        String city_str = uInfo.getCity().toLowerCase(Locale.ENGLISH);
+        String user_str = name_str + " " + company_str + " " + title_str + " " + city_str;
         // Log.v("search_user_str", user_str);
-        Matcher matcher = pattern.matcher(user_str);
+        Matcher name_matcher = pattern.matcher(name_str);
+        Matcher company_matcher = pattern.matcher(company_str);
+        Matcher title_matcher = pattern.matcher(title_str);
+        Matcher city_matcher = pattern.matcher(city_str);
         if (user_str.contains(token)) {
           tempUserInfoList.add(uInfo);
-        } else if (matcher.matches()) {
+        } else if (name_matcher.matches() || company_matcher.matches() || title_matcher.matches() || city_matcher.matches()) {
           tempUserInfoList.add(uInfo);
         }
       }
