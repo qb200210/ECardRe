@@ -9,6 +9,7 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 import com.micklestudios.knowell.infrastructure.ConversationsListAdapter;
 import com.micklestudios.knowell.infrastructure.HistoryListAdapter;
 import com.micklestudios.knowell.infrastructure.UserInfo;
+import com.micklestudios.knowell.utils.AsyncTasks;
 import com.micklestudios.knowell.utils.ECardUtils;
 import com.micklestudios.knowell.utils.RobotoEditText;
 import com.nhaarman.listviewanimations.appearance.StickyListHeadersAdapterDecorator;
@@ -28,6 +29,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -35,6 +37,8 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.View.OnClickListener;
@@ -56,6 +60,8 @@ public class ActivityHistory extends ActionBarActivity {
   ListView listView;
   private Dialog dialog;
   private static final long SCAN_TIMEOUT = 5000;
+  public static final String MY_PREFS_NAME = "KnoWellSyncParams";
+  private static final long HISTORY_TIMEOUT = 60000;
 
 
   @Override
@@ -197,6 +203,43 @@ public class ActivityHistory extends ActionBarActivity {
       }
     }).setCancelable(false).show();
   }
+  
+  public boolean onCreateOptionsMenu(Menu menu) {
+    getMenuInflater().inflate(R.menu.conv_actionbar, menu);
+    return true;
+  }
+
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    // this function is called when either action bar icon is tapped
+    switch (item.getItemId()) {
+    case R.id.manual_sync:
+      // check sharedpreferences
+      final SharedPreferences prefs = getSharedPreferences(MY_PREFS_NAME,
+        MODE_PRIVATE);
+      SharedPreferences.Editor prefEditor = prefs.edit();
+   // sync history, Supposely not critical, so don't need to wait on it
+      final AsyncTasks.SyncDataTaskHistory syncHistory = new AsyncTasks.SyncDataTaskHistory(
+        this, currentUser, prefs, prefEditor, true);
+      syncHistory.execute();
+      Handler handlerHistory = new Handler();
+      handlerHistory.postDelayed(new Runnable() {
+
+        @Override
+        public void run() {
+          if (syncHistory.getStatus() == AsyncTask.Status.RUNNING) {
+            Toast.makeText(getApplicationContext(),
+              "Sync History Timed Out", Toast.LENGTH_SHORT).show();
+            syncHistory.cancel(true);
+          }
+        }
+      }, HISTORY_TIMEOUT);
+      return true;
+    default:
+      return super.onOptionsItemSelected(item);
+    }
+  }
+ 
  
   @SuppressLint("InflateParams")
   private void showActionBar() {

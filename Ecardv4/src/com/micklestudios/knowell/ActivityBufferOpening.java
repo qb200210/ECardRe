@@ -35,20 +35,21 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.Window;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class ActivityBufferOpening extends Activity {
 
-  private static final long CREATE_SELF_COPY_TIMEOUT = 10000;
-  private static final long CACHEIDS_TIMEOUT = 10000;
-  private static final long NOTES_TIMEOUT = 10000;
-  private static final long CONVERSATIONS_TIMEOUT = 10000;
+  private static final long CREATE_SELF_COPY_TIMEOUT = 30000;
+  private static final long CACHEIDS_TIMEOUT = 30000;
+  private static final long NOTES_TIMEOUT = 30000;
+  private static final long CONVERSATIONS_TIMEOUT = 60000;
   private static final long COMPANYNAME_TIMEOUT = 60000;
   private static final long HISTORY_TIMEOUT = 60000;
   
   Integer WEIGHT_SELF = 20;
-  Integer WEIGHT_NOTES = 20;
-  Integer WEIGHT_CONV = 20;
+  Integer WEIGHT_NOTES = 40;
+  Integer WEIGHT_CONV = 0;
   Integer WEIGHT_CACHEDIDS = 20;
   Integer totalProgress = 0;
   public static final String MY_PREFS_NAME = "KnoWellSyncParams";
@@ -63,7 +64,13 @@ public class ActivityBufferOpening extends Activity {
   private boolean timeoutFlagNotes = false;
   private boolean timeoutFlagCachedIds = false;
   private boolean timeoutFlagCompany = false;
+  private boolean flagSyncSelfDone = false;
+  private boolean flagSyncNotesDone = false;
+  private boolean flagSyncConvDone = false;
+  private boolean flagSyncCachedIdsDone = false;
+  
   private ProgressButton progressButton1;
+  private TextView progressText;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +83,9 @@ public class ActivityBufferOpening extends Activity {
     currentUser = ParseUser.getCurrentUser();    
     progressButton1 = (ProgressButton) findViewById(R.id.pin_progress_1);
     progressButton1.setProgress(totalProgress);
+    
+    progressText = (TextView) findViewById(R.id.loading_progress);
+    progressText.setText("Working on it ...");
     
     // if tmpImgByteArray not null, need to convert to img file regardless
     // of network
@@ -307,7 +317,7 @@ public class ActivityBufferOpening extends Activity {
     
     // sync history, Supposely not critical, so don't need to wait on it
     final AsyncTasks.SyncDataTaskHistory syncHistory = new AsyncTasks.SyncDataTaskHistory(
-      this, currentUser, prefs, prefEditor);
+      this, currentUser, prefs, prefEditor, false);
     syncHistory.execute();
     Handler handlerHistory = new Handler();
     handlerHistory.postDelayed(new Runnable() {
@@ -316,7 +326,7 @@ public class ActivityBufferOpening extends Activity {
       public void run() {
         if (syncHistory.getStatus() == AsyncTask.Status.RUNNING) {
           Toast.makeText(getApplicationContext(),
-            "Sync Conversations Timed Out", Toast.LENGTH_SHORT).show();
+            "Sync History Timed Out", Toast.LENGTH_SHORT).show();
           timeoutFlagConv = true;
           syncHistory.cancel(true);
         }
@@ -325,7 +335,7 @@ public class ActivityBufferOpening extends Activity {
     
     // Create/refresh local copy every time app opens
     final AsyncTasks.SyncDataTaskSelfCopy createSelfCopy = new AsyncTasks.SyncDataTaskSelfCopy(
-      this, currentUser, prefs, prefEditor);
+      this, currentUser, prefs, prefEditor, false);
     createSelfCopy.execute();
     Handler handler = new Handler();
     handler.postDelayed(new Runnable() {
@@ -333,7 +343,7 @@ public class ActivityBufferOpening extends Activity {
       @Override
       public void run() {
         if (createSelfCopy.getStatus() == AsyncTask.Status.RUNNING) {
-          Toast.makeText(getApplicationContext(), "Self Copy Timed Out",
+          Toast.makeText(getApplicationContext(), "Sync My Card Timed Out",
             Toast.LENGTH_SHORT).show();
           timeoutFlagSelf = true;
           createSelfCopy.cancel(true);
@@ -342,7 +352,7 @@ public class ActivityBufferOpening extends Activity {
     }, CREATE_SELF_COPY_TIMEOUT);
     
     // update the local string list for available company templates -- only the names, not the actual object
-    final AsyncTasks.SyncDataCompanyNames syncCompanyNames = new AsyncTasks.SyncDataCompanyNames(this, prefs, prefEditor);
+    final AsyncTasks.SyncDataCompanyNames syncCompanyNames = new AsyncTasks.SyncDataCompanyNames(this, prefs, prefEditor, false);
     syncCompanyNames.execute();
     Handler handlerCompanyNames = new Handler();
     handlerCompanyNames.postDelayed(new Runnable() {
@@ -350,7 +360,7 @@ public class ActivityBufferOpening extends Activity {
       @Override
       public void run() {
         if (syncCompanyNames.getStatus() == AsyncTask.Status.RUNNING) {
-          Toast.makeText(getApplicationContext(), "Company List Timed Out",
+          Toast.makeText(getApplicationContext(), "Sync Company List Timed Out",
             Toast.LENGTH_SHORT).show();
           timeoutFlagCompany = true;
           syncCompanyNames.cancel(true);
@@ -360,7 +370,7 @@ public class ActivityBufferOpening extends Activity {
 
     // upon opening, pin online conversations to local
     final AsyncTasks.SyncDataTaskConversations syncConversations = new AsyncTasks.SyncDataTaskConversations(
-      this, currentUser, prefs, prefEditor);
+      this, currentUser, prefs, prefEditor, false);
     syncConversations.execute();
     Handler handlerConversations = new Handler();
     handlerConversations.postDelayed(new Runnable() {
@@ -369,7 +379,7 @@ public class ActivityBufferOpening extends Activity {
       public void run() {
         if (syncConversations.getStatus() == AsyncTask.Status.RUNNING) {
           Toast.makeText(getApplicationContext(),
-            "Sync Conversations Timed Out", Toast.LENGTH_SHORT).show();
+            "Sync Notifications Timed Out", Toast.LENGTH_SHORT).show();
           timeoutFlagConv = true;
           syncConversations.cancel(true);
         }
@@ -378,7 +388,7 @@ public class ActivityBufferOpening extends Activity {
 
     // upon opening, pin online notes to local
     final AsyncTasks.SyncDataTaskNotes syncNotes = new AsyncTasks.SyncDataTaskNotes(
-      this, currentUser, prefs, prefEditor);
+      this, currentUser, prefs, prefEditor, false);
     syncNotes.execute();
     Handler handlerNotes = new Handler();
     handlerNotes.postDelayed(new Runnable() {
@@ -386,7 +396,7 @@ public class ActivityBufferOpening extends Activity {
       @Override
       public void run() {
         if (syncNotes.getStatus() == AsyncTask.Status.RUNNING) {
-          Toast.makeText(getApplicationContext(), "Sync Notes Timed Out",
+          Toast.makeText(getApplicationContext(), "Sync Card Collection Timed Out",
             Toast.LENGTH_SHORT).show();
           timeoutFlagNotes = true;
           syncNotes.cancel(true);
@@ -396,7 +406,7 @@ public class ActivityBufferOpening extends Activity {
 
     // check ecardIds that were scanned/cached offline
     final AsyncTasks.SyncDataTaskCachedIds syncCachedIds = new AsyncTasks.SyncDataTaskCachedIds(
-      this, currentUser, prefs, prefEditor);
+      this, currentUser, prefs, prefEditor, false);
     syncCachedIds.execute();
     Handler handlerCachedIds = new Handler();
     handlerCachedIds.postDelayed(new Runnable() {
@@ -404,7 +414,7 @@ public class ActivityBufferOpening extends Activity {
       @Override
       public void run() {
         if (syncCachedIds.getStatus() == AsyncTask.Status.RUNNING) {
-          Toast.makeText(getApplicationContext(), "Sync CachedIds Timed Out",
+          Toast.makeText(getApplicationContext(), "Sync Offline Collection Timed Out",
             Toast.LENGTH_SHORT).show();
           timeoutFlagCachedIds = true;
           syncCachedIds.cancel(true);
@@ -413,10 +423,6 @@ public class ActivityBufferOpening extends Activity {
     }, CACHEIDS_TIMEOUT);
 
     Thread timerThread = new Thread() {
-      private boolean flagSyncSelfDone = false;
-      private boolean flagSyncNotesDone = false;
-      private boolean flagSyncConvDone = false;
-      private boolean flagSyncCachedIdsDone = false;
 
       public void run() {
         while (totalProgress != 100) {
@@ -473,9 +479,25 @@ public class ActivityBufferOpening extends Activity {
   }
 
   Handler handlerJump = new Handler() {
+    private boolean progressSelfShown = false;
+    private boolean progressNotesShown = false;
+    private boolean progressCachedIdsShown = false;
+
     @Override
     public void handleMessage(Message msg) {
       progressButton1.setProgress(totalProgress);
+      if(flagSyncSelfDone && !progressSelfShown){
+        progressText.setText("My Card Up to Date");
+        progressSelfShown  = true;
+      }
+      if(flagSyncCachedIdsDone && !progressCachedIdsShown){
+        progressText.setText("Cleared Offline Collections");
+        progressCachedIdsShown  = true;
+      }
+      if(flagSyncNotesDone && !progressNotesShown){
+        progressText.setText("Card Collection Up to Date");
+        progressNotesShown  = true;
+      }
       if (totalProgress == 100) {
         // if there is network, wait till self sync completes before finishing
         // BufferOpening

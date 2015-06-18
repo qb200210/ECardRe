@@ -57,14 +57,16 @@ public class AsyncTasks {
     private SharedPreferences prefs;
     private SharedPreferences.Editor prefEditor;
     private boolean flagShouldSync;
+    private boolean flagToast;
 
     public SyncDataTaskHistory(Context context, ParseUser currentUser,
-      SharedPreferences prefs, SharedPreferences.Editor prefEditor) {
+      SharedPreferences prefs, SharedPreferences.Editor prefEditor, boolean flagToast) {
       this.context = context;
       this.currentUser = currentUser;
       this.prefs = prefs;
       this.prefEditor = prefEditor;
       this.flagShouldSync = false;
+      this.flagToast = flagToast;
     }
 
     @Override
@@ -118,10 +120,9 @@ public class AsyncTasks {
     }
 
     @Override
-    protected void onPostExecute(String result) {
-      if (flagShouldSync) {
-        Toast.makeText(context, "synced history", Toast.LENGTH_SHORT).show();
-      }
+    protected void onPostExecute(String result) {      
+       if(flagToast)
+         Toast.makeText(context, "History Up to Date", Toast.LENGTH_SHORT).show();
     }
 
   }
@@ -137,14 +138,16 @@ public class AsyncTasks {
     private SharedPreferences.Editor prefEditor;
     private boolean flagShouldSync;
     private boolean imgFromTmpData;
+    private boolean flagToast;
 
     public SyncDataTaskSelfCopy(Context context, ParseUser currentUser,
-      SharedPreferences prefs, SharedPreferences.Editor prefEditor) {
+      SharedPreferences prefs, SharedPreferences.Editor prefEditor, boolean flagToast) {
       this.context = context;
       this.currentUser = currentUser;
       this.prefs = prefs;
       this.prefEditor = prefEditor;
       this.flagShouldSync = false;
+      this.flagToast = flagToast;
     }
 
     @Override
@@ -235,8 +238,8 @@ public class AsyncTasks {
 
     @Override
     protected void onPostExecute(String result) {
-      if (flagShouldSync) {
-        Toast.makeText(context, "saved self copy", Toast.LENGTH_SHORT).show();
+      if (flagToast) {
+        Toast.makeText(context, "My Card Up to Date", Toast.LENGTH_SHORT).show();
       }
     }
 
@@ -252,13 +255,15 @@ public class AsyncTasks {
     private SharedPreferences prefs;
     private SharedPreferences.Editor prefEditor;
     private boolean flagShouldSync;
+    private boolean flagToast;
 
     public SyncDataCompanyNames(Context context, SharedPreferences prefs,
-      SharedPreferences.Editor prefEditor) {
+      SharedPreferences.Editor prefEditor, boolean flagToast) {
       this.context = context;
       this.prefs = prefs;
       this.prefEditor = prefEditor;
       this.flagShouldSync = false;
+      this.flagToast = flagToast;
     }
 
     @Override
@@ -405,14 +410,16 @@ public class AsyncTasks {
     private SharedPreferences prefs;
     private SharedPreferences.Editor prefEditor;
     private boolean flagShouldSync;
+    private boolean flagToast;
 
     public SyncDataTaskNotes(Context context, ParseUser currentUser,
-      SharedPreferences prefs, SharedPreferences.Editor prefEditor) {
+      SharedPreferences prefs, SharedPreferences.Editor prefEditor, boolean flagToast) {
       this.context = context;
       this.currentUser = currentUser;
       this.prefs = prefs;
       this.prefEditor = prefEditor;
       this.flagShouldSync = false;
+      this.flagToast = flagToast;
     }
 
     @Override
@@ -534,8 +541,8 @@ public class AsyncTasks {
 
     @Override
     protected void onPostExecute(String result) {
-      if (flagShouldSync) {
-        Toast.makeText(context, "synced notes", Toast.LENGTH_SHORT).show();
+      if (flagToast) {
+        Toast.makeText(context, "Card Collection Up to Date", Toast.LENGTH_SHORT).show();
       }
     }
 
@@ -549,14 +556,16 @@ public class AsyncTasks {
     private SharedPreferences prefs;
     private SharedPreferences.Editor prefEditor;
     private boolean flagShouldSync;
+    private boolean flagToast;
 
     public SyncDataTaskConversations(Context context, ParseUser currentUser,
-      SharedPreferences prefs, SharedPreferences.Editor prefEditor) {
+      SharedPreferences prefs, SharedPreferences.Editor prefEditor, boolean flagToast) {
       this.context = context;
       this.currentUser = currentUser;
       this.prefs = prefs;
       this.prefEditor = prefEditor;
       this.flagShouldSync = false;
+      this.flagToast = flagToast;
     }
 
     @Override
@@ -649,10 +658,8 @@ public class AsyncTasks {
 
     @Override
     protected void onPostExecute(String result) {
-      if (flagShouldSync) {
-        Toast.makeText(context, "synced conversations", Toast.LENGTH_SHORT)
-          .show();
-      }
+      if(flagToast)
+        Toast.makeText(context, "Notifications Up to Date", Toast.LENGTH_SHORT).show();
     }
 
   }
@@ -671,14 +678,16 @@ public class AsyncTasks {
     private boolean flagShouldSync;
     private SharedPreferences prefs;
     private SharedPreferences.Editor prefEditor;
+    private boolean flagToast;
 
     public SyncDataTaskCachedIds(Context context, ParseUser currentUser,
-      SharedPreferences prefs, SharedPreferences.Editor prefEditor) {
+      SharedPreferences prefs, SharedPreferences.Editor prefEditor, boolean flagToast) {
       this.context = context;
       this.currentUser = currentUser;
       this.prefs = prefs;
       this.prefEditor = prefEditor;
       this.flagShouldSync = false;
+      this.flagToast = flagToast;
     }
 
     @Override
@@ -1042,8 +1051,8 @@ public class AsyncTasks {
 
     @Override
     protected void onPostExecute(String result) {
-      if (flagShouldSync) {
-        Toast.makeText(context, "synced cachedIds", Toast.LENGTH_SHORT).show();
+      if (flagToast) {
+        Toast.makeText(context, "Cleared Offline Collection", Toast.LENGTH_SHORT).show();
       }
     }
 

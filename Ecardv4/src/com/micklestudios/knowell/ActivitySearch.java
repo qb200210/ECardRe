@@ -947,7 +947,7 @@ public class ActivitySearch extends ActionBarActivity {
           ActivityBufferOpening.MY_PREFS_NAME, MODE_PRIVATE);
         SharedPreferences.Editor prefEditor = prefs.edit();
         final AsyncTasks.SyncDataTaskNotes syncNotes = new AsyncTasks.SyncDataTaskNotes(
-          this, currentUser, prefs, prefEditor);
+          this, currentUser, prefs, prefEditor, true);
         syncNotes.execute();
         prefEditor.commit();
         Handler handlerNotes = new Handler();

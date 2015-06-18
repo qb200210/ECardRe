@@ -30,6 +30,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.parse.ParseException;
@@ -48,6 +49,7 @@ public class ParseLoginHelpFragment extends ParseLoginFragmentBase implements On
   private TextView instructionsTextView;
   private EditText emailField;
   private Button submitButton;
+  private LinearLayout emailPanel;
   private boolean emailSent = false;
   private ParseOnLoginHelpSuccessListener onLoginHelpSuccessListener;
 
@@ -72,6 +74,7 @@ public class ParseLoginHelpFragment extends ParseLoginFragmentBase implements On
     instructionsTextView = (TextView) v
         .findViewById(R.id.login_help_instructions);
     emailField = (EditText) v.findViewById(R.id.login_help_email_input);
+    emailPanel = (LinearLayout) v.findViewById(R.id.login_help_email_panel);
     submitButton = (Button) v.findViewById(R.id.login_help_submit);
 
     if (appLogo != null && config.getAppLogo() != null) {
@@ -121,7 +124,7 @@ public class ParseLoginHelpFragment extends ParseLoginFragmentBase implements On
                 if (e == null) {
                   instructionsTextView
                       .setText(R.string.com_parse_ui_login_help_email_sent);
-                  emailField.setVisibility(View.INVISIBLE);
+                  emailPanel.setVisibility(View.GONE);
                   submitButton
                       .setText(R.string.com_parse_ui_login_help_login_again_button_label);
                   emailSent = true;

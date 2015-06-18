@@ -84,7 +84,7 @@ public class HistoryListAdapter extends ArrayAdapter<ParseObject> implements
         iconView.setImageResource(R.drawable.mail);
         break;
       case SHARE_DOC:
-        iconView.setImageResource(R.drawable.doc_button);
+        iconView.setImageResource(R.drawable.doc_lite);
         break;
         default:
           iconView.setImageResource(R.drawable.history_lite);

@@ -8,6 +8,7 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
 import com.micklestudios.knowell.infrastructure.ConversationsListAdapter;
 import com.micklestudios.knowell.infrastructure.UserInfo;
+import com.micklestudios.knowell.utils.AsyncTasks;
 import com.micklestudios.knowell.utils.ECardUtils;
 import com.nhaarman.listviewanimations.appearance.StickyListHeadersAdapterDecorator;
 import com.nhaarman.listviewanimations.appearance.simple.AlphaInAnimationAdapter;
@@ -24,6 +25,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -31,6 +33,8 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.View.OnClickListener;
@@ -60,6 +64,8 @@ public class ActivityConversations extends ActionBarActivity {
  public static final int SORT_MODE_DATE_DSC = 4;
 
  public static int currentSortMode = SORT_MODE_DATE_DSC;
+ public static final String MY_PREFS_NAME = "KnoWellSyncParams";
+ private static final long CONVERSATIONS_TIMEOUT = 60000;
 
   @Override
   protected void onCreate(final Bundle savedInstanceState) {
@@ -206,6 +212,42 @@ public class ActivityConversations extends ActionBarActivity {
   
   
 }
+  
+  public boolean onCreateOptionsMenu(Menu menu) {
+    getMenuInflater().inflate(R.menu.conv_actionbar, menu);
+    return true;
+  }
+
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    // this function is called when either action bar icon is tapped
+    switch (item.getItemId()) {
+    case R.id.manual_sync:
+      // check sharedpreferences
+      final SharedPreferences prefs = getSharedPreferences(MY_PREFS_NAME,
+        MODE_PRIVATE);
+      SharedPreferences.Editor prefEditor = prefs.edit();
+      // manual sync conversations, pin online conversations to local
+      final AsyncTasks.SyncDataTaskConversations syncConversations = new AsyncTasks.SyncDataTaskConversations(
+        this, currentUser, prefs, prefEditor, true);
+      syncConversations.execute();
+      Handler handlerConversations = new Handler();
+      handlerConversations.postDelayed(new Runnable() {
+
+        @Override
+        public void run() {
+          if (syncConversations.getStatus() == AsyncTask.Status.RUNNING) {
+            Toast.makeText(getApplicationContext(),
+              "Sync Conversations Timed Out", Toast.LENGTH_SHORT).show();
+            syncConversations.cancel(true);
+          }
+        }
+      }, CONVERSATIONS_TIMEOUT);
+      return true;
+    default:
+      return super.onOptionsItemSelected(item);
+    }
+  }
  
   @SuppressLint("InflateParams")
   private void showActionBar() {

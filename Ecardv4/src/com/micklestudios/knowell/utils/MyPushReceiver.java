@@ -44,7 +44,7 @@ public class MyPushReceiver extends BroadcastReceiver {
 		// upon opening, pin online conversations to local
 		SharedPreferences prefs = context.getSharedPreferences(ActivityBufferOpening.MY_PREFS_NAME, context.MODE_PRIVATE);
 		SharedPreferences.Editor prefEditor = prefs.edit();
-		final AsyncTasks.SyncDataTaskConversations syncConversations = new AsyncTasks.SyncDataTaskConversations(context, currentUser, prefs, prefEditor);
+		final AsyncTasks.SyncDataTaskConversations syncConversations = new AsyncTasks.SyncDataTaskConversations(context, currentUser, prefs, prefEditor, true);
 		syncConversations.execute();
 		Handler handlerConversations = new Handler();
 		handlerConversations.postDelayed(new Runnable() {
