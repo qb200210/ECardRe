@@ -815,35 +815,44 @@ public class ActivitySearch extends ActionBarActivity {
           tempUserInfoList.add(uInfo);
         } else if (name_matcher.matches() || company_matcher.matches() || title_matcher.matches() || city_matcher.matches()) {
           tempUserInfoList.add(uInfo);
-        } else {
-        	int name_mismatch_flag = 0;
-        	int company_mismatch_flag = 0;
-        	int title_mismatch_flag = 0;
-          	int city_mismatch_flag = 0;
-          	//Log.v("name_str", name_str);
-          	//Log.v("company ", company_str);
-          	//Log.v("city ", city_str);
-          	//Log.v("title ", title_str);
-            for (char c : token.toCharArray()) {
-                if (!name_str.contains(String.valueOf(c))){
-                	name_mismatch_flag = 1;
-                }
-        		if (!company_str.contains(String.valueOf(c))){
-        			company_mismatch_flag = 1;
-        		}
-        		if (!title_str.contains(String.valueOf(c))){
-        			title_mismatch_flag = 1;
-        		}
-        		if (!city_str.contains(String.valueOf(c))){
-        			city_mismatch_flag = 1;
-        		}
-        	}
-                        
-            if (name_mismatch_flag*company_mismatch_flag*title_mismatch_flag*city_mismatch_flag == 0){
-            	tempUserInfoList.add(uInfo);
-            }
-        }
-        }
+        } 
+      }
+      
+      if (tempUserInfoList.isEmpty()) {
+          for (UserInfo uInfo : filteredUsers) {
+              String name_str = uInfo.getFirstName().toLowerCase(Locale.ENGLISH)
+                + " " + uInfo.getLastName().toLowerCase(Locale.ENGLISH);
+              String company_str = uInfo.getCompany().toLowerCase(Locale.ENGLISH);
+              String title_str = uInfo.getTitle().toLowerCase(Locale.ENGLISH);
+              String city_str = uInfo.getCity().toLowerCase(Locale.ENGLISH);
+              int name_mismatch_flag = 0;
+          	  int company_mismatch_flag = 0;
+          	  int title_mismatch_flag = 0;
+              int city_mismatch_flag = 0;
+            	//Log.v("name_str", name_str);
+            	//Log.v("company ", company_str);
+            	//Log.v("city ", city_str);
+            	//Log.v("title ", title_str);
+              for (char c : token.toCharArray()) {
+                  if (!name_str.contains(String.valueOf(c))){
+                  	name_mismatch_flag = 1;
+                  }
+                  if (!company_str.contains(String.valueOf(c))){
+          			company_mismatch_flag = 1;
+          			}
+          		  if (!title_str.contains(String.valueOf(c))){
+          			title_mismatch_flag = 1;
+          		  }
+          		  if (!city_str.contains(String.valueOf(c))){
+          			city_mismatch_flag = 1;
+          		  }
+              }
+                          
+              if (name_mismatch_flag*company_mismatch_flag*title_mismatch_flag*city_mismatch_flag == 0){
+              	tempUserInfoList.add(uInfo);
+              }
+          }
+      }
       filteredUsers.clear();
       filteredUsers.addAll(tempUserInfoList);
       tempUserInfoList.clear();
@@ -974,8 +983,7 @@ public class ActivitySearch extends ActionBarActivity {
         SharedPreferences prefs = getSharedPreferences(
           ActivityBufferOpening.MY_PREFS_NAME, MODE_PRIVATE);
         SharedPreferences.Editor prefEditor = prefs.edit();
-        final AsyncTasks.SyncDataTaskNotes syncNotes = new AsyncTasks.SyncDataTaskNotes(
-          this, currentUser, prefs, prefEditor, true);
+        final AsyncTasks.SyncDataTaskNotes syncNotes = new AsyncTasks.SyncDataTaskNotes(this, currentUser, prefs, prefEditor, true);
         syncNotes.execute();
         prefEditor.commit();
         Handler handlerNotes = new Handler();
