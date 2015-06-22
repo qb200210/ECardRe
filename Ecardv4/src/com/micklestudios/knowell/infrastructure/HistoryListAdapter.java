@@ -109,11 +109,18 @@ public class HistoryListAdapter extends ArrayAdapter<ParseObject> implements
       msgView.setText(historyObjects.get(position).get("notes").toString());
     }
     TextView updatedAt = (TextView) convertView.findViewById(R.id.history_date);
-    updatedAt.setText(android.text.format.DateFormat.format("MMM",
-      historyObjects.get(position).getCreatedAt())
-      + " "
-      + android.text.format.DateFormat.format("dd", historyObjects.get(position).getCreatedAt()));
-
+    if(historyObjects.get(position).getObjectId() == null){
+      Date date = new Date();
+      updatedAt.setText(android.text.format.DateFormat.format("MMM",
+        date)
+        + " "
+        + android.text.format.DateFormat.format("dd", date));
+    } else {
+      updatedAt.setText(android.text.format.DateFormat.format("MMM",
+        historyObjects.get(position).getCreatedAt())
+        + " "
+        + android.text.format.DateFormat.format("dd", historyObjects.get(position).getCreatedAt()));
+    }
     return convertView;
   }
   

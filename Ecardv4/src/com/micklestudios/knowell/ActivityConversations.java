@@ -21,6 +21,7 @@ import com.parse.ParseUser;
 import com.micklestudios.knowell.R;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -45,6 +46,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 
 public class ActivityConversations extends ActionBarActivity {
 
@@ -86,12 +88,7 @@ public class ActivityConversations extends ActionBarActivity {
   }
 
   private void retrieveAllViews() {
-    listView = (ListView) findViewById(R.id.activity_conversations_listview);  
-    LinearLayout noNotifView = (LinearLayout) findViewById(R.id.no_notifications);
-    if(potentialUsers == null || potentialUsers.size() == 0){
-      listView.setVisibility(View.GONE);
-      noNotifView.setVisibility(View.VISIBLE);
-    }
+    listView = (ListView) findViewById(R.id.activity_conversations_listview);      
   }
 
   private void initializeContactList() {
@@ -190,29 +187,78 @@ public class ActivityConversations extends ActionBarActivity {
         intent.putExtra("deletedNoteId", (String) null);
         startActivityForResult(intent, SAVE_CARD);
         
-        
-        
       }
       
-      
-
     }
   });
-  adapter = new ConversationsListAdapter(getApplicationContext(),
-    potentialUsers);
-  animationAdapter = new AlphaInAnimationAdapter(adapter);
-  animationAdapter.setAbsListView(listView);
-  assert animationAdapter.getViewAnimator() != null;
-  animationAdapter.getViewAnimator().setInitialDelayMillis(100);
+  
+  listView.setOnItemLongClickListener(new OnItemLongClickListener() {
+    @Override
+    public boolean onItemLongClick(AdapterView<?> parent, View view,
+      final int position, long id) {
+      final CharSequence[] items = {
+        "Delete this record ..."
+      };
+      
+      AlertDialog.Builder builder = new AlertDialog.Builder(ActivityConversations.this);
+      builder.setItems(items, new DialogInterface.OnClickListener() {
+          public void onClick(DialogInterface dialog, int item) {
+            if(item == 0){
+              // select to delete this item
+              UserInfo selectedRecord = (UserInfo) listView.getItemAtPosition(position);
+              potentialUsers.remove(selectedRecord);
+              pupulateListView();
+              ParseQuery<ParseObject> queryConvs = ParseQuery.getQuery("Conversations");
+              queryConvs.fromLocalDatastore();
+              queryConvs.whereEqualTo("partyB", currentUser.get("ecardId").toString());
+              queryConvs.whereEqualTo("partyA", selectedRecord.getObjId());
+              queryConvs.findInBackground(new FindCallback<ParseObject>(){
 
-  listView.setAdapter(animationAdapter);
-  currentSortMode = SORT_MODE_DATE_DSC;
-  adapter.reSort();
-  animationAdapter.notifyDataSetChanged();
+                @Override
+                public void done(List<ParseObject> objects, ParseException e) {
+                  if(e==null){
+                    for(ParseObject obj : objects){
+                      obj.put("isDeleted", true);
+                      obj.saveEventually();
+                    }
+                  }
+                }
+                
+              });
+            }
+          }
+      });
+      AlertDialog alert = builder.create();
+      alert.show();
+      return true;
+    }
+  });
+  
+  
+  pupulateListView();
   
   
 }
   
+  private void pupulateListView() {
+    LinearLayout noNotifView = (LinearLayout) findViewById(R.id.no_notifications);
+    if(potentialUsers == null || potentialUsers.size() == 0){
+      listView.setVisibility(View.GONE);
+      noNotifView.setVisibility(View.VISIBLE);
+    }
+    adapter = new ConversationsListAdapter(getApplicationContext(),
+      potentialUsers);
+    animationAdapter = new AlphaInAnimationAdapter(adapter);
+    animationAdapter.setAbsListView(listView);
+    assert animationAdapter.getViewAnimator() != null;
+    animationAdapter.getViewAnimator().setInitialDelayMillis(100);
+
+    listView.setAdapter(animationAdapter);
+    currentSortMode = SORT_MODE_DATE_DSC;
+    adapter.reSort();
+    animationAdapter.notifyDataSetChanged();
+  }
+
   public boolean onCreateOptionsMenu(Menu menu) {
     getMenuInflater().inflate(R.menu.conv_actionbar, menu);
     return true;
@@ -223,26 +269,31 @@ public class ActivityConversations extends ActionBarActivity {
     // this function is called when either action bar icon is tapped
     switch (item.getItemId()) {
     case R.id.manual_sync:
-      // check sharedpreferences
-      final SharedPreferences prefs = getSharedPreferences(MY_PREFS_NAME,
-        MODE_PRIVATE);
-      SharedPreferences.Editor prefEditor = prefs.edit();
-      // manual sync conversations, pin online conversations to local
-      final AsyncTasks.SyncDataTaskConversations syncConversations = new AsyncTasks.SyncDataTaskConversations(
-        this, currentUser, prefs, prefEditor, true);
-      syncConversations.execute();
-      Handler handlerConversations = new Handler();
-      handlerConversations.postDelayed(new Runnable() {
-
-        @Override
-        public void run() {
-          if (syncConversations.getStatus() == AsyncTask.Status.RUNNING) {
-            Toast.makeText(getApplicationContext(),
-              "Sync Conversations Timed Out", Toast.LENGTH_SHORT).show();
-            syncConversations.cancel(true);
+      if(ECardUtils.isNetworkAvailable(this)){
+        // check sharedpreferences
+        final SharedPreferences prefs = getSharedPreferences(MY_PREFS_NAME,
+          MODE_PRIVATE);
+        SharedPreferences.Editor prefEditor = prefs.edit();
+        // manual sync conversations, pin online conversations to local
+        final AsyncTasks.SyncDataTaskConversations syncConversations = new AsyncTasks.SyncDataTaskConversations(
+          this, currentUser, prefs, prefEditor, true);
+        syncConversations.execute();
+        Handler handlerConversations = new Handler();
+        handlerConversations.postDelayed(new Runnable() {
+  
+          @Override
+          public void run() {
+            if (syncConversations.getStatus() == AsyncTask.Status.RUNNING) {
+              Toast.makeText(getApplicationContext(),
+                "Sync Notifications Timed Out", Toast.LENGTH_SHORT).show();
+              syncConversations.cancel(true);
+            }
           }
-        }
-      }, CONVERSATIONS_TIMEOUT);
+        }, CONVERSATIONS_TIMEOUT);
+      } else{
+        Toast.makeText(getApplicationContext(),
+          "No network ...", Toast.LENGTH_SHORT).show();
+      }
       return true;
     default:
       return super.onOptionsItemSelected(item);

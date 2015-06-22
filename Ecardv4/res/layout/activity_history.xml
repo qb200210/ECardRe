@@ -7,13 +7,13 @@
     android:orientation="vertical" >
 
     <ListView
-        android:id="@+id/activity_conversations_listview"
+        android:id="@+id/activity_history_listview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:dividerHeight="0dp"/>
     
     <LinearLayout
-        android:id="@+id/no_notifications"
+        android:id="@+id/no_history"
 	    android:layout_width="match_parent"
 	    android:layout_height="72dp"
 	    android:layout_marginTop="100dp"
@@ -34,7 +34,7 @@
                     android:layout_height="wrap_content"
                     android:ellipsize="end"
                     android:maxLines="1"
-                    android:text="-- No notifications to show --"
+                    android:text="-- No history to show --"
                     android:textColor="@color/grey_700"
                     android:textSize="18sp" />
         </RelativeLayout>

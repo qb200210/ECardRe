@@ -43,18 +43,19 @@ import android.view.View;
 import android.view.Window;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 
 public class ActivityHistory extends ActionBarActivity {
 
   protected static final int SAVE_CARD = 0;
   private ParseUser currentUser;
-  public static ArrayList<ParseObject> historyObjects;
   HistoryListAdapter adapter;
   AlphaInAnimationAdapter animationAdapter;
   ListView listView;
@@ -67,7 +68,7 @@ public class ActivityHistory extends ActionBarActivity {
   @Override
   protected void onCreate(final Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_conversations);
+    setContentView(R.layout.activity_history);
     currentUser = ParseUser.getCurrentUser();
     
     showActionBar();
@@ -83,12 +84,7 @@ public class ActivityHistory extends ActionBarActivity {
   }
 
   private void retrieveAllViews() {
-    listView = (ListView) findViewById(R.id.activity_conversations_listview);  
-    LinearLayout noNotifView = (LinearLayout) findViewById(R.id.no_notifications);
-//    if(historyObjects == null || historyObjects.size() == 0){
-//      listView.setVisibility(View.GONE);
-//      noNotifView.setVisibility(View.VISIBLE);
-//    }
+    listView = (ListView) findViewById(R.id.activity_history_listview);      
   }
 
   private void initializeContactList() {
@@ -101,36 +97,75 @@ public class ActivityHistory extends ActionBarActivity {
       editHistory(selectedRecord);
     }
   });
-  ParseQuery<ParseObject> queryHistory = ParseQuery.getQuery("History");
-  queryHistory.fromLocalDatastore();
-  queryHistory.whereEqualTo("userId", currentUser.getObjectId().toString());
-  queryHistory.findInBackground(new FindCallback<ParseObject>(){
-
+  
+  listView.setOnItemLongClickListener(new OnItemLongClickListener() {
     @Override
-    public void done(List<ParseObject> objects, ParseException e) {
-      if(e == null){
-        adapter = new HistoryListAdapter(getApplicationContext(),
-          objects);
-        animationAdapter = new AlphaInAnimationAdapter(adapter);
-        animationAdapter.setAbsListView(listView);
-        assert animationAdapter.getViewAnimator() != null;
-        animationAdapter.getViewAnimator().setInitialDelayMillis(100);
-
-        listView.setAdapter(animationAdapter);
-        adapter.reSortDate(false);
-        animationAdapter.notifyDataSetChanged();
-      } else {
-        e.printStackTrace();
-      }
+    public boolean onItemLongClick(AdapterView<?> parent, View view,
+      final int position, long id) {
       
+      final CharSequence[] items = {
+        "Delete this record ..."
+      };
+      
+      AlertDialog.Builder builder = new AlertDialog.Builder(ActivityHistory.this);
+      builder.setItems(items, new DialogInterface.OnClickListener() {
+          public void onClick(DialogInterface dialog, int item) {
+            if(item == 0){
+              // select to delete this item
+              ParseObject selectedRecord = (ParseObject) listView.getItemAtPosition(position);
+              selectedRecord.put("isDeleted", true);  
+              selectedRecord.saveEventually();
+              adapter.remove(selectedRecord);
+              populateListView();
+            }
+          }
+      });
+      AlertDialog alert = builder.create();
+      alert.show();
+      return true;
     }
-    
   });
   
-  
+  populateListView();
   
 }
   
+  private void populateListView() {
+    ParseQuery<ParseObject> queryHistory = ParseQuery.getQuery("History");
+    queryHistory.fromLocalDatastore();
+    queryHistory.whereEqualTo("userId", currentUser.getObjectId().toString());
+    queryHistory.whereNotEqualTo("isDeleted", true);
+    queryHistory.whereExists("objectId");
+    queryHistory.findInBackground(new FindCallback<ParseObject>(){
+
+      @Override
+      public void done(List<ParseObject> objects, ParseException e) {
+        if(e == null){
+          LinearLayout noNotifView = (LinearLayout) findViewById(R.id.no_history);
+          if(objects == null || objects.size() == 0){
+            listView.setVisibility(View.GONE);
+            noNotifView.setVisibility(View.VISIBLE);
+          }
+          adapter = new HistoryListAdapter(getApplicationContext(),
+            objects);
+          animationAdapter = new AlphaInAnimationAdapter(adapter);
+          animationAdapter.setAbsListView(listView);
+          assert animationAdapter.getViewAnimator() != null;
+          animationAdapter.getViewAnimator().setInitialDelayMillis(100);
+
+          listView.setAdapter(animationAdapter);
+          adapter.reSortDate(false);
+          animationAdapter.notifyDataSetChanged();
+        } else {
+          e.printStackTrace();
+        }
+        
+      }
+      
+    });
+    
+  }
+
   private void editHistory(final ParseObject selectedRecord) {
     
     LayoutInflater inflater = getLayoutInflater();
@@ -214,26 +249,31 @@ public class ActivityHistory extends ActionBarActivity {
     // this function is called when either action bar icon is tapped
     switch (item.getItemId()) {
     case R.id.manual_sync:
-      // check sharedpreferences
-      final SharedPreferences prefs = getSharedPreferences(MY_PREFS_NAME,
-        MODE_PRIVATE);
-      SharedPreferences.Editor prefEditor = prefs.edit();
-   // sync history, Supposely not critical, so don't need to wait on it
-      final AsyncTasks.SyncDataTaskHistory syncHistory = new AsyncTasks.SyncDataTaskHistory(
-        this, currentUser, prefs, prefEditor, true);
-      syncHistory.execute();
-      Handler handlerHistory = new Handler();
-      handlerHistory.postDelayed(new Runnable() {
-
-        @Override
-        public void run() {
-          if (syncHistory.getStatus() == AsyncTask.Status.RUNNING) {
-            Toast.makeText(getApplicationContext(),
-              "Sync History Timed Out", Toast.LENGTH_SHORT).show();
-            syncHistory.cancel(true);
+      if(ECardUtils.isNetworkAvailable(this)){
+        // check sharedpreferences
+        final SharedPreferences prefs = getSharedPreferences(MY_PREFS_NAME,
+          MODE_PRIVATE);
+        SharedPreferences.Editor prefEditor = prefs.edit();
+     // sync history, Supposely not critical, so don't need to wait on it
+        final AsyncTasks.SyncDataTaskHistory syncHistory = new AsyncTasks.SyncDataTaskHistory(
+          this, currentUser, prefs, prefEditor, true);
+        syncHistory.execute();
+        Handler handlerHistory = new Handler();
+        handlerHistory.postDelayed(new Runnable() {
+  
+          @Override
+          public void run() {
+            if (syncHistory.getStatus() == AsyncTask.Status.RUNNING) {
+              Toast.makeText(getApplicationContext(),
+                "Sync History Timed Out", Toast.LENGTH_SHORT).show();
+              syncHistory.cancel(true);
+            }
           }
-        }
-      }, HISTORY_TIMEOUT);
+        }, HISTORY_TIMEOUT);
+      } else {
+        Toast.makeText(getApplicationContext(),
+          "No network ...", Toast.LENGTH_SHORT).show();
+      }
       return true;
     default:
       return super.onOptionsItemSelected(item);

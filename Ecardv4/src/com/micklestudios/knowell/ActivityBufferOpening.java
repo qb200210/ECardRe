@@ -170,6 +170,7 @@ public class ActivityBufferOpening extends Activity {
     ParseQuery<ParseObject> queryConvs = ParseQuery.getQuery("Conversations");
     queryConvs.fromLocalDatastore();
     queryConvs.whereEqualTo("partyB", currentUser.get("ecardId").toString());
+    queryConvs.whereNotEqualTo("isDeleted", true);
     List<ParseObject> objectConvList = null;
     try {
       objectConvList = queryConvs.find();
@@ -226,7 +227,7 @@ public class ActivityBufferOpening extends Activity {
     ParseQuery<ParseObject> queryNotes = ParseQuery.getQuery("ECardNote");
     queryNotes.fromLocalDatastore();
     queryNotes.whereEqualTo("userId", currentUser.getObjectId());
-
+    queryNotes.whereNotEqualTo("isDeleted", true);
     queryNotes.findInBackground(new FindCallback<ParseObject>() {
       @Override
       public void done(List<ParseObject> objectsNoteList,

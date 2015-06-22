@@ -466,6 +466,8 @@ public class ActivityDetails extends ActionBarActivity {
       public void done(final ParseObject object, ParseException e) {
         if (e == null) {
           if (object != null) {
+            // TO-DO: Should set a flag checking whether voicenote changed
+            // If not, directly go ahead and save
             FileInputStream fileInputStream = null;
             File file = new File(filepath);
             byte[] bFile = new byte[(int) file.length()];

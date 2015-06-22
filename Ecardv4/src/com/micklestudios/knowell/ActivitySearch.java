@@ -68,6 +68,10 @@ import com.micklestudios.knowell.utils.MySimpleListViewAdapterForSearch;
 import com.nhaarman.listviewanimations.appearance.StickyListHeadersAdapterDecorator;
 import com.nhaarman.listviewanimations.appearance.simple.AlphaInAnimationAdapter;
 import com.nhaarman.listviewanimations.util.StickyListHeadersListViewWrapper;
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 public class ActivitySearch extends ActionBarActivity {
@@ -160,8 +164,10 @@ public class ActivitySearch extends ActionBarActivity {
   private ImageView btnClearCompany;
   private ImageView btnClearEventMet;
 
-  private CheckBox chkSelectAll;
-  private Button btnEmailSel;
+  private ImageView chkSelectAll;
+  private ImageView btnEmailSel;
+  private ImageView btnDeleteSel;
+  private boolean isSelectAllChecked;
 
   @SuppressLint("InflateParams")
   @Override
@@ -246,8 +252,9 @@ public class ActivitySearch extends ActionBarActivity {
     btnClearCompany = (ImageView) findViewById(R.id.clear_company);
     btnClearEventMet = (ImageView) findViewById(R.id.clear_eventmet);
 
-    chkSelectAll = (CheckBox) findViewById(R.id.chk_select_all);
-    btnEmailSel = (Button) findViewById(R.id.btn_email_sel);
+    chkSelectAll = (ImageView) findViewById(R.id.chk_select_all);
+    btnEmailSel = (ImageView) findViewById(R.id.btn_email_sel);
+    btnDeleteSel = (ImageView) findViewById(R.id.btn_delete_sel);
   }
 
   private void setSelectionMode(boolean set) {
@@ -261,6 +268,7 @@ public class ActivitySearch extends ActionBarActivity {
     if (set) {
       selectionBar.setVisibility(View.VISIBLE);
       searchBar.setVisibility(View.INVISIBLE);
+      isSelectAllChecked = true;
     } else {
       selectedUsers.clear();
       selectionBar.setVisibility(View.INVISIBLE);
@@ -658,15 +666,20 @@ public class ActivitySearch extends ActionBarActivity {
       android.R.layout.select_dialog_item, autoCompleteListAll);
     searchBox.setAdapter(adapterAll);
 
-    chkSelectAll.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+    chkSelectAll.setOnClickListener(new OnClickListener(){
+
       @Override
-      public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+      public void onClick(View v) {
         selectedUsers.clear();
-        if (isChecked) {
+        if (isSelectAllChecked) {
           selectedUsers.addAll(filteredUsers);
+          isSelectAllChecked = false;
+        } else{
+          isSelectAllChecked = true;
         }
         adapter.notifyDataSetChanged();
       }
+      
     });
 
     btnEmailSel.setOnClickListener(new OnClickListener() {
@@ -714,6 +727,37 @@ public class ActivitySearch extends ActionBarActivity {
         }
       }
     });
+    
+    btnDeleteSel.setOnClickListener(new OnClickListener() {
+
+      @Override
+      public void onClick(View v) {
+        allUsers.removeAll(selectedUsers);
+        List<String> toBeDeleted = new ArrayList<String>();
+        for(UserInfo selectedUser : selectedUsers){
+          toBeDeleted.add(selectedUser.getObjId());
+        }
+        ParseQuery<ParseObject> queryNotes = ParseQuery.getQuery("ECardNote");
+        queryNotes.whereEqualTo("userId", currentUser.getObjectId());
+        queryNotes.whereContainedIn("ecardId", toBeDeleted);
+        queryNotes.fromLocalDatastore();
+        queryNotes.findInBackground(new FindCallback<ParseObject>(){
+
+          @Override
+          public void done(List<ParseObject> objects, ParseException e) {
+            if(e==null){
+              for(ParseObject obj : objects){
+                obj.put("isDeleted", true);
+                obj.saveEventually();
+              }  
+              performSearch();// clear current selection     
+            }
+          }
+          
+        });
+      }
+    });
+    
   }
 
   // Hide all the filter text views
@@ -826,30 +870,30 @@ public class ActivitySearch extends ActionBarActivity {
               String title_str = uInfo.getTitle().toLowerCase(Locale.ENGLISH);
               String city_str = uInfo.getCity().toLowerCase(Locale.ENGLISH);
               int name_mismatch_flag = 0;
-          	  int company_mismatch_flag = 0;
-          	  int title_mismatch_flag = 0;
+              int company_mismatch_flag = 0;
+              int title_mismatch_flag = 0;
               int city_mismatch_flag = 0;
-            	//Log.v("name_str", name_str);
-            	//Log.v("company ", company_str);
-            	//Log.v("city ", city_str);
-            	//Log.v("title ", title_str);
+              //Log.v("name_str", name_str);
+              //Log.v("company ", company_str);
+              //Log.v("city ", city_str);
+              //Log.v("title ", title_str);
               for (char c : token.toCharArray()) {
                   if (!name_str.contains(String.valueOf(c))){
-                  	name_mismatch_flag = 1;
+                    name_mismatch_flag = 1;
                   }
                   if (!company_str.contains(String.valueOf(c))){
-          			company_mismatch_flag = 1;
-          			}
-          		  if (!title_str.contains(String.valueOf(c))){
-          			title_mismatch_flag = 1;
-          		  }
-          		  if (!city_str.contains(String.valueOf(c))){
-          			city_mismatch_flag = 1;
-          		  }
+                company_mismatch_flag = 1;
+                }
+                if (!title_str.contains(String.valueOf(c))){
+                title_mismatch_flag = 1;
+                }
+                if (!city_str.contains(String.valueOf(c))){
+                city_mismatch_flag = 1;
+                }
               }
                           
               if (name_mismatch_flag*company_mismatch_flag*title_mismatch_flag*city_mismatch_flag == 0){
-              	tempUserInfoList.add(uInfo);
+                tempUserInfoList.add(uInfo);
               }
           }
       }

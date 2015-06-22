@@ -85,11 +85,14 @@
 
         <CheckBox
             android:id="@+id/chk_contact_select"
-            android:layout_width="26dp"
-            android:layout_height="72dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
             android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
             android:focusable="false"
-            android:paddingRight="6dp" />
+            android:paddingRight="6dp" 
+            android:button="@null"
+			android:background="@drawable/checkbox_selector" />
     </RelativeLayout>
 
 </LinearLayout>
