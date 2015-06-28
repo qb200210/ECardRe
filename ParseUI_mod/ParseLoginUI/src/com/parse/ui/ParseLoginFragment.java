@@ -391,7 +391,8 @@ public class ParseLoginFragment extends ParseLoginFragmentBase {
 										ParseUser user = new ParseUser();
 										String sysGenUserName = firstName + lastName + linkedin_id;
 										user.setUsername(sysGenUserName);
-										String password = Integer.toString(linkedin_id.hashCode());
+										//String password = Integer.toString(linkedin_id.hashCode());
+										String password = linkedin_id + "jsdj32RIfd28UFaf2";
 									    user.setPassword(password);
 									    //user.setEmail(null);
 
