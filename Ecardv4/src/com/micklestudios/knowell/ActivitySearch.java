@@ -2,7 +2,9 @@ package com.micklestudios.knowell;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.StringTokenizer;
@@ -23,6 +25,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Editable;
@@ -1044,6 +1047,25 @@ public class ActivitySearch extends ActionBarActivity {
             }
           }
         }, NOTES_TIMEOUT);
+        
+        Thread timerThread = new Thread() {
+
+          public void run() {
+            while (syncNotes.getStatus() == AsyncTask.Status.RUNNING) {
+              try {
+                sleep(500);
+              } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+              }              
+            }
+            // TO-DO: Refresh current mini-cards list!
+            getContacts();
+            Message myMessage = new Message();
+            handlerJump.sendMessage(myMessage);
+          }
+        };
+        timerThread.start();
       } else {
         Toast.makeText(getApplicationContext(), "Network unavailable",
           Toast.LENGTH_SHORT).show();
@@ -1059,6 +1081,13 @@ public class ActivitySearch extends ActionBarActivity {
       return super.onOptionsItemSelected(item);
     }
   }
+  
+  Handler handlerJump = new Handler() {
+    @Override
+    public void handleMessage(Message msg) {
+      performSearch();
+    }
+  };
 
   private void buildSortDialog() {
     // Get the layout inflater
@@ -1119,5 +1148,98 @@ public class ActivitySearch extends ActionBarActivity {
       }
 
     });
+  }
+  
+  
+  private void getContacts() {
+    ActivitySearch.allUsers.clear();
+    /* A map of all the ECardNote objects to the noteID */
+    final HashMap<String, ParseObject> noteIdToNoteObjectMap = new HashMap<String, ParseObject>();
+
+    ParseQuery<ParseObject> queryNotes = ParseQuery.getQuery("ECardNote");
+    queryNotes.fromLocalDatastore();
+    queryNotes.whereEqualTo("userId", currentUser.getObjectId());
+    queryNotes.whereNotEqualTo("isDeleted", true);
+    List<ParseObject> objectsNoteList = null;
+    try {
+      objectsNoteList = queryNotes.find();
+    } catch (ParseException e1) {
+      // TODO Auto-generated catch block
+      e1.printStackTrace();
+    }
+    if(objectsNoteList!= null){
+      if (objectsNoteList.size() != 0) {
+        // Got a list of all the notes. Now collect all the noteIDs.
+        for (Iterator<ParseObject> iter = objectsNoteList.iterator(); iter
+          .hasNext();) {
+          ParseObject objectNote = iter.next();
+          String infoObjectId = (String) objectNote.get("ecardId");
+  
+          // Add these values to the map.
+          noteIdToNoteObjectMap.put(infoObjectId, objectNote);
+        }
+  
+        /*
+         * Now, query the ECardInfoTable to get all the ECardInfo for the
+         * notes collected here.
+         */
+        ParseQuery<ParseObject> queryInfo = ParseQuery
+          .getQuery("ECardInfo");
+        queryInfo.fromLocalDatastore();
+        queryInfo.whereContainedIn("objectId",
+          noteIdToNoteObjectMap.keySet());
+        List<ParseObject> objectInfoList = null;
+        try {
+          objectInfoList = queryInfo.find();
+        } catch (ParseException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        }
+  
+        if(objectInfoList!=null){
+        // Now we have a list of ECardInfo objects. Populate the
+        // userInfo list.
+          // Create sets to add the strings we find in the contacts.
+          HashSet<String> setCompany = new HashSet<String>();
+          HashSet<String> setWhereMet = new HashSet<String>();
+          HashSet<String> setEventMet = new HashSet<String>();
+          HashSet<String> setAll = new HashSet<String>();
+  
+          ActivitySearch.autoCompleteListAll = new ArrayList<String>();
+          ActivitySearch.autoCompleteListCompany = new ArrayList<String>();
+          ActivitySearch.autoCompleteListEvent = new ArrayList<String>();
+          ActivitySearch.autoCompleteListWhere = new ArrayList<String>();
+  
+          // Iterate over the list.
+          for (Iterator<ParseObject> iter = objectInfoList.iterator(); iter
+            .hasNext();) {
+            ParseObject objectInfo = iter.next();
+            UserInfo contact = new UserInfo(objectInfo);
+            if (contact != null) {
+              // Contact has been created. Populate the "createdAt" from
+              // the note object.
+              String infoObjectId = (String) objectInfo.getObjectId();
+              ParseObject objectNote = noteIdToNoteObjectMap
+                .get(infoObjectId);
+              contact.setWhenMet(objectNote.getCreatedAt());
+              contact.setEventMet(objectNote.getString("event_met"));
+              contact.setWhereMet(objectNote.getString("where_met"));
+              contact.setNotes(objectNote.getString("notes"));
+  
+              ActivitySearch.allUsers.add(contact);
+  
+              setCompany.add(contact.getCompany());
+              setWhereMet.add(contact.getWhereMet());
+              setEventMet.add(contact.getEventMet());
+              setAll.addAll(contact.getAllStrings());
+            }
+          }
+          ActivitySearch.autoCompleteListCompany.addAll(setCompany);
+          ActivitySearch.autoCompleteListEvent.addAll(setEventMet);
+          ActivitySearch.autoCompleteListWhere.addAll(setWhereMet);
+          ActivitySearch.autoCompleteListAll.addAll(setAll);
+        }
+      }
+    }
   }
 }

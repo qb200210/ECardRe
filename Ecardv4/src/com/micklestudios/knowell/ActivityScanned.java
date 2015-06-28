@@ -544,14 +544,16 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 				if(isOnline){
 					if(ECardUtils.isNetworkAvailable(ActivityScanned.this)){
 						// only send push immediately if online
-						shareBackOnline(scannedUser.getObjId());
+						shareBackOnline(scannedUser.getObjId(), scannedUser.getUserId());
 					} else {
-						// If no network, cache the share back request then wait till next time app opens with network to send push
-						shareBackOffline(scannedUser.getObjId());
+					  // TO-DO: disabled offline shareback because there maybe no userId, so ACL of conversation can be messy
+	          // If no network, cache the share back request then wait till next time app opens with network to send push
+						// shareBackOffline(scannedUser.getObjId());
 					}
 				} else{
+				  // TO-DO: disabled offline shareback because there maybe no userId, so ACL of conversation can be messy
 					// Offline, but still want to share back
-					shareBackOffline(scannedUser.getObjId());
+					// shareBackOffline(scannedUser.getObjId());
 				}
 				setResult(RESULT_OK);
 				ActivityScanned.this.finish();
@@ -826,7 +828,7 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 		}
 	}
 
-	public void shareBackOnline(final String targetEcardId) {
+	public void shareBackOnline(final String targetEcardId, String targetUserId) {
 		// Meanwhile, create a record in conversations -- so web app can check since it cannot receive notification
 		// need to see how to fix ACL so only both parties can access conversation
 		// If the other card non-exist, then it doesn't hurt, it'll just be no one will receive notifications
@@ -843,6 +845,12 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 		if(listConv == null || listConv.size() == 0){
 			// if there is no existing notification, create one
 			ParseObject object = new ParseObject("Conversations");
+			ParseACL myACL = new ParseACL();
+			myACL.setPublicReadAccess(false);
+      myACL.setPublicWriteAccess(false);
+      myACL.setWriteAccess(currentUser.getObjectId().toString(), true);
+      myACL.setWriteAccess(targetUserId, true);
+      object.setACL(myACL);
 			object.put("partyA", currentUser.get("ecardId").toString());
 			object.put("partyB", targetEcardId);
 			object.put("read", false);

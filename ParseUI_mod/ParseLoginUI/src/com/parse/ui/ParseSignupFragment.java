@@ -180,7 +180,7 @@ public class ParseSignupFragment extends ParseLoginFragmentBase implements OnCli
       user.setEmail(email);
 
       // Set additional custom fields only if the user filled it out
-      if (name.length() != 0) {
+      if (name != null && name.length() != 0) {
         user.put(USER_OBJECT_NAME_FIELD, name);
       }
 
@@ -251,28 +251,29 @@ public class ParseSignupFragment extends ParseLoginFragmentBase implements OnCli
 			e.printStackTrace();
 		}
 		currentUser.put("ecardId", object.getObjectId());
-		// get first and last name then upload
-		String fullName = (String) currentUser.get("name");		
-		String delims = "[ ,]";
-		String firstName= "";
-		String lastName= "";
-		String[] tokens = fullName.split(delims);
-		Integer size = tokens.length;
-		Integer i =0;
-		if(size == 1){
-			firstName = tokens[0];
-		} else{
-			firstName = tokens[0];
-			for(i=1;i< size-1; i++){
-				firstName = firstName + " " + tokens[i];
-			}
-			lastName = tokens[size -1];
-		}
-		object.put("firstName", firstName);
-		object.put("lastName", lastName);
-		object.put("fullName", fullName.toLowerCase(Locale.ENGLISH));
+//		// get first and last name then upload
+//		String fullName = (String) currentUser.get("name");		
+//		String delims = "[ ,]";
+//		String firstName= "";
+//		String lastName= "";
+//		String[] tokens = fullName.split(delims);
+//		Integer size = tokens.length;
+//		Integer i =0;
+//		if(size == 1){
+//			firstName = tokens[0];
+//		} else{
+//			firstName = tokens[0];
+//			for(i=1;i< size-1; i++){
+//				firstName = firstName + " " + tokens[i];
+//			}
+//			lastName = tokens[size -1];
+//		}
+//		object.put("firstName", firstName);
+//		object.put("lastName", lastName);
+//		object.put("fullName", fullName.toLowerCase(Locale.ENGLISH));
 		// initialize portrait with blank one
 		putBlankPortrait(object);
+		object.put("userId", currentUser.getObjectId().toString());
 		// createQRCode(object); // the EcardInfo and QR code both created
 		object.saveInBackground();
 		// If new on the server, should not have exist locally. So should make a local copy

@@ -1,6 +1,8 @@
 package com.micklestudios.knowell;
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -21,6 +23,7 @@ import com.parse.ParseUser;
 import com.micklestudios.knowell.R;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -30,6 +33,7 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -50,7 +54,7 @@ import android.widget.AdapterView.OnItemLongClickListener;
 
 public class ActivityConversations extends ActionBarActivity {
 
-  protected static final int SAVE_CARD = 0;
+  protected static final int SAVE_CARD = 3001;
   private ParseUser currentUser;
   public static ArrayList<UserInfo> potentialUsers;
   ConversationsListAdapter adapter;
@@ -207,7 +211,7 @@ public class ActivityConversations extends ActionBarActivity {
               // select to delete this item
               UserInfo selectedRecord = (UserInfo) listView.getItemAtPosition(position);
               potentialUsers.remove(selectedRecord);
-              pupulateListView();
+              populateListView();
               ParseQuery<ParseObject> queryConvs = ParseQuery.getQuery("Conversations");
               queryConvs.fromLocalDatastore();
               queryConvs.whereEqualTo("partyB", currentUser.get("ecardId").toString());
@@ -235,16 +239,19 @@ public class ActivityConversations extends ActionBarActivity {
   });
   
   
-  pupulateListView();
+  populateListView();
   
   
 }
   
-  private void pupulateListView() {
+  private void populateListView() {
     LinearLayout noNotifView = (LinearLayout) findViewById(R.id.no_notifications);
     if(potentialUsers == null || potentialUsers.size() == 0){
       listView.setVisibility(View.GONE);
       noNotifView.setVisibility(View.VISIBLE);
+    } else {
+      listView.setVisibility(View.VISIBLE);
+      noNotifView.setVisibility(View.GONE);
     }
     adapter = new ConversationsListAdapter(getApplicationContext(),
       potentialUsers);
@@ -269,36 +276,66 @@ public class ActivityConversations extends ActionBarActivity {
     // this function is called when either action bar icon is tapped
     switch (item.getItemId()) {
     case R.id.manual_sync:
-      if(ECardUtils.isNetworkAvailable(this)){
-        // check sharedpreferences
-        final SharedPreferences prefs = getSharedPreferences(MY_PREFS_NAME,
-          MODE_PRIVATE);
-        SharedPreferences.Editor prefEditor = prefs.edit();
-        // manual sync conversations, pin online conversations to local
-        final AsyncTasks.SyncDataTaskConversations syncConversations = new AsyncTasks.SyncDataTaskConversations(
-          this, currentUser, prefs, prefEditor, true);
-        syncConversations.execute();
-        Handler handlerConversations = new Handler();
-        handlerConversations.postDelayed(new Runnable() {
-  
-          @Override
-          public void run() {
-            if (syncConversations.getStatus() == AsyncTask.Status.RUNNING) {
-              Toast.makeText(getApplicationContext(),
-                "Sync Notifications Timed Out", Toast.LENGTH_SHORT).show();
-              syncConversations.cancel(true);
-            }
-          }
-        }, CONVERSATIONS_TIMEOUT);
-      } else{
-        Toast.makeText(getApplicationContext(),
-          "No network ...", Toast.LENGTH_SHORT).show();
-      }
+      manualSync();
       return true;
     default:
       return super.onOptionsItemSelected(item);
     }
   }
+  
+  private void manualSync() {
+    if(ECardUtils.isNetworkAvailable(this)){
+      // check sharedpreferences
+      final SharedPreferences prefs = getSharedPreferences(MY_PREFS_NAME,
+        MODE_PRIVATE);
+      SharedPreferences.Editor prefEditor = prefs.edit();
+      // manual sync conversations, pin online conversations to local
+      final AsyncTasks.SyncDataTaskConversations syncConversations = new AsyncTasks.SyncDataTaskConversations(
+        this, currentUser, prefs, prefEditor, true);
+      syncConversations.execute();
+      Handler handlerConversations = new Handler();
+      handlerConversations.postDelayed(new Runnable() {
+
+        @Override
+        public void run() {
+          if (syncConversations.getStatus() == AsyncTask.Status.RUNNING) {
+            Toast.makeText(getApplicationContext(),
+              "Sync Notifications Timed Out", Toast.LENGTH_SHORT).show();
+            syncConversations.cancel(true);
+          }
+        }
+      }, CONVERSATIONS_TIMEOUT);
+      
+      Thread timerThread = new Thread() {
+
+        public void run() {
+          while (syncConversations.getStatus() == AsyncTask.Status.RUNNING) {
+            try {
+              sleep(500);
+            } catch (InterruptedException e) {
+              // TODO Auto-generated catch block
+              e.printStackTrace();
+            }              
+          }
+          // TO-DO: Refresh Upon manual sync. Below leads to crash due to touching UI components
+          getConvContacts();
+          Message myMessage = new Message();
+          handlerJump.sendMessage(myMessage);
+        }
+      };
+      timerThread.start();
+    } else{
+      Toast.makeText(getApplicationContext(),
+        "No network ...", Toast.LENGTH_SHORT).show();
+    }
+  }
+
+  Handler handlerJump = new Handler() {
+    @Override
+    public void handleMessage(Message msg) {
+      populateListView();
+    }
+  };
  
   @SuppressLint("InflateParams")
   private void showActionBar() {
@@ -327,6 +364,18 @@ public class ActivityConversations extends ActionBarActivity {
   }
 
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    
+    
+    switch (requestCode) {
+    case SAVE_CARD:
+      // Refreshing fragments
+      if (resultCode == Activity.RESULT_OK) {
+        manualSync();
+      }
+      break;
+    default:
+      break;
+    }
     super.onActivityResult(requestCode, resultCode, data);
 
   }
@@ -443,7 +492,7 @@ public class ActivityConversations extends ActionBarActivity {
 		      intent.putExtra("userinfo", newUser);
 		      intent.putExtra("offlineMode", false);
 		      intent.putExtra("deletedNoteId", deletedNoteId);
-		      startActivity(intent);
+          startActivityForResult(intent, SAVE_CARD);
 		      if (dialog.isShowing()) {
                   dialog.dismiss();
                 }
@@ -454,7 +503,7 @@ public class ActivityConversations extends ActionBarActivity {
 		      intent.putExtra("userinfo", newUser);
 		      intent.putExtra("offlineMode", false);
 		      intent.putExtra("deletedNoteId", (String)null);
-		      startActivity(intent);
+		      startActivityForResult(intent, SAVE_CARD);
 		      if (dialog.isShowing()) {
                   dialog.dismiss();
                 }
@@ -462,5 +511,64 @@ public class ActivityConversations extends ActionBarActivity {
 	    }
 
 	  }
+  
+  protected void getConvContacts() {
+    Log.i("actbuf", "inside getconvcontacts");
+    ActivityConversations.potentialUsers.clear();
+    /* A map of all the ECardNote objects to the noteID */
+    final HashMap<String, Date> infoIdToConvDateMap = new HashMap<String, Date>();
+    // During SyncConversations, all conversations should have been synced to local
+    ParseQuery<ParseObject> queryConvs = ParseQuery.getQuery("Conversations");
+    queryConvs.fromLocalDatastore();
+    queryConvs.whereEqualTo("partyB", currentUser.get("ecardId").toString());
+    queryConvs.whereNotEqualTo("isDeleted", true);
+    List<ParseObject> objectConvList = null;
+    try {
+      objectConvList = queryConvs.find();
+    } catch (ParseException e) {
+      e.printStackTrace();
+    }
+    if(objectConvList != null && objectConvList.size() != 0){
+      // If there are conversations, don't worry about notes yet, just create userInfo using ecards
+      for(Iterator<ParseObject> iter = objectConvList.iterator(); iter.hasNext();){
+        ParseObject objectConv = iter.next();
+        // don't need to check if the conversation is deleted, because that should be done by SyncConversations
+        String infoObjectId = objectConv.get("partyA").toString();
+        Log.i("actbuf", objectConv.getUpdatedAt().toString());
+        
+        infoIdToConvDateMap.put(infoObjectId, objectConv.getUpdatedAt());
+      }
+      /*
+       * Now, query the ECardInfoTable to get all the ECardInfo for the conversations
+       * collected here.
+       */
+      ParseQuery<ParseObject> queryInfo = ParseQuery.getQuery("ECardInfo");
+      queryInfo.fromLocalDatastore();
+      queryInfo.whereContainedIn("objectId", infoIdToConvDateMap.keySet());
+      List<ParseObject> objectInfoList = null;
+      try {
+        objectInfoList = queryInfo.find();
+      } catch (ParseException e) {
+        e.printStackTrace();
+      }
+      Log.i("actbuf", " "+ objectConvList.size()+ " "+ objectInfoList.size() );
+        
+      if(objectInfoList != null && objectInfoList.size() != 0){
+        for(Iterator<ParseObject> iter = objectInfoList.iterator(); iter.hasNext();){
+          ParseObject objectInfo = iter.next();
+          UserInfo contact = new UserInfo(objectInfo);
+          if(contact != null){
+            Log.i("actbuf", contact.getFirstName());
+            // No need to put note as part of UserInfo -- will execute note_query from localdatastore later
+            // Dont need to keep mapping to actual conversations objects -- they are not as critical
+            Log.i("actbuf", infoIdToConvDateMap.get(objectInfo.getObjectId()).toString());
+            contact.setWhenMet(infoIdToConvDateMap.get(objectInfo.getObjectId()));
+            // If there are 20 conversations, while only 4 of corresponding ecard pinned down, then final conv for display will be 4
+            ActivityConversations.potentialUsers.add(contact);
+          }
+        }
+      }        
+    }
+  }
 
 }

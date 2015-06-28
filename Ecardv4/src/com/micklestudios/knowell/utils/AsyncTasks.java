@@ -75,7 +75,12 @@ public class AsyncTasks {
       long millis = prefs.getLong("DateHistorySynced", 0L);
       Date lastSyncedDate = new Date(millis);
 
-      ParseQuery<ParseObject> query = ParseQuery.getQuery("History");
+      long start = System.nanoTime();   
+      
+      
+      // Only pull those data when there is actual update
+        
+      ParseQuery query = ParseQuery.getQuery("History");
       query.whereEqualTo("userId", currentUser.getObjectId().toString());
       query.whereGreaterThan("updatedAt", lastSyncedDate);
       List<ParseObject> histObjects = null;
@@ -85,6 +90,10 @@ public class AsyncTasks {
         // TODO Auto-generated catch block
         e2.printStackTrace();
       }
+
+      long elapsedTime = System.nanoTime() - start;
+      Log.d("timer", "history: "+ elapsedTime * 1e-9);
+      
       if (histObjects != null && histObjects.size() != 0) {
         flagShouldSync = true;
         for (Iterator<ParseObject> iter = histObjects.iterator(); iter
@@ -112,6 +121,8 @@ public class AsyncTasks {
           e.printStackTrace();
         }
       }
+      
+      
       // flush sharedpreference with today's date after all notes saved
       Date currentDate = new Date();
       prefEditor.putLong("DateHistorySynced", currentDate.getTime());
@@ -157,6 +168,8 @@ public class AsyncTasks {
       long millisUser = prefs.getLong("DateSelfUserSynced", 0L);
       Date lastSyncedDateSelf = new Date(millis);
       Date lastSyncedDateSelfUser = new Date(millisUser);
+      
+      long start = System.nanoTime();
 
       ParseQuery<ParseUser> queryUser = ParseUser.getQuery();
       queryUser.whereGreaterThan("updatedAt", lastSyncedDateSelfUser);
@@ -168,7 +181,11 @@ public class AsyncTasks {
         // TODO Auto-generated catch block
         e1.printStackTrace();
       }
+      long elapsedTime = System.nanoTime() - start;
+      Log.d("timer", "selfchecknew: "+ elapsedTime * 1e-9);
 
+      start = System.nanoTime();
+      
       if (userObjects != null && userObjects.size() != 0) {
         flagShouldSync = true;
         try {
@@ -183,6 +200,11 @@ public class AsyncTasks {
         }
 
       }
+      
+      elapsedTime = System.nanoTime() - start;
+      Log.d("timer", "pinselfusr: "+ elapsedTime * 1e-9);
+      
+      start = System.nanoTime();
 
       ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardInfo");
       // constraint: server value newer
@@ -233,6 +255,9 @@ public class AsyncTasks {
           e.printStackTrace();
         }
       }
+      
+      elapsedTime = System.nanoTime() - start;
+      Log.d("timer", "pinselfcard: "+ elapsedTime * 1e-9);
       return null;
     }
 
@@ -278,6 +303,9 @@ public class AsyncTasks {
         tmpCompanyNames.addAll(fetchedCompanyList);
       }
 
+
+      long start = System.nanoTime();
+      
       // get the stored shared last sync date, if null, default to 1969
       long millis = prefs.getLong("DateCompanySynced", 0L);
       Date lastSyncedDate = new Date(millis);
@@ -305,7 +333,12 @@ public class AsyncTasks {
       if (tmpCompanyNames != null) {
         ActivityDesign.companyNames.addAll(tmpCompanyNames);
       }
+      
+      long elapsedTime = System.nanoTime() - start;
+      Log.d("timer", "updtprefcmpnames: "+ elapsedTime * 1e-9);
 
+
+      start = System.nanoTime();
       // pin down logos for those ecards that are already in localstore
       ParseQuery<ParseObject> queryInfo = ParseQuery.getQuery("ECardInfo");
       queryInfo.fromLocalDatastore();
@@ -391,6 +424,9 @@ public class AsyncTasks {
         }
 
       }
+      
+      elapsedTime = System.nanoTime() - start;
+      Log.d("timer", "synccompnames: "+ elapsedTime * 1e-9);
 
       // flush sharedpreference with today's date
       Date currentDate = new Date();
@@ -427,6 +463,9 @@ public class AsyncTasks {
       // get the stored shared last sync date, if null, default to 1969
       long millis = prefs.getLong("DateNoteSynced", 0L);
       Date lastSyncedDate = new Date(millis);
+      
+      long start = System.nanoTime();
+      long elapsedTime;
 
       ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardNote");
       query.whereEqualTo("userId", currentUser.getObjectId());
@@ -435,45 +474,41 @@ public class AsyncTasks {
       try {
         noteObjects = query.find();
       } catch (ParseException e1) {
-        // TODO Auto-generated catch block
         e1.printStackTrace();
       }
       if (noteObjects != null && noteObjects.size() != 0) {
+        // If some of the notes have been updated, otherwise skip the rest
         flagShouldSync = true;
-        // unpin those notes that are deleted
+        
         for (Iterator<ParseObject> iter = noteObjects.iterator(); iter
           .hasNext();) {
           ParseObject objNote = iter.next();
-          // This is to cache all associated parseFiles
-          if (objNote.get("voiceNotes") != null) {
-            ParseFile voiceNote = (ParseFile) objNote.get("voiceNotes");
-            try {
-              // dummy statement to force caching data
-              voiceNote.getData();
-            } catch (ParseException e) {
-              // TODO Auto-generated catch block
-              e.printStackTrace();
-            }
-          }
+          // unpin those notes that are deleted along with the ecards
           if (objNote.get("isDeleted") != null) {
             if ((boolean) objNote.get("isDeleted") == true) {
               try {
                 // unpin the "deleted" object
-                objNote.unpin();
-                // remove it from the to-be-pinned list
+                objNote.unpin();                
+                if(objNote.get("ecardId").toString() != currentUser.get("ecardId").toString()){
+                  // If the note is with self, then unpinning card may result in crash
+                  // unpin corresponding local Ecard copy
+                  ParseQuery queryInfoLocal = ParseQuery.getQuery("ECardInfo");
+                  queryInfoLocal.fromLocalDatastore();
+                  ParseObject objEcard = queryInfoLocal.get(objNote.get("ecardId").toString());
+                  objEcard.unpin();
+                }
+                // remove the note from the to-be-pinned list
                 iter.remove();
               } catch (ParseException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
               }
             }
-          }
+          }          
         }
-        TreeSet<String> ecardIdsTree = new TreeSet<String>();
+        // Now the remaining list is for updated Notes, this part is to cache all parseFiles
         for (Iterator<ParseObject> iter = noteObjects.iterator(); iter
           .hasNext();) {
-          ParseObject objNote = iter.next();
-          ecardIdsTree.add(objNote.get("ecardId").toString());
+          ParseObject objNote = iter.next();          
           byte[] tmpVoiceData = (byte[]) objNote.get("tmpVoiceByteArray");
           if (tmpVoiceData != null) {
             // if there is cached data in the array on server, convert to
@@ -491,40 +526,20 @@ public class AsyncTasks {
               e1.printStackTrace();
             }
           }
-        }
-        // find associated Ecards
-        ParseQuery<ParseObject> query1 = ParseQuery.getQuery("ECardInfo");
-        query1.whereContainedIn("objectId", ecardIdsTree);
-        List<ParseObject> infoObjects = null;
-        try {
-          infoObjects = query1.find();
-        } catch (ParseException e1) {
-          // TODO Auto-generated catch block
-          e1.printStackTrace();
-        }
-        // pin infoObjects
-        if (infoObjects != null) {
-          for (Iterator<ParseObject> iter = infoObjects.iterator(); iter
-            .hasNext();) {
-            ParseObject objInfo = iter.next();
+          if (objNote.get("voiceNotes") != null) {
             // This is to cache all associated parseFiles
-            ParseFile portraitImg = (ParseFile) objInfo.get("portrait");
-            if (portraitImg != null) {
-              try {
-                portraitImg.getData();
-              } catch (ParseException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-              }
+            ParseFile voiceNote = (ParseFile) objNote.get("voiceNotes");
+            try {
+              // dummy statement to force caching data
+              voiceNote.getData();
+            } catch (ParseException e) {
+              // TODO Auto-generated catch block
+              e.printStackTrace();
             }
-          }
-          try {
-            ParseObject.pinAll(infoObjects);
-          } catch (ParseException e1) {
-            e1.printStackTrace();
-          }
+          }          
         }
-        // pin noteObjects
+           
+        // pin noteObjects -- parseFiles have already been cached before
         try {
           ParseObject.pinAll(noteObjects);
         } catch (ParseException e) {
@@ -532,9 +547,83 @@ public class AsyncTasks {
           e.printStackTrace();
         }
       }
+      
+      elapsedTime = System.nanoTime() - start;
+      Log.d("timer", "notepinned: "+ elapsedTime * 1e-9);
+      
       // flush sharedpreference with today's date after all notes saved
       Date currentDate = new Date();
       prefEditor.putLong("DateNoteSynced", currentDate.getTime());
+      prefEditor.commit();
+      
+
+      // This part is about checking those ecards that gets updated
+      
+      long millisInfo = prefs.getLong("DateInfoSynced", 0L);
+      Date lastInfoSyncedDate = new Date(millis);
+      
+      start = System.nanoTime();
+      
+      // generate list of ecards
+      ParseQuery<ParseObject> queryNote = ParseQuery.getQuery("ECardNote");
+      queryNote.fromLocalDatastore();
+      queryNote.whereEqualTo("userId", currentUser.getObjectId().toString());
+      List<ParseObject> noteObjs = null;
+      try {
+        noteObjs = queryNote.find();
+      } catch (ParseException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+      TreeSet<String> ecardIdsTree = new TreeSet();
+      if(noteObjs != null){
+        // if the current user has at least one note
+        for(ParseObject noteObj : noteObjs){
+          ecardIdsTree.add(noteObj.get("ecardId").toString());
+        }
+      }
+      
+      // now check and pin down those updated ecards
+      // TO-DO: For now ecards are not deletable. 
+      ParseQuery queryInfo = new ParseQuery<ParseObject>("ECardInfo");
+      queryInfo.whereContainedIn("objectId", ecardIdsTree);
+      queryInfo.whereGreaterThan("updatedAt", lastInfoSyncedDate);
+      List<ParseObject> infoObjects = null;
+      try {
+        infoObjects = queryInfo.find();
+      } catch (ParseException e1) {
+        e1.printStackTrace();
+      }
+      // pin infoObjects
+      if (infoObjects != null) {
+        for (ParseObject objInfo : infoObjects) {
+          // This is to cache all associated parseFiles
+          // TO-DO: any better way? This is going to cause a lot of traffic
+          ParseFile portraitImg = (ParseFile) objInfo.get("portrait");
+          if (portraitImg != null) {
+            try {
+              portraitImg.getData();
+            } catch (ParseException e) {
+              // TODO Auto-generated catch block
+              e.printStackTrace();
+            }
+          }
+        }
+        try {
+          ParseObject.pinAll(infoObjects);
+        } catch (ParseException e1) {
+          e1.printStackTrace();
+        }
+      }
+      
+      elapsedTime = System.nanoTime() - start;
+      Log.d("timer", "notecardpined: "+ elapsedTime * 1e-9);
+      
+      // TO-DO: Create Ecard Update notifications as the "news feed"
+      
+      // flush sharedpreference with today's date after all notes saved
+      Date currentDate1 = new Date();
+      prefEditor.putLong("DateInfoSynced", currentDate1.getTime());
       prefEditor.commit();
       return null;
     }
@@ -570,9 +659,69 @@ public class AsyncTasks {
 
     @Override
     protected String doInBackground(String... params) {
+            
+      // remove those conversations associated with cards that are already collected
+      // find all local conversations
+      ParseQuery<ParseObject> queryLocal = ParseQuery.getQuery("Conversations");
+      queryLocal.whereEqualTo("partyB", currentUser.get("ecardId").toString());
+      queryLocal.fromLocalDatastore();
+      List<ParseObject> convObjs = null;
+      try {
+        convObjs = queryLocal.find();
+      } catch (ParseException e3) {
+        e3.printStackTrace();
+      }
+      TreeSet<String> ecardIdsToCollect = new TreeSet();
+      if(convObjs != null){
+        if(convObjs.size()>0){
+          for(ParseObject convObj : convObjs){
+            // record all ecards associated with local conversations
+            ecardIdsToCollect.add(convObj.get("partyA").toString());
+          }
+          // check notes to see if the note corresponding to this ecard in conv already exist locally
+          ParseQuery<ParseObject> queryNote = ParseQuery.getQuery("ECardNote");
+          queryNote.whereContainedIn("ecardId", ecardIdsToCollect);
+          queryNote.whereNotEqualTo("isDeleted", true);
+          queryNote.whereEqualTo("userId", currentUser.getObjectId().toString());
+          queryNote.fromLocalDatastore();
+          List<ParseObject> noteObjs = null;
+          try {
+            noteObjs = queryNote.find();
+          } catch (ParseException e) {
+            e.printStackTrace();
+          }
+          TreeSet<String> ecardIdsToRemove = new TreeSet();
+          if(noteObjs != null){
+            if(noteObjs.size()>0){
+              for(ParseObject noteObj : noteObjs){
+                ecardIdsToRemove.add(noteObj.get("ecardId").toString());
+              }
+            }
+          }
+          // remove those conversations
+          for(ParseObject convObj : convObjs){
+            if(ecardIdsToRemove.contains(convObj.get("partyA").toString())){
+              // if a conversation object corresponds to an existing note, remove it
+              convObj.put("isDeleted", true);
+              try {
+                convObj.save();
+                convObj.unpin();
+              } catch (ParseException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+              }
+            }
+          }
+          
+        }
+      }
+      
       // get the stored shared last sync date, if null, default to 1969
       long millis = prefs.getLong("DateConversationsSynced", 0L);
       Date lastSyncedDate = new Date(millis);
+      
+      long start = System.nanoTime();
+      long elapsedTime;
 
       ParseQuery<ParseObject> query = ParseQuery.getQuery("Conversations");
       query.whereEqualTo("partyB", currentUser.get("ecardId").toString());
@@ -603,52 +752,73 @@ public class AsyncTasks {
             }
           }
         }
-        TreeSet<String> ecardIdsTree = new TreeSet<String>();
-        for (Iterator<ParseObject> iter = convObjects.iterator(); iter
-          .hasNext();) {
-          ParseObject objConv = iter.next();
-          ecardIdsTree.add(objConv.get("partyA").toString());
-        }
-        // find associated Ecards
-        ParseQuery<ParseObject> query1 = ParseQuery.getQuery("ECardInfo");
-        query1.whereContainedIn("objectId", ecardIdsTree);
-        List<ParseObject> infoObjects = null;
-        try {
-          infoObjects = query1.find();
-        } catch (ParseException e1) {
-          // TODO Auto-generated catch block
-          e1.printStackTrace();
-        }
-        // pin infoObjects
-        if (infoObjects != null) {
-          for (Iterator<ParseObject> iter = infoObjects.iterator(); iter
+        
+        if(convObjects.size()!=0){
+          // only proceed to pin conversations and ecards if there are remaining conv items
+          
+          TreeSet<String> ecardIdsTree = new TreeSet<String>();
+          for (Iterator<ParseObject> iter = convObjects.iterator(); iter
             .hasNext();) {
-            ParseObject objInfo = iter.next();
-            // This is to cache all associated parseFiles
-            ParseFile portraitImg = (ParseFile) objInfo.get("portrait");
-            if (portraitImg != null) {
-              try {
-                portraitImg.getData();
-              } catch (ParseException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+            ParseObject objConv = iter.next();
+            ecardIdsTree.add(objConv.get("partyA").toString());
+          }
+          
+          Log.i("ecardIds", ecardIdsTree.toString());
+          
+          elapsedTime = System.nanoTime() - start;
+          Log.d("timer", "convchked: "+ elapsedTime * 1e-9);
+          
+          start = System.nanoTime();
+          
+          // find associated Ecards
+          ParseQuery<ParseObject> query1 = ParseQuery.getQuery("ECardInfo");
+          query1.whereContainedIn("objectId", ecardIdsTree);
+          List<ParseObject> infoObjects = null;
+          try {
+            infoObjects = query1.find();
+          } catch (ParseException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+          }
+          // pin infoObjects
+          Log.i("infoObjects", "a+"+infoObjects.size());
+          
+          if (infoObjects != null) {
+            try {
+              ParseObject.pinAll(infoObjects);
+              Log.i("infoObjects", "done+"+infoObjects.size());
+              
+            } catch (ParseException e1) {
+              e1.printStackTrace();
+            }
+            for (Iterator<ParseObject> iter = infoObjects.iterator(); iter
+              .hasNext();) {
+              ParseObject objInfo = iter.next();
+              // This is to cache all associated parseFiles
+              ParseFile portraitImg = (ParseFile) objInfo.get("portrait");
+              if (portraitImg != null) {
+                try {
+                  portraitImg.getData();
+                } catch (ParseException e) {
+                  // TODO Auto-generated catch block
+                  e.printStackTrace();
+                }
               }
             }
           }
+          // pin convObjects
           try {
-            ParseObject.pinAll(infoObjects);
-          } catch (ParseException e1) {
-            e1.printStackTrace();
+            ParseObject.pinAll(convObjects);
+          } catch (ParseException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
           }
         }
-        // pin convObjects
-        try {
-          ParseObject.pinAll(convObjects);
-        } catch (ParseException e) {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
-        }
       }
+      
+      elapsedTime = System.nanoTime() - start;
+      Log.d("timer", "convcardpined: "+ elapsedTime * 1e-9);
+      
       // flush sharedpreference with today's date after all notes saved
       Date currentDate = new Date();
       prefEditor.putLong("DateConversationsSynced", currentDate.getTime());

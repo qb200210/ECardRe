@@ -145,6 +145,9 @@ public class ActivityHistory extends ActionBarActivity {
           if(objects == null || objects.size() == 0){
             listView.setVisibility(View.GONE);
             noNotifView.setVisibility(View.VISIBLE);
+          } else {
+            listView.setVisibility(View.VISIBLE);
+            noNotifView.setVisibility(View.GONE);
           }
           adapter = new HistoryListAdapter(getApplicationContext(),
             objects);
@@ -270,6 +273,23 @@ public class ActivityHistory extends ActionBarActivity {
             }
           }
         }, HISTORY_TIMEOUT);
+        
+        Thread timerThread = new Thread() {
+
+          public void run() {
+            while (syncHistory.getStatus() == AsyncTask.Status.RUNNING) {
+              try {
+                sleep(500);
+              } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+              }              
+            }
+            populateListView();
+          }
+        };
+        timerThread.start();
+        
       } else {
         Toast.makeText(getApplicationContext(),
           "No network ...", Toast.LENGTH_SHORT).show();

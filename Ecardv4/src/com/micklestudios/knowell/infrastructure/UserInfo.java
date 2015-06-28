@@ -35,6 +35,7 @@ public class UserInfo implements Parcelable {
 
   // Key fields of a UserInfo.
   String objId;
+  String userId;
   String firstName;
   String lastName;
   String company;
@@ -71,6 +72,7 @@ public class UserInfo implements Parcelable {
 
   private void ensureDefaults() {
     this.objId = this.objId == null ? "Unspecified" : this.objId;
+    this.userId = this.userId == null ? "Unspecified" : this.userId;
     this.firstName = this.firstName == null ? "Mysterious User X"
       : this.firstName;
     this.lastName = this.lastName == null ? "" : this.lastName;
@@ -196,6 +198,7 @@ public class UserInfo implements Parcelable {
 
       // main card info
       objId = parseObj.getObjectId();
+      userId = parseObj.getString("userId");
       firstName = parseObj.getString("firstName");
       lastName = parseObj.getString("lastName");
       company = parseObj.getString("company");
@@ -258,6 +261,7 @@ public class UserInfo implements Parcelable {
 
       // main card info
       objId = parseObj.getObjectId();
+      userId = parseObj.getString("userId");
       firstName = parseObj.getString("firstName");
       lastName = parseObj.getString("lastName");
       company = parseObj.getString("company");
@@ -288,6 +292,7 @@ public class UserInfo implements Parcelable {
 
   public UserInfo(Parcel source) {
     this.objId = source.readString();
+    this.userId = source.readString();
     this.firstName = source.readString();
     this.lastName = source.readString();
     this.company = source.readString();
@@ -311,6 +316,7 @@ public class UserInfo implements Parcelable {
   @Override
   public void writeToParcel(Parcel dest, int flags) {
     dest.writeString(objId);
+    dest.writeString(userId);
     dest.writeString(firstName);
     dest.writeString(lastName);
     dest.writeString(company);
@@ -432,6 +438,14 @@ public class UserInfo implements Parcelable {
 
   public String getObjId() {
     return objId;
+  }
+
+  public String getUserId() {
+    return userId;
+  }
+
+  public void setUserId(String userId) {
+    this.userId = userId;
   }
 
   public String getFirstName() {

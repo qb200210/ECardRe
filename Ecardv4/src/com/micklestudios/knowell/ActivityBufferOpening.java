@@ -48,8 +48,8 @@ public class ActivityBufferOpening extends Activity {
   private static final long HISTORY_TIMEOUT = 60000;
   
   Integer WEIGHT_SELF = 20;
-  Integer WEIGHT_NOTES = 40;
-  Integer WEIGHT_CONV = 0;
+  Integer WEIGHT_NOTES = 20;
+  Integer WEIGHT_CONV = 20;
   Integer WEIGHT_CACHEDIDS = 20;
   Integer totalProgress = 0;
   public static final String MY_PREFS_NAME = "KnoWellSyncParams";
@@ -212,6 +212,7 @@ public class ActivityBufferOpening extends Activity {
             // Dont need to keep mapping to actual conversations objects -- they are not as critical
             Log.i("actbuf", infoIdToConvDateMap.get(objectInfo.getObjectId()).toString());
             contact.setWhenMet(infoIdToConvDateMap.get(objectInfo.getObjectId()));
+            // If there are 20 conversations, while only 4 of corresponding ecard pinned down, then final conv for display will be 4
             ActivityConversations.potentialUsers.add(contact);
           }
         }
@@ -481,6 +482,7 @@ public class ActivityBufferOpening extends Activity {
 
   Handler handlerJump = new Handler() {
     private boolean progressSelfShown = false;
+    private boolean progressConvShown = false;
     private boolean progressNotesShown = false;
     private boolean progressCachedIdsShown = false;
 
@@ -490,6 +492,10 @@ public class ActivityBufferOpening extends Activity {
       if(flagSyncSelfDone && !progressSelfShown){
         progressText.setText("My Card Up to Date");
         progressSelfShown  = true;
+      }
+      if(flagSyncConvDone && !progressConvShown){
+        progressText.setText("Notifications Up to Date");
+        progressConvShown  = true;
       }
       if(flagSyncCachedIdsDone && !progressCachedIdsShown){
         progressText.setText("Cleared Offline Collections");
