@@ -105,8 +105,11 @@ public class HistoryListAdapter extends ArrayAdapter<ParseObject> implements
       }
     }
     TextView msgView = (TextView) convertView.findViewById(R.id.history_msg);
+    Log.i("aaaaa", " "+position);
     if(historyObjects.get(position).get("notes") !=null){
       msgView.setText(historyObjects.get(position).get("notes").toString());
+    } else{
+      msgView.setText("");
     }
     TextView updatedAt = (TextView) convertView.findViewById(R.id.history_date);
     if(historyObjects.get(position).getObjectId() == null){

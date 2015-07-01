@@ -160,7 +160,7 @@
                         android:src="@drawable/ic_clock" >
                     </ImageView>
 
-                    <com.micklestudios.knowell.utils.RobotoEditText
+                    <com.micklestudios.knowell.utils.RobotoTextView
                         android:id="@+id/DateAdded2"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"

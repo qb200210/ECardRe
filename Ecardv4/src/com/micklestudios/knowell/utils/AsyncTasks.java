@@ -1100,12 +1100,21 @@ public class AsyncTasks {
         }
         ArrayList<String> toRemove = new ArrayList<String>();
         if (noteObjects != null) {
-          // these are the ecards that are already
-          // collected
-          // FIX: should check isDeleted and flip card...
+          // these are the ecards that are already collected, including those
+          // existed but deleted
           for (Iterator<ParseObject> iter = noteObjects.iterator(); iter
             .hasNext();) {
             ParseObject object = iter.next();
+            if(object.getBoolean("isDeleted")==true){
+              // for those notes that exist but deleted, flip them
+              object.put("isDeleted", false);
+              try {
+                object.save();
+              } catch (ParseException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+              }
+            }
             Log.i("addCachedEcardIds", "ECard "
               + object.get("ecardId").toString() + " already existed!");
             toRemove.add(object.get("ecardId").toString());
@@ -1161,6 +1170,7 @@ public class AsyncTasks {
             // if the record exists in local db,
             // delete it
             OfflineDataCachedIds olData = olDatas.get(0);
+            ecardNote.put("whenMet", new Date());
             ecardNote.put("event_met", olData.getEventMet());
             ecardNote.put("where_met", olData.getWhereMet());
             ecardNote.put("notes", olData.getNotes());
@@ -1238,14 +1248,16 @@ public class AsyncTasks {
     private int flag = 0;
     private String deletedNoteId;
     private String filepath;
+    private Date newDate;
     private static final String AUDIO_RECORDER_FOLDER = "AudioRecorder";
 
     public AddCardNetworkAvailable(Activity mActivity, ParseUser currentUser,
-      String scannedId, String deletedNoteId) {
+      String scannedId, String deletedNoteId, Date newDate) {
       this.mActivity = mActivity;
       this.currentUser = currentUser;
       this.scannedId = scannedId;
       this.deletedNoteId = deletedNoteId;
+      this.newDate = newDate;
       filepath = getFilename();
     }
 
@@ -1383,6 +1395,7 @@ public class AsyncTasks {
       EditText whereMet = (EditText) mActivity.findViewById(R.id.PlaceAdded2);
       EditText eventMet = (EditText) mActivity.findViewById(R.id.EventAdded2);
       EditText notes = (EditText) mActivity.findViewById(R.id.EditNotes);
+      object.put("whenMet", newDate);
       object.put("where_met", whereMet.getText().toString());
       object.put("event_met", eventMet.getText().toString());
       object.put("notes", notes.getText().toString());

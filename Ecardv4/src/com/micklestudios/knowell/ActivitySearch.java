@@ -2,6 +2,7 @@ package com.micklestudios.knowell;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -1221,7 +1222,7 @@ public class ActivitySearch extends ActionBarActivity {
               String infoObjectId = (String) objectInfo.getObjectId();
               ParseObject objectNote = noteIdToNoteObjectMap
                 .get(infoObjectId);
-              contact.setWhenMet(objectNote.getCreatedAt());
+              contact.setWhenMet((Date) objectNote.get("whenMet"));
               contact.setEventMet(objectNote.getString("event_met"));
               contact.setWhereMet(objectNote.getString("where_met"));
               contact.setNotes(objectNote.getString("notes"));

@@ -731,6 +731,10 @@ public class ActivityMain extends ActionBarActivity {
     if (targetSMS != null && !targetSMS.isEmpty()) {
       addHistorySmsView.setText(targetSMS);
     }
+    // clear these global variables so they do not pass on to next share
+    targetName = "";
+    targetEmail = "";
+    targetSMS = "";
 
     new AlertDialog.Builder(this).setView(dialogView)
       .setPositiveButton("Save", new DialogInterface.OnClickListener() {
@@ -759,7 +763,7 @@ public class ActivityMain extends ActionBarActivity {
           historyObj.put("type", code);
           historyObj.saveEventually();
           historyObj.pinInBackground();
-
+          
         }
       }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
         public void onClick(DialogInterface dialog, int whichButton) {

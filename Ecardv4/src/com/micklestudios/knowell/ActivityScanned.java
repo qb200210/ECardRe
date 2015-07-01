@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -13,6 +14,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.ToxicBakery.viewpager.transforms.FlipHorizontalTransformer;
+import com.micklestudios.knowell.ActivityDetails.mDateSetListener;
 import com.micklestudios.knowell.infrastructure.UserInfo;
 import com.micklestudios.knowell.utils.AsyncResponse;
 import com.micklestudios.knowell.utils.AsyncTasks;
@@ -29,6 +31,7 @@ import com.micklestudios.knowell.utils.MyTag;
 import com.micklestudios.knowell.utils.MyViewPager;
 import com.micklestudios.knowell.utils.OfflineDataCachedIds;
 import com.micklestudios.knowell.utils.OfflineDataCachedShares;
+import com.micklestudios.knowell.utils.RobotoTextView;
 import com.micklestudios.knowell.utils.SquareLayout;
 import com.parse.FindCallback;
 import com.parse.GetCallback;
@@ -46,6 +49,7 @@ import com.micklestudios.knowell.R;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -78,6 +82,7 @@ import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -115,6 +120,7 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 	private String whereMet = null;
 	private boolean flagOfflineMode;
 	private String deletedNoteId = null;
+  protected Date newDate;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -191,11 +197,28 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 				}
 
 				private void displayNote(final ParseObject object) {
-					TextView whenMet2 = (TextView) findViewById(R.id.DateAdded2);
 					TextView updatedAt = (TextView) findViewById(R.id.LastUpdated);
-					whenMet2.setText(android.text.format.DateFormat.format("MMM", object.getCreatedAt()) + " " + 
-							android.text.format.DateFormat.format("dd", object.getCreatedAt()) + ", " +
-							android.text.format.DateFormat.format("yyyy", object.getCreatedAt()));
+					RobotoTextView whenMet2 = (RobotoTextView) findViewById(R.id.DateAdded2);
+	        whenMet2.setText(android.text.format.DateFormat.format("MMM",
+	          (Date) object.get("whenMet"))
+	          + " "
+	          + android.text.format.DateFormat.format("dd", (Date) object.get("whenMet"))
+	          + ", "
+	          + android.text.format.DateFormat.format("yyyy", (Date) object.get("whenMet")));
+	        newDate = (Date) object.get("whenMet");
+	        whenMet2.setOnClickListener(new OnClickListener(){
+
+	          @Override
+	          public void onClick(View v) {      
+	            Calendar newCalendar = Calendar.getInstance();
+	            newCalendar.setTime(newDate);
+	            DatePickerDialog dialog = new DatePickerDialog(ActivityScanned.this,
+	              new mDateSetListener(), newCalendar.get(Calendar.YEAR), newCalendar.get(Calendar.MONTH), newCalendar.get(Calendar.DAY_OF_MONTH));
+	            dialog.setTitle("When did you meet?");
+	            dialog.show();
+	          }
+	          
+	        });
 					updatedAt.setText(android.text.format.DateFormat.format("MMM", object.getUpdatedAt()) + " " + 
 							android.text.format.DateFormat.format("dd", object.getUpdatedAt()) + ", " +
 							android.text.format.DateFormat.format("yyyy", object.getUpdatedAt()));
@@ -276,12 +299,29 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 			});		
 		} else {
 			// this is a new note
-			TextView whenMet2 = (TextView) findViewById(R.id.DateAdded2);
 			TextView updatedAt = (TextView) findViewById(R.id.LastUpdated);					
 			Date today = new Date();
-			whenMet2.setText(android.text.format.DateFormat.format("MMM", today) + " " + 
-					android.text.format.DateFormat.format("dd", today) + ", " +
-					android.text.format.DateFormat.format("yyyy", today));
+			RobotoTextView whenMet2 = (RobotoTextView) findViewById(R.id.DateAdded2);
+      whenMet2.setText(android.text.format.DateFormat.format("MMM",
+        today)
+        + " "
+        + android.text.format.DateFormat.format("dd", today)
+        + ", "
+        + android.text.format.DateFormat.format("yyyy", today));
+      newDate = today;
+      whenMet2.setOnClickListener(new OnClickListener(){
+
+        @Override
+        public void onClick(View v) {      
+          Calendar newCalendar = Calendar.getInstance();
+          newCalendar.setTime(newDate);
+          DatePickerDialog dialog = new DatePickerDialog(ActivityScanned.this,
+            new mDateSetListener(), newCalendar.get(Calendar.YEAR), newCalendar.get(Calendar.MONTH), newCalendar.get(Calendar.DAY_OF_MONTH));
+          dialog.setTitle("When did you meet?");
+          dialog.show();
+        }
+        
+      });
 			updatedAt.setText(android.text.format.DateFormat.format("MMM", today) + " " + 
 					android.text.format.DateFormat.format("dd", today) + ", " +
 					android.text.format.DateFormat.format("yyyy", today));
@@ -437,6 +477,39 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 
 	}
 
+	class mDateSetListener implements DatePickerDialog.OnDateSetListener {
+
+    @Override
+    public void onDateSet(DatePicker view, int year, int monthOfYear,
+            int dayOfMonth) {
+        // TODO Auto-generated method stub
+        // getCalender();
+        int mYear = year;
+        int mMonth = monthOfYear;
+        int mDay = dayOfMonth;
+        newDate = getDate(year, monthOfYear, dayOfMonth);
+        
+        RobotoTextView whenMet2 = (RobotoTextView) findViewById(R.id.DateAdded2);
+        whenMet2.setText(android.text.format.DateFormat.format("MMM",newDate)
+          + " "
+          + android.text.format.DateFormat.format("dd", newDate)
+          + ", "
+          + android.text.format.DateFormat.format("yyyy", newDate));
+    }
+}
+  
+  public static Date getDate(int year, int month, int day) {
+    Calendar cal = Calendar.getInstance();
+    cal.set(Calendar.YEAR, year);
+    cal.set(Calendar.MONTH, month);
+    cal.set(Calendar.DAY_OF_MONTH, day);
+    cal.set(Calendar.HOUR_OF_DAY, 0);
+    cal.set(Calendar.MINUTE, 0);
+    cal.set(Calendar.SECOND, 0);
+    cal.set(Calendar.MILLISECOND, 0);
+    return cal.getTime();
+}
+	
 	private void deleteLocalVoiceNote() {
 		File myFile = new File(filepath);
 		if(myFile.exists())
@@ -492,7 +565,7 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 			// save scanned card either online or cache it offline
 			if (ECardUtils.isNetworkAvailable(this)) {
 				// if ActivityScanned started out as online and now it's still online, go ahead and add
-				final AsyncTasks.AddCardNetworkAvailable addNewCard = new AsyncTasks.AddCardNetworkAvailable(this, currentUser, scannedUser.getObjId(), deletedNoteId);
+				final AsyncTasks.AddCardNetworkAvailable addNewCard = new AsyncTasks.AddCardNetworkAvailable(this, currentUser, scannedUser.getObjId(), deletedNoteId, newDate);
 				addNewCard.execute();
 				Handler handlerAddNewCard = new Handler();
 				handlerAddNewCard.postDelayed(new Runnable() {
@@ -789,7 +862,9 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 		}
 
 		if (location == null) {
-			lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 3600000, 1000, onLocationChange);
+		  if(LocationManager.NETWORK_PROVIDER != "network"){
+		    lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 3600000, 1000, onLocationChange);
+		  }
 		}
 
 		return location;

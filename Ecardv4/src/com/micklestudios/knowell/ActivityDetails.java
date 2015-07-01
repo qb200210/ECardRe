@@ -6,7 +6,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 import com.ToxicBakery.viewpager.transforms.FlipHorizontalTransformer;
@@ -21,6 +23,7 @@ import com.micklestudios.knowell.utils.MyPagerAdapter;
 import com.micklestudios.knowell.utils.MyScrollView;
 import com.micklestudios.knowell.utils.MyTag;
 import com.micklestudios.knowell.utils.MyViewPager;
+import com.micklestudios.knowell.utils.RobotoTextView;
 import com.micklestudios.knowell.utils.SquareLayout;
 import com.parse.FindCallback;
 import com.parse.GetCallback;
@@ -35,6 +38,7 @@ import com.micklestudios.knowell.R;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -64,6 +68,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -87,6 +92,7 @@ public class ActivityDetails extends ActionBarActivity {
   private String filepath;
   private String noteId;
   private int recordstatus1 = 0;
+  public Date newDate;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -114,6 +120,7 @@ public class ActivityDetails extends ActionBarActivity {
     mPager.setCurrentItem(0x40000000);
     mPager.setPageTransformer(true, new FlipHorizontalTransformer());
     
+    
     // display note
     ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardNote");
     query.fromLocalDatastore();
@@ -124,7 +131,7 @@ public class ActivityDetails extends ActionBarActivity {
       @Override
       public void done(List<ParseObject> objects, ParseException e) {
         if (e == null) {
-          if (objects != null) {
+          if (objects != null && objects.size()!=0) {
             noteId = objects.get(0).getObjectId().toString();
             displayNote(objects.get(0));
           }
@@ -141,13 +148,29 @@ public class ActivityDetails extends ActionBarActivity {
           + android.text.format.DateFormat.format("dd", object.getUpdatedAt())
           + ", "
           + android.text.format.DateFormat.format("yyyy", object.getUpdatedAt()));
-        TextView whenMet2 = (TextView) findViewById(R.id.DateAdded2);
+        
+        RobotoTextView whenMet2 = (RobotoTextView) findViewById(R.id.DateAdded2);
         whenMet2.setText(android.text.format.DateFormat.format("MMM",
-          object.getCreatedAt())
+          (Date) object.get("whenMet"))
           + " "
-          + android.text.format.DateFormat.format("dd", object.getCreatedAt())
+          + android.text.format.DateFormat.format("dd", (Date) object.get("whenMet"))
           + ", "
-          + android.text.format.DateFormat.format("yyyy", object.getCreatedAt()));
+          + android.text.format.DateFormat.format("yyyy", (Date) object.get("whenMet")));
+        newDate = (Date) object.get("whenMet");
+        whenMet2.setOnClickListener(new OnClickListener(){
+
+          @Override
+          public void onClick(View v) {      
+            Calendar newCalendar = Calendar.getInstance();
+            newCalendar.setTime(newDate);
+            DatePickerDialog dialog = new DatePickerDialog(ActivityDetails.this,
+              new mDateSetListener(), newCalendar.get(Calendar.YEAR), newCalendar.get(Calendar.MONTH), newCalendar.get(Calendar.DAY_OF_MONTH));
+            dialog.setTitle("When did you meet?");
+            dialog.show();
+          }
+          
+        });
+        
         EditText whereMet2 = (EditText) findViewById(R.id.PlaceAdded2);
         String cityName = object.getString("where_met");
         if (cityName != null) {
@@ -379,8 +402,39 @@ public class ActivityDetails extends ActionBarActivity {
       actionBar.setCustomView(v);
     }
   }
-
   
+  class mDateSetListener implements DatePickerDialog.OnDateSetListener {
+
+    @Override
+    public void onDateSet(DatePicker view, int year, int monthOfYear,
+            int dayOfMonth) {
+        // TODO Auto-generated method stub
+        // getCalender();
+        int mYear = year;
+        int mMonth = monthOfYear;
+        int mDay = dayOfMonth;
+        newDate = getDate(year, monthOfYear, dayOfMonth);
+        
+        RobotoTextView whenMet2 = (RobotoTextView) findViewById(R.id.DateAdded2);
+        whenMet2.setText(android.text.format.DateFormat.format("MMM",newDate)
+          + " "
+          + android.text.format.DateFormat.format("dd", newDate)
+          + ", "
+          + android.text.format.DateFormat.format("yyyy", newDate));
+    }
+}
+  
+  public static Date getDate(int year, int month, int day) {
+    Calendar cal = Calendar.getInstance();
+    cal.set(Calendar.YEAR, year);
+    cal.set(Calendar.MONTH, month);
+    cal.set(Calendar.DAY_OF_MONTH, day);
+    cal.set(Calendar.HOUR_OF_DAY, 0);
+    cal.set(Calendar.MINUTE, 0);
+    cal.set(Calendar.SECOND, 0);
+    cal.set(Calendar.MILLISECOND, 0);
+    return cal.getTime();
+}
 
   private void deleteLocalVoiceNote() {
     File myFile = new File(filepath);
@@ -526,6 +580,7 @@ public class ActivityDetails extends ActionBarActivity {
     EditText whereMet = (EditText) findViewById(R.id.PlaceAdded2);
     EditText eventMet = (EditText) findViewById(R.id.EventAdded2);
     EditText notes = (EditText) findViewById(R.id.EditNotes);
+    object.put("whenMet", newDate);
     object.put("where_met", whereMet.getText().toString());
     object.put("event_met", eventMet.getText().toString());
     object.put("notes", notes.getText().toString());
