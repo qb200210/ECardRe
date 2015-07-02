@@ -8,7 +8,6 @@
     <string name="action_qr">QRcode</string>
     <string name="edit_item">Edit</string>
     <string name="sort_results">Sort</string>
-    <string name="download_cards">Sync Cards</string>
     <string name="refresh">Refresh</string>
     <string name="row_number">This is row number %d</string>
     <string name="itemdeleted">Item deleted</string>
@@ -28,5 +27,13 @@
 	<string name="city_added">Somewhere ...</string>
 	<string name="event_added">Some event ...</string>
 	<string name="manual_sync">Sync Data</string>
-
+	<string name="settings">Settings</string>
+	<string name="prefLogoutButton">Logout</string>
+	<string name="prefEmailGreeting">Your Preset Email Message</string>
+	<string name="prefSMSGreeting">Your Preset SMS Message</string>
+	<string name="prefDocGreeting">Your Preset Document Message</string>
+	<string name="prefVersionNumber">1.0</string>
+	<string name="prefRateUs">Thank you So Much!</string>
+	<string name="prefFeedBack">Please Let Us Know How Can KnoWell Work Better For You!</string>
+	<string name="defaultEmailMsg">Greetings from /Your Name/\nHi /Receipient Name/,\nThis is /Your Name/ from /Your Company/ </string>
 </resources>

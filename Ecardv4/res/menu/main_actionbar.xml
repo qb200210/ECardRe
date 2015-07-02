@@ -10,10 +10,12 @@
       app:showAsAction="ifRoom" />
         
     <item
-        android:id="@+id/log_out"
+        android:id="@+id/settings"
+      	android:icon="@drawable/ic_action_settings"
         android:orderInCategory="11"
-        android:title="@string/logout"
-        app:showAsAction="never"/>
+        android:title="@string/settings"
+        app:showAsAction="ifRoom"/>
+    
     
     
     

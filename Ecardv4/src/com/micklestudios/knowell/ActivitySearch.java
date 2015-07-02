@@ -1072,12 +1072,6 @@ public class ActivitySearch extends ActionBarActivity {
           Toast.LENGTH_SHORT).show();
       }
       return true;
-    case R.id.log_out:
-      ParseUser.logOut();
-      Intent intentLogin = new Intent(this, ActivityPreLogin.class);
-      startActivity(intentLogin);
-      this.finish();
-      return true;
     default:
       return super.onOptionsItemSelected(item);
     }

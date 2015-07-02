@@ -25,6 +25,9 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.preference.PreferenceFragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
@@ -628,17 +631,16 @@ public class ActivityMain extends ActionBarActivity {
       Intent intent = new Intent(this, ActivityDesign.class);
       startActivityForResult(intent, EDIT_CARD);
       return true;
-    case R.id.log_out:
-      ParseUser.logOut();
-      intent = new Intent(this, ActivityPreLogin.class);
-      startActivity(intent);
-      this.finish();
+    case R.id.settings:
+      intent = new Intent(ActivityMain.this, ActivityUserSetting.class);
+      startActivity(intent); 
       return true;
     default:
       return super.onOptionsItemSelected(item);
     }
   }
-
+  
+  
   @Override
   public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
