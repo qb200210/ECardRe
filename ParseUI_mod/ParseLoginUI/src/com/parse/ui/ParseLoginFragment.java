@@ -105,7 +105,7 @@ public class ParseLoginFragment extends ParseLoginFragmentBase {
   
   public static final String PACKAGE_MOBILE_ECARD_APP = "com.micklestudios.knowell";
   private static final String host = "api.linkedin.com";
-  private static final String topCardUrl = "https://" + host + "/v1/people/~:(id,first-name,last-name,positions,location,picture-url,email-address)";
+  private static final String topCardUrl = "https://" + host + "/v1/people/~:(id,first-name,last-name,email-address,positions,location,picture-url)";
   private ParseObject object = null;
 	
 
@@ -378,7 +378,7 @@ public class ParseLoginFragment extends ParseLoginFragmentBase {
 								String picURL = responseData.getString("pictureUrl");
 								String location = responseData.getJSONObject("location").getString("name");
 								String linkedin_id = responseData.getString("id");
-								//String emailAddress = responseData.getString("emailAddress");
+								String emailAddress = responseData.getString("emailAddress");
 								//Log.v("email: ", emailAddress);
 								
 								JSONArray companyArray = responseData.getJSONObject("positions").getJSONArray("values");
@@ -396,7 +396,7 @@ public class ParseLoginFragment extends ParseLoginFragmentBase {
 										//String password = Integer.toString(linkedin_id.hashCode());
 										String password = linkedin_id + "jsdj32RIfd28UFaf2";
 									    user.setPassword(password);
-									    //user.setEmail(null);
+									    user.setEmail(emailAddress);
 
 									    g_json_str = firstName + "," + lastName + "," + companyName + "," + title + "," + location + "," + picURL;
 										user.put(USER_OBJECT_NAME_FIELD, firstName + " " + lastName);
@@ -519,7 +519,7 @@ public class ParseLoginFragment extends ParseLoginFragmentBase {
   }
 
   private static Scope buildScope() {
-      return Scope.build(Scope.R_BASICPROFILE, Scope.W_SHARE);
+      return Scope.build(Scope.R_BASICPROFILE, Scope.W_SHARE, Scope.R_EMAILADDRESS);
   }
   
   private void initializeMyCard(ParseUser currentUser) {
