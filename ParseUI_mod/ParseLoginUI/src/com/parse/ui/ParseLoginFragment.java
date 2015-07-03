@@ -378,6 +378,8 @@ public class ParseLoginFragment extends ParseLoginFragmentBase {
 								String picURL = responseData.getString("pictureUrl");
 								String location = responseData.getJSONObject("location").getString("name");
 								String linkedin_id = responseData.getString("id");
+								//String emailAddress = responseData.getString("emailAddress");
+								//Log.v("email: ", emailAddress);
 								
 								JSONArray companyArray = responseData.getJSONObject("positions").getJSONArray("values");
 								//Log.v("json String", firstName + " " + lastName + " " + picURL);
@@ -534,6 +536,7 @@ public class ParseLoginFragment extends ParseLoginFragmentBase {
 			// objectId is only created after the object is saved.
 			// If use saveInBackground, .getObjectId gets nothing since object not saved yet
 			try {
+				object.put("userId", currentUser.getObjectId());
 				object.save();
 				Log.d("ParseSignUp","save EcardInfo successful");
 			} catch (ParseException e) {
