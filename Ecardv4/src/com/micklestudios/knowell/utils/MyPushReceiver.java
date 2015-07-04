@@ -9,12 +9,16 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.micklestudios.knowell.ActivityBufferOpening;
+import com.micklestudios.knowell.ActivityConversations;
 import com.parse.FindCallback;
+import com.parse.ParseAnalytics;
 import com.parse.ParseException;
 import com.parse.ParseObject;
+import com.parse.ParsePushBroadcastReceiver;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -25,15 +29,15 @@ import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
 
-public class MyPushReceiver extends BroadcastReceiver {
+public class MyPushReceiver extends ParsePushBroadcastReceiver {
 	
 	ParseUser currentUser;	
 	private static final long CONVERSATIONS_TIMEOUT = 3000;	
 
 	@Override
-	public void onReceive(final Context context, Intent intent) {
+	public void onPushReceive(final Context context, Intent intent) {
+	  super.onPushReceive(context, intent);
 		Log.i("pushReceiver", "Received push");
-		// Toast.makeText(context,"Received push", Toast.LENGTH_SHORT).show();
 		currentUser = ParseUser.getCurrentUser();
 		// Bundle extras = intent.getExtras();
         // String message = extras != null ? extras.getString("com.parse.Data") : "";
@@ -58,5 +62,20 @@ public class MyPushReceiver extends BroadcastReceiver {
 			}
 		}, CONVERSATIONS_TIMEOUT);
 	}
+	
+	@Override
+  public void onPushOpen(Context context, Intent intent) {
+
+      //To track "App Opens"
+      ParseAnalytics.trackAppOpenedInBackground(intent);
+
+      //Here is data you sent
+      Log.i("push", intent.getExtras().getString( "com.parse.Data" ));
+
+      Intent i = new Intent(context, ActivityConversations.class);
+      i.putExtras(intent.getExtras());
+      i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+      context.startActivity(i);
+  }
 	
 }

@@ -2,11 +2,16 @@ package com.micklestudios.knowell;
 
 import com.parse.Parse;
 import com.parse.ParseACL;
+import com.parse.ParseException;
+import com.parse.ParsePush;
+import com.parse.ParseUser;
 import com.parse.PushService;
+import com.parse.SaveCallback;
 import com.micklestudios.knowell.R;
 
 import android.app.Application;
 import android.content.Context;
+import android.util.Log;
 
 public class MyApplication extends Application {
 
@@ -26,9 +31,18 @@ public class MyApplication extends Application {
     ParseACL.setDefaultACL(defaultACL, true);
     Parse.initialize(this, getString(R.string.parse_app_id),
       getString(R.string.parse_client_key));
-    // Specify an Activity to handle all pushes by default.
-    PushService.setDefaultPushCallback(this, ActivityConversations.class);
+    ParseUser.enableRevocableSessionInBackground();
 
+    ParsePush.subscribeInBackground("", new SaveCallback() {
+      @Override
+      public void done(ParseException e) {
+        if (e == null) {
+          Log.d("com.parse.push", "successfully subscribed to the broadcast channel.");
+        } else {
+          Log.e("com.parse.push", "failed to subscribe for push", e);
+        }
+      }
+    });
   }
   
   public static Context getContext(){

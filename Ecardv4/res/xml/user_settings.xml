@@ -41,18 +41,23 @@
      
     <PreferenceCategory android:title="About" >
         
+        <Preference android:title="Please Give Us 5 Stars!"
+                android:key="@string/prefRateUs"
+            android:summary="@string/prefRateUs"/>
         
-        <Preference android:title="Version"
-                android:key="@string/prefVersionNumber"
-            android:summary="@string/prefVersionNumber"/>
-
         <Preference android:title="Feedback"
                 android:key="@string/prefFeedBack"
                 android:summary="@string/prefFeedBack"/>
         
-        <Preference android:title="Please Give Us 5 Stars!"
-                android:key="@string/prefRateUs"
-            android:summary="@string/prefRateUs"/>
+        <Preference android:title="Check Updates"
+                android:key="@string/prefCheckUpdates"/>
+        
+        <Preference android:title="Acknowledgement"
+                android:key="@string/prefAcknowledgement"/>
+        
+        <Preference android:title="Version"
+                android:key="@string/prefVersionNumber"
+            android:summary="@string/prefVersionNumber"/>
         
         
     </PreferenceCategory>

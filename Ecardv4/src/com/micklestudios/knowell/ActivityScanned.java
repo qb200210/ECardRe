@@ -940,7 +940,7 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
 					pushQuery.whereEqualTo("ecardId", targetEcardId);
 					JSONObject jsonObject = new JSONObject();
 					try {
-						jsonObject.put("alert", "Hi, this is " + ActivityMain.myselfUserInfo.getFirstName() + " " + ActivityMain.myselfUserInfo.getLastName() + ", please save my card.");
+						jsonObject.put("alert", "This is " + ActivityMain.myselfUserInfo.getFirstName() + " " + ActivityMain.myselfUserInfo.getLastName() + " from "+ ActivityMain.myselfUserInfo.getCompany());
 						jsonObject.put("link", "https://www.micklestudios.com/search?id=" + currentUser.get("ecardId").toString() + "&fn=" + ActivityMain.myselfUserInfo.getFirstName() + "&ln=" + ActivityMain.myselfUserInfo.getLastName());
 						jsonObject.put("action", "EcardOpenConversations");
 					} catch (JSONException e) {

@@ -319,7 +319,6 @@ public class AsyncTasks {
         // TODO Auto-generated catch block
         e.printStackTrace();
       }
-      Log.i("cmpname", " " + templateObjs.size());
       if (templateObjs != null && templateObjs.size() != 0) {
         for (Iterator<ParseObject> iter = templateObjs.iterator(); iter
           .hasNext();) {
