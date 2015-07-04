@@ -191,22 +191,23 @@
 			}
 		}
 	</script>
-
-<script type="text/javascript" src="https://platform.linkedin.com/in.js">
+	  
+<script type="text/javascript" src="//platform.linkedin.com/in.js">
     api_key: 75x21kb6ah0nxy
+    authorize: true
+    onLoad: onLinkedInLoad
 </script>
 
 <script type="text/javascript">
     
     // Setup an event listener to make an API call once auth is complete
     function onLinkedInLoad() {
-        IN.UI.Authorize().place();
         IN.Event.on(IN, "auth", getProfileData);
     }
 
     // Handle the successful return from the API call
     function onSuccess(data) {
-       console.log(data);
+        console.log(data);
     }
 
     // Handle an error response from the API call
@@ -214,35 +215,16 @@
         console.log(error);
     }
 
-    function loadMember(profile){
-	member = profile.values[0];
-	document.getElementById('signForm').action = '/linkedinSignin';
-	console.log(profile);	
-	posArray = member.positions.values;
-	companyName = "";
-	title = "";
-	for (var i=0; i<=posArray.length-1; i++) {
-		if (posArray[i].isCurrent){
-			companyName = posArray[i].company.name;
-			title = posArray[i].title;
-		}
-	}
-	document.signForm.linkedinObj.value = member.firstName + ",," + member.lastName + ",," + member.emailAddress + ",," + member.pictureUrl + ",," + member.location.name + ",," + companyName + ",," + title + ",," + member.id;
-	console.log(document.signForm.linkedinObj.value);	
-	document.getElementById('signForm').submit();
-    }
-
     // Use the API call wrapper to request the member's basic profile data
     function getProfileData() {
-       // IN.API.Raw("/people/~").result(onSuccess).error(onError);
-       IN.API.Profile("me").fields(["id","firstName", "lastName", "emailAddress", "pictureUrl", "location", "positions"]).result(loadMember);
+        IN.API.Raw("/people/~").result(onSuccess).error(onError);
     }
 
-</script>
- </head>
+</script>	  
+  </head>
 
   <body>
-
+  
 		<div class="navbar-wrapper">
 			<div class="container">
 
@@ -258,7 +240,7 @@
 		</div>
 		<div class="row fromtop">			
 			<div class="col-md-4 col-md-offset-4">			  
-			  <form id="signForm" name="signForm" class="form-signin" action='/signup' method='POST'>
+			  <form id="signForm" class="form-signin" action='/signup' method='POST'>
 				<h4 id="saveHeader" class="form-signin-heading">Welcome to KnoWell</h4>
 				<div id="signupform">
 					<div class="media-left">
@@ -289,10 +271,9 @@
 				</div>
 				<input type="hidden" name="_csrf" value="<%= csrf_field %>" />
 				<button id="submitBtn" class="btn btn-lg btn-primary btn-block" type="submit" form="signForm" style="margin-top:10px">Sign Up</button>
+				<script type="in/Login"></script>
 				<a id="switcher" href="javascript:switchSignInRegister()" class="switcher">Already have an account?</a>
-				<button id="linkedinBtn" onclick="onLinkedInLoad()" class="btn btn-lg btn-primary btn-block" style="margin-top:10px">Sign In With Linkedin</button>
-				<input type="hidden" name="linkedinObj" value="" />
-			</form>
+			  </form>
 			</div>	
 		</div>
 	

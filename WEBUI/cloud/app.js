@@ -724,6 +724,204 @@ app.post('/login', function(req, res){
 	})
 })
 
+app.post('/linkedinSignin', function(req, res){
+	if(Parse.User.current()){
+		// this is necessary, otherwise signup while a session is on-going will fail
+		Parse.User.logOut();
+	}
+	var user = new Parse.User();
+	splitStr = req.body.linkedinObj.split(/,,/);
+	firstName = splitStr[0];
+	lastName = splitStr[1];
+	emailAddress = splitStr[2];
+	pictureUrl = splitStr[3];
+	cityStr = splitStr[4];
+	companyStr = splitStr[5];
+	titleStr = splitStr[6];
+	linkedinID = splitStr[7];
+	console.log(linkedinID);
+
+	var password = linkedinID + "jsdj32RIfd28UFaf2";
+
+	console.log(pictureUrl);
+	usrName = firstName+lastName+linkedinID;
+	user.set("username", usrName); // email==username
+	user.set("name", firstName + " " + lastName);
+	user.set("password", password);
+	user.set("email", emailAddress);
+	// the ACL must be set over here, instead of on current()
+	var usrACL = new Parse.ACL(Parse.User.current());
+	usrACL.setPublicReadAccess(false);
+	usrACL.setPublicWriteAccess(false);
+	user.setACL(usrACL);
+	user.signUp(null).then(function(currentUser){
+		// Signup successful, redirect to homepage, where dashboard will be shown
+		console.log('sign up successful')
+
+		// Parse.User.requestPasswordReset(currentUser.getEmail());
+		// Upon sign up, create the user's ECard with basically no information
+		var infoObject = new Parse.Object('ECardInfo');
+		var usrACL = new Parse.ACL(Parse.User.current());
+		usrACL.setPublicReadAccess(true);
+		usrACL.setPublicWriteAccess(false);
+		infoObject.setACL(usrACL);
+		// set name 
+		if(firstName != ""){
+			infoObject.set("firstName", firstName);
+		} else {
+			infoObject.unset("firstName");
+		}
+		if(lastName != ""){
+			infoObject.set("lastName", lastName);
+		} else {						
+			infoObject.unset("lastName");
+		}
+		if( companyStr != ""){
+			infoObject.set("company", companyStr);
+		} else {						
+			infoObject.unset("company");
+		}
+		if(cityStr != ""){
+			infoObject.set("city", cityStr);
+		} else {						
+			infoObject.unset("city");
+		}
+		if(titleStr != ""){
+			infoObject.set("title", titleStr);
+		} else {						
+			infoObject.unset("title");
+		}
+		
+		// initiate default profile portrait
+		var Image = require("parse-image");
+		Parse.Cloud.httpRequest({
+			//url: "http://www.micklestudios.com/assets/img/emptyprofile.png"
+			url: pictureUrl		 
+		  }).then(function(response) {
+			var image = new Image();
+			return image.setData(response.buffer);		 
+		  }).then(function(image) {
+			// Crop the image to the smaller of width or height.
+			var size = Math.min(image.width(), image.height());
+			return image.crop({
+			  left: (image.width() - size) / 2,
+			  top: (image.height() - size) / 2,
+			  width: size,
+			  height: size
+			});
+		 
+		  }).then(function(image) {
+			// Resize the image to 64x64.
+			return image.scale({
+			  width: 64,
+			  height: 64
+			});
+		 
+		  }).then(function(image) {
+			// Make sure it's a JPEG to save disk space and bandwidth.
+			return image.setFormat("PNG");
+		 
+		  }).then(function(image) {
+			// Get the image data in a Buffer.
+			return image.data();
+		 
+		  }).then(function(buffer) {
+			// Save the image into a new file.
+			var base64 = buffer.toString("base64");
+			var cropped = new Parse.File("emptyPortrait.jpg", { base64: base64 });
+			return cropped.save();
+		 
+		  }).then(function(cropped) {
+			// Attach the image file to the original object.
+			infoObject.save({portrait : cropped}, {
+				success: function(){
+					console.log('save info successful');
+					// somwhow currentUser cannot be used as function(currentUser) or the actual value is not passed down
+					currentUser.save({ecardId : infoObject.id});
+					console.log(sess.id);
+					if(!(typeof sess.id === 'undefined') && sess.id != '') {
+						console.log('An Ecard to be collected');
+						// If there is an ecard to be collected from the url, display the page and offer to save
+						var ecardInfoClass = Parse.Object.extend("ECardInfo");
+						var query = new Parse.Query(ecardInfoClass);
+						query.get(sess.id, {
+							success: function(object) {
+								var collectedData = { 
+									firstName: (typeof object.get("firstName") === 'undefined') ? "Mysterious user X" : object.get("firstName"),
+									lastName: (typeof object.get("lastName") === 'undefined') ? "" : object.get("lastName"),
+									company: (typeof object.get("company") === 'undefined') ? "Mysterious Company" : object.get("company"),
+									title: (typeof object.get("title") === 'undefined') ? "Mysterious Position" : object.get("title"),
+									city: (typeof object.get("city") === 'undefined') ? "Somewhere on Earth" : object.get("city"),
+									portrait_url: object.get("portrait").url(),
+								};					
+								// The user has already login, don't offer login/signup
+								console.log("before rendering");
+								res.render('ecardloggedin.ejs', collectedData);					
+							},
+							error: function(error) {
+								// If the ecard is not found, bring user to login/signup page
+								res.redirect('/');
+							}
+						});						
+					} else{
+						// this redirect statement must be included here, as save() is non-blocking
+						// if not placed here, redirect will happen before save is complete
+						// if no ecard to collect, redirect to dashboard
+						res.redirect('/');
+					}
+				},
+				error: function(error){
+					console.log('save info fails')		
+					res.redirect('/');				
+				}
+			});
+		  });
+	}, 
+	function(error){
+		// Signup fails: there is already a existing record, then use login procedure
+		Parse.User.logIn(usrName, password).then(function(){
+			// Login successful, redirect to homepage, where dashboard will be shown
+			// here forces to use email as login name
+			console.log('log in successful')
+			console.log(sess.id);
+		
+			if(!(typeof sess.id === 'undefined') && sess.id != '') {
+				console.log('An Ecard to be collected');
+				// If there is an ecard to be collected from the url, display the page and offer to save
+				var ecardInfoClass = Parse.Object.extend("ECardInfo");
+				var query = new Parse.Query(ecardInfoClass);
+				query.get(sess.id, {
+					success: function(object) {
+						var collectedData = { 
+							ecardId: sess.id,
+							firstName: (typeof object.get("firstName") === 'undefined') ? "Mysterious user X" : object.get("firstName"),
+							lastName: (typeof object.get("lastName") === 'undefined') ? "" : object.get("lastName"),
+							company: (typeof object.get("company") === 'undefined') ? "Mysterious Company" : object.get("company"),
+							title: (typeof object.get("title") === 'undefined') ? "Mysterious Position" : object.get("title"),
+							city: (typeof object.get("city") === 'undefined') ? "Somewhere on Earth" : object.get("city"),
+							portrait_url: object.get("portrait").url(),
+							};					
+						// The user has already login, don't offer login/signup
+						res.render('ecardloggedin.ejs', collectedData);				
+						},
+					error: function(error) {
+						// If the ecard is not found, bring user to login/signup page
+						res.redirect('/');
+						}
+					});						
+			} else{
+				// if no ecard to collect, redirect to dashboard
+				res.redirect('/');
+			}
+		}, 
+		function(error){
+			// Login fails, redirect to homepage, where login/signup page is shown	
+			res.render('failedloginpage',{code: error.code, msg: error.message, name: req.body.name});
+		})
+	})
+})
+
+
 app.post('/signup', function(req, res){
 	if(Parse.User.current()){
 		// this is necessary, otherwise signup while a session is on-going will fail
