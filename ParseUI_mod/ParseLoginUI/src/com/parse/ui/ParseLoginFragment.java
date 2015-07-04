@@ -240,7 +240,11 @@ public class ParseLoginFragment extends ParseLoginFragmentBase {
                 Date currentDate=new Date(0);
                 prefEditor.putLong("DateConversationsSynced", currentDate.getTime());
                 prefEditor.putLong("DateNoteSynced", currentDate.getTime());
+                prefEditor.putLong("DateSelfUserSynced", currentDate.getTime());
+                prefEditor.putLong("DateInfoSynced", currentDate.getTime());
                 prefEditor.putLong("DateSelfSynced", currentDate.getTime());
+                prefEditor.putLong("DateCompanySynced", currentDate.getTime());
+                prefEditor.putLong("DateHistorySynced", currentDate.getTime());
                 prefEditor.commit();
                 loginSuccess();
               } else {
@@ -528,9 +532,13 @@ public class ParseLoginFragment extends ParseLoginFragmentBase {
 	      Context.MODE_PRIVATE);
 	    SharedPreferences.Editor prefEditor = prefs.edit();
 	    Date currentDate=new Date(0);
-	    prefEditor.putLong("DateConversationsSynced", currentDate.getTime());
-	    prefEditor.putLong("DateNoteSynced", currentDate.getTime());
-	    prefEditor.putLong("DateSelfSynced", currentDate.getTime());
+      prefEditor.putLong("DateConversationsSynced", currentDate.getTime());
+      prefEditor.putLong("DateNoteSynced", currentDate.getTime());
+      prefEditor.putLong("DateSelfUserSynced", currentDate.getTime());
+      prefEditor.putLong("DateInfoSynced", currentDate.getTime());
+      prefEditor.putLong("DateSelfSynced", currentDate.getTime());
+      prefEditor.putLong("DateCompanySynced", currentDate.getTime());
+      prefEditor.putLong("DateHistorySynced", currentDate.getTime());
 	    prefEditor.commit();
 		object = new ParseObject("ECardInfo");
 			// objectId is only created after the object is saved.

@@ -239,7 +239,11 @@ public class ParseSignupFragment extends ParseLoginFragmentBase implements OnCli
     Date currentDate=new Date(0);
     prefEditor.putLong("DateConversationsSynced", currentDate.getTime());
     prefEditor.putLong("DateNoteSynced", currentDate.getTime());
+    prefEditor.putLong("DateSelfUserSynced", currentDate.getTime());
+    prefEditor.putLong("DateInfoSynced", currentDate.getTime());
     prefEditor.putLong("DateSelfSynced", currentDate.getTime());
+    prefEditor.putLong("DateCompanySynced", currentDate.getTime());
+    prefEditor.putLong("DateHistorySynced", currentDate.getTime());
     prefEditor.commit();
 	  ParseObject object = new ParseObject("ECardInfo");
 		// objectId is only created after the object is saved.

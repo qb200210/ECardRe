@@ -77,6 +77,7 @@
     <color name="indigo_A400">#3d5afe</color>
     <color name="indigo_A700">#304ffe</color>
  
+    <color name="indigo_extra">#25c797</color>
     <color name="blue_extra">#0064c8</color>
     <color name="blue_50">#e3f2fd</color>
     <color name="blue_100">#bbdefb</color>

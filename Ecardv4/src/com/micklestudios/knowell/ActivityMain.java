@@ -297,35 +297,61 @@ public class ActivityMain extends ActionBarActivity {
           sendIntent.setType("message/rfc822");
           sendIntent.putExtra(Intent.EXTRA_EMAIL, new String[] { targetEmail });
 
-          String msgSubject = "Greetings from "
-            + ActivityMain.myselfUserInfo.getFirstName() + " "
-            + ActivityMain.myselfUserInfo.getLastName();
+          String msgSubject;
           if (ActivityMain.currentUser.get("docMsgSubject") != null
             && !ActivityMain.currentUser.get("docMsgSubject").toString()
               .isEmpty()) {
             msgSubject = ActivityMain.currentUser.get("docMsgSubject")
               .toString();
+            String processedSubject = msgSubject.replaceAll(
+              "#r[a-zA-Z0-9]*#", targetName);
+            processedSubject = processedSubject.replaceAll(
+              "#m[a-zA-Z0-9]*#", ActivityMain.myselfUserInfo.getFirstName()
+                + " " + ActivityMain.myselfUserInfo.getLastName());
+            processedSubject = processedSubject.replaceAll(
+              "#d[a-zA-Z0-9]*#", docName);
+            processedSubject = processedSubject.replaceAll(
+              "#c[a-zA-Z0-9]*#", ActivityMain.myselfUserInfo.getCompany());
+            msgSubject = processedSubject.replaceAll(
+              "#k[a-zA-Z0-9]*#", getLink());
+            
+          } else {
+            msgSubject = "Greetings from "
+                + ActivityMain.myselfUserInfo.getFirstName() + " "
+                + ActivityMain.myselfUserInfo.getLastName();
           }
 
           sendIntent.putExtra(Intent.EXTRA_SUBJECT, msgSubject);
 
-          String msgBody = "Hi "
-            + targetName
-            + ",\n\nThis is "
-            + ActivityMain.myselfUserInfo.getFirstName()
-            + " "
-            + ActivityMain.myselfUserInfo.getLastName()
-            + " from "
-            + ActivityMain.myselfUserInfo.getCompany()
-            + ". Please find my "
-            + docName
-            + " in attachment. \n\nIt was great to meet you! Keep in touch! \n\nBest,\n"
-            + ActivityMain.myselfUserInfo.getFirstName()
-            + "\n\nPlease accept my business card here: " + link;
+          String msgBody;
 
           if (ActivityMain.currentUser.get("docMsgBody") != null
             && !ActivityMain.currentUser.get("docMsgBody").toString().isEmpty()) {
             msgBody = ActivityMain.currentUser.get("docMsgBody").toString();
+            String processedBody = msgBody.replaceAll("#r[a-zA-Z0-9]*#",
+              targetName);
+            processedBody = processedBody.replaceAll("#m[a-zA-Z0-9]*#",
+              ActivityMain.myselfUserInfo.getFirstName() + " "
+                + ActivityMain.myselfUserInfo.getLastName());
+            processedBody = processedBody.replaceAll("#d[a-zA-Z0-9]*#", docName);
+            processedBody = processedBody.replaceAll("#c[a-zA-Z0-9]*#",
+              ActivityMain.myselfUserInfo.getCompany());
+            msgBody = processedBody.replaceAll("#k[a-zA-Z0-9]*#",
+              getLink());
+          } else {
+            msgBody = "Hi "
+                + targetName
+                + ",\n\nThis is "
+                + ActivityMain.myselfUserInfo.getFirstName()
+                + " "
+                + ActivityMain.myselfUserInfo.getLastName()
+                + " from "
+                + ActivityMain.myselfUserInfo.getCompany()
+                + ". Please find my "
+                + docName
+                + " in attachment. \n\nIt was great to meet you! Keep in touch! \n\nBest,\n"
+                + ActivityMain.myselfUserInfo.getFirstName()
+                + "\n\nPlease accept my business card here: " + link;
           }
 
           sendIntent.putExtra(Intent.EXTRA_TEXT, msgBody);
@@ -417,11 +443,21 @@ public class ActivityMain extends ActionBarActivity {
           if (!flagShareEmail) {
             // send to message
             String msgBody;
-            if (ActivityMain.currentUser.get("defaultMsgBody") != null
-              && !ActivityMain.currentUser.get("defaultMsgBody").toString()
+            if (ActivityMain.currentUser.get("smsBody") != null
+              && !ActivityMain.currentUser.get("smsBody").toString()
                 .isEmpty()) {
-              msgBody = ActivityMain.currentUser.get("defaultMsgBody")
+              msgBody = ActivityMain.currentUser.get("smsBody")
                 .toString();
+              
+              String processedBody = msgBody.replaceAll("#r[a-zA-Z0-9]*#",
+                targetName);
+              processedBody = processedBody.replaceAll("#m[a-zA-Z0-9]*#",
+                ActivityMain.myselfUserInfo.getFirstName() + " "
+                  + ActivityMain.myselfUserInfo.getLastName());
+              processedBody = processedBody.replaceAll("#c[a-zA-Z0-9]*#",
+                ActivityMain.myselfUserInfo.getCompany());
+              msgBody = processedBody.replaceAll("#k[a-zA-Z0-9]*#",
+                link);
             } else {
               msgBody = "Hi "
                 + targetName
@@ -440,14 +476,26 @@ public class ActivityMain extends ActionBarActivity {
             startActivityForResult(intent, SHARE_QR_MSG);
           }
           if (flagShareEmail) {
-            String msgSubject = "Greetings from "
-              + ActivityMain.myselfUserInfo.getFirstName() + " "
-              + ActivityMain.myselfUserInfo.getLastName();
-            if (ActivityMain.currentUser.get("defaultMsgSubject") != null
-              && !ActivityMain.currentUser.get("defaultMsgSubject").toString()
+            String msgSubject;
+            if (ActivityMain.currentUser.get("emailSubject") != null
+              && !ActivityMain.currentUser.get("emailSubject").toString()
                 .isEmpty()) {
-              msgSubject = ActivityMain.currentUser.get("defaultMsgSubject")
+              msgSubject = ActivityMain.currentUser.get("emailSubject")
                 .toString();
+              String processedSubject = msgSubject.replaceAll(
+                "#r[a-zA-Z0-9]*#", targetName);
+              processedSubject = processedSubject.replaceAll(
+                "#m[a-zA-Z0-9]*#", ActivityMain.myselfUserInfo.getFirstName()
+                  + " " + ActivityMain.myselfUserInfo.getLastName());
+              processedSubject = processedSubject.replaceAll(
+                "#c[a-zA-Z0-9]*#", ActivityMain.myselfUserInfo.getCompany());
+              msgSubject = processedSubject.replaceAll(
+                "#k[a-zA-Z0-9]*#", getLink());
+              
+            } else {
+              msgSubject = "Greetings from "
+                  + ActivityMain.myselfUserInfo.getFirstName() + " "
+                  + ActivityMain.myselfUserInfo.getLastName();
             }
             Intent sendIntent = new Intent(Intent.ACTION_SEND);
             sendIntent.setType("message/rfc822");
@@ -455,11 +503,20 @@ public class ActivityMain extends ActionBarActivity {
               new String[] { targetEmail });
             sendIntent.putExtra(Intent.EXTRA_SUBJECT, msgSubject);
             String msgBody;
-            if (ActivityMain.currentUser.get("defaultMsgBody") != null
-              && !ActivityMain.currentUser.get("defaultMsgBody").toString()
+            if (ActivityMain.currentUser.get("emailBody") != null
+              && !ActivityMain.currentUser.get("emailBody").toString()
                 .isEmpty()) {
-              msgBody = ActivityMain.currentUser.get("defaultMsgBody")
+              msgBody = ActivityMain.currentUser.get("emailBody")
                 .toString();
+              String processedBody = msgBody.replaceAll("#r[a-zA-Z0-9]*#",
+                targetName);
+              processedBody = processedBody.replaceAll("#m[a-zA-Z0-9]*#",
+                ActivityMain.myselfUserInfo.getFirstName() + " "
+                  + ActivityMain.myselfUserInfo.getLastName());
+              processedBody = processedBody.replaceAll("#c[a-zA-Z0-9]*#",
+                ActivityMain.myselfUserInfo.getCompany());
+              msgBody = processedBody.replaceAll("#k[a-zA-Z0-9]*#",
+                getLink());
             } else {
               msgBody = "Hi " + targetName + ",\n\nThis is "
                 + ActivityMain.myselfUserInfo.getFirstName() + " "
@@ -580,7 +637,7 @@ public class ActivityMain extends ActionBarActivity {
     dialogHeader
       .setBackgroundColor(getResources().getColor(R.color.blue_extra));
     // Set dialog title and main EditText
-    dialogTitle.setText("Upload successful!");
+    dialogTitle.setText("Rename Uploaded File");
     RobotoEditText docFilenameView = (RobotoEditText) dialogView
       .findViewById(R.id.doc_filename);
     docFilenameView.setText(filename);
@@ -591,22 +648,13 @@ public class ActivityMain extends ActionBarActivity {
 
           RobotoEditText docFilenameView = (RobotoEditText) dialogView
             .findViewById(R.id.doc_filename);
-          RobotoEditText docMessageView = (RobotoEditText) dialogView
-            .findViewById(R.id.doc_message);
           String docFilename = docFilenameView.getText().toString();
-          String docMessage = docMessageView.getText().toString();
           if (docFilename == null || docFilename.isEmpty()) {
             ActivityMain.currentUser.put("docName", filename);
           } else {
             // filename not null, save it to sharedpreference
             ActivityMain.currentUser.put("docName", docFilename);
-          }
-          if (docMessage == null || docMessage.isEmpty()) {
-            ActivityMain.currentUser.remove("docMsgBody");
-          } else {
-            // description not null, save it
-            ActivityMain.currentUser.put("docMsgBody", docMessage);
-          }
+          }          
           ActivityMain.currentUser.saveEventually(null);
         }
       }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

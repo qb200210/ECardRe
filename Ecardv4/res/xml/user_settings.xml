@@ -13,10 +13,15 @@
         <Preference android:title="Document"
                 android:key="@string/prefDocGreeting"
                 android:summary="@string/prefDocGreeting"/>
-        
+                
     </PreferenceCategory>
     
     <PreferenceCategory android:title="General Settings" >
+        
+        <Preference android:title="Upload Document"
+                android:key="@string/prefDocName"
+                android:summary="@string/prefDocName"/>
+        
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="prefPushNotifications"
