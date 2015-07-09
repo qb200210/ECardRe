@@ -5,26 +5,42 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
+
+import android.app.DatePickerDialog;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnCompletionListener;
+import android.media.MediaRecorder;
+import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.os.Environment;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.DatePicker;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.ToxicBakery.viewpager.transforms.FlipHorizontalTransformer;
 import com.micklestudios.knowell.infrastructure.UserInfo;
-import com.micklestudios.knowell.utils.CurvedAndTiled;
+import com.micklestudios.knowell.utils.AppGlobals;
 import com.micklestudios.knowell.utils.DetailsPagerAdapter;
 import com.micklestudios.knowell.utils.ECardUtils;
-import com.micklestudios.knowell.utils.ExpandableHeightGridView;
-import com.micklestudios.knowell.utils.MyDetailsGridViewAdapter;
-import com.micklestudios.knowell.utils.MyGridViewAdapter;
-import com.micklestudios.knowell.utils.MyPagerAdapter;
 import com.micklestudios.knowell.utils.MyScrollView;
-import com.micklestudios.knowell.utils.MyTag;
 import com.micklestudios.knowell.utils.MyViewPager;
 import com.micklestudios.knowell.utils.RobotoTextView;
-import com.micklestudios.knowell.utils.SquareLayout;
 import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.ParseException;
@@ -33,48 +49,6 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
-import com.micklestudios.knowell.ActivityDetails;
-import com.micklestudios.knowell.R;
-
-import android.annotation.SuppressLint;
-import android.app.AlertDialog;
-import android.app.DatePickerDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.media.MediaPlayer;
-import android.media.MediaRecorder;
-import android.media.MediaPlayer.OnCompletionListener;
-import android.net.Uri;
-import android.os.Bundle;
-import android.os.CountDownTimer;
-import android.os.Environment;
-import android.support.v4.view.ViewPager.OnPageChangeListener;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.View.OnTouchListener;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.Button;
-import android.widget.DatePicker;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
-import android.widget.Toast;
 
 public class ActivityDetails extends ActionBarActivity {
 
@@ -112,15 +86,15 @@ public class ActivityDetails extends ActionBarActivity {
 
     Bundle data = getIntent().getExtras();
     final UserInfo newUser = (UserInfo) data.getParcelable("userinfo");
-    
-    DetailsPagerAdapter mAdapter = new DetailsPagerAdapter(getSupportFragmentManager(), newUser, this);
+
+    DetailsPagerAdapter mAdapter = new DetailsPagerAdapter(
+      getSupportFragmentManager(), newUser, this);
 
     final MyViewPager mPager = (MyViewPager) findViewById(R.id.pager22);
     mPager.setAdapter(mAdapter);
     mPager.setCurrentItem(0x40000000);
     mPager.setPageTransformer(true, new FlipHorizontalTransformer());
-    
-    
+
     // display note
     ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardNote");
     query.fromLocalDatastore();
@@ -131,7 +105,7 @@ public class ActivityDetails extends ActionBarActivity {
       @Override
       public void done(List<ParseObject> objects, ParseException e) {
         if (e == null) {
-          if (objects != null && objects.size()!=0) {
+          if (objects != null && objects.size() != 0) {
             noteId = objects.get(0).getObjectId().toString();
             displayNote(objects.get(0));
           }
@@ -148,29 +122,33 @@ public class ActivityDetails extends ActionBarActivity {
           + android.text.format.DateFormat.format("dd", object.getUpdatedAt())
           + ", "
           + android.text.format.DateFormat.format("yyyy", object.getUpdatedAt()));
-        
+
         RobotoTextView whenMet2 = (RobotoTextView) findViewById(R.id.DateAdded2);
         whenMet2.setText(android.text.format.DateFormat.format("MMM",
           (Date) object.get("whenMet"))
           + " "
-          + android.text.format.DateFormat.format("dd", (Date) object.get("whenMet"))
+          + android.text.format.DateFormat.format("dd",
+            (Date) object.get("whenMet"))
           + ", "
-          + android.text.format.DateFormat.format("yyyy", (Date) object.get("whenMet")));
+          + android.text.format.DateFormat.format("yyyy",
+            (Date) object.get("whenMet")));
         newDate = (Date) object.get("whenMet");
-        whenMet2.setOnClickListener(new OnClickListener(){
+        whenMet2.setOnClickListener(new OnClickListener() {
 
           @Override
-          public void onClick(View v) {      
+          public void onClick(View v) {
             Calendar newCalendar = Calendar.getInstance();
             newCalendar.setTime(newDate);
-            DatePickerDialog dialog = new DatePickerDialog(ActivityDetails.this,
-              new mDateSetListener(), newCalendar.get(Calendar.YEAR), newCalendar.get(Calendar.MONTH), newCalendar.get(Calendar.DAY_OF_MONTH));
+            DatePickerDialog dialog = new DatePickerDialog(
+              ActivityDetails.this, new mDateSetListener(), newCalendar
+                .get(Calendar.YEAR), newCalendar.get(Calendar.MONTH),
+              newCalendar.get(Calendar.DAY_OF_MONTH));
             dialog.setTitle("When did you meet?");
             dialog.show();
           }
-          
+
         });
-        
+
         EditText whereMet2 = (EditText) findViewById(R.id.PlaceAdded2);
         String cityName = object.getString("where_met");
         if (cityName != null) {
@@ -325,7 +303,7 @@ public class ActivityDetails extends ActionBarActivity {
         scrollView.setmScrollable(true);
       }
     });
-    
+
     replayButtonPanel.setOnClickListener(new OnClickListener() {
       @Override
       public void onClick(View v) {
@@ -373,8 +351,9 @@ public class ActivityDetails extends ActionBarActivity {
     // This is the life-saver! It fixes the bug that scrollView will go to the
     // bottom of GridView upon open
     // below is to re-scroll to the first view in the LinearLayout
-//    SquareLayout mainCardContainer = (SquareLayout) findViewById(R.id.details_maincard_container);
-//    scrollView.requestChildFocus(mainCardContainer, null);
+    // SquareLayout mainCardContainer = (SquareLayout)
+    // findViewById(R.id.details_maincard_container);
+    // scrollView.requestChildFocus(mainCardContainer, null);
 
   }
 
@@ -402,28 +381,26 @@ public class ActivityDetails extends ActionBarActivity {
       actionBar.setCustomView(v);
     }
   }
-  
+
   class mDateSetListener implements DatePickerDialog.OnDateSetListener {
 
     @Override
     public void onDateSet(DatePicker view, int year, int monthOfYear,
-            int dayOfMonth) {
-        // TODO Auto-generated method stub
-        // getCalender();
-        int mYear = year;
-        int mMonth = monthOfYear;
-        int mDay = dayOfMonth;
-        newDate = getDate(year, monthOfYear, dayOfMonth);
-        
-        RobotoTextView whenMet2 = (RobotoTextView) findViewById(R.id.DateAdded2);
-        whenMet2.setText(android.text.format.DateFormat.format("MMM",newDate)
-          + " "
-          + android.text.format.DateFormat.format("dd", newDate)
-          + ", "
-          + android.text.format.DateFormat.format("yyyy", newDate));
+      int dayOfMonth) {
+      // TODO Auto-generated method stub
+      // getCalender();
+      int mYear = year;
+      int mMonth = monthOfYear;
+      int mDay = dayOfMonth;
+      newDate = getDate(year, monthOfYear, dayOfMonth);
+
+      RobotoTextView whenMet2 = (RobotoTextView) findViewById(R.id.DateAdded2);
+      whenMet2.setText(android.text.format.DateFormat.format("MMM", newDate)
+        + " " + android.text.format.DateFormat.format("dd", newDate) + ", "
+        + android.text.format.DateFormat.format("yyyy", newDate));
     }
-}
-  
+  }
+
   public static Date getDate(int year, int month, int day) {
     Calendar cal = Calendar.getInstance();
     cal.set(Calendar.YEAR, year);
@@ -434,7 +411,7 @@ public class ActivityDetails extends ActionBarActivity {
     cal.set(Calendar.SECOND, 0);
     cal.set(Calendar.MILLISECOND, 0);
     return cal.getTime();
-}
+  }
 
   private void deleteLocalVoiceNote() {
     File myFile = new File(filepath);
@@ -480,7 +457,7 @@ public class ActivityDetails extends ActionBarActivity {
     if (newUser.getPortrait() != null) {
       portraitImg.setImageBitmap(newUser.getPortrait());
     }
-    
+
     TextView name = (TextView) findViewById(R.id.my_name);
     String tmpString = newUser.getFirstName();
     String nameString = null;
@@ -492,14 +469,14 @@ public class ActivityDetails extends ActionBarActivity {
     if (nameString != null)
       name.setText(nameString);
     name = (TextView) findViewById(R.id.my_com);
-    tmpString = newUser.getCompany();    
+    tmpString = newUser.getCompany();
     if (tmpString != null) {
       name.setText(tmpString);
       ImageView logoImg = (ImageView) findViewById(R.id.my_logo);
       // display logo
       ECardUtils.findAndSetLogo(this, logoImg, tmpString, false);
     }
-    
+
     name = (TextView) findViewById(R.id.my_job_title);
     tmpString = newUser.getTitle();
     if (tmpString != null)
@@ -560,7 +537,7 @@ public class ActivityDetails extends ActionBarActivity {
               // internet, convert the file
               Date currentDate = new Date(0);
               SharedPreferences prefs = getSharedPreferences(
-                ActivityBufferOpening.MY_PREFS_NAME, MODE_PRIVATE);
+                AppGlobals.MY_PREFS_NAME, MODE_PRIVATE);
               SharedPreferences.Editor prefEditor = prefs.edit();
               prefEditor.putLong("DateNoteSynced", currentDate.getTime());
               prefEditor.commit();

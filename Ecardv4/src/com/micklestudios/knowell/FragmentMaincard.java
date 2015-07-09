@@ -1,47 +1,17 @@
 package com.micklestudios.knowell;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URISyntaxException;
-
-import com.google.zxing.client.android.Intents;
-import com.micklestudios.knowell.infrastructure.UserInfo;
-import com.micklestudios.knowell.utils.CurvedAndTiled;
-import com.micklestudios.knowell.utils.CustomQRScanner;
-import com.micklestudios.knowell.utils.ECardUtils;
-import com.micklestudios.knowell.utils.MyTag;
-import com.micklestudios.knowell.utils.RobotoEditText;
-import com.micklestudios.knowell.utils.UpdateableFragment;
-import com.parse.ParseUser;
-import com.micklestudios.knowell.R;
-
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.View.OnClickListener;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import com.micklestudios.knowell.infrastructure.UserInfo;
+import com.micklestudios.knowell.utils.ECardUtils;
+import com.micklestudios.knowell.utils.UpdateableFragment;
 
 public class FragmentMaincard extends Fragment implements UpdateableFragment {
 
@@ -57,7 +27,6 @@ public class FragmentMaincard extends Fragment implements UpdateableFragment {
   }
 
   private View rootView;
-  
 
   public FragmentMaincard() {
 
@@ -78,7 +47,7 @@ public class FragmentMaincard extends Fragment implements UpdateableFragment {
     if (getArguments().getInt(ARG_SECTION_NUMBER, 1) == 1) {
       // if this is to create maincard fragment
       rootView = inflater.inflate(R.layout.fragment_maincard, container, false);
-  
+
       // display the main card
       if (ActivityMain.myselfUserInfo != null) {
         displayCard(rootView, ActivityMain.myselfUserInfo);
@@ -87,7 +56,7 @@ public class FragmentMaincard extends Fragment implements UpdateableFragment {
       return rootView;
     }
     if (getArguments().getInt(ARG_SECTION_NUMBER, 1) == 2) {
-      View rootView = inflater.inflate(R.layout.fragment_qr, container, false);    
+      View rootView = inflater.inflate(R.layout.fragment_qr, container, false);
       if (ActivityMain.myselfUserInfo != null) {
         ImageView qrCode = (ImageView) rootView.findViewById(R.id.qr_container);
         qrCode.setImageBitmap(ActivityMain.myselfUserInfo.getQRCode());
@@ -97,14 +66,6 @@ public class FragmentMaincard extends Fragment implements UpdateableFragment {
     }
     return null;
   }
-
-  
-
-  
-
-  
-
-  
 
   public void displayCard(View rootView, UserInfo newUser) {
 

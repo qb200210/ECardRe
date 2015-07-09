@@ -303,22 +303,22 @@ public class ActivityMain extends ActionBarActivity {
               .isEmpty()) {
             msgSubject = ActivityMain.currentUser.get("docMsgSubject")
               .toString();
-            String processedSubject = msgSubject.replaceAll(
-              "#r[a-zA-Z0-9]*#", targetName);
-            processedSubject = processedSubject.replaceAll(
-              "#m[a-zA-Z0-9]*#", ActivityMain.myselfUserInfo.getFirstName()
-                + " " + ActivityMain.myselfUserInfo.getLastName());
-            processedSubject = processedSubject.replaceAll(
-              "#d[a-zA-Z0-9]*#", docName);
-            processedSubject = processedSubject.replaceAll(
-              "#c[a-zA-Z0-9]*#", ActivityMain.myselfUserInfo.getCompany());
-            msgSubject = processedSubject.replaceAll(
-              "#k[a-zA-Z0-9]*#", getLink());
-            
+            String processedSubject = msgSubject.replaceAll("#r[a-zA-Z0-9]*#",
+              targetName);
+            processedSubject = processedSubject.replaceAll("#m[a-zA-Z0-9]*#",
+              ActivityMain.myselfUserInfo.getFirstName() + " "
+                + ActivityMain.myselfUserInfo.getLastName());
+            processedSubject = processedSubject.replaceAll("#d[a-zA-Z0-9]*#",
+              docName);
+            processedSubject = processedSubject.replaceAll("#c[a-zA-Z0-9]*#",
+              ActivityMain.myselfUserInfo.getCompany());
+            msgSubject = processedSubject.replaceAll("#k[a-zA-Z0-9]*#",
+              getLink());
+
           } else {
             msgSubject = "Greetings from "
-                + ActivityMain.myselfUserInfo.getFirstName() + " "
-                + ActivityMain.myselfUserInfo.getLastName();
+              + ActivityMain.myselfUserInfo.getFirstName() + " "
+              + ActivityMain.myselfUserInfo.getLastName();
           }
 
           sendIntent.putExtra(Intent.EXTRA_SUBJECT, msgSubject);
@@ -333,25 +333,25 @@ public class ActivityMain extends ActionBarActivity {
             processedBody = processedBody.replaceAll("#m[a-zA-Z0-9]*#",
               ActivityMain.myselfUserInfo.getFirstName() + " "
                 + ActivityMain.myselfUserInfo.getLastName());
-            processedBody = processedBody.replaceAll("#d[a-zA-Z0-9]*#", docName);
+            processedBody = processedBody
+              .replaceAll("#d[a-zA-Z0-9]*#", docName);
             processedBody = processedBody.replaceAll("#c[a-zA-Z0-9]*#",
               ActivityMain.myselfUserInfo.getCompany());
-            msgBody = processedBody.replaceAll("#k[a-zA-Z0-9]*#",
-              getLink());
+            msgBody = processedBody.replaceAll("#k[a-zA-Z0-9]*#", getLink());
           } else {
             msgBody = "Hi "
-                + targetName
-                + ",\n\nThis is "
-                + ActivityMain.myselfUserInfo.getFirstName()
-                + " "
-                + ActivityMain.myselfUserInfo.getLastName()
-                + " from "
-                + ActivityMain.myselfUserInfo.getCompany()
-                + ". Please find my "
-                + docName
-                + " in attachment. \n\nIt was great to meet you! Keep in touch! \n\nBest,\n"
-                + ActivityMain.myselfUserInfo.getFirstName()
-                + "\n\nPlease accept my business card here: " + link;
+              + targetName
+              + ",\n\nThis is "
+              + ActivityMain.myselfUserInfo.getFirstName()
+              + " "
+              + ActivityMain.myselfUserInfo.getLastName()
+              + " from "
+              + ActivityMain.myselfUserInfo.getCompany()
+              + ". Please find my "
+              + docName
+              + " in attachment. \n\nIt was great to meet you! Keep in touch! \n\nBest,\n"
+              + ActivityMain.myselfUserInfo.getFirstName()
+              + "\n\nPlease accept my business card here: " + link;
           }
 
           sendIntent.putExtra(Intent.EXTRA_TEXT, msgBody);
@@ -444,11 +444,9 @@ public class ActivityMain extends ActionBarActivity {
             // send to message
             String msgBody;
             if (ActivityMain.currentUser.get("smsBody") != null
-              && !ActivityMain.currentUser.get("smsBody").toString()
-                .isEmpty()) {
-              msgBody = ActivityMain.currentUser.get("smsBody")
-                .toString();
-              
+              && !ActivityMain.currentUser.get("smsBody").toString().isEmpty()) {
+              msgBody = ActivityMain.currentUser.get("smsBody").toString();
+
               String processedBody = msgBody.replaceAll("#r[a-zA-Z0-9]*#",
                 targetName);
               processedBody = processedBody.replaceAll("#m[a-zA-Z0-9]*#",
@@ -456,8 +454,7 @@ public class ActivityMain extends ActionBarActivity {
                   + ActivityMain.myselfUserInfo.getLastName());
               processedBody = processedBody.replaceAll("#c[a-zA-Z0-9]*#",
                 ActivityMain.myselfUserInfo.getCompany());
-              msgBody = processedBody.replaceAll("#k[a-zA-Z0-9]*#",
-                link);
+              msgBody = processedBody.replaceAll("#k[a-zA-Z0-9]*#", link);
             } else {
               msgBody = "Hi "
                 + targetName
@@ -484,18 +481,18 @@ public class ActivityMain extends ActionBarActivity {
                 .toString();
               String processedSubject = msgSubject.replaceAll(
                 "#r[a-zA-Z0-9]*#", targetName);
-              processedSubject = processedSubject.replaceAll(
-                "#m[a-zA-Z0-9]*#", ActivityMain.myselfUserInfo.getFirstName()
-                  + " " + ActivityMain.myselfUserInfo.getLastName());
-              processedSubject = processedSubject.replaceAll(
-                "#c[a-zA-Z0-9]*#", ActivityMain.myselfUserInfo.getCompany());
-              msgSubject = processedSubject.replaceAll(
-                "#k[a-zA-Z0-9]*#", getLink());
-              
+              processedSubject = processedSubject.replaceAll("#m[a-zA-Z0-9]*#",
+                ActivityMain.myselfUserInfo.getFirstName() + " "
+                  + ActivityMain.myselfUserInfo.getLastName());
+              processedSubject = processedSubject.replaceAll("#c[a-zA-Z0-9]*#",
+                ActivityMain.myselfUserInfo.getCompany());
+              msgSubject = processedSubject.replaceAll("#k[a-zA-Z0-9]*#",
+                getLink());
+
             } else {
               msgSubject = "Greetings from "
-                  + ActivityMain.myselfUserInfo.getFirstName() + " "
-                  + ActivityMain.myselfUserInfo.getLastName();
+                + ActivityMain.myselfUserInfo.getFirstName() + " "
+                + ActivityMain.myselfUserInfo.getLastName();
             }
             Intent sendIntent = new Intent(Intent.ACTION_SEND);
             sendIntent.setType("message/rfc822");
@@ -506,8 +503,7 @@ public class ActivityMain extends ActionBarActivity {
             if (ActivityMain.currentUser.get("emailBody") != null
               && !ActivityMain.currentUser.get("emailBody").toString()
                 .isEmpty()) {
-              msgBody = ActivityMain.currentUser.get("emailBody")
-                .toString();
+              msgBody = ActivityMain.currentUser.get("emailBody").toString();
               String processedBody = msgBody.replaceAll("#r[a-zA-Z0-9]*#",
                 targetName);
               processedBody = processedBody.replaceAll("#m[a-zA-Z0-9]*#",
@@ -515,8 +511,7 @@ public class ActivityMain extends ActionBarActivity {
                   + ActivityMain.myselfUserInfo.getLastName());
               processedBody = processedBody.replaceAll("#c[a-zA-Z0-9]*#",
                 ActivityMain.myselfUserInfo.getCompany());
-              msgBody = processedBody.replaceAll("#k[a-zA-Z0-9]*#",
-                getLink());
+              msgBody = processedBody.replaceAll("#k[a-zA-Z0-9]*#", getLink());
             } else {
               msgBody = "Hi " + targetName + ",\n\nThis is "
                 + ActivityMain.myselfUserInfo.getFirstName() + " "
@@ -654,7 +649,7 @@ public class ActivityMain extends ActionBarActivity {
           } else {
             // filename not null, save it to sharedpreference
             ActivityMain.currentUser.put("docName", docFilename);
-          }          
+          }
           ActivityMain.currentUser.saveEventually(null);
         }
       }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -681,14 +676,13 @@ public class ActivityMain extends ActionBarActivity {
       return true;
     case R.id.settings:
       intent = new Intent(ActivityMain.this, ActivityUserSetting.class);
-      startActivity(intent); 
+      startActivity(intent);
       return true;
     default:
       return super.onOptionsItemSelected(item);
     }
   }
-  
-  
+
   @Override
   public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
@@ -813,7 +807,7 @@ public class ActivityMain extends ActionBarActivity {
           historyObj.put("type", code);
           historyObj.saveEventually();
           historyObj.pinInBackground();
-          
+
         }
       }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
         public void onClick(DialogInterface dialog, int whichButton) {

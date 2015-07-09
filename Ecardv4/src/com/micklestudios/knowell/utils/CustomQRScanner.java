@@ -61,8 +61,8 @@ public class CustomQRScanner extends CaptureActivity {
     dialog.setContentView(R.layout.layout_dialog_scanned_process);
 
     TextView dialog_text = (TextView) dialog.findViewById(R.id.dialog_status);
-//    ImageView progress_image = (ImageView) dialog
-//      .findViewById(R.id.process_dialog_image);
+    // ImageView progress_image = (ImageView) dialog
+    // .findViewById(R.id.process_dialog_image);
 
     HashMap<String, String> valuesMap = ECardUtils.parseQRString(rawResult
       .toString());
@@ -70,9 +70,9 @@ public class CustomQRScanner extends CaptureActivity {
     if (valuesMap == null) {
       dialog_text.setText("The scanned QR is invalid");
       Intent intent = new Intent(getBaseContext(), ActivityWebView.class);
-      intent.putExtra("url", rawResult.toString());      
+      intent.putExtra("url", rawResult.toString());
       startActivityForResult(intent, OPEN_WEB);
-      
+
       // progress_image.setBackgroundResource(R.drawable.ic_action_cancel);
 
       dialog.show();
@@ -86,8 +86,8 @@ public class CustomQRScanner extends CaptureActivity {
             dialog.dismiss();
           }
 
-//          onPause();
-//          onResume();
+          // onPause();
+          // onResume();
         }
       };
 
@@ -127,7 +127,7 @@ public class CustomQRScanner extends CaptureActivity {
               // passing UserInfo is made possible through Parcelable
               intent.putExtra("userinfo", newUser);
               intent.putExtra("offlineMode", true);
-    	      intent.putExtra("deletedNoteId", (String)null);
+              intent.putExtra("deletedNoteId", (String) null);
               startActivity(intent);
               scanQR.cancel(true);
               finish();
@@ -168,7 +168,7 @@ public class CustomQRScanner extends CaptureActivity {
         // passing UserInfo is made possible through Parcelable
         intent.putExtra("userinfo", newUser);
         intent.putExtra("offlineMode", true);
-	    intent.putExtra("deletedNoteId", (String)null);
+        intent.putExtra("deletedNoteId", (String) null);
         startActivity(intent);
         finish();
       }
@@ -182,9 +182,9 @@ public class CustomQRScanner extends CaptureActivity {
     private String scannedId;
     private String firstName;
     private String lastName;
-	private boolean flagCardDoesnotExist = false;
-	private boolean flagAlreadyCollected = false;
-	private String deletedNoteId = null;
+    private boolean flagCardDoesnotExist = false;
+    private boolean flagAlreadyCollected = false;
+    private String deletedNoteId = null;
 
     public SyncDataTaskScanQR(Context context, String scannedId,
       String firstName, String lastName) {
@@ -198,107 +198,111 @@ public class CustomQRScanner extends CaptureActivity {
     @Override
     protected UserInfo doInBackground(String... url) {
       // check if ecard actually exists? check if ecard already collected?
-    	ParseUser currentUser = ParseUser.getCurrentUser();
-    	ParseQuery<ParseObject> queryNote = ParseQuery.getQuery("ECardNote");
-    	Log.i("add", currentUser.getObjectId() + "  "+ scannedId);
-    	queryNote.whereEqualTo("userId", currentUser.getObjectId());
-		queryNote.whereEqualTo("ecardId", scannedId);
-		List<ParseObject> foundNotes = null;
-    	try {
-    		foundNotes = queryNote.find();
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-    	if(foundNotes == null || foundNotes.size()==0){
-    		// if either ecard doesn't exist or not collected
-    		ParseQuery<ParseObject> queryInfo = ParseQuery.getQuery("ECardInfo");
-    		ParseObject objectScanned = null;
-    		try {
-				objectScanned = queryInfo.get(scannedId);
-			} catch (ParseException e2) {
-				// TODO Auto-generated catch block
-				e2.printStackTrace();
-			}
-			if (objectScanned == null) {
-				// if ecard doesn't exist
-    			flagCardDoesnotExist = true;
-    			return null;
-			} else {
-    			// if the ecard exists and not collected, create the userInfo using found object
-    			UserInfo newUser = new UserInfo(objectScanned);
-    			return newUser;
-    		}
-    	} else {
-    		// if the note existed, check whether collected or deleted
-    		boolean isDeleted = foundNotes.get(0).getBoolean("isDeleted");
-    		if(!isDeleted){
-	    		flagAlreadyCollected = true;
-	    		UserInfo newUser = new UserInfo(scannedId, firstName, lastName, true,
-	    		        true, false);
-	    		return newUser;
-    		} else {
-    			// note existed but already deleted. Now recover it
-    			deletedNoteId = foundNotes.get(0).getObjectId();
-    			ParseQuery<ParseObject> queryInfo = ParseQuery.getQuery("ECardInfo");
-        		ParseObject objectScanned = null;
-        		try {
-    				objectScanned = queryInfo.get(scannedId);
-    			} catch (ParseException e2) {
-    				// TODO Auto-generated catch block
-    				e2.printStackTrace();
-    			}
-    			if (objectScanned == null) {
-    				// if ecard doesn't exist
-        			flagCardDoesnotExist = true;
-        			return null;
-    			} else {
-        			// if the ecard exists and not collected, create the userInfo using found object
-        			UserInfo newUser = new UserInfo(objectScanned);
-        			return newUser;
-        		}
-    		}
-    	}
-    
+      ParseUser currentUser = ParseUser.getCurrentUser();
+      ParseQuery<ParseObject> queryNote = ParseQuery.getQuery("ECardNote");
+      Log.i("add", currentUser.getObjectId() + "  " + scannedId);
+      queryNote.whereEqualTo("userId", currentUser.getObjectId());
+      queryNote.whereEqualTo("ecardId", scannedId);
+      List<ParseObject> foundNotes = null;
+      try {
+        foundNotes = queryNote.find();
+      } catch (ParseException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+      if (foundNotes == null || foundNotes.size() == 0) {
+        // if either ecard doesn't exist or not collected
+        ParseQuery<ParseObject> queryInfo = ParseQuery.getQuery("ECardInfo");
+        ParseObject objectScanned = null;
+        try {
+          objectScanned = queryInfo.get(scannedId);
+        } catch (ParseException e2) {
+          // TODO Auto-generated catch block
+          e2.printStackTrace();
+        }
+        if (objectScanned == null) {
+          // if ecard doesn't exist
+          flagCardDoesnotExist = true;
+          return null;
+        } else {
+          // if the ecard exists and not collected, create the userInfo using
+          // found object
+          UserInfo newUser = new UserInfo(objectScanned);
+          return newUser;
+        }
+      } else {
+        // if the note existed, check whether collected or deleted
+        boolean isDeleted = foundNotes.get(0).getBoolean("isDeleted");
+        if (!isDeleted) {
+          flagAlreadyCollected = true;
+          UserInfo newUser = new UserInfo(scannedId, firstName, lastName, true,
+            true, false);
+          return newUser;
+        } else {
+          // note existed but already deleted. Now recover it
+          deletedNoteId = foundNotes.get(0).getObjectId();
+          ParseQuery<ParseObject> queryInfo = ParseQuery.getQuery("ECardInfo");
+          ParseObject objectScanned = null;
+          try {
+            objectScanned = queryInfo.get(scannedId);
+          } catch (ParseException e2) {
+            // TODO Auto-generated catch block
+            e2.printStackTrace();
+          }
+          if (objectScanned == null) {
+            // if ecard doesn't exist
+            flagCardDoesnotExist = true;
+            return null;
+          } else {
+            // if the ecard exists and not collected, create the userInfo using
+            // found object
+            UserInfo newUser = new UserInfo(objectScanned);
+            return newUser;
+          }
+        }
+      }
+
       // Create new userInfo class based on the scannedId.
       // Will pull info from Parse
-      
+
     }
 
     @Override
     protected void onPostExecute(UserInfo newUser) {
       // if ecard already collected, switch to ActivityDetails
-      if(flagAlreadyCollected){
-    	  Toast.makeText(getBaseContext(), "Ecard already collected", Toast.LENGTH_SHORT).show();
-    	  Intent intent = new Intent(getBaseContext(), ActivityDetails.class);
-          // passing UserInfo is made possible through Parcelable
-          intent.putExtra("userinfo", newUser);
-          startActivity(intent);
-          finish();
-      } else if(flagCardDoesnotExist){
-    	  Toast.makeText(getBaseContext(), "Ecard invalid", Toast.LENGTH_SHORT).show();
-    	  if (dialog.isShowing()) {
-              dialog.dismiss();
-            }
-    	  onPause();
-          onResume();
-      } else if(deletedNoteId!=null && !flagCardDoesnotExist){
-    	  Intent intent = new Intent(getBaseContext(), ActivityScanned.class);
-	      // passing UserInfo is made possible through Parcelable
-	      intent.putExtra("userinfo", newUser);
-	      intent.putExtra("offlineMode", false);
-	      intent.putExtra("deletedNoteId", deletedNoteId);
-	      startActivity(intent);
-	      finish();
-      } else {    	
-	      // upon successful scan and pull of info
-	      Intent intent = new Intent(getBaseContext(), ActivityScanned.class);
-	      // passing UserInfo is made possible through Parcelable
-	      intent.putExtra("userinfo", newUser);
-	      intent.putExtra("offlineMode", false);
-	      intent.putExtra("deletedNoteId", (String)null);
-	      startActivity(intent);
-	      finish();
+      if (flagAlreadyCollected) {
+        Toast.makeText(getBaseContext(), "Ecard already collected",
+          Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(getBaseContext(), ActivityDetails.class);
+        // passing UserInfo is made possible through Parcelable
+        intent.putExtra("userinfo", newUser);
+        startActivity(intent);
+        finish();
+      } else if (flagCardDoesnotExist) {
+        Toast.makeText(getBaseContext(), "Ecard invalid", Toast.LENGTH_SHORT)
+          .show();
+        if (dialog.isShowing()) {
+          dialog.dismiss();
+        }
+        onPause();
+        onResume();
+      } else if (deletedNoteId != null && !flagCardDoesnotExist) {
+        Intent intent = new Intent(getBaseContext(), ActivityScanned.class);
+        // passing UserInfo is made possible through Parcelable
+        intent.putExtra("userinfo", newUser);
+        intent.putExtra("offlineMode", false);
+        intent.putExtra("deletedNoteId", deletedNoteId);
+        startActivity(intent);
+        finish();
+      } else {
+        // upon successful scan and pull of info
+        Intent intent = new Intent(getBaseContext(), ActivityScanned.class);
+        // passing UserInfo is made possible through Parcelable
+        intent.putExtra("userinfo", newUser);
+        intent.putExtra("offlineMode", false);
+        intent.putExtra("deletedNoteId", (String) null);
+        startActivity(intent);
+        finish();
       }
     }
 

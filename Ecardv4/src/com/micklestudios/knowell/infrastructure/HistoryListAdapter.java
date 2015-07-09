@@ -41,7 +41,8 @@ public class HistoryListAdapter extends ArrayAdapter<ParseObject> implements
   protected static final int SHARE_QR_EMAIL = 1003;
   protected static final int SHARE_DOC = 1004;
 
-  public HistoryListAdapter(final Context context, List<ParseObject> historyObjects) {
+  public HistoryListAdapter(final Context context,
+    List<ParseObject> historyObjects) {
     mContext = context;
     this.historyObjects = historyObjects;
     for (int i = 0; i < historyObjects.size(); i++) {
@@ -63,7 +64,6 @@ public class HistoryListAdapter extends ArrayAdapter<ParseObject> implements
   public boolean hasStableIds() {
     return false;
   }
-  
 
   @SuppressLint("NewApi")
   @Override
@@ -73,60 +73,60 @@ public class HistoryListAdapter extends ArrayAdapter<ParseObject> implements
       convertView = LayoutInflater.from(mContext).inflate(
         R.layout.history_card, parent, false);
     }
-    
-    ImageView iconView = (ImageView) convertView.findViewById(R.id.history_image);
-      Integer typeCode = historyObjects.get(position).getInt("type");
-      switch(typeCode){
-      case SHARE_QR_MSG:
-        iconView.setImageResource(R.drawable.message);
-        break;
-      case SHARE_QR_EMAIL:
-        iconView.setImageResource(R.drawable.mail);
-        break;
-      case SHARE_DOC:
-        iconView.setImageResource(R.drawable.doc_lite);
-        break;
-        default:
-          iconView.setImageResource(R.drawable.history_lite);
-          break;
-      }
 
-    TextView nameView = (TextView) convertView
-      .findViewById(R.id.history_name);
-    if(historyObjects.get(position).get("fullName")!=null){
+    ImageView iconView = (ImageView) convertView
+      .findViewById(R.id.history_image);
+    Integer typeCode = historyObjects.get(position).getInt("type");
+    switch (typeCode) {
+    case SHARE_QR_MSG:
+      iconView.setImageResource(R.drawable.message);
+      break;
+    case SHARE_QR_EMAIL:
+      iconView.setImageResource(R.drawable.mail);
+      break;
+    case SHARE_DOC:
+      iconView.setImageResource(R.drawable.doc_lite);
+      break;
+    default:
+      iconView.setImageResource(R.drawable.history_lite);
+      break;
+    }
+
+    TextView nameView = (TextView) convertView.findViewById(R.id.history_name);
+    if (historyObjects.get(position).get("fullName") != null) {
       nameView.setText(historyObjects.get(position).get("fullName").toString());
     } else {
-      if(historyObjects.get(position).get("email")!=null){
+      if (historyObjects.get(position).get("email") != null) {
         nameView.setText(historyObjects.get(position).get("email").toString());
       } else {
-        if(historyObjects.get(position).get("message")!=null){
-          nameView.setText(historyObjects.get(position).get("message").toString());
+        if (historyObjects.get(position).get("message") != null) {
+          nameView.setText(historyObjects.get(position).get("message")
+            .toString());
         }
       }
     }
     TextView msgView = (TextView) convertView.findViewById(R.id.history_msg);
-    Log.i("aaaaa", " "+position);
-    if(historyObjects.get(position).get("notes") !=null){
+    Log.i("aaaaa", " " + position);
+    if (historyObjects.get(position).get("notes") != null) {
       msgView.setText(historyObjects.get(position).get("notes").toString());
-    } else{
+    } else {
       msgView.setText("");
     }
     TextView updatedAt = (TextView) convertView.findViewById(R.id.history_date);
-    if(historyObjects.get(position).getObjectId() == null){
+    if (historyObjects.get(position).getObjectId() == null) {
       Date date = new Date();
-      updatedAt.setText(android.text.format.DateFormat.format("MMM",
-        date)
-        + " "
-        + android.text.format.DateFormat.format("dd", date));
+      updatedAt.setText(android.text.format.DateFormat.format("MMM", date)
+        + " " + android.text.format.DateFormat.format("dd", date));
     } else {
       updatedAt.setText(android.text.format.DateFormat.format("MMM",
         historyObjects.get(position).getCreatedAt())
         + " "
-        + android.text.format.DateFormat.format("dd", historyObjects.get(position).getCreatedAt()));
+        + android.text.format.DateFormat.format("dd",
+          historyObjects.get(position).getCreatedAt()));
     }
     return convertView;
   }
-  
+
   public void reSortDate(boolean ascending) {
 
     Comparator<ParseObject> comparer = new HistoryDateComparator();

@@ -15,7 +15,7 @@ public class MyViewPager extends ViewPager {
     super(context);
     // TODO Auto-generated constructor stub
   }
-  
+
   @Override
   protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
     super.onMeasure(widthMeasureSpec, widthMeasureSpec);

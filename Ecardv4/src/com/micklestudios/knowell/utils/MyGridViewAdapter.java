@@ -45,8 +45,8 @@ public class MyGridViewAdapter extends BaseAdapter {
       imageView.setImageResource(gridResources.get(position));
       gridView.setTag(new MyTag(gridKeys.get(position), gridValues
         .get(position)));
-      
-      Log.i("gridview", ""+position);
+
+      Log.i("gridview", "" + position);
 
     } else {
       gridView = (View) convertView;

@@ -23,10 +23,11 @@ import com.micklestudios.knowell.infrastructure.UserInfo;
 
 public class DetailsPagerAdapter extends FragmentPagerAdapter {
 
-private UserInfo newUser;
-private Activity activity;
+  private UserInfo newUser;
+  private Activity activity;
 
-public DetailsPagerAdapter(FragmentManager fm, UserInfo newUser, Activity activity) {
+  public DetailsPagerAdapter(FragmentManager fm, UserInfo newUser,
+    Activity activity) {
     super(fm);
     this.activity = activity;
     this.newUser = newUser;
@@ -46,7 +47,6 @@ public DetailsPagerAdapter(FragmentManager fm, UserInfo newUser, Activity activi
       return FragmentInfoDisplay.newInstance(2, newUser);
     }
   }
-  
 
   @Override
   public int getCount() {

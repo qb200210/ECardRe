@@ -24,9 +24,9 @@ public class ActivityWebView extends ActionBarActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.layout_webview);
-    
+
     showActionBar();
-    
+
     Bundle b = getIntent().getExtras();
     String url = b.get("url").toString();
     TextView myTextView = (TextView) findViewById(R.id.simpletext);
@@ -36,7 +36,7 @@ public class ActivityWebView extends ActionBarActivity {
     webSettings.setJavaScriptEnabled(true);
     webSettings.setBuiltInZoomControls(true);
     webSettings.setSupportZoom(true);
-    
+
     if (!url.startsWith("http://") && !url.startsWith("https://")
       && !url.startsWith("ftp://")) {
       myTextView.setVisibility(View.VISIBLE);
@@ -46,7 +46,7 @@ public class ActivityWebView extends ActionBarActivity {
       myWebView.loadUrl(url);
     }
   }
-  
+
   @SuppressLint("InflateParams")
   private void showActionBar() {
     LayoutInflater inflator = (LayoutInflater) this
@@ -72,16 +72,17 @@ public class ActivityWebView extends ActionBarActivity {
       actionBar.setCustomView(v);
     }
   }
-  
+
   @Override
   public boolean onKeyDown(int keyCode, KeyEvent event) {
-      // Check if the key event was the Back button and if there's history
-      if ((keyCode == KeyEvent.KEYCODE_BACK) && myWebView.canGoBack()) {
-          myWebView.goBack();
-          return true;
-      }
-      // If it wasn't the Back key or there's no web page history, bubble up to the default
-      // system behavior (probably exit the activity)
-      return super.onKeyDown(keyCode, event);
+    // Check if the key event was the Back button and if there's history
+    if ((keyCode == KeyEvent.KEYCODE_BACK) && myWebView.canGoBack()) {
+      myWebView.goBack();
+      return true;
+    }
+    // If it wasn't the Back key or there's no web page history, bubble up to
+    // the default
+    // system behavior (probably exit the activity)
+    return super.onKeyDown(keyCode, event);
   }
 }

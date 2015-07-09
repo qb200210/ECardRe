@@ -1,54 +1,25 @@
 package com.micklestudios.knowell;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URISyntaxException;
-
-import com.google.zxing.client.android.Intents;
-import com.micklestudios.knowell.infrastructure.UserInfo;
-import com.micklestudios.knowell.utils.CurvedAndTiled;
-import com.micklestudios.knowell.utils.CustomQRScanner;
-import com.micklestudios.knowell.utils.ECardUtils;
-import com.micklestudios.knowell.utils.MyTag;
-import com.micklestudios.knowell.utils.RobotoEditText;
-import com.micklestudios.knowell.utils.SquareLayout;
-import com.micklestudios.knowell.utils.UpdateableFragment;
-import com.parse.ParseUser;
-import com.micklestudios.knowell.R;
-
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.View.OnClickListener;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-public class FragmentCollectedCard extends Fragment implements UpdateableFragment {
+import com.micklestudios.knowell.infrastructure.UserInfo;
+import com.micklestudios.knowell.utils.ECardUtils;
+import com.micklestudios.knowell.utils.UpdateableFragment;
+
+public class FragmentCollectedCard extends Fragment implements
+    UpdateableFragment {
 
   private static final String ARG_SECTION_NUMBER = "section_number";
 
-  public static FragmentCollectedCard newInstance(int sectionNumber, UserInfo newUser) {
+  public static FragmentCollectedCard newInstance(int sectionNumber,
+    UserInfo newUser) {
     Log.i("maincard", "newinstance");
     FragmentCollectedCard fragment = new FragmentCollectedCard();
     Bundle args = new Bundle();
@@ -59,12 +30,11 @@ public class FragmentCollectedCard extends Fragment implements UpdateableFragmen
   }
 
   private View rootView;
-  
 
   public FragmentCollectedCard() {
 
   }
-  
+
   @Override
   public void onSaveInstanceState(Bundle outState) {
     super.onSaveInstanceState(outState);
@@ -89,14 +59,6 @@ public class FragmentCollectedCard extends Fragment implements UpdateableFragmen
     return rootView;
 
   }
-
-  
-
-  
-
-  
-
-  
 
   public void displayCard(View rootView, UserInfo newUser) {
 

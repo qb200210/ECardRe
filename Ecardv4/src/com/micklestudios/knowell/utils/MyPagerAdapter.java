@@ -20,7 +20,7 @@ import com.micklestudios.knowell.infrastructure.UserInfo;
 
 public class MyPagerAdapter extends FragmentPagerAdapter {
 
-public MyPagerAdapter(FragmentManager fm) {
+  public MyPagerAdapter(FragmentManager fm) {
     super(fm);
   }
 
@@ -38,7 +38,6 @@ public MyPagerAdapter(FragmentManager fm) {
       return FragmentMaincard.newInstance(2);
     }
   }
-  
 
   @Override
   public int getCount() {
@@ -57,14 +56,14 @@ public MyPagerAdapter(FragmentManager fm) {
     // }
     return null;
   }
-  
+
   @Override
   public int getItemPosition(Object object) {
-   FragmentMaincard f = (FragmentMaincard) object;
-     if (f != null) {
+    FragmentMaincard f = (FragmentMaincard) object;
+    if (f != null) {
       // this myselfUserInfo should have been set to new data
-        f.update(ActivityMain.myselfUserInfo);
-     }
+      f.update(ActivityMain.myselfUserInfo);
+    }
     return super.getItemPosition(object);
   }
 }

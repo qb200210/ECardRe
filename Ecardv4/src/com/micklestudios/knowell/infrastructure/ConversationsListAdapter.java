@@ -1,7 +1,5 @@
 package com.micklestudios.knowell.infrastructure;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -9,9 +7,9 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.Locale;
 
+import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.res.Resources;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,13 +18,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.micklestudios.knowell.ActivityConversations;
-import com.micklestudios.knowell.ActivityMain;
-import com.micklestudios.knowell.ActivitySearch;
+import com.micklestudios.knowell.R;
+import com.micklestudios.knowell.utils.AppGlobals;
 import com.nhaarman.listviewanimations.ArrayAdapter;
 import com.nhaarman.listviewanimations.itemmanipulation.swipedismiss.undo.UndoAdapter;
-import com.micklestudios.knowell.R;
-
-import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 
 public class ConversationsListAdapter extends ArrayAdapter<UserInfo> implements
     UndoAdapter, StickyListHeadersAdapter {
@@ -34,10 +29,11 @@ public class ConversationsListAdapter extends ArrayAdapter<UserInfo> implements
   private final Context mContext;
   private boolean sortModeName = true;
 
-  public ConversationsListAdapter(final Context context, ArrayList<UserInfo> names) {
+  public ConversationsListAdapter(final Context context,
+    ArrayList<UserInfo> names) {
     mContext = context;
-    for (int i = 0; i < ActivityConversations.potentialUsers.size(); i++) {
-      add(ActivityConversations.potentialUsers.get(i));
+    for (int i = 0; i < AppGlobals.potentialUsers.size(); i++) {
+      add(AppGlobals.potentialUsers.get(i));
     }
   }
 
@@ -48,14 +44,14 @@ public class ConversationsListAdapter extends ArrayAdapter<UserInfo> implements
 
   @Override
   public UserInfo getItem(final int position) {
-    return ActivityConversations.potentialUsers.get(position);
+    return AppGlobals.potentialUsers.get(position);
   }
 
   @Override
   public boolean hasStableIds() {
     return false;
   }
-  
+
   public void reSort() {
     switch (ActivityConversations.currentSortMode) {
     case ActivityConversations.SORT_MODE_NAME_ASC:
@@ -80,7 +76,7 @@ public class ConversationsListAdapter extends ArrayAdapter<UserInfo> implements
     if (ascending == false) {
       comparer = Collections.reverseOrder(comparer);
     }
-    Collections.sort(ActivityConversations.potentialUsers, comparer);
+    Collections.sort(AppGlobals.potentialUsers, comparer);
   }
 
   public void reSortDate(boolean ascending) {
@@ -91,7 +87,7 @@ public class ConversationsListAdapter extends ArrayAdapter<UserInfo> implements
     if (ascending == false) {
       comparer = Collections.reverseOrder(comparer);
     }
-    Collections.sort(ActivityConversations.potentialUsers, comparer);
+    Collections.sort(AppGlobals.potentialUsers, comparer);
   }
 
   @SuppressLint("NewApi")
@@ -102,22 +98,30 @@ public class ConversationsListAdapter extends ArrayAdapter<UserInfo> implements
       convertView = LayoutInflater.from(mContext).inflate(
         R.layout.conversations_card, parent, false);
     }
-    
-    ImageView portraitImg = (ImageView) convertView.findViewById(R.id.conversations_image);
-	if (ActivityConversations.potentialUsers.get(position).getPortrait() != null){
-		portraitImg.setImageBitmap(ActivityConversations.potentialUsers.get(position).getPortrait());
-	}
+
+    ImageView portraitImg = (ImageView) convertView
+      .findViewById(R.id.conversations_image);
+    if (AppGlobals.potentialUsers.get(position).getPortrait() != null) {
+      portraitImg.setImageBitmap(AppGlobals.potentialUsers.get(position)
+        .getPortrait());
+    }
 
     TextView nameView = (TextView) convertView
       .findViewById(R.id.conversations_name);
-    nameView.setText(ActivityConversations.potentialUsers.get(position).getFirstName() + " " + ActivityConversations.potentialUsers.get(position).getLastName());
-    TextView msgView = (TextView) convertView.findViewById(R.id.conversations_msg);
-    msgView.setText("Hi, I'm "+ ActivityConversations.potentialUsers.get(position).getFirstName() + " from " + ActivityConversations.potentialUsers.get(position).getCompany());
-    TextView updatedAt = (TextView) convertView.findViewById(R.id.conversations_date);
+    nameView.setText(AppGlobals.potentialUsers.get(position).getFirstName()
+      + " " + AppGlobals.potentialUsers.get(position).getLastName());
+    TextView msgView = (TextView) convertView
+      .findViewById(R.id.conversations_msg);
+    msgView.setText("Hi, I'm "
+      + AppGlobals.potentialUsers.get(position).getFirstName() + " from "
+      + AppGlobals.potentialUsers.get(position).getCompany());
+    TextView updatedAt = (TextView) convertView
+      .findViewById(R.id.conversations_date);
     updatedAt.setText(android.text.format.DateFormat.format("MMM",
-      ActivityConversations.potentialUsers.get(position).getWhenMet())
+      AppGlobals.potentialUsers.get(position).getWhenMet())
       + " "
-      + android.text.format.DateFormat.format("dd", ActivityConversations.potentialUsers.get(position).getWhenMet()));
+      + android.text.format.DateFormat.format("dd", AppGlobals.potentialUsers
+        .get(position).getWhenMet()));
 
     return convertView;
   }
@@ -130,8 +134,9 @@ public class ConversationsListAdapter extends ArrayAdapter<UserInfo> implements
         R.layout.conversations_header, parent, false);
     }
 
-    TextView headerText = (TextView) convertView.findViewById(R.id.conversations_text_header);
-    UserInfo localUser = ActivityConversations.potentialUsers.get(position);
+    TextView headerText = (TextView) convertView
+      .findViewById(R.id.conversations_text_header);
+    UserInfo localUser = AppGlobals.potentialUsers.get(position);
 
     if (sortModeName) {
       String first = localUser.getFirstName();
@@ -150,9 +155,9 @@ public class ConversationsListAdapter extends ArrayAdapter<UserInfo> implements
   @Override
   public long getHeaderId(final int position) {
     if (sortModeName) {
-      if (ActivityConversations.potentialUsers.get(position).getFirstName() != null
-        && ActivityConversations.potentialUsers.get(position).getFirstName() != "") {
-        return ActivityConversations.potentialUsers.get(position).getFirstName()
+      if (AppGlobals.potentialUsers.get(position).getFirstName() != null
+        && AppGlobals.potentialUsers.get(position).getFirstName() != "") {
+        return AppGlobals.potentialUsers.get(position).getFirstName()
           .toUpperCase(Locale.ENGLISH).toCharArray()[0];
       } else {
         Log.i("getHeaderId", "empty first name");
@@ -160,7 +165,7 @@ public class ConversationsListAdapter extends ArrayAdapter<UserInfo> implements
       }
     } else {
       return dateToHeaderString(
-        ActivityConversations.potentialUsers.get(position).getWhenMet()).length();
+        AppGlobals.potentialUsers.get(position).getWhenMet()).length();
     }
   }
 

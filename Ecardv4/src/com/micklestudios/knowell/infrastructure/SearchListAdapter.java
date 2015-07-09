@@ -118,6 +118,10 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
 
     selectionBox.setChecked(ActivitySearch.selectedUsers.contains(uInfo));
 
+    if (ActivitySearch.selectedUsers.contains(uInfo)) {
+      Log.e("UDB", "Found in selected users " + uInfo.getFirstName());
+    }
+
     if (uInfo.getPortrait() != null) {
       portraitImg.setImageBitmap(ActivitySearch.filteredUsers.get(position)
         .getPortrait());

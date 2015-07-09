@@ -2,10 +2,7 @@ package com.micklestudios.knowell;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,25 +10,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TreeSet;
-
-import com.micklestudios.knowell.infrastructure.UserInfo;
-import com.micklestudios.knowell.utils.CurvedAndTiled;
-import com.micklestudios.knowell.utils.ECardUtils;
-import com.micklestudios.knowell.utils.ExpandableHeightGridView;
-import com.micklestudios.knowell.utils.MyGridViewAdapter;
-import com.micklestudios.knowell.utils.MyScrollView;
-import com.micklestudios.knowell.utils.MySimpleListViewAdapter;
-import com.micklestudios.knowell.utils.MyTag;
-import com.micklestudios.knowell.utils.SquareLayout;
-import com.parse.FindCallback;
-import com.parse.GetCallback;
-import com.parse.ParseException;
-import com.parse.ParseFile;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
-import com.parse.ParseUser;
-import com.parse.SaveCallback;
-import com.micklestudios.knowell.R;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -44,8 +22,6 @@ import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -53,13 +29,11 @@ import android.provider.MediaStore;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -67,11 +41,26 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.micklestudios.knowell.utils.AppGlobals;
+import com.micklestudios.knowell.utils.ECardUtils;
+import com.micklestudios.knowell.utils.ExpandableHeightGridView;
+import com.micklestudios.knowell.utils.MyGridViewAdapter;
+import com.micklestudios.knowell.utils.MyScrollView;
+import com.micklestudios.knowell.utils.MySimpleListViewAdapter;
+import com.micklestudios.knowell.utils.MyTag;
+import com.micklestudios.knowell.utils.SquareLayout;
+import com.parse.GetCallback;
+import com.parse.ParseException;
+import com.parse.ParseFile;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
+import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 public class ActivityDesign extends ActionBarActivity {
 
@@ -93,8 +82,10 @@ public class ActivityDesign extends ActionBarActivity {
   private ArrayList<Integer> infoIcon = new ArrayList<Integer>();
   private ArrayList<String> infoLink = new ArrayList<String>();
   ArrayList<String> shownArrayList = new ArrayList<String>();
-  String[] allowedArray = { "about", "email", "message", "phone", "web", "linkedin", "facebook", "twitter", "googleplus" };
-  String[] allowedDisplayArray = { "About Me", "Email", "Message", "Phone", "Web Link", "LinkedIn", "Facebook", "Twitter", "Google +" };
+  String[] allowedArray = { "about", "email", "message", "phone", "web",
+    "linkedin", "facebook", "twitter", "googleplus" };
+  String[] allowedDisplayArray = { "About Me", "Email", "Message", "Phone",
+    "Web Link", "LinkedIn", "Facebook", "Twitter", "Google +" };
   ArrayList<String> allowedArrayList = new ArrayList<String>(
     Arrays.asList(allowedArray));
   ArrayList<String> selectionArrayList = new ArrayList<String>(
@@ -108,7 +99,7 @@ public class ActivityDesign extends ActionBarActivity {
   String[] selectionDisplayArray;
   AlertDialog actions;
   ExpandableHeightGridView gridView;
-  
+
   public static ArrayList<String> companyNames;
   ParseObject templateToBePinned = null;
   protected boolean flagLogoSet = false;
@@ -125,9 +116,12 @@ public class ActivityDesign extends ActionBarActivity {
     displayMyCard();
 
     // complete list of possible extrainfo items
-    infoIcon = (ArrayList<Integer>) ActivityMain.myselfUserInfo.getInfoIcon().clone();
-    infoLink = (ArrayList<String>) ActivityMain.myselfUserInfo.getInfoLink().clone();
-    shownArrayList = (ArrayList<String>) ActivityMain.myselfUserInfo.getShownArrayList().clone();
+    infoIcon = (ArrayList<Integer>) ActivityMain.myselfUserInfo.getInfoIcon()
+      .clone();
+    infoLink = (ArrayList<String>) ActivityMain.myselfUserInfo.getInfoLink()
+      .clone();
+    shownArrayList = (ArrayList<String>) ActivityMain.myselfUserInfo
+      .getShownArrayList().clone();
 
     for (int i = 0; i < allowedArray.length; i++) {
       // the extra info item
@@ -182,7 +176,7 @@ public class ActivityDesign extends ActionBarActivity {
     });
 
   }
-  
+
   private void showActionBar() {
     LayoutInflater inflator = (LayoutInflater) this
       .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -332,7 +326,7 @@ public class ActivityDesign extends ActionBarActivity {
                     // with internet, convert the file
                     Date currentDate = new Date(0);
                     SharedPreferences prefs = getSharedPreferences(
-                      ActivityBufferOpening.MY_PREFS_NAME, MODE_PRIVATE);
+                      AppGlobals.MY_PREFS_NAME, MODE_PRIVATE);
                     SharedPreferences.Editor prefEditor = prefs.edit();
                     prefEditor.putLong("DateSelfSynced", currentDate.getTime());
                     prefEditor.commit();
@@ -361,11 +355,11 @@ public class ActivityDesign extends ActionBarActivity {
           private void saveChangesToParse(ParseObject object) {
             if (!ECardUtils.isNetworkAvailable(ActivityDesign.this)) {
               // if there is network, pin the ECardTemplate object to local
-              if(templateToBePinned != null){
+              if (templateToBePinned != null) {
                 templateToBePinned.pinInBackground();
               }
             }
-            
+
             EditText name = (EditText) findViewById(R.id.design_name);
             String fullName = name.getText().toString();
             String[] splitName = fullName.split(" ");
@@ -632,45 +626,47 @@ public class ActivityDesign extends ActionBarActivity {
       .findViewById(R.id.dialog_text);
     TextView dialogTitle = (TextView) dialogView
       .findViewById(R.id.dialog_title);
-//    // Set dialog header background with rounded corner
-//    Bitmap bm = BitmapFactory
-//      .decodeResource(getResources(), R.drawable.striped);
-//    BitmapDrawable bmDrawable = new BitmapDrawable(getResources(), bm);
-//    dialogHeader.setBackground(new CurvedAndTiled(bmDrawable.getBitmap(), 5)); \n vvvvvvvv
-    dialogHeader.setBackgroundColor(getResources().getColor(R.color.blue_extra));
+    // // Set dialog header background with rounded corner
+    // Bitmap bm = BitmapFactory
+    // .decodeResource(getResources(), R.drawable.striped);
+    // BitmapDrawable bmDrawable = new BitmapDrawable(getResources(), bm);
+    // dialogHeader.setBackground(new CurvedAndTiled(bmDrawable.getBitmap(),
+    // 5)); \n vvvvvvvv
+    dialogHeader
+      .setBackgroundColor(getResources().getColor(R.color.blue_extra));
     // Set dialog title and main EditText
     dialogTitle.setText("Edit " + title);
     dialogText.setText(text);
-    switch(title){
-      case "About Me":
-        dialogText.setHint("Highlight and summary of yourself.");
-        break;
-      case "Email":
-        dialogText.setHint("Your email address.");
-        break;
-      case "Message":
-        dialogText.setHint("Your number that text messages can be sent to. ");
-        break;
-      case "Phone":
-        dialogText.setHint("Your phone number that you can be reached at.");
-        break;
-      case "Web Link":
-        dialogText.setHint("Paste your website link here.");
-        break;
-      case "LinkedIn":
-        dialogText.setHint("Paste your LinkedIn profile link here.");
-        break;
-      case "Facebook":
-        dialogText.setHint("Paste your Facebook profile link here.");
-        break;
-      case "Twitter":
-        dialogText.setHint("Paste your Twitter profile link here.");
-        break;
-      case "Google +":
-        dialogText.setHint("Paste your Google+ profile link here.");
-        break;
-      default:
-        break;
+    switch (title) {
+    case "About Me":
+      dialogText.setHint("Highlight and summary of yourself.");
+      break;
+    case "Email":
+      dialogText.setHint("Your email address.");
+      break;
+    case "Message":
+      dialogText.setHint("Your number that text messages can be sent to. ");
+      break;
+    case "Phone":
+      dialogText.setHint("Your phone number that you can be reached at.");
+      break;
+    case "Web Link":
+      dialogText.setHint("Paste your website link here.");
+      break;
+    case "LinkedIn":
+      dialogText.setHint("Paste your LinkedIn profile link here.");
+      break;
+    case "Facebook":
+      dialogText.setHint("Paste your Facebook profile link here.");
+      break;
+    case "Twitter":
+      dialogText.setHint("Paste your Twitter profile link here.");
+      break;
+    case "Google +":
+      dialogText.setHint("Paste your Google+ profile link here.");
+      break;
+    default:
+      break;
     }
     return dialogView;
   }
@@ -686,43 +682,45 @@ public class ActivityDesign extends ActionBarActivity {
       nameString = nameString + " " + tmpString;
     if (nameString != null)
       name.setText(nameString);
-    
-    
+
     name = (TextView) findViewById(R.id.design_job_title);
     name.setText(ActivityMain.myselfUserInfo.getTitle());
     name = (TextView) findViewById(R.id.design_address);
     name.setText(ActivityMain.myselfUserInfo.getCity());
     ImageView portraitImg = (ImageView) findViewById(R.id.design_portrait);
     portraitImg.setImageBitmap(ActivityMain.myselfUserInfo.getPortrait());
-    
+
     final ImageView logoImg = (ImageView) findViewById(R.id.design_logo);
     final AutoCompleteTextView cmpName = (AutoCompleteTextView) findViewById(R.id.design_com);
     cmpName.setText(ActivityMain.myselfUserInfo.getCompany());
-    ECardUtils.findAndSetLogo(ActivityDesign.this,logoImg, cmpName.getText().toString(), true);
-    
+    ECardUtils.findAndSetLogo(ActivityDesign.this, logoImg, cmpName.getText()
+      .toString(), true);
+
     Log.i("autoc", companyNames.toString());
     ArrayAdapter<String> adapterCompanyNames = new ArrayAdapter<String>(this,
       android.R.layout.select_dialog_item, companyNames);
     cmpName.setAdapter(adapterCompanyNames);
-    cmpName.setOnItemClickListener(new OnItemClickListener(){
+    cmpName.setOnItemClickListener(new OnItemClickListener() {
 
       @Override
       public void onItemClick(AdapterView<?> parent, View view, int position,
         long id) {
-        ECardUtils.findAndSetLogo(ActivityDesign.this, logoImg, parent.getItemAtPosition(position).toString(), true);
+        ECardUtils.findAndSetLogo(ActivityDesign.this, logoImg, parent
+          .getItemAtPosition(position).toString(), true);
       }
-      
+
     });
-    cmpName.setOnFocusChangeListener(new OnFocusChangeListener() {          
+    cmpName.setOnFocusChangeListener(new OnFocusChangeListener() {
 
       public void onFocusChange(View v, boolean hasFocus) {
-          if (!hasFocus) {
-            // code to execute when EditText loses focus
-            ECardUtils.findAndSetLogo(ActivityDesign.this, logoImg, cmpName.getText().toString(), true);
-          }
+        if (!hasFocus) {
+          // code to execute when EditText loses focus
+          ECardUtils.findAndSetLogo(ActivityDesign.this, logoImg, cmpName
+            .getText().toString(), true);
+        }
       }
     });
-  }  
+  }
 
   @SuppressWarnings("deprecation")
   public static Bitmap decodeSampledBitmapFromFile(String picturePath,
@@ -875,13 +873,14 @@ public class ActivityDesign extends ActionBarActivity {
       .findViewById(R.id.dialog_header);
     TextView dialogTitle = (TextView) dialogAddMoreView
       .findViewById(R.id.dialog_title);
-//    // Set dialog header background with rounded corner
-//    Bitmap bm = BitmapFactory
-//      .decodeResource(getResources(), R.drawable.striped);
-//    BitmapDrawable bmDrawable = new BitmapDrawable(getResources(), bm);
-//    dialogHeader.setBackgroundDrawable(new CurvedAndTiled(bmDrawable
-//      .getBitmap(), 5));
-    dialogHeader.setBackgroundColor(getResources().getColor(R.color.blue_extra));
+    // // Set dialog header background with rounded corner
+    // Bitmap bm = BitmapFactory
+    // .decodeResource(getResources(), R.drawable.striped);
+    // BitmapDrawable bmDrawable = new BitmapDrawable(getResources(), bm);
+    // dialogHeader.setBackgroundDrawable(new CurvedAndTiled(bmDrawable
+    // .getBitmap(), 5));
+    dialogHeader
+      .setBackgroundColor(getResources().getColor(R.color.blue_extra));
     // Set dialog title and main EditText
     dialogTitle.setText("Add Info");
 

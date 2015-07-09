@@ -162,6 +162,7 @@
 				<category android:name="com.micklestudios.knowell" />
 			</intent-filter>
 		</receiver>
+		<activity android:name="ActivityHistory"></activity>
 		
 		
 		

@@ -2,10 +2,7 @@ package com.micklestudios.knowell;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.StringTokenizer;
@@ -52,10 +49,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -65,6 +58,7 @@ import android.widget.Toast;
 
 import com.micklestudios.knowell.infrastructure.SearchListAdapter;
 import com.micklestudios.knowell.infrastructure.UserInfo;
+import com.micklestudios.knowell.utils.AppGlobals;
 import com.micklestudios.knowell.utils.AsyncTasks;
 import com.micklestudios.knowell.utils.CurvedAndTiled;
 import com.micklestudios.knowell.utils.ECardUtils;
@@ -104,9 +98,6 @@ public class ActivitySearch extends ActionBarActivity {
   // List of users filtered after search.
   public static ArrayList<UserInfo> filteredUsers;
 
-  // List of all the users in the system.
-  public static ArrayList<UserInfo> allUsers;
-
   // List of users selected by the user.
   public static HashSet<UserInfo> selectedUsers;
   static ArrayList<String> autoCompleteList;
@@ -122,10 +113,6 @@ public class ActivitySearch extends ActionBarActivity {
   public static ArrayList<String> autoCompleteListCompany;
   public static ArrayList<String> autoCompleteListWhere;
   public static ArrayList<String> autoCompleteListEvent;
-
-  LinearLayout lLayoutEventMet;
-  LinearLayout lLayoutWhereMet;
-  LinearLayout lLayoutCompany;
 
   private int searchMenuRetractedHeight = 0;
 
@@ -168,7 +155,6 @@ public class ActivitySearch extends ActionBarActivity {
   private ImageView btnClearCompany;
   private ImageView btnClearEventMet;
 
-  private ImageView chkSelectAll;
   private ImageView btnEmailSel;
   private ImageView btnDeleteSel;
   private boolean isSelectAllChecked;
@@ -227,16 +213,17 @@ public class ActivitySearch extends ActionBarActivity {
     performSearch();
   }
 
+  @Override
+  public void onResume() {
+    super.onResume();
+    AppGlobals.initializeAllContacts();
+  }
+
   private void retrieveAllViews() {
     // Retrieve all the filters and layouts.
     filterTextWhereMet = (AutoCompleteTextView) findViewById(R.id.txt_where_met);
     filterTextCompany = (AutoCompleteTextView) findViewById(R.id.txt_company);
     filterTextEventMet = (AutoCompleteTextView) findViewById(R.id.txt_event_met);
-    
-    // The layouts we need to hide when drop down goes up.
-    lLayoutCompany = (LinearLayout) findViewById(R.id.llayout_company);
-    lLayoutWhereMet = (LinearLayout) findViewById(R.id.llayout_where_met);
-    lLayoutEventMet = (LinearLayout) findViewById(R.id.llayout_event_met);
 
     // The three frames in the layout.
     searchPanel = (LinearLayout) findViewById(R.id.lnlayout_search_menu);
@@ -256,7 +243,6 @@ public class ActivitySearch extends ActionBarActivity {
     btnClearCompany = (ImageView) findViewById(R.id.clear_company);
     btnClearEventMet = (ImageView) findViewById(R.id.clear_eventmet);
 
-    chkSelectAll = (ImageView) findViewById(R.id.chk_select_all);
     btnEmailSel = (ImageView) findViewById(R.id.btn_email_sel);
     btnDeleteSel = (ImageView) findViewById(R.id.btn_delete_sel);
   }
@@ -670,7 +656,8 @@ public class ActivitySearch extends ActionBarActivity {
       android.R.layout.select_dialog_item, autoCompleteListAll);
     searchBox.setAdapter(adapterAll);
 
-    chkSelectAll.setOnClickListener(new OnClickListener(){
+    ImageView chkSelectAll = (ImageView) findViewById(R.id.chk_select_all);
+    chkSelectAll.setOnClickListener(new OnClickListener() {
 
       @Override
       public void onClick(View v) {
@@ -678,12 +665,12 @@ public class ActivitySearch extends ActionBarActivity {
         if (isSelectAllChecked) {
           selectedUsers.addAll(filteredUsers);
           isSelectAllChecked = false;
-        } else{
+        } else {
           isSelectAllChecked = true;
         }
         adapter.notifyDataSetChanged();
       }
-      
+
     });
 
     btnEmailSel.setOnClickListener(new OnClickListener() {
@@ -731,42 +718,46 @@ public class ActivitySearch extends ActionBarActivity {
         }
       }
     });
-    
+
     btnDeleteSel.setOnClickListener(new OnClickListener() {
 
       @Override
       public void onClick(View v) {
-        allUsers.removeAll(selectedUsers);
+        AppGlobals.allUsers.removeAll(selectedUsers);
         List<String> toBeDeleted = new ArrayList<String>();
-        for(UserInfo selectedUser : selectedUsers){
+        for (UserInfo selectedUser : selectedUsers) {
           toBeDeleted.add(selectedUser.getObjId());
         }
         ParseQuery<ParseObject> queryNotes = ParseQuery.getQuery("ECardNote");
         queryNotes.whereEqualTo("userId", currentUser.getObjectId());
         queryNotes.whereContainedIn("ecardId", toBeDeleted);
         queryNotes.fromLocalDatastore();
-        queryNotes.findInBackground(new FindCallback<ParseObject>(){
+        queryNotes.findInBackground(new FindCallback<ParseObject>() {
 
           @Override
           public void done(List<ParseObject> objects, ParseException e) {
-            if(e==null){
-              for(ParseObject obj : objects){
+            if (e == null) {
+              for (ParseObject obj : objects) {
                 obj.put("isDeleted", true);
                 obj.saveEventually();
-              }  
-              performSearch();// clear current selection     
+              }
+              performSearch();// clear current selection
             }
           }
-          
+
         });
       }
     });
-    
+
   }
 
   // Hide all the filter text views
   private void toggleFiltersVisibility(boolean show) {
     int visibility = show ? View.VISIBLE : View.GONE;
+
+    LinearLayout lLayoutCompany = (LinearLayout) findViewById(R.id.llayout_company);
+    LinearLayout lLayoutWhereMet = (LinearLayout) findViewById(R.id.llayout_where_met);
+    LinearLayout lLayoutEventMet = (LinearLayout) findViewById(R.id.llayout_event_met);
 
     lLayoutWhereMet.setVisibility(visibility);
     lLayoutEventMet.setVisibility(visibility);
@@ -783,7 +774,7 @@ public class ActivitySearch extends ActionBarActivity {
      * First, let's go through all the filters. Let's assume that all the users
      * will be selected.
      */
-    filteredUsers.addAll(allUsers);
+    filteredUsers.addAll(AppGlobals.allUsers);
     {
       // Start with the Where Met filter.
       String filterKey = filterTextWhereMet.getText().toString()
@@ -829,7 +820,7 @@ public class ActivitySearch extends ActionBarActivity {
         filteredUsers.addAll(tempUserInfoList);
         tempUserInfoList.clear();
       }
-  
+
     }
 
     /*
@@ -845,7 +836,7 @@ public class ActivitySearch extends ActionBarActivity {
       for (char c : token.toCharArray()) {
         regex_str = regex_str + c + ".*";
       }
-      
+
       Pattern pattern = Pattern.compile(regex_str);
       for (UserInfo uInfo : filteredUsers) {
         String name_str = uInfo.getFirstName().toLowerCase(Locale.ENGLISH)
@@ -853,7 +844,8 @@ public class ActivitySearch extends ActionBarActivity {
         String company_str = uInfo.getCompany().toLowerCase(Locale.ENGLISH);
         String title_str = uInfo.getTitle().toLowerCase(Locale.ENGLISH);
         String city_str = uInfo.getCity().toLowerCase(Locale.ENGLISH);
-        String user_str = name_str + " " + company_str + " " + title_str + " " + city_str;
+        String user_str = name_str + " " + company_str + " " + title_str + " "
+          + city_str;
         // Log.v("search_user_str", user_str);
         Matcher name_matcher = pattern.matcher(name_str);
         Matcher company_matcher = pattern.matcher(company_str);
@@ -861,45 +853,47 @@ public class ActivitySearch extends ActionBarActivity {
         Matcher city_matcher = pattern.matcher(city_str);
         if (user_str.contains(token)) {
           tempUserInfoList.add(uInfo);
-        } else if (name_matcher.matches() || company_matcher.matches() || title_matcher.matches() || city_matcher.matches()) {
+        } else if (name_matcher.matches() || company_matcher.matches()
+          || title_matcher.matches() || city_matcher.matches()) {
           tempUserInfoList.add(uInfo);
-        } 
+        }
       }
-      
+
       if (tempUserInfoList.isEmpty()) {
-          for (UserInfo uInfo : filteredUsers) {
-              String name_str = uInfo.getFirstName().toLowerCase(Locale.ENGLISH)
-                + " " + uInfo.getLastName().toLowerCase(Locale.ENGLISH);
-              String company_str = uInfo.getCompany().toLowerCase(Locale.ENGLISH);
-              String title_str = uInfo.getTitle().toLowerCase(Locale.ENGLISH);
-              String city_str = uInfo.getCity().toLowerCase(Locale.ENGLISH);
-              int name_mismatch_flag = 0;
-              int company_mismatch_flag = 0;
-              int title_mismatch_flag = 0;
-              int city_mismatch_flag = 0;
-              //Log.v("name_str", name_str);
-              //Log.v("company ", company_str);
-              //Log.v("city ", city_str);
-              //Log.v("title ", title_str);
-              for (char c : token.toCharArray()) {
-                  if (!name_str.contains(String.valueOf(c))){
-                    name_mismatch_flag = 1;
-                  }
-                  if (!company_str.contains(String.valueOf(c))){
-                company_mismatch_flag = 1;
-                }
-                if (!title_str.contains(String.valueOf(c))){
-                title_mismatch_flag = 1;
-                }
-                if (!city_str.contains(String.valueOf(c))){
-                city_mismatch_flag = 1;
-                }
-              }
-                          
-              if (name_mismatch_flag*company_mismatch_flag*title_mismatch_flag*city_mismatch_flag == 0){
-                tempUserInfoList.add(uInfo);
-              }
+        for (UserInfo uInfo : filteredUsers) {
+          String name_str = uInfo.getFirstName().toLowerCase(Locale.ENGLISH)
+            + " " + uInfo.getLastName().toLowerCase(Locale.ENGLISH);
+          String company_str = uInfo.getCompany().toLowerCase(Locale.ENGLISH);
+          String title_str = uInfo.getTitle().toLowerCase(Locale.ENGLISH);
+          String city_str = uInfo.getCity().toLowerCase(Locale.ENGLISH);
+          int name_mismatch_flag = 0;
+          int company_mismatch_flag = 0;
+          int title_mismatch_flag = 0;
+          int city_mismatch_flag = 0;
+          // Log.v("name_str", name_str);
+          // Log.v("company ", company_str);
+          // Log.v("city ", city_str);
+          // Log.v("title ", title_str);
+          for (char c : token.toCharArray()) {
+            if (!name_str.contains(String.valueOf(c))) {
+              name_mismatch_flag = 1;
+            }
+            if (!company_str.contains(String.valueOf(c))) {
+              company_mismatch_flag = 1;
+            }
+            if (!title_str.contains(String.valueOf(c))) {
+              title_mismatch_flag = 1;
+            }
+            if (!city_str.contains(String.valueOf(c))) {
+              city_mismatch_flag = 1;
+            }
           }
+
+          if (name_mismatch_flag * company_mismatch_flag * title_mismatch_flag
+            * city_mismatch_flag == 0) {
+            tempUserInfoList.add(uInfo);
+          }
+        }
       }
       filteredUsers.clear();
       filteredUsers.addAll(tempUserInfoList);
@@ -1029,9 +1023,10 @@ public class ActivitySearch extends ActionBarActivity {
       if (ECardUtils.isNetworkAvailable(this)) {
         // upon opening, pin online notes to local
         SharedPreferences prefs = getSharedPreferences(
-          ActivityBufferOpening.MY_PREFS_NAME, MODE_PRIVATE);
+          AppGlobals.MY_PREFS_NAME, MODE_PRIVATE);
         SharedPreferences.Editor prefEditor = prefs.edit();
-        final AsyncTasks.SyncDataTaskNotes syncNotes = new AsyncTasks.SyncDataTaskNotes(this, currentUser, prefs, prefEditor, true);
+        final AsyncTasks.SyncDataTaskNotes syncNotes = new AsyncTasks.SyncDataTaskNotes(
+          this, currentUser, prefs, prefEditor, true);
         syncNotes.execute();
         prefEditor.commit();
         Handler handlerNotes = new Handler();
@@ -1048,7 +1043,7 @@ public class ActivitySearch extends ActionBarActivity {
             }
           }
         }, NOTES_TIMEOUT);
-        
+
         Thread timerThread = new Thread() {
 
           public void run() {
@@ -1058,10 +1053,10 @@ public class ActivitySearch extends ActionBarActivity {
               } catch (InterruptedException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
-              }              
+              }
             }
             // TO-DO: Refresh current mini-cards list!
-            getContacts();
+            AppGlobals.initializeAllContacts();
             Message myMessage = new Message();
             handlerJump.sendMessage(myMessage);
           }
@@ -1076,7 +1071,7 @@ public class ActivitySearch extends ActionBarActivity {
       return super.onOptionsItemSelected(item);
     }
   }
-  
+
   Handler handlerJump = new Handler() {
     @Override
     public void handleMessage(Message msg) {
@@ -1143,98 +1138,5 @@ public class ActivitySearch extends ActionBarActivity {
       }
 
     });
-  }
-  
-  
-  private void getContacts() {
-    ActivitySearch.allUsers.clear();
-    /* A map of all the ECardNote objects to the noteID */
-    final HashMap<String, ParseObject> noteIdToNoteObjectMap = new HashMap<String, ParseObject>();
-
-    ParseQuery<ParseObject> queryNotes = ParseQuery.getQuery("ECardNote");
-    queryNotes.fromLocalDatastore();
-    queryNotes.whereEqualTo("userId", currentUser.getObjectId());
-    queryNotes.whereNotEqualTo("isDeleted", true);
-    List<ParseObject> objectsNoteList = null;
-    try {
-      objectsNoteList = queryNotes.find();
-    } catch (ParseException e1) {
-      // TODO Auto-generated catch block
-      e1.printStackTrace();
-    }
-    if(objectsNoteList!= null){
-      if (objectsNoteList.size() != 0) {
-        // Got a list of all the notes. Now collect all the noteIDs.
-        for (Iterator<ParseObject> iter = objectsNoteList.iterator(); iter
-          .hasNext();) {
-          ParseObject objectNote = iter.next();
-          String infoObjectId = (String) objectNote.get("ecardId");
-  
-          // Add these values to the map.
-          noteIdToNoteObjectMap.put(infoObjectId, objectNote);
-        }
-  
-        /*
-         * Now, query the ECardInfoTable to get all the ECardInfo for the
-         * notes collected here.
-         */
-        ParseQuery<ParseObject> queryInfo = ParseQuery
-          .getQuery("ECardInfo");
-        queryInfo.fromLocalDatastore();
-        queryInfo.whereContainedIn("objectId",
-          noteIdToNoteObjectMap.keySet());
-        List<ParseObject> objectInfoList = null;
-        try {
-          objectInfoList = queryInfo.find();
-        } catch (ParseException e) {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
-        }
-  
-        if(objectInfoList!=null){
-        // Now we have a list of ECardInfo objects. Populate the
-        // userInfo list.
-          // Create sets to add the strings we find in the contacts.
-          HashSet<String> setCompany = new HashSet<String>();
-          HashSet<String> setWhereMet = new HashSet<String>();
-          HashSet<String> setEventMet = new HashSet<String>();
-          HashSet<String> setAll = new HashSet<String>();
-  
-          ActivitySearch.autoCompleteListAll = new ArrayList<String>();
-          ActivitySearch.autoCompleteListCompany = new ArrayList<String>();
-          ActivitySearch.autoCompleteListEvent = new ArrayList<String>();
-          ActivitySearch.autoCompleteListWhere = new ArrayList<String>();
-  
-          // Iterate over the list.
-          for (Iterator<ParseObject> iter = objectInfoList.iterator(); iter
-            .hasNext();) {
-            ParseObject objectInfo = iter.next();
-            UserInfo contact = new UserInfo(objectInfo);
-            if (contact != null) {
-              // Contact has been created. Populate the "createdAt" from
-              // the note object.
-              String infoObjectId = (String) objectInfo.getObjectId();
-              ParseObject objectNote = noteIdToNoteObjectMap
-                .get(infoObjectId);
-              contact.setWhenMet((Date) objectNote.get("whenMet"));
-              contact.setEventMet(objectNote.getString("event_met"));
-              contact.setWhereMet(objectNote.getString("where_met"));
-              contact.setNotes(objectNote.getString("notes"));
-  
-              ActivitySearch.allUsers.add(contact);
-  
-              setCompany.add(contact.getCompany());
-              setWhereMet.add(contact.getWhereMet());
-              setEventMet.add(contact.getEventMet());
-              setAll.addAll(contact.getAllStrings());
-            }
-          }
-          ActivitySearch.autoCompleteListCompany.addAll(setCompany);
-          ActivitySearch.autoCompleteListEvent.addAll(setEventMet);
-          ActivitySearch.autoCompleteListWhere.addAll(setWhereMet);
-          ActivitySearch.autoCompleteListAll.addAll(setAll);
-        }
-      }
-    }
   }
 }

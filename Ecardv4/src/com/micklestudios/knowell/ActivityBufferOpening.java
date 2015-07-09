@@ -2,28 +2,10 @@ package com.micklestudios.knowell;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import com.f2prateek.progressbutton.ProgressButton;
-import com.micklestudios.knowell.infrastructure.UserInfo;
-import com.micklestudios.knowell.utils.AsyncTasks;
-import com.micklestudios.knowell.utils.ECardUtils;
-import com.parse.FindCallback;
-import com.parse.GetCallback;
-import com.parse.ParseException;
-import com.parse.ParseInstallation;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
-import com.parse.ParseUser;
-import com.parse.SaveCallback;
-import com.micklestudios.knowell.R;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -38,6 +20,17 @@ import android.view.Window;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.f2prateek.progressbutton.ProgressButton;
+import com.micklestudios.knowell.utils.AppGlobals;
+import com.micklestudios.knowell.utils.AsyncTasks;
+import com.micklestudios.knowell.utils.ECardUtils;
+import com.parse.ParseException;
+import com.parse.ParseInstallation;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
+import com.parse.ParseUser;
+import com.parse.SaveCallback;
+
 public class ActivityBufferOpening extends Activity {
 
   private static final long CREATE_SELF_COPY_TIMEOUT = 30000;
@@ -46,15 +39,14 @@ public class ActivityBufferOpening extends Activity {
   private static final long CONVERSATIONS_TIMEOUT = 60000;
   private static final long COMPANYNAME_TIMEOUT = 60000;
   private static final long HISTORY_TIMEOUT = 60000;
-  
+
   Integer WEIGHT_SELF = 20;
   Integer WEIGHT_NOTES = 20;
   Integer WEIGHT_CONV = 20;
   Integer WEIGHT_CACHEDIDS = 20;
   Integer totalProgress = 0;
-  public static final String MY_PREFS_NAME = "KnoWellSyncParams";
+
   private static final String KNOWELL_ROOT = "KnoWell";
-  ParseUser currentUser;
   // flag to see if there is portrait cached offline that cannot be converted
   // to ParseFile yet.
   boolean imgFromTmpData = false;
@@ -68,7 +60,7 @@ public class ActivityBufferOpening extends Activity {
   private boolean flagSyncNotesDone = false;
   private boolean flagSyncConvDone = false;
   private boolean flagSyncCachedIdsDone = false;
-  
+
   private ProgressButton progressButton1;
   private TextView progressText;
 
@@ -80,27 +72,27 @@ public class ActivityBufferOpening extends Activity {
       getActionBar().hide();
     }
     setContentView(R.layout.activity_buffer_opening);
-    currentUser = ParseUser.getCurrentUser();    
+    AppGlobals.currentUser = ParseUser.getCurrentUser();
     progressButton1 = (ProgressButton) findViewById(R.id.pin_progress_1);
     progressButton1.setProgress(totalProgress);
-    
+
     progressText = (TextView) findViewById(R.id.loading_progress);
     progressText.setText("Working on it ...");
-    
+
     // if tmpImgByteArray not null, need to convert to img file regardless
     // of network
     checkPortrait();
     checkFolders();
-    
+
     // check sharedpreferences
-    final SharedPreferences prefs = getSharedPreferences(MY_PREFS_NAME,
-      MODE_PRIVATE);
+    final SharedPreferences prefs = getSharedPreferences(
+      AppGlobals.MY_PREFS_NAME, MODE_PRIVATE);
     SharedPreferences.Editor prefEditor = prefs.edit();
 
     if (ECardUtils.isNetworkAvailable(this)) {
       // Below is for the sake of push notification
       ParseInstallation.getCurrentInstallation().put("ecardId",
-        currentUser.get("ecardId").toString());
+        AppGlobals.currentUser.get("ecardId").toString());
       ParseInstallation.getCurrentInstallation().saveInBackground(
         new SaveCallback() {
 
@@ -108,8 +100,6 @@ public class ActivityBufferOpening extends Activity {
           public void done(ParseException arg0) {
           }
         });
-
-      
 
       // syncing data within given timeout
       // when self sync done, transition
@@ -124,8 +114,8 @@ public class ActivityBufferOpening extends Activity {
         public void run() {
           // if no network, generate userInfo objects directly from
           // localDataStore
-          getContacts();
-          getConvContacts();
+          AppGlobals.initializeAllContacts(true);
+          AppGlobals.initializePotentialUsers(true);
           createCompanyNamesFromLocal(prefs);
           totalProgress = 100;
           Message myMessage = new Message();
@@ -136,12 +126,11 @@ public class ActivityBufferOpening extends Activity {
       }, 500);
     }
 
-    
     // only display the splash screen for an amount of time
     // should I have it depend on the completion of self-copy sync instead?
 
   }
-  
+
   private void checkFolders() {
     String filepath = Environment.getExternalStorageDirectory().getPath();
     File file = new File(filepath, KNOWELL_ROOT);
@@ -151,175 +140,22 @@ public class ActivityBufferOpening extends Activity {
   }
 
   protected void createCompanyNamesFromLocal(SharedPreferences prefs) {
-    //Retrieve the saved company list from sharedpreference
+    // Retrieve the saved company list from sharedpreference
     // this will be used to populate autocomplete box
     ActivityDesign.companyNames = new ArrayList<String>();
     Set<String> tmpCompanyNames = new HashSet<String>();
     tmpCompanyNames = prefs.getStringSet("listOfCompanyNames", null);
-    if(tmpCompanyNames != null){
+    if (tmpCompanyNames != null) {
       ActivityDesign.companyNames.addAll(tmpCompanyNames);
-    }    
-  }
-
-  protected void getConvContacts() {
-    Log.i("actbuf", "inside getconvcontacts");
-    ActivityConversations.potentialUsers = new ArrayList<UserInfo>();
-    /* A map of all the ECardNote objects to the noteID */
-    final HashMap<String, Date> infoIdToConvDateMap = new HashMap<String, Date>();
-    // During SyncConversations, all conversations should have been synced to local
-    ParseQuery<ParseObject> queryConvs = ParseQuery.getQuery("Conversations");
-    queryConvs.fromLocalDatastore();
-    queryConvs.whereEqualTo("partyB", currentUser.get("ecardId").toString());
-    queryConvs.whereNotEqualTo("isDeleted", true);
-    List<ParseObject> objectConvList = null;
-    try {
-      objectConvList = queryConvs.find();
-    } catch (ParseException e) {
-      e.printStackTrace();
     }
-    if(objectConvList != null && objectConvList.size() != 0){
-      // If there are conversations, don't worry about notes yet, just create userInfo using ecards
-      for(Iterator<ParseObject> iter = objectConvList.iterator(); iter.hasNext();){
-        ParseObject objectConv = iter.next();
-        // don't need to check if the conversation is deleted, because that should be done by SyncConversations
-        String infoObjectId = objectConv.get("partyA").toString();
-        Log.i("actbuf", objectConv.getUpdatedAt().toString());
-        
-        infoIdToConvDateMap.put(infoObjectId, objectConv.getUpdatedAt());
-      }
-      /*
-       * Now, query the ECardInfoTable to get all the ECardInfo for the conversations
-       * collected here.
-       */
-      ParseQuery<ParseObject> queryInfo = ParseQuery.getQuery("ECardInfo");
-      queryInfo.fromLocalDatastore();
-      queryInfo.whereContainedIn("objectId", infoIdToConvDateMap.keySet());
-      List<ParseObject> objectInfoList = null;
-      try {
-        objectInfoList = queryInfo.find();
-      } catch (ParseException e) {
-        e.printStackTrace();
-      }
-      Log.i("actbuf", " "+ objectConvList.size()+ " "+ objectInfoList.size() );
-        
-      if(objectInfoList != null && objectInfoList.size() != 0){
-        for(Iterator<ParseObject> iter = objectInfoList.iterator(); iter.hasNext();){
-          ParseObject objectInfo = iter.next();
-          UserInfo contact = new UserInfo(objectInfo);
-          if(contact != null){
-            Log.i("actbuf", contact.getFirstName());
-            // No need to put note as part of UserInfo -- will execute note_query from localdatastore later
-            // Dont need to keep mapping to actual conversations objects -- they are not as critical
-            Log.i("actbuf", infoIdToConvDateMap.get(objectInfo.getObjectId()).toString());
-            contact.setWhenMet(infoIdToConvDateMap.get(objectInfo.getObjectId()));
-            // If there are 20 conversations, while only 4 of corresponding ecard pinned down, then final conv for display will be 4
-            ActivityConversations.potentialUsers.add(contact);
-          }
-        }
-      }        
-    }
-  }
-
-  private void getContacts() {
-    ActivitySearch.allUsers = new ArrayList<UserInfo>();
-    /* A map of all the ECardNote objects to the noteID */
-    final HashMap<String, ParseObject> noteIdToNoteObjectMap = new HashMap<String, ParseObject>();
-
-    ParseQuery<ParseObject> queryNotes = ParseQuery.getQuery("ECardNote");
-    queryNotes.fromLocalDatastore();
-    queryNotes.whereEqualTo("userId", currentUser.getObjectId());
-    queryNotes.whereNotEqualTo("isDeleted", true);
-    queryNotes.findInBackground(new FindCallback<ParseObject>() {
-      @Override
-      public void done(List<ParseObject> objectsNoteList,
-        ParseException noteException) {
-        if (noteException == null) {
-          if (objectsNoteList.size() != 0) {
-            // Got a list of all the notes. Now collect all the noteIDs.
-            for (Iterator<ParseObject> iter = objectsNoteList.iterator(); iter
-              .hasNext();) {
-              ParseObject objectNote = iter.next();
-              String infoObjectId = (String) objectNote.get("ecardId");
-
-              // Add these values to the map.
-              noteIdToNoteObjectMap.put(infoObjectId, objectNote);
-            }
-
-            /*
-             * Now, query the ECardInfoTable to get all the ECardInfo for the
-             * notes collected here.
-             */
-            ParseQuery<ParseObject> queryInfo = ParseQuery
-              .getQuery("ECardInfo");
-            queryInfo.fromLocalDatastore();
-            queryInfo.whereContainedIn("objectId",
-              noteIdToNoteObjectMap.keySet());
-
-            queryInfo.findInBackground(new FindCallback<ParseObject>() {
-
-              @Override
-              public void done(List<ParseObject> objectInfoList,
-                ParseException infoException) {
-                // Now we have a list of ECardInfo objects. Populate the
-                // userInfo list.
-                if (infoException == null) {
-                  // Create sets to add the strings we find in the contacts.
-                  HashSet<String> setCompany = new HashSet<String>();
-                  HashSet<String> setWhereMet = new HashSet<String>();
-                  HashSet<String> setEventMet = new HashSet<String>();
-                  HashSet<String> setAll = new HashSet<String>();
-
-                  ActivitySearch.autoCompleteListAll = new ArrayList<String>();
-                  ActivitySearch.autoCompleteListCompany = new ArrayList<String>();
-                  ActivitySearch.autoCompleteListEvent = new ArrayList<String>();
-                  ActivitySearch.autoCompleteListWhere = new ArrayList<String>();
-
-                  // Iterate over the list.
-                  for (Iterator<ParseObject> iter = objectInfoList.iterator(); iter
-                    .hasNext();) {
-                    ParseObject objectInfo = iter.next();
-                    UserInfo contact = new UserInfo(objectInfo);
-                    if (contact != null) {
-                      // Contact has been created. Populate the "createdAt" from
-                      // the note object.
-                      String infoObjectId = (String) objectInfo.getObjectId();
-                      ParseObject objectNote = noteIdToNoteObjectMap
-                        .get(infoObjectId);
-                      contact.setWhenMet((Date) objectNote.get("whenMet"));
-                      contact.setEventMet(objectNote.getString("event_met"));
-                      contact.setWhereMet(objectNote.getString("where_met"));
-                      contact.setNotes(objectNote.getString("notes"));
-
-                      ActivitySearch.allUsers.add(contact);
-
-                      setCompany.add(contact.getCompany());
-                      setWhereMet.add(contact.getWhereMet());
-                      setEventMet.add(contact.getEventMet());
-                      setAll.addAll(contact.getAllStrings());
-                    }
-                  }
-                  ActivitySearch.autoCompleteListCompany.addAll(setCompany);
-                  ActivitySearch.autoCompleteListEvent.addAll(setEventMet);
-                  ActivitySearch.autoCompleteListWhere.addAll(setWhereMet);
-                  ActivitySearch.autoCompleteListAll.addAll(setAll);
-                }
-              }
-            });
-          }
-        } else {
-          Toast.makeText(getBaseContext(), "General parse error!",
-            Toast.LENGTH_SHORT).show();
-        }
-      }
-    });
   }
 
   private void syncAllDataUponOpening(SharedPreferences prefs,
     SharedPreferences.Editor prefEditor) {
-    
+
     // sync history, Supposely not critical, so don't need to wait on it
     final AsyncTasks.SyncDataTaskHistory syncHistory = new AsyncTasks.SyncDataTaskHistory(
-      this, currentUser, prefs, prefEditor, false);
+      this, AppGlobals.currentUser, prefs, prefEditor, false);
     syncHistory.execute();
     Handler handlerHistory = new Handler();
     handlerHistory.postDelayed(new Runnable() {
@@ -327,17 +163,17 @@ public class ActivityBufferOpening extends Activity {
       @Override
       public void run() {
         if (syncHistory.getStatus() == AsyncTask.Status.RUNNING) {
-          Toast.makeText(getApplicationContext(),
-            "Sync History Timed Out", Toast.LENGTH_SHORT).show();
+          Toast.makeText(getApplicationContext(), "Sync History Timed Out",
+            Toast.LENGTH_SHORT).show();
           timeoutFlagConv = true;
           syncHistory.cancel(true);
         }
       }
     }, HISTORY_TIMEOUT);
-    
+
     // Create/refresh local copy every time app opens
     final AsyncTasks.SyncDataTaskSelfCopy createSelfCopy = new AsyncTasks.SyncDataTaskSelfCopy(
-      this, currentUser, prefs, prefEditor, false);
+      this, AppGlobals.currentUser, prefs, prefEditor, false);
     createSelfCopy.execute();
     Handler handler = new Handler();
     handler.postDelayed(new Runnable() {
@@ -352,9 +188,11 @@ public class ActivityBufferOpening extends Activity {
         }
       }
     }, CREATE_SELF_COPY_TIMEOUT);
-    
-    // update the local string list for available company templates -- only the names, not the actual object
-    final AsyncTasks.SyncDataCompanyNames syncCompanyNames = new AsyncTasks.SyncDataCompanyNames(this, prefs, prefEditor, false);
+
+    // update the local string list for available company templates -- only the
+    // names, not the actual object
+    final AsyncTasks.SyncDataCompanyNames syncCompanyNames = new AsyncTasks.SyncDataCompanyNames(
+      this, prefs, prefEditor, false);
     syncCompanyNames.execute();
     Handler handlerCompanyNames = new Handler();
     handlerCompanyNames.postDelayed(new Runnable() {
@@ -362,8 +200,8 @@ public class ActivityBufferOpening extends Activity {
       @Override
       public void run() {
         if (syncCompanyNames.getStatus() == AsyncTask.Status.RUNNING) {
-          Toast.makeText(getApplicationContext(), "Sync Company List Timed Out",
-            Toast.LENGTH_SHORT).show();
+          Toast.makeText(getApplicationContext(),
+            "Sync Company List Timed Out", Toast.LENGTH_SHORT).show();
           timeoutFlagCompany = true;
           syncCompanyNames.cancel(true);
         }
@@ -372,7 +210,7 @@ public class ActivityBufferOpening extends Activity {
 
     // upon opening, pin online conversations to local
     final AsyncTasks.SyncDataTaskConversations syncConversations = new AsyncTasks.SyncDataTaskConversations(
-      this, currentUser, prefs, prefEditor, false);
+      this, AppGlobals.currentUser, prefs, prefEditor, false);
     syncConversations.execute();
     Handler handlerConversations = new Handler();
     handlerConversations.postDelayed(new Runnable() {
@@ -390,7 +228,7 @@ public class ActivityBufferOpening extends Activity {
 
     // upon opening, pin online notes to local
     final AsyncTasks.SyncDataTaskNotes syncNotes = new AsyncTasks.SyncDataTaskNotes(
-      this, currentUser, prefs, prefEditor, false);
+      this, AppGlobals.currentUser, prefs, prefEditor, false);
     syncNotes.execute();
     Handler handlerNotes = new Handler();
     handlerNotes.postDelayed(new Runnable() {
@@ -398,8 +236,8 @@ public class ActivityBufferOpening extends Activity {
       @Override
       public void run() {
         if (syncNotes.getStatus() == AsyncTask.Status.RUNNING) {
-          Toast.makeText(getApplicationContext(), "Sync Card Collection Timed Out",
-            Toast.LENGTH_SHORT).show();
+          Toast.makeText(getApplicationContext(),
+            "Sync Card Collection Timed Out", Toast.LENGTH_SHORT).show();
           timeoutFlagNotes = true;
           syncNotes.cancel(true);
         }
@@ -408,7 +246,7 @@ public class ActivityBufferOpening extends Activity {
 
     // check ecardIds that were scanned/cached offline
     final AsyncTasks.SyncDataTaskCachedIds syncCachedIds = new AsyncTasks.SyncDataTaskCachedIds(
-      this, currentUser, prefs, prefEditor, false);
+      this, AppGlobals.currentUser, prefs, prefEditor, false);
     syncCachedIds.execute();
     Handler handlerCachedIds = new Handler();
     handlerCachedIds.postDelayed(new Runnable() {
@@ -416,8 +254,8 @@ public class ActivityBufferOpening extends Activity {
       @Override
       public void run() {
         if (syncCachedIds.getStatus() == AsyncTask.Status.RUNNING) {
-          Toast.makeText(getApplicationContext(), "Sync Offline Collection Timed Out",
-            Toast.LENGTH_SHORT).show();
+          Toast.makeText(getApplicationContext(),
+            "Sync Offline Collection Timed Out", Toast.LENGTH_SHORT).show();
           timeoutFlagCachedIds = true;
           syncCachedIds.cancel(true);
         }
@@ -438,8 +276,8 @@ public class ActivityBufferOpening extends Activity {
             Log.i("msg", "all others complete");
             // when all other syncs complete, generate UserInfo objects from
             // LocalDataStore
-            getContacts();
-            getConvContacts();
+            AppGlobals.initializeAllContacts(true);
+            AppGlobals.initializePotentialUsers(true);
             totalProgress = 100;
           }
           if ((createSelfCopy.getStatus() != AsyncTask.Status.RUNNING || timeoutFlagSelf)
@@ -489,21 +327,21 @@ public class ActivityBufferOpening extends Activity {
     @Override
     public void handleMessage(Message msg) {
       progressButton1.setProgress(totalProgress);
-      if(flagSyncSelfDone && !progressSelfShown){
+      if (flagSyncSelfDone && !progressSelfShown) {
         progressText.setText("My Card Up to Date");
-        progressSelfShown  = true;
+        progressSelfShown = true;
       }
-      if(flagSyncConvDone && !progressConvShown){
+      if (flagSyncConvDone && !progressConvShown) {
         progressText.setText("Notifications Up to Date");
-        progressConvShown  = true;
+        progressConvShown = true;
       }
-      if(flagSyncCachedIdsDone && !progressCachedIdsShown){
+      if (flagSyncCachedIdsDone && !progressCachedIdsShown) {
         progressText.setText("Cleared Offline Collections");
-        progressCachedIdsShown  = true;
+        progressCachedIdsShown = true;
       }
-      if(flagSyncNotesDone && !progressNotesShown){
+      if (flagSyncNotesDone && !progressNotesShown) {
         progressText.setText("Card Collection Up to Date");
-        progressNotesShown  = true;
+        progressNotesShown = true;
       }
       if (totalProgress == 100) {
         // if there is network, wait till self sync completes before finishing
@@ -533,7 +371,7 @@ public class ActivityBufferOpening extends Activity {
     query.fromLocalDatastore();
     ParseObject object;
     try {
-      object = query.get(currentUser.get("ecardId").toString());
+      object = query.get(AppGlobals.currentUser.get("ecardId").toString());
       byte[] tmpImgData = (byte[]) object.get("tmpImgByteArray");
       if (tmpImgData != null) {
         imgFromTmpData = true;
@@ -544,8 +382,6 @@ public class ActivityBufferOpening extends Activity {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
-    
-
 
   }
 

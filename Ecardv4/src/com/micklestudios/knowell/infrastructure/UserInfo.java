@@ -571,11 +571,11 @@ public class UserInfo implements Parcelable {
   public String getNotes() {
     return notes;
   }
-  
+
   public String getEmail() {
     return email;
   }
-  
+
   public void setEmail(String email) {
     this.email = email;
   }

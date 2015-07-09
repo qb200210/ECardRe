@@ -1,53 +1,31 @@
 package com.micklestudios.knowell;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
-
-import com.google.zxing.client.android.Intents;
-import com.micklestudios.knowell.infrastructure.UserInfo;
-import com.micklestudios.knowell.utils.CurvedAndTiled;
-import com.micklestudios.knowell.utils.CustomQRScanner;
-import com.micklestudios.knowell.utils.ECardUtils;
-import com.micklestudios.knowell.utils.ExpandableHeightGridView;
-import com.micklestudios.knowell.utils.MyDetailsGridViewAdapter;
-import com.micklestudios.knowell.utils.MyTag;
-import com.micklestudios.knowell.utils.RobotoEditText;
-import com.micklestudios.knowell.utils.SquareLayout;
-import com.micklestudios.knowell.utils.UpdateableFragment;
-import com.parse.ParseUser;
-import com.micklestudios.knowell.R;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.View.OnClickListener;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
-import android.widget.AdapterView.OnItemClickListener;
+
+import com.micklestudios.knowell.infrastructure.UserInfo;
+import com.micklestudios.knowell.utils.ECardUtils;
+import com.micklestudios.knowell.utils.ExpandableHeightGridView;
+import com.micklestudios.knowell.utils.MyDetailsGridViewAdapter;
+import com.micklestudios.knowell.utils.MyTag;
+import com.micklestudios.knowell.utils.UpdateableFragment;
 
 public class FragmentInfoDisplay extends Fragment implements UpdateableFragment {
 
@@ -58,7 +36,8 @@ public class FragmentInfoDisplay extends Fragment implements UpdateableFragment 
 
   ExpandableHeightGridView gridView;
 
-  public static FragmentInfoDisplay newInstance(int sectionNumber, UserInfo newUser) {
+  public static FragmentInfoDisplay newInstance(int sectionNumber,
+    UserInfo newUser) {
     FragmentInfoDisplay fragment = new FragmentInfoDisplay();
     Bundle args = new Bundle();
     args.putInt(ARG_SECTION_NUMBER, sectionNumber);
@@ -68,22 +47,20 @@ public class FragmentInfoDisplay extends Fragment implements UpdateableFragment 
   }
 
   private View rootView;
-  
 
   public FragmentInfoDisplay() {
 
   }
-  
+
   @Override
   public void setUserVisibleHint(boolean isVisibleToUser) {
     super.setUserVisibleHint(isVisibleToUser);
     if (isVisibleToUser) {
-      if(gridView!=null){
+      if (gridView != null) {
         gridView.setEnabled(true);
       }
-    }
-    else {  
-      if(gridView!=null){
+    } else {
+      if (gridView != null) {
         gridView.setEnabled(false);
       }
     }
@@ -100,31 +77,31 @@ public class FragmentInfoDisplay extends Fragment implements UpdateableFragment 
     Bundle savedInstanceState) {
     Bundle bundle = this.getArguments();
     UserInfo newUser = bundle.getParcelable("newUser");
-    rootView = inflater.inflate(R.layout.fragment_info_display, container, false);
+    rootView = inflater.inflate(R.layout.fragment_info_display, container,
+      false);
     gridView = (ExpandableHeightGridView) rootView.findViewById(R.id.gridView2);
     setExtraInfo(newUser);
     setHasOptionsMenu(true);
     return rootView;
-    
 
   }
-  
-  public void setExtraInfo(UserInfo newUser){
- // display extra info
+
+  public void setExtraInfo(UserInfo newUser) {
+    // display extra info
     infoIcon = newUser.getInfoIcon();
     infoLink = newUser.getInfoLink();
     shownArrayList = newUser.getShownArrayList();
-    
-    if(gridView!= null){
+
+    if (gridView != null) {
       gridView.setAdapter(new MyDetailsGridViewAdapter(getActivity(),
         shownArrayList, infoLink, infoIcon));
       gridView.setOnItemClickListener(new OnItemClickListener() {
-  
+
         @SuppressLint("NewApi")
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position,
           long id) {
-  
+
           MyTag tag = (MyTag) view.getTag();
           if (tag != null) {
             Intent intent;
@@ -157,14 +134,13 @@ public class FragmentInfoDisplay extends Fragment implements UpdateableFragment 
               startActivity(intent);
             }
           }
-  
+
         }
-  
+
       });
     }
   }
 
-  
   @SuppressLint("NewApi")
   protected void buildAboutMeDialog(Activity activity, View view) {
     // Get the layout inflater
@@ -177,12 +153,14 @@ public class FragmentInfoDisplay extends Fragment implements UpdateableFragment 
       .findViewById(R.id.dialog_text);
     TextView dialogTitle = (TextView) dialogView
       .findViewById(R.id.dialog_title);
-//    // Set dialog header background with rounded corner
-//    Bitmap bm = BitmapFactory
-//      .decodeResource(getResources(), R.drawable.striped);
-//    BitmapDrawable bmDrawable = new BitmapDrawable(getResources(), bm);
-//    dialogHeader.setBackground(new CurvedAndTiled(bmDrawable.getBitmap(), 5)); \n vvvvvvvv
-    dialogHeader.setBackgroundColor(getResources().getColor(R.color.blue_extra));
+    // // Set dialog header background with rounded corner
+    // Bitmap bm = BitmapFactory
+    // .decodeResource(getResources(), R.drawable.striped);
+    // BitmapDrawable bmDrawable = new BitmapDrawable(getResources(), bm);
+    // dialogHeader.setBackground(new CurvedAndTiled(bmDrawable.getBitmap(),
+    // 5)); \n vvvvvvvv
+    dialogHeader
+      .setBackgroundColor(getResources().getColor(R.color.blue_extra));
     // Set dialog title and main EditText
     dialogTitle.setText("About Me");
     dialogText.setText(((MyTag) view.getTag()).getValue().toString());
@@ -195,11 +173,6 @@ public class FragmentInfoDisplay extends Fragment implements UpdateableFragment 
       }).show();
 
   }
-  
-
-  
-
-  
 
   public void displayCard(View rootView, UserInfo newUser) {
 

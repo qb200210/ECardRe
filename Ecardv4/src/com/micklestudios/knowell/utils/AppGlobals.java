@@ -3,12 +3,16 @@ package com.micklestudios.knowell.utils;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
 import android.util.Log;
+import android.widget.Toast;
 
+import com.micklestudios.knowell.ActivitySearch;
 import com.micklestudios.knowell.infrastructure.UserInfo;
+import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -23,6 +27,9 @@ public class AppGlobals {
 
   // The global list of users in the Conversation List
   public static ArrayList<UserInfo> potentialUsers;
+
+  // List of all the users in the system.
+  public static ArrayList<UserInfo> allUsers;
 
   public static ParseUser currentUser;
 
@@ -109,11 +116,115 @@ public class AppGlobals {
           }
         }
       }
+    }
+  }
 
+  public static void initializeAllContacts() {
+    initializeAllContacts(false);
+  }
+
+  public static void initializeAllContacts(boolean forced) {
+    if (allUsers == null) {
+      allUsers = new ArrayList<UserInfo>();
+    }
+
+    if (forced || allUsers.size() == 0) {
+
+      /* A map of all the ECardNote objects to the noteID */
+      final HashMap<String, ParseObject> noteIdToNoteObjectMap = new HashMap<String, ParseObject>();
+
+      ParseQuery<ParseObject> queryNotes = ParseQuery.getQuery("ECardNote");
+      queryNotes.fromLocalDatastore();
+      queryNotes.whereEqualTo("userId", AppGlobals.currentUser.getObjectId());
+      queryNotes.whereNotEqualTo("isDeleted", true);
+      queryNotes.findInBackground(new FindCallback<ParseObject>() {
+        @Override
+        public void done(List<ParseObject> objectsNoteList,
+          ParseException noteException) {
+          if (noteException == null) {
+            if (objectsNoteList.size() != 0) {
+              // Got a list of all the notes. Now collect all the noteIDs.
+              for (Iterator<ParseObject> iter = objectsNoteList.iterator(); iter
+                .hasNext();) {
+                ParseObject objectNote = iter.next();
+                String infoObjectId = (String) objectNote.get("ecardId");
+
+                // Add these values to the map.
+                noteIdToNoteObjectMap.put(infoObjectId, objectNote);
+              }
+
+              /*
+               * Now, query the ECardInfoTable to get all the ECardInfo for the
+               * notes collected here.
+               */
+              ParseQuery<ParseObject> queryInfo = ParseQuery
+                .getQuery("ECardInfo");
+              queryInfo.fromLocalDatastore();
+              queryInfo.whereContainedIn("objectId",
+                noteIdToNoteObjectMap.keySet());
+
+              queryInfo.findInBackground(new FindCallback<ParseObject>() {
+
+                @Override
+                public void done(List<ParseObject> objectInfoList,
+                  ParseException infoException) {
+                  // Now we have a list of ECardInfo objects. Populate the
+                  // userInfo list.
+                  if (infoException == null) {
+                    // Create sets to add the strings we find in the contacts.
+                    HashSet<String> setCompany = new HashSet<String>();
+                    HashSet<String> setWhereMet = new HashSet<String>();
+                    HashSet<String> setEventMet = new HashSet<String>();
+                    HashSet<String> setAll = new HashSet<String>();
+
+                    ActivitySearch.autoCompleteListAll = new ArrayList<String>();
+                    ActivitySearch.autoCompleteListCompany = new ArrayList<String>();
+                    ActivitySearch.autoCompleteListEvent = new ArrayList<String>();
+                    ActivitySearch.autoCompleteListWhere = new ArrayList<String>();
+
+                    // Iterate over the list.
+                    for (Iterator<ParseObject> iter = objectInfoList.iterator(); iter
+                      .hasNext();) {
+                      ParseObject objectInfo = iter.next();
+                      UserInfo contact = new UserInfo(objectInfo);
+                      if (contact != null) {
+                        // Contact has been created. Populate the "createdAt"
+                        // from
+                        // the note object.
+                        String infoObjectId = (String) objectInfo.getObjectId();
+                        ParseObject objectNote = noteIdToNoteObjectMap
+                          .get(infoObjectId);
+                        contact.setWhenMet((Date) objectNote.get("whenMet"));
+                        contact.setEventMet(objectNote.getString("event_met"));
+                        contact.setWhereMet(objectNote.getString("where_met"));
+                        contact.setNotes(objectNote.getString("notes"));
+
+                        allUsers.add(contact);
+
+                        setCompany.add(contact.getCompany());
+                        setWhereMet.add(contact.getWhereMet());
+                        setEventMet.add(contact.getEventMet());
+                        setAll.addAll(contact.getAllStrings());
+                      }
+                    }
+                    ActivitySearch.autoCompleteListCompany.addAll(setCompany);
+                    ActivitySearch.autoCompleteListEvent.addAll(setEventMet);
+                    ActivitySearch.autoCompleteListWhere.addAll(setWhereMet);
+                    ActivitySearch.autoCompleteListAll.addAll(setAll);
+                  }
+                }
+              });
+            }
+          } else {
+            Log.e("Knowell", "General parse error!");
+          }
+        }
+      });
     }
   }
 
   public static void refreshGlobalParseBasedData() {
-
+    initializeAllContacts();
+    initializePotentialUsers();
   }
 }

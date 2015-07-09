@@ -60,7 +60,8 @@ public class AsyncTasks {
     private boolean flagToast;
 
     public SyncDataTaskHistory(Context context, ParseUser currentUser,
-      SharedPreferences prefs, SharedPreferences.Editor prefEditor, boolean flagToast) {
+      SharedPreferences prefs, SharedPreferences.Editor prefEditor,
+      boolean flagToast) {
       this.context = context;
       this.currentUser = currentUser;
       this.prefs = prefs;
@@ -75,11 +76,10 @@ public class AsyncTasks {
       long millis = prefs.getLong("DateHistorySynced", 0L);
       Date lastSyncedDate = new Date(millis);
 
-      long start = System.nanoTime();   
-      
-      
+      long start = System.nanoTime();
+
       // Only pull those data when there is actual update
-        
+
       ParseQuery query = ParseQuery.getQuery("History");
       query.whereEqualTo("userId", currentUser.getObjectId().toString());
       query.whereGreaterThan("updatedAt", lastSyncedDate);
@@ -92,8 +92,8 @@ public class AsyncTasks {
       }
 
       long elapsedTime = System.nanoTime() - start;
-      Log.d("timer", "history: "+ elapsedTime * 1e-9);
-      
+      Log.d("timer", "history: " + elapsedTime * 1e-9);
+
       if (histObjects != null && histObjects.size() != 0) {
         flagShouldSync = true;
         for (Iterator<ParseObject> iter = histObjects.iterator(); iter
@@ -121,8 +121,7 @@ public class AsyncTasks {
           e.printStackTrace();
         }
       }
-      
-      
+
       // flush sharedpreference with today's date after all notes saved
       Date currentDate = new Date();
       prefEditor.putLong("DateHistorySynced", currentDate.getTime());
@@ -131,9 +130,10 @@ public class AsyncTasks {
     }
 
     @Override
-    protected void onPostExecute(String result) {      
-       if(flagToast)
-         Toast.makeText(context, "History Up to Date", Toast.LENGTH_SHORT).show();
+    protected void onPostExecute(String result) {
+      if (flagToast)
+        Toast.makeText(context, "History Up to Date", Toast.LENGTH_SHORT)
+          .show();
     }
 
   }
@@ -152,7 +152,8 @@ public class AsyncTasks {
     private boolean flagToast;
 
     public SyncDataTaskSelfCopy(Context context, ParseUser currentUser,
-      SharedPreferences prefs, SharedPreferences.Editor prefEditor, boolean flagToast) {
+      SharedPreferences prefs, SharedPreferences.Editor prefEditor,
+      boolean flagToast) {
       this.context = context;
       this.currentUser = currentUser;
       this.prefs = prefs;
@@ -168,7 +169,7 @@ public class AsyncTasks {
       long millisUser = prefs.getLong("DateSelfUserSynced", 0L);
       Date lastSyncedDateSelf = new Date(millis);
       Date lastSyncedDateSelfUser = new Date(millisUser);
-      
+
       long start = System.nanoTime();
 
       ParseQuery<ParseUser> queryUser = ParseUser.getQuery();
@@ -182,10 +183,10 @@ public class AsyncTasks {
         e1.printStackTrace();
       }
       long elapsedTime = System.nanoTime() - start;
-      Log.d("timer", "selfchecknew: "+ elapsedTime * 1e-9);
+      Log.d("timer", "selfchecknew: " + elapsedTime * 1e-9);
 
       start = System.nanoTime();
-      
+
       if (userObjects != null && userObjects.size() != 0) {
         flagShouldSync = true;
         try {
@@ -200,10 +201,10 @@ public class AsyncTasks {
         }
 
       }
-      
+
       elapsedTime = System.nanoTime() - start;
-      Log.d("timer", "pinselfusr: "+ elapsedTime * 1e-9);
-      
+      Log.d("timer", "pinselfusr: " + elapsedTime * 1e-9);
+
       start = System.nanoTime();
 
       ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardInfo");
@@ -255,16 +256,17 @@ public class AsyncTasks {
           e.printStackTrace();
         }
       }
-      
+
       elapsedTime = System.nanoTime() - start;
-      Log.d("timer", "pinselfcard: "+ elapsedTime * 1e-9);
+      Log.d("timer", "pinselfcard: " + elapsedTime * 1e-9);
       return null;
     }
 
     @Override
     protected void onPostExecute(String result) {
       if (flagToast) {
-        Toast.makeText(context, "My Card Up to Date", Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, "My Card Up to Date", Toast.LENGTH_SHORT)
+          .show();
       }
     }
 
@@ -303,9 +305,8 @@ public class AsyncTasks {
         tmpCompanyNames.addAll(fetchedCompanyList);
       }
 
-
       long start = System.nanoTime();
-      
+
       // get the stored shared last sync date, if null, default to 1969
       long millis = prefs.getLong("DateCompanySynced", 0L);
       Date lastSyncedDate = new Date(millis);
@@ -332,10 +333,9 @@ public class AsyncTasks {
       if (tmpCompanyNames != null) {
         ActivityDesign.companyNames.addAll(tmpCompanyNames);
       }
-      
-      long elapsedTime = System.nanoTime() - start;
-      Log.d("timer", "updtprefcmpnames: "+ elapsedTime * 1e-9);
 
+      long elapsedTime = System.nanoTime() - start;
+      Log.d("timer", "updtprefcmpnames: " + elapsedTime * 1e-9);
 
       start = System.nanoTime();
       // pin down logos for those ecards that are already in localstore
@@ -423,9 +423,9 @@ public class AsyncTasks {
         }
 
       }
-      
+
       elapsedTime = System.nanoTime() - start;
-      Log.d("timer", "synccompnames: "+ elapsedTime * 1e-9);
+      Log.d("timer", "synccompnames: " + elapsedTime * 1e-9);
 
       // flush sharedpreference with today's date
       Date currentDate = new Date();
@@ -448,7 +448,8 @@ public class AsyncTasks {
     private boolean flagToast;
 
     public SyncDataTaskNotes(Context context, ParseUser currentUser,
-      SharedPreferences prefs, SharedPreferences.Editor prefEditor, boolean flagToast) {
+      SharedPreferences prefs, SharedPreferences.Editor prefEditor,
+      boolean flagToast) {
       this.context = context;
       this.currentUser = currentUser;
       this.prefs = prefs;
@@ -462,7 +463,7 @@ public class AsyncTasks {
       // get the stored shared last sync date, if null, default to 1969
       long millis = prefs.getLong("DateNoteSynced", 0L);
       Date lastSyncedDate = new Date(millis);
-      
+
       long start = System.nanoTime();
       long elapsedTime;
 
@@ -478,7 +479,7 @@ public class AsyncTasks {
       if (noteObjects != null && noteObjects.size() != 0) {
         // If some of the notes have been updated, otherwise skip the rest
         flagShouldSync = true;
-        
+
         for (Iterator<ParseObject> iter = noteObjects.iterator(); iter
           .hasNext();) {
           ParseObject objNote = iter.next();
@@ -487,13 +488,16 @@ public class AsyncTasks {
             if ((boolean) objNote.get("isDeleted") == true) {
               try {
                 // unpin the "deleted" object
-                objNote.unpin();                
-                if(objNote.get("ecardId").toString() != currentUser.get("ecardId").toString()){
-                  // If the note is with self, then unpinning card may result in crash
+                objNote.unpin();
+                if (objNote.get("ecardId").toString() != currentUser.get(
+                  "ecardId").toString()) {
+                  // If the note is with self, then unpinning card may result in
+                  // crash
                   // unpin corresponding local Ecard copy
                   ParseQuery queryInfoLocal = ParseQuery.getQuery("ECardInfo");
                   queryInfoLocal.fromLocalDatastore();
-                  ParseObject objEcard = queryInfoLocal.get(objNote.get("ecardId").toString());
+                  ParseObject objEcard = queryInfoLocal.get(objNote.get(
+                    "ecardId").toString());
                   objEcard.unpin();
                 }
                 // remove the note from the to-be-pinned list
@@ -502,12 +506,13 @@ public class AsyncTasks {
                 e.printStackTrace();
               }
             }
-          }          
+          }
         }
-        // Now the remaining list is for updated Notes, this part is to cache all parseFiles
+        // Now the remaining list is for updated Notes, this part is to cache
+        // all parseFiles
         for (Iterator<ParseObject> iter = noteObjects.iterator(); iter
           .hasNext();) {
-          ParseObject objNote = iter.next();          
+          ParseObject objNote = iter.next();
           byte[] tmpVoiceData = (byte[]) objNote.get("tmpVoiceByteArray");
           if (tmpVoiceData != null) {
             // if there is cached data in the array on server, convert to
@@ -535,9 +540,9 @@ public class AsyncTasks {
               // TODO Auto-generated catch block
               e.printStackTrace();
             }
-          }          
+          }
         }
-           
+
         // pin noteObjects -- parseFiles have already been cached before
         try {
           ParseObject.pinAll(noteObjects);
@@ -546,23 +551,22 @@ public class AsyncTasks {
           e.printStackTrace();
         }
       }
-      
+
       elapsedTime = System.nanoTime() - start;
-      Log.d("timer", "notepinned: "+ elapsedTime * 1e-9);
-      
+      Log.d("timer", "notepinned: " + elapsedTime * 1e-9);
+
       // flush sharedpreference with today's date after all notes saved
       Date currentDate = new Date();
       prefEditor.putLong("DateNoteSynced", currentDate.getTime());
       prefEditor.commit();
-      
 
       // This part is about checking those ecards that gets updated
-      
+
       long millisInfo = prefs.getLong("DateInfoSynced", 0L);
       Date lastInfoSyncedDate = new Date(millis);
-      
+
       start = System.nanoTime();
-      
+
       // generate list of ecards
       ParseQuery<ParseObject> queryNote = ParseQuery.getQuery("ECardNote");
       queryNote.fromLocalDatastore();
@@ -575,15 +579,15 @@ public class AsyncTasks {
         e.printStackTrace();
       }
       TreeSet<String> ecardIdsTree = new TreeSet();
-      if(noteObjs != null){
+      if (noteObjs != null) {
         // if the current user has at least one note
-        for(ParseObject noteObj : noteObjs){
+        for (ParseObject noteObj : noteObjs) {
           ecardIdsTree.add(noteObj.get("ecardId").toString());
         }
       }
-      
+
       // now check and pin down those updated ecards
-      // TO-DO: For now ecards are not deletable. 
+      // TO-DO: For now ecards are not deletable.
       ParseQuery queryInfo = new ParseQuery<ParseObject>("ECardInfo");
       queryInfo.whereContainedIn("objectId", ecardIdsTree);
       queryInfo.whereGreaterThan("updatedAt", lastInfoSyncedDate);
@@ -614,12 +618,12 @@ public class AsyncTasks {
           e1.printStackTrace();
         }
       }
-      
+
       elapsedTime = System.nanoTime() - start;
-      Log.d("timer", "notecardpined: "+ elapsedTime * 1e-9);
-      
+      Log.d("timer", "notecardpined: " + elapsedTime * 1e-9);
+
       // TO-DO: Create Ecard Update notifications as the "news feed"
-      
+
       // flush sharedpreference with today's date after all notes saved
       Date currentDate1 = new Date();
       prefEditor.putLong("DateInfoSynced", currentDate1.getTime());
@@ -630,7 +634,8 @@ public class AsyncTasks {
     @Override
     protected void onPostExecute(String result) {
       if (flagToast) {
-        Toast.makeText(context, "Card Collection Up to Date", Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, "Card Collection Up to Date",
+          Toast.LENGTH_SHORT).show();
       }
     }
 
@@ -647,7 +652,8 @@ public class AsyncTasks {
     private boolean flagToast;
 
     public SyncDataTaskConversations(Context context, ParseUser currentUser,
-      SharedPreferences prefs, SharedPreferences.Editor prefEditor, boolean flagToast) {
+      SharedPreferences prefs, SharedPreferences.Editor prefEditor,
+      boolean flagToast) {
       this.context = context;
       this.currentUser = currentUser;
       this.prefs = prefs;
@@ -658,8 +664,9 @@ public class AsyncTasks {
 
     @Override
     protected String doInBackground(String... params) {
-            
-      // remove those conversations associated with cards that are already collected
+
+      // remove those conversations associated with cards that are already
+      // collected
       // find all local conversations
       ParseQuery<ParseObject> queryLocal = ParseQuery.getQuery("Conversations");
       queryLocal.whereEqualTo("partyB", currentUser.get("ecardId").toString());
@@ -671,17 +678,19 @@ public class AsyncTasks {
         e3.printStackTrace();
       }
       TreeSet<String> ecardIdsToCollect = new TreeSet();
-      if(convObjs != null){
-        if(convObjs.size()>0){
-          for(ParseObject convObj : convObjs){
+      if (convObjs != null) {
+        if (convObjs.size() > 0) {
+          for (ParseObject convObj : convObjs) {
             // record all ecards associated with local conversations
             ecardIdsToCollect.add(convObj.get("partyA").toString());
           }
-          // check notes to see if the note corresponding to this ecard in conv already exist locally
+          // check notes to see if the note corresponding to this ecard in conv
+          // already exist locally
           ParseQuery<ParseObject> queryNote = ParseQuery.getQuery("ECardNote");
           queryNote.whereContainedIn("ecardId", ecardIdsToCollect);
           queryNote.whereNotEqualTo("isDeleted", true);
-          queryNote.whereEqualTo("userId", currentUser.getObjectId().toString());
+          queryNote
+            .whereEqualTo("userId", currentUser.getObjectId().toString());
           queryNote.fromLocalDatastore();
           List<ParseObject> noteObjs = null;
           try {
@@ -690,17 +699,18 @@ public class AsyncTasks {
             e.printStackTrace();
           }
           TreeSet<String> ecardIdsToRemove = new TreeSet();
-          if(noteObjs != null){
-            if(noteObjs.size()>0){
-              for(ParseObject noteObj : noteObjs){
+          if (noteObjs != null) {
+            if (noteObjs.size() > 0) {
+              for (ParseObject noteObj : noteObjs) {
                 ecardIdsToRemove.add(noteObj.get("ecardId").toString());
               }
             }
           }
           // remove those conversations
-          for(ParseObject convObj : convObjs){
-            if(ecardIdsToRemove.contains(convObj.get("partyA").toString())){
-              // if a conversation object corresponds to an existing note, remove it
+          for (ParseObject convObj : convObjs) {
+            if (ecardIdsToRemove.contains(convObj.get("partyA").toString())) {
+              // if a conversation object corresponds to an existing note,
+              // remove it
               convObj.put("isDeleted", true);
               try {
                 convObj.save();
@@ -711,14 +721,14 @@ public class AsyncTasks {
               }
             }
           }
-          
+
         }
       }
-      
+
       // get the stored shared last sync date, if null, default to 1969
       long millis = prefs.getLong("DateConversationsSynced", 0L);
       Date lastSyncedDate = new Date(millis);
-      
+
       long start = System.nanoTime();
       long elapsedTime;
 
@@ -751,24 +761,25 @@ public class AsyncTasks {
             }
           }
         }
-        
-        if(convObjects.size()!=0){
-          // only proceed to pin conversations and ecards if there are remaining conv items
-          
+
+        if (convObjects.size() != 0) {
+          // only proceed to pin conversations and ecards if there are remaining
+          // conv items
+
           TreeSet<String> ecardIdsTree = new TreeSet<String>();
           for (Iterator<ParseObject> iter = convObjects.iterator(); iter
             .hasNext();) {
             ParseObject objConv = iter.next();
             ecardIdsTree.add(objConv.get("partyA").toString());
           }
-          
+
           Log.i("ecardIds", ecardIdsTree.toString());
-          
+
           elapsedTime = System.nanoTime() - start;
-          Log.d("timer", "convchked: "+ elapsedTime * 1e-9);
-          
+          Log.d("timer", "convchked: " + elapsedTime * 1e-9);
+
           start = System.nanoTime();
-          
+
           // find associated Ecards
           ParseQuery<ParseObject> query1 = ParseQuery.getQuery("ECardInfo");
           query1.whereContainedIn("objectId", ecardIdsTree);
@@ -780,13 +791,13 @@ public class AsyncTasks {
             e1.printStackTrace();
           }
           // pin infoObjects
-          Log.i("infoObjects", "a+"+infoObjects.size());
-          
+          Log.i("infoObjects", "a+" + infoObjects.size());
+
           if (infoObjects != null) {
             try {
               ParseObject.pinAll(infoObjects);
-              Log.i("infoObjects", "done+"+infoObjects.size());
-              
+              Log.i("infoObjects", "done+" + infoObjects.size());
+
             } catch (ParseException e1) {
               e1.printStackTrace();
             }
@@ -814,10 +825,10 @@ public class AsyncTasks {
           }
         }
       }
-      
+
       elapsedTime = System.nanoTime() - start;
-      Log.d("timer", "convcardpined: "+ elapsedTime * 1e-9);
-      
+      Log.d("timer", "convcardpined: " + elapsedTime * 1e-9);
+
       // flush sharedpreference with today's date after all notes saved
       Date currentDate = new Date();
       prefEditor.putLong("DateConversationsSynced", currentDate.getTime());
@@ -827,8 +838,9 @@ public class AsyncTasks {
 
     @Override
     protected void onPostExecute(String result) {
-      if(flagToast)
-        Toast.makeText(context, "Notifications Up to Date", Toast.LENGTH_SHORT).show();
+      if (flagToast)
+        Toast.makeText(context, "Notifications Up to Date", Toast.LENGTH_SHORT)
+          .show();
     }
 
   }
@@ -850,7 +862,8 @@ public class AsyncTasks {
     private boolean flagToast;
 
     public SyncDataTaskCachedIds(Context context, ParseUser currentUser,
-      SharedPreferences prefs, SharedPreferences.Editor prefEditor, boolean flagToast) {
+      SharedPreferences prefs, SharedPreferences.Editor prefEditor,
+      boolean flagToast) {
       this.context = context;
       this.currentUser = currentUser;
       this.prefs = prefs;
@@ -1104,7 +1117,7 @@ public class AsyncTasks {
           for (Iterator<ParseObject> iter = noteObjects.iterator(); iter
             .hasNext();) {
             ParseObject object = iter.next();
-            if(object.getBoolean("isDeleted")==true){
+            if (object.getBoolean("isDeleted") == true) {
               // for those notes that exist but deleted, flip them
               object.put("isDeleted", false);
               try {
@@ -1231,7 +1244,8 @@ public class AsyncTasks {
     @Override
     protected void onPostExecute(String result) {
       if (flagToast) {
-        Toast.makeText(context, "Cleared Offline Collection", Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, "Cleared Offline Collection",
+          Toast.LENGTH_SHORT).show();
       }
     }
 
@@ -1378,7 +1392,7 @@ public class AsyncTasks {
           // internet, convert the file
           Date currentDate = new Date(0);
           SharedPreferences prefs = mActivity.getSharedPreferences(
-            ActivityBufferOpening.MY_PREFS_NAME, mActivity.MODE_PRIVATE);
+            AppGlobals.MY_PREFS_NAME, mActivity.MODE_PRIVATE);
           SharedPreferences.Editor prefEditor = prefs.edit();
           prefEditor.putLong("DateNoteSynced", currentDate.getTime());
           prefEditor.commit();

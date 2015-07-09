@@ -94,11 +94,11 @@ public class ActivityUserSetting extends ActionBarActivity {
 
   public class PrefsFragment extends PreferenceFragment {
 
-    public void setprefDocGreeting(boolean flag){
+    public void setprefDocGreeting(boolean flag) {
       Preference prefDocGreeting = (Preference) findPreference(getString(R.string.prefDocGreeting));
       prefDocGreeting.setEnabled(flag);
     }
-    
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
       // TODO Auto-generated method stub
@@ -156,16 +156,25 @@ public class ActivityUserSetting extends ActionBarActivity {
                 RobotoTextView helpBody = (RobotoTextView) helpView
                   .findViewById(R.id.help_body);
 
-                String rawString = "#myname# or #m#:\n" + ActivityMain.myselfUserInfo.getFirstName()
-                    + " " + ActivityMain.myselfUserInfo.getLastName()+"\n#company# or #c#:\n" + ActivityMain.myselfUserInfo.getCompany() +"\n#recipient# or #r#:\nThe name of recipient\n#knowell# or #k#:\nLink to your card.";
+                String rawString = "#myname# or #m#:\n"
+                  + ActivityMain.myselfUserInfo.getFirstName()
+                  + " "
+                  + ActivityMain.myselfUserInfo.getLastName()
+                  + "\n#company# or #c#:\n"
+                  + ActivityMain.myselfUserInfo.getCompany()
+                  + "\n#recipient# or #r#:\nThe name of recipient\n#knowell# or #k#:\nLink to your card.";
                 helpBody.setText(rawString, TextView.BufferType.SPANNABLE);
                 Spannable str = (Spannable) helpBody.getText();
-                setColor(helpBody, rawString, "#myname# or #m#:", Color.parseColor(getString(R.color.indigo_extra)), str);
-                setColor(helpBody, rawString, "#company# or #c#:", Color.parseColor(getString(R.color.indigo_extra)), str);
-                setColor(helpBody, rawString, "#recipient# or #r#:", Color.parseColor(getString(R.color.indigo_extra)), str);
-                setColor(helpBody, rawString, "#knowell# or #k#:", Color.parseColor(getString(R.color.indigo_extra)), str);
-                new AlertDialog.Builder(ActivityUserSetting.this).setView(
-                  helpView)
+                setColor(helpBody, rawString, "#myname# or #m#:",
+                  Color.parseColor(getString(R.color.indigo_extra)), str);
+                setColor(helpBody, rawString, "#company# or #c#:",
+                  Color.parseColor(getString(R.color.indigo_extra)), str);
+                setColor(helpBody, rawString, "#recipient# or #r#:",
+                  Color.parseColor(getString(R.color.indigo_extra)), str);
+                setColor(helpBody, rawString, "#knowell# or #k#:",
+                  Color.parseColor(getString(R.color.indigo_extra)), str);
+                new AlertDialog.Builder(ActivityUserSetting.this)
+                  .setView(helpView)
                   .setNeutralButton("OK",
                     new DialogInterface.OnClickListener() {
                       public void onClick(DialogInterface dialog,
@@ -183,9 +192,10 @@ public class ActivityUserSetting extends ActionBarActivity {
               @Override
               public void onClick(View v) {
                 LayoutInflater inflaterTmp = getLayoutInflater();
-                View helpView = inflaterTmp.inflate(R.layout.layout_preview, null);
+                View helpView = inflaterTmp.inflate(R.layout.layout_preview,
+                  null);
                 RobotoTextView helpSubject = (RobotoTextView) helpView
-                    .findViewById(R.id.preview_subject);
+                  .findViewById(R.id.preview_subject);
                 RobotoTextView helpBody = (RobotoTextView) helpView
                   .findViewById(R.id.preview_body);
                 String rawSubject = subjectView.getText().toString();
@@ -264,143 +274,154 @@ public class ActivityUserSetting extends ActionBarActivity {
 
       Preference prefSmsGreeting = (Preference) findPreference(getString(R.string.prefSMSGreeting));
       prefSmsGreeting
-      .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-        @Override
-        public boolean onPreferenceClick(Preference preference) {
+        .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+          @Override
+          public boolean onPreferenceClick(Preference preference) {
 
-          LayoutInflater inflater = getLayoutInflater();
-          final View dialogView = inflater.inflate(
-            R.layout.layout_default_msg, null);
-          LinearLayout dialogHeader = (LinearLayout) dialogView
-            .findViewById(R.id.dialog_header);
-          final TextView dialogText = (TextView) dialogView
-            .findViewById(R.id.dialog_text);
-          TextView dialogTitle = (TextView) dialogView
-            .findViewById(R.id.dialog_title);
-          dialogHeader.setBackgroundColor(getResources().getColor(
-            R.color.blue_extra));
-          dialogTitle.setText("Set Default SMS message");
-          final RobotoEditText subjectView = (RobotoEditText) dialogView
-            .findViewById(R.id.message_subject);
-          final RobotoEditText messageView = (RobotoEditText) dialogView
-            .findViewById(R.id.message_body);
-          
-          LinearLayout panelSubject = (LinearLayout) dialogView
+            LayoutInflater inflater = getLayoutInflater();
+            final View dialogView = inflater.inflate(
+              R.layout.layout_default_msg, null);
+            LinearLayout dialogHeader = (LinearLayout) dialogView
+              .findViewById(R.id.dialog_header);
+            final TextView dialogText = (TextView) dialogView
+              .findViewById(R.id.dialog_text);
+            TextView dialogTitle = (TextView) dialogView
+              .findViewById(R.id.dialog_title);
+            dialogHeader.setBackgroundColor(getResources().getColor(
+              R.color.blue_extra));
+            dialogTitle.setText("Set Default SMS message");
+            final RobotoEditText subjectView = (RobotoEditText) dialogView
+              .findViewById(R.id.message_subject);
+            final RobotoEditText messageView = (RobotoEditText) dialogView
+              .findViewById(R.id.message_body);
+
+            LinearLayout panelSubject = (LinearLayout) dialogView
               .findViewById(R.id.panel_subject);
-          panelSubject.setVisibility(View.GONE);
-          LinearLayout helpBtn = (LinearLayout) dialogView
-            .findViewById(R.id.help);
-          LinearLayout previewBtn = (LinearLayout) dialogView
-            .findViewById(R.id.preview);
+            panelSubject.setVisibility(View.GONE);
+            LinearLayout helpBtn = (LinearLayout) dialogView
+              .findViewById(R.id.help);
+            LinearLayout previewBtn = (LinearLayout) dialogView
+              .findViewById(R.id.preview);
 
-          helpBtn.setOnClickListener(new OnClickListener() {
+            helpBtn.setOnClickListener(new OnClickListener() {
 
-            @Override
-            public void onClick(View v) {
-              LayoutInflater inflaterTmp = getLayoutInflater();
-              View helpView = inflaterTmp.inflate(R.layout.layout_help, null);
-              RobotoTextView helpBody = (RobotoTextView) helpView
-                .findViewById(R.id.help_body);
+              @Override
+              public void onClick(View v) {
+                LayoutInflater inflaterTmp = getLayoutInflater();
+                View helpView = inflaterTmp.inflate(R.layout.layout_help, null);
+                RobotoTextView helpBody = (RobotoTextView) helpView
+                  .findViewById(R.id.help_body);
 
-              String rawString = "#myname# or #m#:\n" + ActivityMain.myselfUserInfo.getFirstName()
-                  + " " + ActivityMain.myselfUserInfo.getLastName()+"\n#company# or #c#:\n" + ActivityMain.myselfUserInfo.getCompany() +"\n#recipient# or #r#:\nThe name of recipient\n#knowell# or #k#:\nLink to your card.";
-              helpBody.setText(rawString, TextView.BufferType.SPANNABLE);
-              Spannable str = (Spannable) helpBody.getText();
-              setColor(helpBody, rawString, "#myname# or #m#:", Color.parseColor(getString(R.color.indigo_extra)), str);
-              setColor(helpBody, rawString, "#company# or #c#:", Color.parseColor(getString(R.color.indigo_extra)), str);
-              setColor(helpBody, rawString, "#recipient# or #r#:", Color.parseColor(getString(R.color.indigo_extra)), str);
-              setColor(helpBody, rawString, "#knowell# or #k#:", Color.parseColor(getString(R.color.indigo_extra)), str);
-              new AlertDialog.Builder(ActivityUserSetting.this).setView(
-                helpView)
-                .setNeutralButton("OK",
-                  new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog,
-                      int whichButton) {
+                String rawString = "#myname# or #m#:\n"
+                  + ActivityMain.myselfUserInfo.getFirstName()
+                  + " "
+                  + ActivityMain.myselfUserInfo.getLastName()
+                  + "\n#company# or #c#:\n"
+                  + ActivityMain.myselfUserInfo.getCompany()
+                  + "\n#recipient# or #r#:\nThe name of recipient\n#knowell# or #k#:\nLink to your card.";
+                helpBody.setText(rawString, TextView.BufferType.SPANNABLE);
+                Spannable str = (Spannable) helpBody.getText();
+                setColor(helpBody, rawString, "#myname# or #m#:",
+                  Color.parseColor(getString(R.color.indigo_extra)), str);
+                setColor(helpBody, rawString, "#company# or #c#:",
+                  Color.parseColor(getString(R.color.indigo_extra)), str);
+                setColor(helpBody, rawString, "#recipient# or #r#:",
+                  Color.parseColor(getString(R.color.indigo_extra)), str);
+                setColor(helpBody, rawString, "#knowell# or #k#:",
+                  Color.parseColor(getString(R.color.indigo_extra)), str);
+                new AlertDialog.Builder(ActivityUserSetting.this)
+                  .setView(helpView)
+                  .setNeutralButton("OK",
+                    new DialogInterface.OnClickListener() {
+                      public void onClick(DialogInterface dialog,
+                        int whichButton) {
 
-                    }
-                  }).setCancelable(true).show();
+                      }
+                    }).setCancelable(true).show();
 
-            }
-
-          });
-
-          previewBtn.setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-              LayoutInflater inflaterTmp = getLayoutInflater();
-              View helpView = inflaterTmp.inflate(R.layout.layout_preview, null);
-              LinearLayout panelSubject = (LinearLayout) helpView
-                  .findViewById(R.id.panel_subject);
-              panelSubject.setVisibility(View.GONE);
-              RobotoTextView helpBody = (RobotoTextView) helpView
-                .findViewById(R.id.preview_body);
-              String rawSubject = subjectView.getText().toString();
-              String rawBody = messageView.getText().toString();
-              String processedSubject = rawSubject.replaceAll(
-                "#r[a-zA-Z0-9]*#", "Recipient");
-              processedSubject = processedSubject.replaceAll(
-                "#m[a-zA-Z0-9]*#", ActivityMain.myselfUserInfo.getFirstName()
-                  + " " + ActivityMain.myselfUserInfo.getLastName());
-              processedSubject = processedSubject.replaceAll(
-                "#c[a-zA-Z0-9]*#", ActivityMain.myselfUserInfo.getCompany());
-              processedSubject = processedSubject.replaceAll(
-                "#k[a-zA-Z0-9]*#", getLink());
-              String processedBody = rawBody.replaceAll("#r[a-zA-Z0-9]*#",
-                "Recipient");
-              processedBody = processedBody.replaceAll("#m[a-zA-Z0-9]*#",
-                ActivityMain.myselfUserInfo.getFirstName() + " "
-                  + ActivityMain.myselfUserInfo.getLastName());
-              processedBody = processedBody.replaceAll("#c[a-zA-Z0-9]*#",
-                ActivityMain.myselfUserInfo.getCompany());
-              processedBody = processedBody.replaceAll("#k[a-zA-Z0-9]*#",
-                getLink());
-              helpBody.setText(processedBody);
-              new AlertDialog.Builder(ActivityUserSetting.this)
-                .setView(helpView)
-                .setNeutralButton("OK",
-                  new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog,
-                      int whichButton) {
-
-                    }
-                  }).setCancelable(true).show();
-
-            }
-
-          });
-
-          String body = currentUser.getString("smsBody");
-
-          if (body == null || body.isEmpty()) {
-            messageView
-              .setText("Hi #recipient#,\n\nThis is #myname# from #company#.\n\nIt was great to meet you! Keep in touch! \n\nBest,\n#myname#\n\nPlease accept my business card here: #knowell#");
-          } else {
-            messageView.setText(body);
-          }
-
-          new AlertDialog.Builder(ActivityUserSetting.this)
-            .setView(dialogView)
-            .setPositiveButton("Save", new DialogInterface.OnClickListener() {
-              public void onClick(DialogInterface dialog, int whichButton) {
-
-                String body = messageView.getText().toString();
-                currentUser.put("smsBody", body);
-                currentUser.saveEventually();
               }
-            })
-            .setNegativeButton("Cancel",
-              new DialogInterface.OnClickListener() {
+
+            });
+
+            previewBtn.setOnClickListener(new OnClickListener() {
+
+              @Override
+              public void onClick(View v) {
+                LayoutInflater inflaterTmp = getLayoutInflater();
+                View helpView = inflaterTmp.inflate(R.layout.layout_preview,
+                  null);
+                LinearLayout panelSubject = (LinearLayout) helpView
+                  .findViewById(R.id.panel_subject);
+                panelSubject.setVisibility(View.GONE);
+                RobotoTextView helpBody = (RobotoTextView) helpView
+                  .findViewById(R.id.preview_body);
+                String rawSubject = subjectView.getText().toString();
+                String rawBody = messageView.getText().toString();
+                String processedSubject = rawSubject.replaceAll(
+                  "#r[a-zA-Z0-9]*#", "Recipient");
+                processedSubject = processedSubject.replaceAll(
+                  "#m[a-zA-Z0-9]*#", ActivityMain.myselfUserInfo.getFirstName()
+                    + " " + ActivityMain.myselfUserInfo.getLastName());
+                processedSubject = processedSubject.replaceAll(
+                  "#c[a-zA-Z0-9]*#", ActivityMain.myselfUserInfo.getCompany());
+                processedSubject = processedSubject.replaceAll(
+                  "#k[a-zA-Z0-9]*#", getLink());
+                String processedBody = rawBody.replaceAll("#r[a-zA-Z0-9]*#",
+                  "Recipient");
+                processedBody = processedBody.replaceAll("#m[a-zA-Z0-9]*#",
+                  ActivityMain.myselfUserInfo.getFirstName() + " "
+                    + ActivityMain.myselfUserInfo.getLastName());
+                processedBody = processedBody.replaceAll("#c[a-zA-Z0-9]*#",
+                  ActivityMain.myselfUserInfo.getCompany());
+                processedBody = processedBody.replaceAll("#k[a-zA-Z0-9]*#",
+                  getLink());
+                helpBody.setText(processedBody);
+                new AlertDialog.Builder(ActivityUserSetting.this)
+                  .setView(helpView)
+                  .setNeutralButton("OK",
+                    new DialogInterface.OnClickListener() {
+                      public void onClick(DialogInterface dialog,
+                        int whichButton) {
+
+                      }
+                    }).setCancelable(true).show();
+
+              }
+
+            });
+
+            String body = currentUser.getString("smsBody");
+
+            if (body == null || body.isEmpty()) {
+              messageView
+                .setText("Hi #recipient#,\n\nThis is #myname# from #company#.\n\nIt was great to meet you! Keep in touch! \n\nBest,\n#myname#\n\nPlease accept my business card here: #knowell#");
+            } else {
+              messageView.setText(body);
+            }
+
+            new AlertDialog.Builder(ActivityUserSetting.this)
+              .setView(dialogView)
+              .setPositiveButton("Save", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
 
+                  String body = messageView.getText().toString();
+                  currentUser.put("smsBody", body);
+                  currentUser.saveEventually();
                 }
-              }).setCancelable(false).show();
-          return true;
-        }
-      });
+              })
+              .setNegativeButton("Cancel",
+                new DialogInterface.OnClickListener() {
+                  public void onClick(DialogInterface dialog, int whichButton) {
+
+                  }
+                }).setCancelable(false).show();
+            return true;
+          }
+        });
 
       Preference prefDocGreeting = (Preference) findPreference(getString(R.string.prefDocGreeting));
-      if(currentUser.getString("docPath")==null || currentUser.getString("docPath").isEmpty()){
+      if (currentUser.getString("docPath") == null
+        || currentUser.getString("docPath").isEmpty()) {
         prefDocGreeting.setEnabled(false);
       } else {
         File file = new File(currentUser.getString("docPath"));
@@ -412,226 +433,248 @@ public class ActivityUserSetting extends ActionBarActivity {
         }
       }
       prefDocGreeting
-      .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-        @Override
-        public boolean onPreferenceClick(Preference preference) {
+        .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+          @Override
+          public boolean onPreferenceClick(Preference preference) {
 
-          LayoutInflater inflater = getLayoutInflater();
-          final View dialogView = inflater.inflate(
-            R.layout.layout_default_msg, null);
-          LinearLayout dialogHeader = (LinearLayout) dialogView
-            .findViewById(R.id.dialog_header);
-          final TextView dialogText = (TextView) dialogView
-            .findViewById(R.id.dialog_text);
-          TextView dialogTitle = (TextView) dialogView
-            .findViewById(R.id.dialog_title);
-          dialogHeader.setBackgroundColor(getResources().getColor(
-            R.color.blue_extra));
-          dialogTitle.setText("Set Default Document Message");
-          final RobotoEditText subjectView = (RobotoEditText) dialogView
-            .findViewById(R.id.message_subject);
-          final RobotoEditText messageView = (RobotoEditText) dialogView
-            .findViewById(R.id.message_body);
+            LayoutInflater inflater = getLayoutInflater();
+            final View dialogView = inflater.inflate(
+              R.layout.layout_default_msg, null);
+            LinearLayout dialogHeader = (LinearLayout) dialogView
+              .findViewById(R.id.dialog_header);
+            final TextView dialogText = (TextView) dialogView
+              .findViewById(R.id.dialog_text);
+            TextView dialogTitle = (TextView) dialogView
+              .findViewById(R.id.dialog_title);
+            dialogHeader.setBackgroundColor(getResources().getColor(
+              R.color.blue_extra));
+            dialogTitle.setText("Set Default Document Message");
+            final RobotoEditText subjectView = (RobotoEditText) dialogView
+              .findViewById(R.id.message_subject);
+            final RobotoEditText messageView = (RobotoEditText) dialogView
+              .findViewById(R.id.message_body);
 
-          LinearLayout helpBtn = (LinearLayout) dialogView
-            .findViewById(R.id.help);
-          LinearLayout previewBtn = (LinearLayout) dialogView
-            .findViewById(R.id.preview);
-          
-          final String docName;
-          if(currentUser.getString("docName")!=null && !currentUser.getString("docName").isEmpty()){
-            docName = currentUser.getString("docName");
-          } else {
-            docName = "Document Name";
-          }
+            LinearLayout helpBtn = (LinearLayout) dialogView
+              .findViewById(R.id.help);
+            LinearLayout previewBtn = (LinearLayout) dialogView
+              .findViewById(R.id.preview);
 
-          helpBtn.setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-              LayoutInflater inflaterTmp = getLayoutInflater();
-              View helpView = inflaterTmp.inflate(R.layout.layout_help, null);
-              RobotoTextView helpBody = (RobotoTextView) helpView
-                .findViewById(R.id.help_body);
-              
-              
-              String rawString = "#myname# or #m#:\n" + ActivityMain.myselfUserInfo.getFirstName()
-                  + " " + ActivityMain.myselfUserInfo.getLastName()+ "\n#document# or #d#:\n" +  docName + "\n#company# or #c#:\n" + ActivityMain.myselfUserInfo.getCompany() +"\n#recipient# or #r#:\nThe name of recipient\n#knowell# or #k#:\nLink to your card.";
-              helpBody.setText(rawString, TextView.BufferType.SPANNABLE);
-              Spannable str = (Spannable) helpBody.getText();
-              setColor(helpBody, rawString, "#myname# or #m#:", Color.parseColor(getString(R.color.indigo_extra)), str);
-              setColor(helpBody, rawString, "#document# or #d#:", Color.parseColor(getString(R.color.indigo_extra)), str);
-              setColor(helpBody, rawString, "#company# or #c#:", Color.parseColor(getString(R.color.indigo_extra)), str);
-              setColor(helpBody, rawString, "#recipient# or #r#:", Color.parseColor(getString(R.color.indigo_extra)), str);
-              setColor(helpBody, rawString, "#knowell# or #k#:", Color.parseColor(getString(R.color.indigo_extra)), str);
-              new AlertDialog.Builder(ActivityUserSetting.this).setView(
-                helpView)
-                .setNeutralButton("OK",
-                  new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog,
-                      int whichButton) {
-
-                    }
-                  }).setCancelable(true).show();
-
+            final String docName;
+            if (currentUser.getString("docName") != null
+              && !currentUser.getString("docName").isEmpty()) {
+              docName = currentUser.getString("docName");
+            } else {
+              docName = "Document Name";
             }
 
-          });
+            helpBtn.setOnClickListener(new OnClickListener() {
 
-          previewBtn.setOnClickListener(new OnClickListener() {
+              @Override
+              public void onClick(View v) {
+                LayoutInflater inflaterTmp = getLayoutInflater();
+                View helpView = inflaterTmp.inflate(R.layout.layout_help, null);
+                RobotoTextView helpBody = (RobotoTextView) helpView
+                  .findViewById(R.id.help_body);
 
-            @Override
-            public void onClick(View v) {
-              LayoutInflater inflaterTmp = getLayoutInflater();
-              View helpView = inflaterTmp.inflate(R.layout.layout_preview, null);
-              RobotoTextView helpSubject = (RobotoTextView) helpView
-                  .findViewById(R.id.preview_subject);
-              RobotoTextView helpBody = (RobotoTextView) helpView
-                .findViewById(R.id.preview_body);
-              String rawSubject = subjectView.getText().toString();
-              String rawBody = messageView.getText().toString();
-              String processedSubject = rawSubject.replaceAll(
-                "#r[a-zA-Z0-9]*#", "Recipient");
-              processedSubject = processedSubject.replaceAll(
-                "#m[a-zA-Z0-9]*#", ActivityMain.myselfUserInfo.getFirstName()
-                  + " " + ActivityMain.myselfUserInfo.getLastName());
-              processedSubject = processedSubject.replaceAll(
-                "#d[a-zA-Z0-9]*#", docName);
-              processedSubject = processedSubject.replaceAll(
-                "#c[a-zA-Z0-9]*#", ActivityMain.myselfUserInfo.getCompany());
-              processedSubject = processedSubject.replaceAll(
-                "#k[a-zA-Z0-9]*#", getLink());
-              String processedBody = rawBody.replaceAll("#r[a-zA-Z0-9]*#",
-                "Recipient");
-              processedBody = processedBody.replaceAll("#m[a-zA-Z0-9]*#",
-                ActivityMain.myselfUserInfo.getFirstName() + " "
-                  + ActivityMain.myselfUserInfo.getLastName());
-              processedBody = processedBody.replaceAll("#d[a-zA-Z0-9]*#", docName);
-              processedBody = processedBody.replaceAll("#c[a-zA-Z0-9]*#",
-                ActivityMain.myselfUserInfo.getCompany());
-              processedBody = processedBody.replaceAll("#k[a-zA-Z0-9]*#",
-                getLink());
-              helpSubject.setText(processedSubject);
-              helpBody.setText(processedBody);
-              new AlertDialog.Builder(ActivityUserSetting.this)
-                .setView(helpView)
-                .setNeutralButton("OK",
-                  new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog,
-                      int whichButton) {
+                String rawString = "#myname# or #m#:\n"
+                  + ActivityMain.myselfUserInfo.getFirstName()
+                  + " "
+                  + ActivityMain.myselfUserInfo.getLastName()
+                  + "\n#document# or #d#:\n"
+                  + docName
+                  + "\n#company# or #c#:\n"
+                  + ActivityMain.myselfUserInfo.getCompany()
+                  + "\n#recipient# or #r#:\nThe name of recipient\n#knowell# or #k#:\nLink to your card.";
+                helpBody.setText(rawString, TextView.BufferType.SPANNABLE);
+                Spannable str = (Spannable) helpBody.getText();
+                setColor(helpBody, rawString, "#myname# or #m#:",
+                  Color.parseColor(getString(R.color.indigo_extra)), str);
+                setColor(helpBody, rawString, "#document# or #d#:",
+                  Color.parseColor(getString(R.color.indigo_extra)), str);
+                setColor(helpBody, rawString, "#company# or #c#:",
+                  Color.parseColor(getString(R.color.indigo_extra)), str);
+                setColor(helpBody, rawString, "#recipient# or #r#:",
+                  Color.parseColor(getString(R.color.indigo_extra)), str);
+                setColor(helpBody, rawString, "#knowell# or #k#:",
+                  Color.parseColor(getString(R.color.indigo_extra)), str);
+                new AlertDialog.Builder(ActivityUserSetting.this)
+                  .setView(helpView)
+                  .setNeutralButton("OK",
+                    new DialogInterface.OnClickListener() {
+                      public void onClick(DialogInterface dialog,
+                        int whichButton) {
 
-                    }
-                  }).setCancelable(true).show();
+                      }
+                    }).setCancelable(true).show();
 
-            }
-
-          });
-
-          String body = currentUser.getString("docMsgBody");
-          String subject = currentUser.getString("docMsgSubject");
-
-          if (subject == null || subject.isEmpty()) {
-            subjectView.setText("Greetings from #myname#");
-          } else {
-            subjectView.setText(subject);
-          }
-          if (body == null || body.isEmpty()) {
-            messageView
-              .setText("Hi #recipient#,\n\nThis is #myname# from #company#.\n\nIt was great to meet you! Please find my #document# in the attachment.\n\nKeep in touch! \n\nBest,\n#myname#\n\nPlease accept my business card here: #knowell#");
-          } else {
-            messageView.setText(body);
-          }
-
-          new AlertDialog.Builder(ActivityUserSetting.this)
-            .setView(dialogView)
-            .setPositiveButton("Save", new DialogInterface.OnClickListener() {
-              public void onClick(DialogInterface dialog, int whichButton) {
-
-                String subject = subjectView.getText().toString();
-                String body = messageView.getText().toString();
-
-                currentUser.put("docMsgBody", body);
-                currentUser.put("docMsgSubject", subject);
-                currentUser.saveEventually();
               }
-            })
-            .setNegativeButton("Cancel",
-              new DialogInterface.OnClickListener() {
+
+            });
+
+            previewBtn.setOnClickListener(new OnClickListener() {
+
+              @Override
+              public void onClick(View v) {
+                LayoutInflater inflaterTmp = getLayoutInflater();
+                View helpView = inflaterTmp.inflate(R.layout.layout_preview,
+                  null);
+                RobotoTextView helpSubject = (RobotoTextView) helpView
+                  .findViewById(R.id.preview_subject);
+                RobotoTextView helpBody = (RobotoTextView) helpView
+                  .findViewById(R.id.preview_body);
+                String rawSubject = subjectView.getText().toString();
+                String rawBody = messageView.getText().toString();
+                String processedSubject = rawSubject.replaceAll(
+                  "#r[a-zA-Z0-9]*#", "Recipient");
+                processedSubject = processedSubject.replaceAll(
+                  "#m[a-zA-Z0-9]*#", ActivityMain.myselfUserInfo.getFirstName()
+                    + " " + ActivityMain.myselfUserInfo.getLastName());
+                processedSubject = processedSubject.replaceAll(
+                  "#d[a-zA-Z0-9]*#", docName);
+                processedSubject = processedSubject.replaceAll(
+                  "#c[a-zA-Z0-9]*#", ActivityMain.myselfUserInfo.getCompany());
+                processedSubject = processedSubject.replaceAll(
+                  "#k[a-zA-Z0-9]*#", getLink());
+                String processedBody = rawBody.replaceAll("#r[a-zA-Z0-9]*#",
+                  "Recipient");
+                processedBody = processedBody.replaceAll("#m[a-zA-Z0-9]*#",
+                  ActivityMain.myselfUserInfo.getFirstName() + " "
+                    + ActivityMain.myselfUserInfo.getLastName());
+                processedBody = processedBody.replaceAll("#d[a-zA-Z0-9]*#",
+                  docName);
+                processedBody = processedBody.replaceAll("#c[a-zA-Z0-9]*#",
+                  ActivityMain.myselfUserInfo.getCompany());
+                processedBody = processedBody.replaceAll("#k[a-zA-Z0-9]*#",
+                  getLink());
+                helpSubject.setText(processedSubject);
+                helpBody.setText(processedBody);
+                new AlertDialog.Builder(ActivityUserSetting.this)
+                  .setView(helpView)
+                  .setNeutralButton("OK",
+                    new DialogInterface.OnClickListener() {
+                      public void onClick(DialogInterface dialog,
+                        int whichButton) {
+
+                      }
+                    }).setCancelable(true).show();
+
+              }
+
+            });
+
+            String body = currentUser.getString("docMsgBody");
+            String subject = currentUser.getString("docMsgSubject");
+
+            if (subject == null || subject.isEmpty()) {
+              subjectView.setText("Greetings from #myname#");
+            } else {
+              subjectView.setText(subject);
+            }
+            if (body == null || body.isEmpty()) {
+              messageView
+                .setText("Hi #recipient#,\n\nThis is #myname# from #company#.\n\nIt was great to meet you! Please find my #document# in the attachment.\n\nKeep in touch! \n\nBest,\n#myname#\n\nPlease accept my business card here: #knowell#");
+            } else {
+              messageView.setText(body);
+            }
+
+            new AlertDialog.Builder(ActivityUserSetting.this)
+              .setView(dialogView)
+              .setPositiveButton("Save", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
 
+                  String subject = subjectView.getText().toString();
+                  String body = messageView.getText().toString();
+
+                  currentUser.put("docMsgBody", body);
+                  currentUser.put("docMsgSubject", subject);
+                  currentUser.saveEventually();
                 }
-              }).setCancelable(false).show();
-          return true;
-        }
-      });
-      
+              })
+              .setNegativeButton("Cancel",
+                new DialogInterface.OnClickListener() {
+                  public void onClick(DialogInterface dialog, int whichButton) {
+
+                  }
+                }).setCancelable(false).show();
+            return true;
+          }
+        });
+
       Preference prefDocName = (Preference) findPreference(getString(R.string.prefDocName));
       prefDocName
-      .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-        @Override
-        public boolean onPreferenceClick(Preference preference) {
-          
-          if(currentUser.getString("docPath")== null || currentUser.getString("docPath").isEmpty()){
-            uploadDoc();
-          } else {
-            File file = new File(currentUser.getString("docPath"));
-            if (!file.exists()) {
+        .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+          @Override
+          public boolean onPreferenceClick(Preference preference) {
+
+            if (currentUser.getString("docPath") == null
+              || currentUser.getString("docPath").isEmpty()) {
               uploadDoc();
             } else {
-              // when the docPath points to a valid file on device
-              LayoutInflater inflater = getLayoutInflater();
-              final View dialogView = inflater.inflate(
-                R.layout.layout_change_docname, null);
-              LinearLayout dialogHeader = (LinearLayout) dialogView
-                .findViewById(R.id.dialog_header);
-              final TextView dialogText = (TextView) dialogView
-                .findViewById(R.id.dialog_text);
-              TextView dialogTitle = (TextView) dialogView
-                .findViewById(R.id.dialog_title);
-              dialogHeader.setBackgroundColor(getResources().getColor(
-                R.color.blue_extra));
-              dialogTitle.setText("Change Uploaded Document Name");
-              final RobotoEditText docNameView = (RobotoEditText) dialogView
-                .findViewById(R.id.doc_name);
-              
-              final String docName;
-              if(currentUser.getString("docName")!=null && !currentUser.getString("docName").isEmpty()){
-                docName = currentUser.getString("docName");
-                docNameView.setText(docName);
+              File file = new File(currentUser.getString("docPath"));
+              if (!file.exists()) {
+                uploadDoc();
               } else {
-                docName = "Document Name";
+                // when the docPath points to a valid file on device
+                LayoutInflater inflater = getLayoutInflater();
+                final View dialogView = inflater.inflate(
+                  R.layout.layout_change_docname, null);
+                LinearLayout dialogHeader = (LinearLayout) dialogView
+                  .findViewById(R.id.dialog_header);
+                final TextView dialogText = (TextView) dialogView
+                  .findViewById(R.id.dialog_text);
+                TextView dialogTitle = (TextView) dialogView
+                  .findViewById(R.id.dialog_title);
+                dialogHeader.setBackgroundColor(getResources().getColor(
+                  R.color.blue_extra));
+                dialogTitle.setText("Change Uploaded Document Name");
+                final RobotoEditText docNameView = (RobotoEditText) dialogView
+                  .findViewById(R.id.doc_name);
+
+                final String docName;
+                if (currentUser.getString("docName") != null
+                  && !currentUser.getString("docName").isEmpty()) {
+                  docName = currentUser.getString("docName");
+                  docNameView.setText(docName);
+                } else {
+                  docName = "Document Name";
+                }
+
+                new AlertDialog.Builder(ActivityUserSetting.this)
+                  .setView(dialogView)
+                  .setPositiveButton("Save",
+                    new DialogInterface.OnClickListener() {
+                      public void onClick(DialogInterface dialog,
+                        int whichButton) {
+
+                        currentUser.put("docName", docNameView.getText()
+                          .toString());
+                        currentUser.saveEventually();
+                      }
+                    })
+                  .setNeutralButton("Replace",
+                    new DialogInterface.OnClickListener() {
+                      public void onClick(DialogInterface dialog,
+                        int whichButton) {
+                        uploadDoc();
+                      }
+                    })
+                  .setNegativeButton("Cancel",
+                    new DialogInterface.OnClickListener() {
+                      public void onClick(DialogInterface dialog,
+                        int whichButton) {
+
+                      }
+                    }).setCancelable(false).show();
               }
-    
-              new AlertDialog.Builder(ActivityUserSetting.this)
-                .setView(dialogView)
-                .setPositiveButton("Save", new DialogInterface.OnClickListener() {
-                  public void onClick(DialogInterface dialog, int whichButton) {
-    
-                    currentUser.put("docName", docNameView.getText().toString());
-                    currentUser.saveEventually();
-                  }
-                })
-                .setNeutralButton("Replace", new DialogInterface.OnClickListener() {
-                  public void onClick(DialogInterface dialog, int whichButton) {
-                    uploadDoc();
-                  }
-                })
-                .setNegativeButton("Cancel",
-                  new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-    
-                    }
-                  }).setCancelable(false).show();
             }
+            return true;
           }
-          return true;
-        }
-      });
+        });
 
     }
 
   }
-  
+
   @SuppressLint("NewApi")
   private void uploadDoc() {
     // Get the layout inflater
@@ -680,7 +723,7 @@ public class ActivityUserSetting extends ActionBarActivity {
       }).setCancelable(true).show();
 
   }
-  
+
   @Override
   public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
@@ -721,7 +764,7 @@ public class ActivityUserSetting extends ActionBarActivity {
 
     super.onActivityResult(requestCode, resultCode, data);
   }
-  
+
   @SuppressLint("NewApi")
   private void addDocDescription(final String filename) {
     // Get the layout inflater
@@ -753,14 +796,14 @@ public class ActivityUserSetting extends ActionBarActivity {
         public void onClick(DialogInterface dialog, int whichButton) {
 
           RobotoEditText docFilenameView = (RobotoEditText) dialogView
-            .findViewById(R.id.doc_filename);          
+            .findViewById(R.id.doc_filename);
           String docFilename = docFilenameView.getText().toString();
           if (docFilename == null || docFilename.isEmpty()) {
             ActivityMain.currentUser.put("docName", filename);
           } else {
             // filename not null, save it to sharedpreference
             ActivityMain.currentUser.put("docName", docFilename);
-          }         
+          }
           ActivityMain.currentUser.saveEventually(null);
           newPrefFrag.setprefDocGreeting(true);
         }
@@ -771,7 +814,7 @@ public class ActivityUserSetting extends ActionBarActivity {
       }).setCancelable(false).show();
 
   }
-  
+
   public void copyFile(File src, File dst) throws IOException {
     InputStream in = new FileInputStream(src);
     OutputStream out = new FileOutputStream(dst);
@@ -808,12 +851,14 @@ public class ActivityUserSetting extends ActionBarActivity {
 
     return null;
   }
-  
-  private void setColor(TextView view, String fulltext, String subtext, int color, Spannable str) {
-    
+
+  private void setColor(TextView view, String fulltext, String subtext,
+    int color, Spannable str) {
+
     int i = fulltext.indexOf(subtext);
-    str.setSpan(new ForegroundColorSpan(color), i, i+subtext.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-    
+    str.setSpan(new ForegroundColorSpan(color), i, i + subtext.length(),
+      Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
   }
 
   private String getLink() {
