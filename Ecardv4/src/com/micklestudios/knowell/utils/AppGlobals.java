@@ -48,6 +48,8 @@ public class AppGlobals {
     }
 
     if (forced || potentialUsers.size() == 0) {
+      potentialUsers.clear();
+
       Log.i("actbuf", "inside getconvcontacts");
       AppGlobals.potentialUsers.clear();
       /* A map of all the ECardNote objects to the noteID */
@@ -129,6 +131,7 @@ public class AppGlobals {
     }
 
     if (forced || allUsers.size() == 0) {
+      allUsers.clear();
 
       /* A map of all the ECardNote objects to the noteID */
       final HashMap<String, ParseObject> noteIdToNoteObjectMap = new HashMap<String, ParseObject>();

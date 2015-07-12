@@ -120,8 +120,6 @@ public class ActivityMain extends ActionBarActivity {
     currentUser = ParseUser.getCurrentUser();
     // pull myself info from localdatastore
     Log.i("imgtmp", " " + imgFromTmpData);
-    myselfUserInfo = new UserInfo(currentUser.get("ecardId").toString(), "",
-      "", true, false, imgFromTmpData);
 
     mAdapter = new MyPagerAdapter(getSupportFragmentManager());
 
@@ -132,6 +130,13 @@ public class ActivityMain extends ActionBarActivity {
 
     InitializeListeners();
 
+  }
+
+  @Override
+  public void onResume() {
+    super.onResume();
+    myselfUserInfo = new UserInfo(currentUser.get("ecardId").toString(), "",
+      "", true, false, imgFromTmpData);
   }
 
   private void InitializeListeners() {
