@@ -5,10 +5,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Random;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -195,7 +197,6 @@ public class ParseSignupFragment extends ParseLoginFragmentBase implements OnCli
 
           if (e == null) {
             loadingFinish();
-            // setting security: as of now parse has bug
             ParseUser currentUser = ParseUser.getCurrentUser();
             ParseACL userACL = new ParseACL(currentUser);
             userACL.setPublicReadAccess(false);
@@ -204,6 +205,10 @@ public class ParseSignupFragment extends ParseLoginFragmentBase implements OnCli
             
             // creating EcardInfo object, QR and portrait
             initializeMyCard(currentUser);
+            
+            Intent intent = new Intent(ParseLoginBuilder.context, ActivityInfoCollector.class);
+            startActivityForResult(intent, 0);
+            
             
             signupSuccess();
           } else {
@@ -278,6 +283,7 @@ public class ParseSignupFragment extends ParseLoginFragmentBase implements OnCli
 		// initialize portrait with blank one
 		putBlankPortrait(object);
 		object.put("userId", currentUser.getObjectId().toString());
+		object.put("email", currentUser.getEmail().toString());
 		// createQRCode(object); // the EcardInfo and QR code both created
 		object.saveInBackground();
 		// If new on the server, should not have exist locally. So should make a local copy
@@ -289,7 +295,7 @@ public class ParseSignupFragment extends ParseLoginFragmentBase implements OnCli
 		FileOutputStream out = null;
 		byte[] imgData;
 		ParseFile file = null;
-		Bitmap blankProfile = BitmapFactory.decodeResource(getResources(), R.drawable.emptyprofile);
+		Bitmap blankProfile = BitmapFactory.decodeResource(getResources(), getEmptyPortrait());
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
         try {        	        	
         	blankProfile.compress(Bitmap.CompressFormat.PNG, 100, stream);
@@ -322,5 +328,25 @@ public class ParseSignupFragment extends ParseLoginFragmentBase implements OnCli
 
   private void signupSuccess() { 
     onLoginSuccessListener.onLoginSuccess();
+  }
+  
+  public int getEmptyPortrait() {
+    // TODO Auto-generated method stub
+    Random rn = new Random();
+    int max = 8;
+    int min = 0;
+    try {
+      return R.drawable.class.getField("emptyprofile"+ (rn.nextInt(max - min + 1) + min)).getInt(null);
+    } catch (IllegalAccessException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    } catch (IllegalArgumentException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    } catch (NoSuchFieldException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    return 0;
   }
 }

@@ -1,0 +1,197 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent" 
+    android:paddingTop="0dp"
+    android:paddingLeft="@dimen/com_parse_ui_horizontal_margin"
+    android:paddingRight="@dimen/com_parse_ui_horizontal_margin"
+    android:paddingBottom="0dp"
+    android:gravity="center"
+    android:scrollbars="none"
+    android:background="@color/blue_extra">
+
+<LinearLayout 
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:focusable="true" 
+    android:focusableInTouchMode="true"
+    android:orientation="vertical"
+    android:background="@null"
+	android:paddingLeft="20dp"
+	android:paddingRight="20dp"
+	android:paddingTop="@dimen/com_parse_ui_vertical_margin"
+	android:paddingBottom="0dp"
+    android:gravity="center">
+    
+    <LinearLayout 
+	    android:layout_height="match_parent"
+	    android:layout_width="match_parent"
+	    android:orientation="vertical"
+	    android:background="@drawable/card"
+	    android:paddingTop="10dp"
+	    android:paddingBottom="20dp"
+	    android:gravity="center">
+	    
+        <TextView 
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:text="Add my portrait" />
+        
+        <ImageView
+           android:id="@+id/collect_portrait"
+           android:layout_width="120dp"
+           android:layout_height="120dp"
+           android:layout_alignParentLeft="true"
+           android:layout_alignParentTop="true"
+           android:layout_marginLeft="0dp"
+           android:layout_marginTop="10dp"
+           android:src="@drawable/emptyprofile0" />
+	    
+        
+    </LinearLayout>
+
+    <LinearLayout 
+	    android:layout_height="match_parent"
+	    android:layout_width="match_parent"
+	    android:orientation="vertical"
+	    android:background="@drawable/card"
+	    android:padding="20dp"
+	    android:gravity="center">
+	    
+        <LinearLayout 
+		    android:layout_height="match_parent"
+		    android:layout_width="match_parent"
+		    android:orientation="vertical"
+		    android:background="@null"
+		    android:paddingBottom="10dp"
+		    android:gravity="left|center_vertical">
+		    
+            <TextView 
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:text="My name:" />
+            
+		    <EditText
+	        	android:id="@+id/collect_name"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:layout_marginLeft="0dp"
+                android:layout_marginTop="4dp"
+		        style="@style/ParseLoginUI.EditText"
+	            android:background="@color/grey_100"
+			    android:lines="1"
+			    android:maxLines="1"
+		        android:fontFamily="sans-serif"
+		        android:hint="E.g.: George Washington"
+	            android:textSize="18sp"/>
+		</LinearLayout>	    
+		
+        <LinearLayout 
+		    android:layout_height="match_parent"
+		    android:layout_width="match_parent"
+		    android:orientation="vertical"
+		    android:background="@null"
+		    android:paddingBottom="10dp"
+		    android:gravity="left|center_vertical">
+		    
+            <TextView 
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:text="I work for:" />
+            
+		    <EditText
+	        	android:id="@+id/collect_company"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:layout_marginLeft="0dp"
+                android:layout_marginTop="4dp"
+		        style="@style/ParseLoginUI.EditText"
+	            android:background="@color/grey_100"
+			    android:lines="1"
+			    android:maxLines="1"
+		        android:fontFamily="sans-serif"
+		        android:hint="E.g.: Alpha University"
+	            android:textSize="18sp"/>
+		</LinearLayout>	  
+		
+        <LinearLayout 
+		    android:layout_height="match_parent"
+		    android:layout_width="match_parent"
+		    android:orientation="vertical"
+		    android:background="@null"
+		    android:paddingBottom="10dp"
+		    android:gravity="left|center_vertical">
+		    
+            <TextView 
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:text="My job title:" />
+            
+		    <EditText
+	        	android:id="@+id/collect_position"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:layout_marginLeft="0dp"
+                android:layout_marginTop="4dp"
+		        style="@style/ParseLoginUI.EditText"
+	            android:background="@color/grey_100"
+			    android:lines="1"
+			    android:maxLines="1"
+		        android:fontFamily="sans-serif"
+		        android:hint="E.g.: Math Instructor"
+	            android:textSize="18sp"/>
+		</LinearLayout>	  
+		
+        <LinearLayout 
+		    android:layout_height="match_parent"
+		    android:layout_width="match_parent"
+		    android:orientation="vertical"
+		    android:background="@null"
+		    android:padding="0dp"
+		    android:gravity="left|center_vertical">
+		    
+            <TextView 
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:text="I work at:" />
+            
+		    <EditText
+	        	android:id="@+id/collect_city"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:layout_marginLeft="0dp"
+                android:layout_marginTop="4dp"
+		        style="@style/ParseLoginUI.EditText"
+	            android:background="@color/grey_100"
+			    android:lines="1"
+			    android:maxLines="1"
+		        android:fontFamily="sans-serif"
+		        android:hint="E.g.: Portland, OR"
+	            android:textSize="18sp"/>
+		</LinearLayout>	  
+		
+    </LinearLayout>
+    
+    
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="20dp">
+
+        <Button
+            android:id="@+id/collect_done"
+            style="@style/ParseLoginUI.Button"
+            android:text="Done" />
+
+        
+    </LinearLayout>
+
+</LinearLayout>
+
+</ScrollView>

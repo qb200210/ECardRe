@@ -70,7 +70,7 @@ public class ActivityDesign extends ActionBarActivity {
   private static final int SELECT_PORTRAIT = 100;
   private static final int TAKE_IMAGE = 250;
   private static final int SELECT_LOGO = 200;
-  private static int currentSource = 0;
+  private static int CURRENT_SOURCE = 0;
   private Uri selectedImage, mCurrentPhotoPath;
 
   Bitmap photo = null;
@@ -165,7 +165,7 @@ public class ActivityDesign extends ActionBarActivity {
     // This is the life-saver! It fixes the bug that scrollView will go to the
     // bottom of GridView upon open
     // below is to re-scroll to the first view in the LinearLayout
-    SquareLayout mainCardContainer = (SquareLayout) findViewById(R.id.design_maincard_container);
+    LinearLayout mainCardContainer = (LinearLayout) findViewById(R.id.design_maincard_container);
     scrollView.requestChildFocus(mainCardContainer, null);
 
     ImageView pbPortrait = (ImageView) findViewById(R.id.design_portrait);
@@ -672,7 +672,7 @@ public class ActivityDesign extends ActionBarActivity {
   }
 
   public void displayMyCard() {
-    TextView name = (TextView) findViewById(R.id.design_name);
+    EditText name = (EditText) findViewById(R.id.design_name);
     String tmpString = ActivityMain.myselfUserInfo.getFirstName();
     String nameString = null;
     if (tmpString != null)
@@ -683,9 +683,9 @@ public class ActivityDesign extends ActionBarActivity {
     if (nameString != null)
       name.setText(nameString);
 
-    name = (TextView) findViewById(R.id.design_job_title);
+    name = (EditText) findViewById(R.id.design_job_title);
     name.setText(ActivityMain.myselfUserInfo.getTitle());
-    name = (TextView) findViewById(R.id.design_address);
+    name = (EditText) findViewById(R.id.design_address);
     name.setText(ActivityMain.myselfUserInfo.getCity());
     ImageView portraitImg = (ImageView) findViewById(R.id.design_portrait);
     portraitImg.setImageBitmap(ActivityMain.myselfUserInfo.getPortrait());
@@ -696,20 +696,21 @@ public class ActivityDesign extends ActionBarActivity {
     ECardUtils.findAndSetLogo(ActivityDesign.this, logoImg, cmpName.getText()
       .toString(), true);
 
-    Log.i("autoc", companyNames.toString());
-    ArrayAdapter<String> adapterCompanyNames = new ArrayAdapter<String>(this,
-      android.R.layout.select_dialog_item, companyNames);
-    cmpName.setAdapter(adapterCompanyNames);
-    cmpName.setOnItemClickListener(new OnItemClickListener() {
-
-      @Override
-      public void onItemClick(AdapterView<?> parent, View view, int position,
-        long id) {
-        ECardUtils.findAndSetLogo(ActivityDesign.this, logoImg, parent
-          .getItemAtPosition(position).toString(), true);
-      }
-
-    });
+    if(companyNames!= null){
+      ArrayAdapter<String> adapterCompanyNames = new ArrayAdapter<String>(this,
+        android.R.layout.select_dialog_item, companyNames);
+      cmpName.setAdapter(adapterCompanyNames);
+      cmpName.setOnItemClickListener(new OnItemClickListener() {
+  
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position,
+          long id) {
+          ECardUtils.findAndSetLogo(ActivityDesign.this, logoImg, parent
+            .getItemAtPosition(position).toString(), true);
+        }
+  
+      });
+    }
     cmpName.setOnFocusChangeListener(new OnFocusChangeListener() {
 
       public void onFocusChange(View v, boolean hasFocus) {
@@ -750,14 +751,14 @@ public class ActivityDesign extends ActionBarActivity {
 
     builder
       .setTitle("Select Image From:")
-      .setSingleChoiceItems(source, currentSource,
+      .setSingleChoiceItems(source, CURRENT_SOURCE,
         new DialogInterface.OnClickListener() {
 
           @Override
           public void onClick(DialogInterface dialog, int which) {
-            currentSource = which;
+            CURRENT_SOURCE = which;
 
-            switch (currentSource) {
+            switch (CURRENT_SOURCE) {
             case 0:
               Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
               photoPickerIntent.setType("image/*");

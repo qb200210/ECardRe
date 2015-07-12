@@ -28,7 +28,9 @@ import android.content.Intent;
 
 public class ParseLoginBuilder {
 
-  private Context context;
+  
+
+  public static Context context;
   private ParseLoginConfig config = new ParseLoginConfig();
 
   public ParseLoginBuilder(Context context) {

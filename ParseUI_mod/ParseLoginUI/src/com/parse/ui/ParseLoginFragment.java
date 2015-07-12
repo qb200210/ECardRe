@@ -23,6 +23,7 @@ package com.parse.ui;
 
 import java.util.Date;
 import java.util.Locale;
+import java.util.Random;
 
 import android.app.Activity;
 import android.content.Context;
@@ -652,7 +653,7 @@ public class ParseLoginFragment extends ParseLoginFragmentBase {
 				return profileImage;
 			} catch (Exception e0){
 				e0.printStackTrace();
-				Bitmap blankProfile = BitmapFactory.decodeResource(getResources(), R.drawable.emptyprofile);
+				Bitmap blankProfile = BitmapFactory.decodeResource(getResources(), getEmptyPortrait());
 				return blankProfile;
 			} 
 		}
@@ -718,6 +719,27 @@ public class ParseLoginFragment extends ParseLoginFragmentBase {
 			object.pinInBackground();
 		}
 	}
+
+
+  public int getEmptyPortrait() {
+    // TODO Auto-generated method stub
+    Random rn = new Random();
+    int max = 8;
+    int min = 0;
+    try {
+      return R.drawable.class.getField("emptyprofile"+ (rn.nextInt(max - min + 1) + min)).getInt(null);
+    } catch (IllegalAccessException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    } catch (IllegalArgumentException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    } catch (NoSuchFieldException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    return 0;
+  }
   
 }
 

@@ -7,5 +7,4 @@
     android:paddingRight="30dp"
     android:paddingTop="0dp"
     android:paddingBottom="0dp"
-    android:src="@drawable/com_parse_ui_app_logo"
     android:contentDescription="@string/com_parse_ui_logo_content_description" />

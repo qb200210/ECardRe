@@ -2,14 +2,14 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"  
-    android:orientation="vertical"  >
-    
-    <com.micklestudios.knowell.utils.SquareLayout
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-    	android:background="@drawable/card"  >
-    
+        android:background="@drawable/card" >
+
         <RelativeLayout
             android:id="@+id/relativeLayout1"
             android:layout_width="match_parent"
@@ -24,111 +24,184 @@
                 android:layout_marginLeft="20dp"
                 android:layout_marginTop="20dp"
                 android:src="@drawable/testp" />
+            
+            <LinearLayout
+                android:layout_alignTop="@id/design_portrait"
+                android:layout_toRightOf="@id/design_portrait"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:background="@null"
+                android:gravity="left|center_vertical"
+                android:orientation="vertical"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp"
+                android:paddingTop="30dp"
+                android:paddingBottom="10dp" >
 
-            <EditText
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:text="My name:" />
+
+                <EditText
                 android:id="@+id/design_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignTop="@id/design_portrait"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="20dp"
-                android:layout_marginTop="40dp"
-                android:layout_toRightOf="@id/design_portrait"
-                android:gravity="center"
-                android:padding="1dp"
+                android:layout_marginLeft="0dp"
+                android:layout_marginRight="0dp"
+                android:layout_marginTop="4dp"
                 android:background="@color/grey_100"
+                android:gravity="center"
+                android:hint="E.g. George Washington"
+                android:lines="1"
+                android:maxLines="1"
+                android:padding="1dp"
                 android:singleLine="true"
-			    android:lines="1"
-			    android:maxLines="1"
-			    android:hint="Your name"
                 android:textColor="#000000"
                 android:textSize="18sp"
                 android:textStyle="bold" />
-            
-            <View android:id="@+id/separator" 
-				 android:background="@color/grey_500" 
-				 android:layout_width = "match_parent"
-				 android:layout_height="1dp"
-				 android:layout_centerVertical ="true"
-				 android:layout_below="@id/design_portrait"
-				 android:layout_marginTop="20dp"
-				 android:layout_marginLeft="20dp"
-				 android:layout_marginRight="20dp"/>
+            </LinearLayout>
 
-            <EditText
-                android:id="@+id/design_job_title"
+            
+
+            <View
+                android:id="@+id/separator"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
+                android:layout_height="1dp"
+                android:layout_below="@id/design_portrait"
                 android:layout_centerVertical="true"
-                android:layout_below="@id/separator"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
                 android:layout_marginTop="20dp"
-                android:layout_marginLeft="20dp"
-				 android:layout_marginRight="20dp"
-                android:gravity="left"
-                android:padding="1dp"
-                android:background="@color/grey_100"
-                android:singleLine="true"
-			    android:lines="1"
-			    android:maxLines="1"
-                android:hint="Your job title, e.g.: Math Instructor"
-                android:textColor="#000000"
-                android:textSize="18sp" />
-            
-            <AutoCompleteTextView
-                android:id="@+id/design_com"
+                android:background="@color/grey_500" />
+
+            <LinearLayout
+                android:id="@+id/design_job_title_ll"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
-                android:layout_below="@id/design_job_title"
-                android:layout_marginTop="4dp"
-                android:layout_marginLeft="20dp"
-				 android:layout_marginRight="20dp"
-                android:gravity="left"
-                android:padding="1dp"
-                android:background="@color/grey_100"
-                android:hint="Who do you work for, e.g.: Alpha University"
-                android:singleLine="true"
-                android:textColor="#000000"
-                android:textSize="18sp" />
+                android:layout_below="@id/separator"
+                android:layout_centerVertical="true"
+                android:background="@null"
+                android:gravity="left|center_vertical"
+                android:orientation="vertical"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp"
+                android:paddingTop="20dp"
+                android:paddingBottom="10dp" >
 
-            <EditText
-                android:id="@+id/design_address"
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:text="My job title:" />
+
+                <EditText
+                    android:id="@+id/design_job_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="0dp"
+                    android:layout_marginRight="0dp"
+                    android:layout_marginTop="4dp"
+                    android:background="@color/grey_100"
+                    android:gravity="left"
+                    android:hint="E.g.: Math Instructor"
+                    android:lines="1"
+                    android:maxLines="1"
+                    android:padding="1dp"
+                    android:singleLine="true"
+                    android:textColor="#000000"
+                    android:textSize="18sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/design_com_ll"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
-                android:layout_below="@id/design_com"
-                android:layout_marginTop="4dp"
-                android:layout_marginLeft="20dp"
-				android:layout_marginRight="20dp"
-                android:gravity="left"
-                android:padding="1dp"
-                android:background="@color/grey_100"
-                android:singleLine="true"
-			    android:lines="1"
-			    android:maxLines="1"
-                android:hint="Where do you work, e.g.: Portland, OR"                
-                android:textColor="#000000"
-                android:textSize="18sp" />
+                android:layout_below="@id/design_job_title_ll"
+                android:background="@null"
+                android:gravity="left|center_vertical"
+                android:orientation="vertical"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp"
+                android:paddingBottom="10dp" >
 
-            
-            
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:text="I work for:" />
+
+                <AutoCompleteTextView
+                    android:id="@+id/design_com"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="0dp"
+                    android:layout_marginRight="0dp"
+                    android:layout_marginTop="4dp"
+                    android:background="@color/grey_100"
+                    android:gravity="left"
+                    android:hint="E.g.: Alpha University"
+                    android:padding="1dp"
+                    android:singleLine="true"
+                    android:textColor="#000000"
+                    android:textSize="18sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/design_address_ll"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_below="@id/design_com_ll"
+                android:background="@null"
+                android:gravity="left|center_vertical"
+                android:orientation="vertical"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp"
+                android:paddingBottom="20dp" >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:text="I work at:" />
+
+                <EditText
+                    android:id="@+id/design_address"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="0dp"
+                    android:layout_marginRight="0dp"
+                    android:layout_marginTop="4dp"
+                    android:background="@color/grey_100"
+                    android:gravity="left"
+                    android:hint="E.g.: Portland, OR"
+                    android:lines="1"
+                    android:maxLines="1"
+                    android:padding="1dp"
+                    android:singleLine="true"
+                    android:textColor="#000000"
+                    android:textSize="18sp" />
+            </LinearLayout>
+
             <ImageView
                 android:id="@+id/design_logo"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
+                android:layout_below="@id/design_address_ll"
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentRight="true"
                 android:layout_marginBottom="20dp"
-                android:layout_marginLeft="20dp"
+                android:layout_marginLeft="0dp"
                 android:layout_marginRight="20dp"
                 android:adjustViewBounds="true"
                 android:scaleType="fitEnd"
                 android:src="@drawable/emptylogo" />
-
         </RelativeLayout>
-    
-    </com.micklestudios.knowell.utils.SquareLayout>
-        
+    </LinearLayout>
 
 </RelativeLayout>
