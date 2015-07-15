@@ -252,7 +252,7 @@
 		</div>
 		<div class="container-fluid">
 			<div class="row fromtop">				
-				<div class="col-xs-12 col-sm-10 col-sm-offset-1 col-md-10 col-md-offset-1 col-lg-10 col-lg-offset-1" id="leftcolumn">
+				<div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-8 col-md-offset-2 col-lg-8 col-lg-offset-2" id="leftcolumn">
 					<div id="emptyPanel" class="maincard" style="display:none">
 						<p>You haven't collected any card yet ...</p>
 					</div>
@@ -261,7 +261,9 @@
 							document.getElementById('emptyPanel').style.display = "inherit";
 						}
 					</script>
+					<% if( numConvs  > 0){ %>
 					<div class="maincard">
+						
 						<% for(i=0; i<1 ; i++){ %>		
 							<a href="/search?id=<%= convobjs[i].cardId %>&fn=<%= convobjs[i].firstName %>&ln=<%= convobjs[i].lastName %>">							
 								<div class="media">
@@ -278,6 +280,7 @@
 								</div>
 							</a>
 							<%    } %>	
+						
 						<% for(i=1; i<numConvs ; i++){ %>		
 							<hr>
 							<a href="/search?id=<%= convobjs[i].cardId %>&fn=<%= convobjs[i].firstName %>&ln=<%= convobjs[i].lastName %>">							
@@ -296,6 +299,7 @@
 							</a>
 							<%    } %>						
 					</div>
+					<%    } %>	
 				</div>				
 			</div>
 		</div>

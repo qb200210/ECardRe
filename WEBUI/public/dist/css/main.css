@@ -65,6 +65,10 @@
   background-position: -360px 0;
 }
 
+.icon-ok {
+  background-position: -390px 0;
+}
+
 
 /* Alerts
  * -------------------------------------------------------------------------- */
@@ -183,8 +187,14 @@ body {
 
 .img-container {
   min-height: 200px;
-  max-height: 466px;
+  max-height: 260px;
   margin-bottom: 20px;
+}
+
+@media (min-width: 260px) {
+  .img-container {
+    min-height: 260px;
+  }
 }
 
 .img-container > img {
@@ -212,8 +222,8 @@ body {
 }
 
 .preview-md {
-  width: 139px;
-  height: 78px;
+  width: 100px;
+  height: 100px;
 }
 
 .preview-sm {
@@ -309,6 +319,7 @@ body {
   text-align: center;
 }
 
-.docs-cropped .modal-body > img {
+.docs-cropped .modal-body > img,
+.docs-cropped .modal-body > canvas {
   max-width: 100%;
 }
