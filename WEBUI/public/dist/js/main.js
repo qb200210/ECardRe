@@ -30,6 +30,49 @@ $(function () {
         $dataWidth = $('#dataWidth'),
         $dataRotate = $('#dataRotate'),
         options = {
+          // data: {
+          //   x: 420,
+          //   y: 60,
+          //   width: 640,
+          //   height: 360
+          // },
+          // strict: false,
+          // responsive: false,
+          // checkImageOrigin: false
+
+          // modal: false,
+          // guides: false,
+          // center: false,
+          // highlight: false,
+          // background: false,
+
+          // autoCrop: false,
+          // autoCropArea: 0.5,
+          // dragCrop: false,
+          // movable: false,
+          // rotatable: false,
+          // zoomable: false,
+          // touchDragZoom: false,
+          // mouseWheelZoom: false,
+          // cropBoxMovable: false,
+          // cropBoxResizable: false,
+          // doubleClickToggle: false,
+
+          // minCanvasWidth: 320,
+          // minCanvasHeight: 180,
+          // minCropBoxWidth: 160,
+          // minCropBoxHeight: 90,
+          // minContainerWidth: 320,
+          // minContainerHeight: 180,
+
+          // build: null,
+          // built: null,
+          // dragstart: null,
+          // dragmove: null,
+          // dragend: null,
+          // zoomin: null,
+          // zoomout: null,
+
           aspectRatio: 16 / 9,
           preview: '.img-preview',
           crop: function (data) {
@@ -47,6 +90,24 @@ $(function () {
       },
       'built.cropper': function (e) {
         console.log(e.type);
+      },
+      'dragstart.cropper': function (e) {
+        console.log(e.type, e.dragType);
+      },
+      'dragmove.cropper': function (e) {
+        console.log(e.type, e.dragType);
+      },
+      'dragend.cropper': function (e) {
+        console.log(e.type, e.dragType);
+      },
+      'zoomin.cropper': function (e) {
+        console.log(e.type);
+      },
+      'zoomout.cropper': function (e) {
+        console.log(e.type);
+      },
+      'change.cropper': function (e) {
+        console.log(e.type);
       }
     }).cropper(options);
 
@@ -56,6 +117,10 @@ $(function () {
       var data = $(this).data(),
           $target,
           result;
+
+      if (!$image.data('cropper')) {
+        return;
+      }
 
       if (data.method) {
         data = $.extend({}, data); // Clone a new one
@@ -74,8 +139,8 @@ $(function () {
 
         result = $image.cropper(data.method, data.option);
 
-        if (data.method === 'getDataURL') {
-          $('#getDataURLModal').modal().find('.modal-body').html('<img src="' + result + '">');
+        if (data.method === 'getCroppedCanvas') {
+          $('#getCroppedCanvasModal').modal().find('.modal-body').html(result);
         }
 
         if ($.isPlainObject(result) && $target) {
@@ -88,6 +153,10 @@ $(function () {
 
       }
     }).on('keydown', function (e) {
+
+      if (!$image.data('cropper')) {
+        return;
+      }
 
       switch (e.which) {
         case 37:
@@ -124,43 +193,18 @@ $(function () {
         var files = this.files,
             file;
 
+        if (!$image.data('cropper')) {
+          return;
+        }
+
         if (files && files.length) {
           file = files[0];
 
           if (/^image\/\w+$/.test(file.type)) {
-			  var img = document.createElement("img");
-var reader = new FileReader();  
-reader.onload = function(e) {img.src = e.target.result}
-reader.readAsDataURL(file);
-
-var ctx = canvas.getContext("2d");
-ctx.drawImage(img, 0, 0);
-
-var MAX_WIDTH = 80;
-var MAX_HEIGHT = 80;
-var width = img.width;
-var height = img.height;
-
-if (width > height) {
-  if (width > MAX_WIDTH) {
-    height *= MAX_WIDTH / width;
-    width = MAX_WIDTH;
-  }
-} else {
-  if (height > MAX_HEIGHT) {
-    width *= MAX_HEIGHT / height;
-    height = MAX_HEIGHT;
-  }
-}
-canvas.width = width;
-canvas.height = height;
-var ctx = canvas.getContext("2d");
-ctx.drawImage(img, 0, 0, width, height);
-
-blobURL = canvas.toDataURL("image/png");
+            blobURL = URL.createObjectURL(file);
             $image.one('built.cropper', function () {
               URL.revokeObjectURL(blobURL); // Revoke when load complete
-            }).cropper('reset', true).cropper('replace', blobURL);
+            }).cropper('reset').cropper('replace', blobURL);
             $inputImage.val('');
           } else {
             showMessage('Please choose an image file.');
@@ -174,9 +218,23 @@ blobURL = canvas.toDataURL("image/png");
 
     // Options
     $('.docs-options :checkbox').on('change', function () {
-      var $this = $(this);
+      var $this = $(this),
+          cropBoxData,
+          canvasData;
+
+      if (!$image.data('cropper')) {
+        return;
+      }
 
       options[$this.val()] = $this.prop('checked');
+
+      cropBoxData = $image.cropper('getCropBoxData');
+      canvasData = $image.cropper('getCanvasData');
+      options.built = function () {
+        $image.cropper('setCropBoxData', cropBoxData);
+        $image.cropper('setCanvasData', canvasData);
+      };
+
       $image.cropper('destroy').cropper(options);
     });
 

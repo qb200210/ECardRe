@@ -14,13 +14,8 @@
 		<!-- Bootstrap core CSS -->
 		<link href="../dist/css/bootstrap.min.css" rel="stylesheet">
 		<!-- Custom styles for this template -->
-		<link href="../assets/css/signin.css" rel="stylesheet">
-		<!-- Custom styles for this template -->
-		<link href="../assets/css/sticky-footer.css" rel="stylesheet">
-		<!-- Custom styles for this template -->
-		<link href="../assets/css/carousel.css" rel="stylesheet">
-		<link href="../dist/css/cropper.css" rel="stylesheet">
-		<link href="../dist/css/main.css" rel="stylesheet">
+  <link href="../dist/css/cropper.css" rel="stylesheet">
+  <link href="../dist/css/main.css" rel="stylesheet">
 		<style type="text/css">
 
 			body {
@@ -92,20 +87,6 @@
 				margin: 60px auto 0px;
 			}
 
-			.form-signin {
-				max-width: 300px;
-				padding: 19px 29px 29px;
-				margin: 0px auto 0px;
-				background-color: #fff;
-				border: 1px solid #e5e5e5;
-				-webkit-border-radius: 5px;
-				-moz-border-radius: 5px;
-				border-radius: 5px;
-				-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.05);
-				-moz-box-shadow: 0 1px 2px rgba(0,0,0,.05);
-				box-shadow: 0 1px 2px rgba(0,0,0,.05);
-			}
-
 			.switcher {
 				max-width: 300px;
 				margin-bottom: auto;
@@ -113,43 +94,29 @@
 			}
 
 
-
-			.container-card {
-				max-width: 300px;
-				padding: 20px 20px 20px;
-				margin: 0px auto 40px;
-				background-color: #fff;
-				border: 1px solid #e5e5e5;
-				-webkit-border-radius: 5px;
-				-moz-border-radius: 5px;
-				border-radius: 5px;
-				-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.05);
-				-moz-box-shadow: 0 1px 2px rgba(0,0,0,.05);
-				box-shadow: 0 1px 2px rgba(0,0,0,.05);
-			}
-
 			.infoicon{
-				margin: 0px 10px 0px;
+				margin: 0px 0px 0px;
 				
 			}
 
 			.infoicon .peritem {
-				padding: 15px 5px 5px;
-				margin: 0px auto 0px;
+				padding: 0px 5px 0px;
+				margin: 5px auto 0px;
 			}
 
 			.infoicon img{
-				width: 56px;
-				height: 56px;
+				width:  60px;
+				height: 60px;
 				margin: 0 0 0;
 				padding: 10px 10px 10px;
 				background-color:#00ffffff;
 			}
 
 			.container-card {
-				max-width: 300px;
-				padding: 20px 20px 20px;
-				margin: 0px auto 40px;
+				min-width: 260px;
+				max-width: 260px;
+				padding: 10px 0px 10px;
+				margin: 0px auto 20px;
 				background-color: #fff;
 				border: 1px solid #e5e5e5;
 				-webkit-border-radius: 2px;
@@ -161,64 +128,78 @@
 			}
 
 			.maincard {
-				display: table-cell;
-				width: 260px;
-				height: 260px;
-				vertical-align: middle;
-				padding: 0 0 0;
-				margin: 10px 20px 10px;
+				width: 240px;
+				vertical-align: top;
+				padding: 0 3px 0;
+				margin:0px auto 0px;
 				background-color: #ffffff;
 				overflow: auto
-				border: 1px solid #e5e5e5;
-				-webkit-border-radius: 2px;
-				-moz-border-radius: 2px;
-				border-radius: 2px;
-			}
-			
-			.center-block {
-				display: inline-block;
-				max-width: 160px;
-				max-height: 200px;
-				padding: 0 0 0;
-				margin: 0 auto 0;
-				vertical-align: middle;
 			}
 			
 			.toppart{
-				width: 260px;
-				height: 110px;
+				display:table-cell;
+				width: 230px;
+				height: 100px;
 				margin: 0 0 0;
 				vertical-align: middle;
 			}
-			
-			.botpart{
-				width: 260px;
-				height: 130px;				
+			.midpart{
+				width: 230px;			
 				margin: 0 0 0;
 			}
 			
+			.botpart{
+				width: 230px;			
+				margin: 0 0 0;
+			}
+			
+			.botpart p{
+				display: inline;
+				height: 100px;
+				vertical-align: middle;
+				
+			}
+				
+			
 			.profile {
 				float: left;
-				width: 110px;
-				height: 110px;
+				width: 100px;
+				height: 100px;
 				margin: 0px 0 0px;
 			}
 			
 			.profile img {
-				width: 110px;
-				height: 110px;
+				width: 100px;
+				height: 100px;
 			}
 
-			.name {
-				float: left;
+			.toppart .name {
+				display:table-cell;
+				vertical-align: middle;
+				float: right;
+				text-align:center;
 				margin-left: 10px;
+				padding-top: 20px;
+				padding-left: 0px;
+				padding-bottom: 0px;
+				width: 120px;
+				height:100px;
 				max-width: 120px;
-				margin-bottom: 20px;
-				margin-top: 30px;
+				max-height: 100px;
+				overflow: hidden;
+			}
+			
+			.toppart nameinput{
+				width: 120px;
+				height: 100px;
+				display:table-cell;
+				vertical-align: middle;
+				
 			}
 			
 			.hr {
-				margin : 15px 0 0;
+				width: 100%;
+				margin : 10px 0px 0px;
 			}
 			
 			.aboutme_text {
@@ -379,11 +360,15 @@
 			
 			$(function() {
 				var file;
+				
+				$().cropper("setAspectRatio", 1);
 
 				// Set an event listener on the Choose File field.
 				$('#inputImage').bind("change", function(e) {
 					var files = e.target.files || e.dataTransfer.files;
+					
 					// Our file var now holds the selected file
+					// document.getElementById('inputImage').
 					file = files[0];
 					flagPortraitChanged = true;
 				});
@@ -408,6 +393,7 @@
 						  // save cropbox size upon upload
 						  saveDim();
 						  document.getElementById('img_url').value = data.url;
+						  alert(data.url);
 						  document.getElementById('action').value = "save";
 						},
 						error: function(data) {
@@ -502,16 +488,16 @@
 						<h4 class="modal-title" id="myModalLabel"></h4>
 					</div>
 					<div class="modal-body">
-						<textarea maxlength="1000" id="about_dialog" class="aboutme_text" rows="3" onchange="offerSave(true);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();"></textarea>
+						<textarea placeholder="Highlight and summary of myself." maxlength="1000" id="about_dialog" class="aboutme_text" rows="3" onchange="offerSave(true);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();"></textarea>
 						<small id="textarea_feedback" style="padding: 0px 5px 0px; display: none"></small>
-						<input class="input-small input_text" id="phone_dialog" type="text" style="display: none" onchange="offerSave(false);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();">
-						<input class="input-small input_text" id="message_dialog" type="text" style="display: none" onchange="offerSave(false);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();">
-						<input class="input-small input_text" id="email_dialog" type="text" style="display: none" onchange="offerSave(false);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();">
-						<input class="input-small input_text" id="linkedin_dialog" type="text" style="display: none" onchange="offerSave(false);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();">
-						<input class="input-small input_text" id="facebook_dialog" type="text" style="display: none" onchange="offerSave(false);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();">
-						<input class="input-small input_text" id="twitter_dialog" type="text" style="display: none" onchange="offerSave(false);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();">
-						<input class="input-small input_text" id="googleplus_dialog" type="text" style="display: none" onchange="offerSave(false);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();">
-						<input class="input-small input_text" id="web_dialog" type="text" style="display: none" onchange="offerSave(false);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();">
+						<input class="input-small input_text" placeholder="My phone number" id="phone_dialog" type="text" style="display: none" onchange="offerSave(false);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();">
+						<input class="input-small input_text" placeholder="My number that can receive text messages"  id="message_dialog" type="text" style="display: none" onchange="offerSave(false);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();">
+						<input class="input-small input_text" placeholder="My email address"  id="email_dialog" type="text" style="display: none" onchange="offerSave(false);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();">
+						<input class="input-small input_text" placeholder="Paste the link to my LinkedIn profile here"  id="linkedin_dialog" type="text" style="display: none" onchange="offerSave(false);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();">
+						<input class="input-small input_text" placeholder="Paste the link to my Facebook profile here"  id="facebook_dialog" type="text" style="display: none" onchange="offerSave(false);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();">
+						<input class="input-small input_text" placeholder="Paste the link to my Twitter profile here"  id="twitter_dialog" type="text" style="display: none" onchange="offerSave(false);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();">
+						<input class="input-small input_text" placeholder="Paste the link to my Google+ profile here"  id="googleplus_dialog" type="text" style="display: none" onchange="offerSave(false);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();">
+						<input class="input-small input_text" placeholder="Paste the link to my website here"  id="web_dialog" type="text" style="display: none" onchange="offerSave(false);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();">
 						<p id="recorder" style="display: none"></p>
 					</div>
 					<div class="modal-footer">
@@ -533,15 +519,15 @@
 					</div>
 					<div class="modal-body">
 						<div class="list-group">
-							<a id="list_about" href="" onclick="javascript:additem('about')" data-dismiss="modal" class="list-group-item" style="display : inherit">About Me</a>
-							<a id="list_phone" href="" onclick="javascript:additem('phone')" data-dismiss="modal" class="list-group-item" style="display : inherit">Phone</a>
-							<a id="list_message" href="" onclick="javascript:additem('message')" data-dismiss="modal" class="list-group-item" style="display : inherit">SMS</a>
-							<a id="list_email" href="" onclick="javascript:additem('email')" data-dismiss="modal" class="list-group-item" style="display : inherit">Email</a>
-							<a id="list_linkedin" href="" onclick="javascript:additem('linkedin')" data-dismiss="modal" class="list-group-item" style="display : inherit">LinkedIn</a>
-							<a id="list_facebook" href="" onclick="javascript:additem('facebook')" data-dismiss="modal" class="list-group-item" style="display : inherit">Facebook</a>
-							<a id="list_twitter" href="" onclick="javascript:additem('twitter')" data-dismiss="modal" class="list-group-item" style="display : inherit">Twitter</a>
-							<a id="list_googleplus" href="" onclick="javascript:additem('googleplus')" data-dismiss="modal" class="list-group-item" style="display : inherit">Google+</a>
-							<a id="list_web" href="" onclick="javascript:additem('web')" data-dismiss="modal" class="list-group-item" style="display : inherit">Website</a>
+							<a id="list_about" href="" onclick="javascript:additem('about')" data-dismiss="modal" class="list-group-item" style="display : inherit"><img src="../assets/img/me.png" style="width: 24px; height:24px; margin-right: 20px;">About Me</a>
+							<a id="list_phone" href="" onclick="javascript:additem('phone')" data-dismiss="modal" class="list-group-item" style="display : inherit"><img src="../assets/img/phone.png" style="width: 24px; height:24px; margin-right: 20px;">Phone</a>
+							<a id="list_message" href="" onclick="javascript:additem('message')" data-dismiss="modal" class="list-group-item" style="display : inherit"><img src="../assets/img/message.png" style="width: 24px; height:24px; margin-right: 20px;">SMS</a>
+							<a id="list_email" href="" onclick="javascript:additem('email')" data-dismiss="modal" class="list-group-item" style="display : inherit"><img src="../assets/img/mail.png" style="width: 24px; height:24px; margin-right: 20px;">Email</a>
+							<a id="list_linkedin" href="" onclick="javascript:additem('linkedin')" data-dismiss="modal" class="list-group-item" style="display : inherit"><img src="../assets/img/linkedin.png" style="width: 24px; height:24px; margin-right: 20px;">LinkedIn</a>
+							<a id="list_facebook" href="" onclick="javascript:additem('facebook')" data-dismiss="modal" class="list-group-item" style="display : inherit"><img src="../assets/img/facebook.png" style="width: 24px; height:24px; margin-right: 20px;">Facebook</a>
+							<a id="list_twitter" href="" onclick="javascript:additem('twitter')" data-dismiss="modal" class="list-group-item" style="display : inherit"><img src="../assets/img/twitter.png" style="width: 24px; height:24px; margin-right: 20px;">Twitter</a>
+							<a id="list_googleplus" href="" onclick="javascript:additem('googleplus')" data-dismiss="modal" class="list-group-item" style="display : inherit"><img src="../assets/img/googleplus.png" style="width: 24px; height:24px; margin-right: 20px;">Google+</a>
+							<a id="list_web" href="" onclick="javascript:additem('web')" data-dismiss="modal" class="list-group-item" style="display : inherit"><img src="../assets/img/web.png" style="width: 24px; height:24px; margin-right: 20px;">Website</a>
 						</div>
 					</div>
 					<div class="modal-footer">
@@ -588,10 +574,10 @@
 			<div class="col-sm-5 col-sm-offset-1 col-md-4 col-md-offset-2 col-lg-3 col-lg-offset-3">
 				<div id="crop_panel" class="container-card" style="display:none">
 					<!-- Ack: http://fengyuanchen.github.io/cropper/ -->
-					<div class="img-container cropper-example-1">
-						<img src="" alt="Upload a Picture">
+					<div class="img-container cropper-example-1" style="height:260px;">
+						<img src="" alt="Upload a Picture" style="height:260px;">
 					</div>
-					<div class="cropper_buttons"> 
+					<div class="cropper_buttons" style="margin-left: 10px"> 
 						<div class="btn-group">
 							<label class="btn btn-primary btn-upload" for="inputImage" title="Upload image file">
 								<input class="sr-only" id="inputImage" name="file" type="file" accept="image/*" form="fileupload">
@@ -621,9 +607,10 @@
 							</span>
 						  </button>
 					</div>
-
+					<div style="padding: 10px">
 					<button id="uploadbutton" class="btn btn-primary btn-block" type="button" onclick="javascript:imgSwitcher(0);">Save</button>
 					<button class="btn btn-default btn-block" type="button" onclick="javascript:imgSwitcher(1);">Cancel</button>
+					</div>
 
 				</div>
 				
@@ -636,18 +623,24 @@
 						
 								</div>
 								<div class= "name">
-									<input id="name" name="name" class="input-small" style="width: 130px" type="text" value="<%= firstName %> <%= lastName %>" placeholder="Your name" onchange="offerSave(false);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();"><br>
+									<p style="margin-bottom: 0px; color:grey;">My name:</p>
+									<input id="name" name="name" class="input-small nameinput" style="width: 115px" type="text" value="<%= firstName %> <%= lastName %>" placeholder="E.g.: George Washington" onchange="offerSave(false);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();"><br>
 						
 								</div>
 							</div>
-							<div class="botpart">						
-							<hr class= "hr">
-							<address style="margin-top: 10px">
-								<input id="title" name="title" class="input-small" style="width: 250px" type="text" value="<%= title %>" placeholder="Your job title, e.g.: Math Instructor" onchange="offerSave(false);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();"><br>
-						<input id="company" name="company" class="input-small" style="width: 250px" type="text" value="<%= company %>" placeholder="Who do you work for, e.g.: Alpha University" onchange="offerSave(false);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();"><br>
-						<input id="city" name="city" class="input-small" style="width: 250px" type="text" value="<%= city %>" placeholder="Where do you work, e.g.: Portland, OR" onchange="offerSave(false);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();"><br>
-						
-							</address>
+							<div class="midpart">	
+								<hr class= "hr">
+							</div>
+							<div class="botpart">			
+								<address style="margin-top: 10px">
+									<p style="margin-bottom: 0px; color:grey;">My job title:</p>
+									<input id="title" name="title" class="input-small" style="width: 230px" type="text" value="<%= title %>" placeholder="E.g.: Math Instructor" onchange="offerSave(false);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();"><br>
+									<p style="margin-bottom: 0px; color:grey;">I work for:</p>
+									<input id="company" name="company" class="input-small" style="width: 230px" type="text" value="<%= company %>" placeholder="E.g.: Alpha University" onchange="offerSave(false);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();"><br>
+									<p style="margin-bottom: 0px; color:grey;">I work at:</p>
+									<input id="city" name="city" class="input-small" style="width: 230px" type="text" value="<%= city %>" placeholder="E.g.: Portland, OR" onchange="offerSave(false);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();"><br>
+							
+								</address>
 							</div>
 						<input type="hidden" name="_csrf" value="<%= csrf_field %>" />
 
@@ -655,10 +648,10 @@
 				</div>
 			</div>
 
-			<div class="col-md-4">
+			<div class="col-sm-4 col-md-4 col-lg-4">
 				<div id="contact" class="container-card" style="display : inherit">
 					<div class="maincard">
-					<div class="container-fluid">
+					<div class="container-fluid" style="padding: 0px 0px 0px;">
 						<div class="row infoicon">
 							<div id="about_button" class="col-xs-4 col-sm-4 peritem" style="display : none">
 								<img src="../assets/img/me.png"  class="img-responsive" data-toggle="modal" data-target="#myModal" data-backdrop="static" onclick="javascript:fill_content('about');">
@@ -695,7 +688,7 @@
 					</div>
 				</div>
 
-				<div class="container-card" id="save_div" style="display: none">
+				<div class="container-card" id="save_div" style="display: none; padding: 10px;">
 					<button class="btn btn-md btn-primary btn-block" type="submit" form="designForm" name="action">Save Changes</button>
 					<button class="btn btn-md btn-default btn-block" onclick="javascript:goBack();">Forget it</button>
 				</div>
@@ -720,8 +713,6 @@
 		================================================== -->
 		<!-- Placed at the end of the document so the pages load faster -->
 		<script src="../dist/js/bootstrap.min.js"></script>
-		<!-- Just to make our placeholder images work. Don't actually copy the next line! -->
-		<script src="../assets/js/vendor/holder.js"></script>
 		<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
 		<script src="../assets/js/ie10-viewport-bug-workaround.js"></script>
 		<script src="../dist/js/cropper.js"></script>

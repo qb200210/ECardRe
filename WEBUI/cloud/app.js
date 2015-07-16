@@ -6,6 +6,7 @@ var parseExpressCookieSession = require('parse-express-cookie-session');
 var app = express();
 var sess;
 Parse.initialize("eXr5eE3ff6vTMkTqsWe373eVZbuOLtafn7mFwlI2","5mX4KetLYXXusfdk6nObvgi615o3FghX1eXq9PXW");
+Parse.User.enableRevocableSession();
 
 // Global app configuration section
 app.set('views', 'cloud/views');  // Specify the folder to find templates
@@ -541,26 +542,31 @@ app.post('/savedesign', function(req, res){
 					  }).then(function(cropped) {
 						// Attach the image file to the original object.
 						object.set("portrait", cropped);
+						console.log('portrait updated');
 						
 						// save changes
 						object.save(null, {
 							
 							success: function(list) {
 								// upon completion, go back to homepage
+								console.log('save portrait success');
 								res.json({successful : true});
 							},
 							error: function(error) {
 							  // An error occurred while saving one of the objects.
+								console.log('save portrait fail');
 							  res.json({successful : false});
 							},
 						});		
 					}, function(error) {
 					  // The file either could not be read, or could not be saved to Parse.
+					  console.log('save temporary file to new file has failed.');
 					  res.json({successful : false});
 					});
 				} else {
 					// if portrait not updated, directly upload
 					// save changes
+					console.log('portrait not updated');
 					object.save(null, {
 						
 						success: function(list) {
