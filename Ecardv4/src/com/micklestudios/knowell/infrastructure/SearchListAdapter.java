@@ -116,30 +116,26 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
       selectionBox.setVisibility(View.VISIBLE);
     }
 
-    selectionBox.setChecked(ActivitySearch.selectedUsers.contains(uInfo));
+    boolean isSelected = ActivitySearch.selectedUsers.contains(uInfo);
+    selectionBox.setChecked(isSelected);
 
     if (ActivitySearch.selectedUsers.contains(uInfo)) {
       Log.e("UDB", "Found in selected users " + uInfo.getFirstName());
     }
 
     if (uInfo.getPortrait() != null) {
-      portraitImg.setImageBitmap(ActivitySearch.filteredUsers.get(position)
-        .getPortrait());
+      portraitImg.setImageBitmap(uInfo.getPortrait());
     }
 
     TextView nameView = (TextView) convertView
       .findViewById(R.id.search_result_card_name);
-    nameView.setText(ActivitySearch.filteredUsers.get(position).getFirstName()
-      + " " + ActivitySearch.filteredUsers.get(position).getLastName());
+    nameView.setText(uInfo.getFirstName() + " " + uInfo.getLastName());
     TextView jobCompanyView = (TextView) convertView
       .findViewById(R.id.search_result_card_job_company);
-    jobCompanyView.setText(ActivitySearch.filteredUsers.get(position)
-      .getTitle()
-      + " at "
-      + ActivitySearch.filteredUsers.get(position).getCompany());
+    jobCompanyView.setText(uInfo.getTitle() + " at " + uInfo.getCompany());
     TextView addressView = (TextView) convertView
       .findViewById(R.id.search_result_card_address);
-    addressView.setText(ActivitySearch.filteredUsers.get(position).getCity());
+    addressView.setText(uInfo.getCity());
     return convertView;
   }
 
