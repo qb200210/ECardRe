@@ -459,7 +459,7 @@ public class ActivityMain extends ActionBarActivity {
                   + ActivityMain.myselfUserInfo.getLastName());
               processedBody = processedBody.replaceAll("#c[a-zA-Z0-9]*#",
                 ActivityMain.myselfUserInfo.getCompany());
-              msgBody = processedBody.replaceAll("#k[a-zA-Z0-9]*#", link);
+              msgBody = processedBody.replaceAll("#k[a-zA-Z0-9]*#", getShortLink());
             } else {
               msgBody = "Hi "
                 + targetName
@@ -469,8 +469,8 @@ public class ActivityMain extends ActionBarActivity {
                 + ActivityMain.myselfUserInfo.getLastName()
                 + " from "
                 + ActivityMain.myselfUserInfo.getCompany()
-                + ". It was great to meet you! Please accept my business card here: "
-                + link;
+                + ". Keep in touch! My business card: "
+                + getShortLink();
             }
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("smsto:"
               + targetSMS));
@@ -576,6 +576,15 @@ public class ActivityMain extends ActionBarActivity {
     qrString.append(ActivityMain.myselfUserInfo.getFirstName());
     qrString.append("&ln=");
     qrString.append(ActivityMain.myselfUserInfo.getLastName());
+    return qrString.toString();
+  }
+  
+  private String getShortLink() {
+    String website = ActivityMain.applicationContext
+      .getString(R.string.base_website_user);
+    StringBuffer qrString = new StringBuffer(website);
+    qrString.append("id=");
+    qrString.append(ActivityMain.myselfUserInfo.getObjId());
     return qrString.toString();
   }
 

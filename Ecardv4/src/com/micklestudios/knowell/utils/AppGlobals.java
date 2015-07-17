@@ -35,6 +35,7 @@ public class AppGlobals {
 
   // Global Strings
   public static final String MY_PREFS_NAME = "KnoWellSyncParams";
+  public static final String PUSH_CHANNEL_NAME = "KnoWellPush";
 
   public static void initializePotentialUsers() {
     initializePotentialUsers(false);

@@ -706,9 +706,57 @@ public class ActivitySearch extends ActionBarActivity {
         Intent emailIntent = new Intent(Intent.ACTION_SEND);
         emailIntent.setData(Uri.parse("mailto:"));
         emailIntent.setType("message/rfc822");
-        emailIntent.putExtra(Intent.EXTRA_EMAIL, TO);
-        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "");
-        emailIntent.putExtra(Intent.EXTRA_TEXT, "Sent from KnoWell");
+        emailIntent.putExtra(Intent.EXTRA_EMAIL, TO.toArray(new String[TO.size()]));
+        String msgSubject;
+        if (ActivityMain.currentUser.get("emailSubject") != null
+          && !ActivityMain.currentUser.get("emailSubject").toString()
+            .isEmpty()) {
+          msgSubject = ActivityMain.currentUser.get("emailSubject")
+            .toString();
+          String processedSubject = msgSubject.replaceAll("#r[a-zA-Z0-9]*#",
+            "");
+          processedSubject = processedSubject.replaceAll("#m[a-zA-Z0-9]*#",
+            ActivityMain.myselfUserInfo.getFirstName() + " "
+              + ActivityMain.myselfUserInfo.getLastName());
+          processedSubject = processedSubject.replaceAll("#c[a-zA-Z0-9]*#",
+            ActivityMain.myselfUserInfo.getCompany());
+          msgSubject = processedSubject.replaceAll("#k[a-zA-Z0-9]*#",
+            getLink());
+
+        } else {
+          msgSubject = "Greetings from "
+            + ActivityMain.myselfUserInfo.getFirstName() + " "
+            + ActivityMain.myselfUserInfo.getLastName();
+        }
+
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, msgSubject);
+
+        String msgBody;
+
+        if (ActivityMain.currentUser.get("emailBody") != null
+          && !ActivityMain.currentUser.get("emailBody").toString().isEmpty()) {
+          msgBody = ActivityMain.currentUser.get("emailBody").toString();
+          String processedBody = msgBody.replaceAll("#r[a-zA-Z0-9]*#",
+            "");
+          processedBody = processedBody.replaceAll("#m[a-zA-Z0-9]*#",
+            ActivityMain.myselfUserInfo.getFirstName() + " "
+              + ActivityMain.myselfUserInfo.getLastName());
+          processedBody = processedBody.replaceAll("#c[a-zA-Z0-9]*#",
+            ActivityMain.myselfUserInfo.getCompany());
+          msgBody = processedBody.replaceAll("#k[a-zA-Z0-9]*#", getLink());
+        } else {
+          msgBody = "Hi "
+            + ",\n\nThis is "
+            + ActivityMain.myselfUserInfo.getFirstName()
+            + " "
+            + ActivityMain.myselfUserInfo.getLastName()
+            + " from "
+            + ActivityMain.myselfUserInfo.getCompany()
+            + ".\n\nIt was great to meet you! Keep in touch! \n\nBest,\n"
+            + ActivityMain.myselfUserInfo.getFirstName()
+            + "\n\nPlease accept my business card here: " + getLink();
+        }
+        emailIntent.putExtra(Intent.EXTRA_TEXT, msgBody);
 
         try {
           startActivity(emailIntent);
@@ -1138,5 +1186,27 @@ public class ActivitySearch extends ActionBarActivity {
       }
 
     });
+  }
+  
+  private String getLink() {
+    String website = ActivityMain.applicationContext
+      .getString(R.string.base_website_user);
+    StringBuffer qrString = new StringBuffer(website);
+    qrString.append("id=");
+    qrString.append(ActivityMain.myselfUserInfo.getObjId());
+    qrString.append("&fn=");
+    qrString.append(ActivityMain.myselfUserInfo.getFirstName());
+    qrString.append("&ln=");
+    qrString.append(ActivityMain.myselfUserInfo.getLastName());
+    return qrString.toString();
+  }
+  
+  private String getShortLink() {
+    String website = ActivityMain.applicationContext
+      .getString(R.string.base_website_user);
+    StringBuffer qrString = new StringBuffer(website);
+    qrString.append("id=");
+    qrString.append(ActivityMain.myselfUserInfo.getObjId());
+    return qrString.toString();
   }
 }

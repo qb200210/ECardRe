@@ -8,9 +8,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
 
+import com.micklestudios.knowell.utils.AppGlobals;
 import com.micklestudios.knowell.utils.RobotoEditText;
 import com.micklestudios.knowell.utils.RobotoTextView;
+import com.parse.ParseException;
+import com.parse.ParsePush;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -18,15 +22,18 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Spannable;
@@ -43,8 +50,10 @@ import android.widget.TextView;
 public class ActivityUserSetting extends ActionBarActivity {
   private ParseUser currentUser;
   private AlertDialog uploadDialog;
+  private AlertDialog feedbackDialog;
   private PrefsFragment newPrefFrag;
   protected static final int UPLOAD_DOC = 1001;
+  protected static final int SEND_FEEDBACK = 1002;
   private static final String KNOWELL_ROOT = "KnoWell";
 
   @Override
@@ -94,6 +103,7 @@ public class ActivityUserSetting extends ActionBarActivity {
 
   public class PrefsFragment extends PreferenceFragment {
 
+
     public void setprefDocGreeting(boolean flag) {
       Preference prefDocGreeting = (Preference) findPreference(getString(R.string.prefDocGreeting));
       prefDocGreeting.setEnabled(flag);
@@ -119,6 +129,8 @@ public class ActivityUserSetting extends ActionBarActivity {
             return true;
           }
         });
+      
+      // Set default email greetings
       Preference prefEmailGreeting = (Preference) findPreference(getString(R.string.prefEmailGreeting));
       prefEmailGreeting
         .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -272,6 +284,7 @@ public class ActivityUserSetting extends ActionBarActivity {
           }
         });
 
+      // set default SMS greeting
       Preference prefSmsGreeting = (Preference) findPreference(getString(R.string.prefSMSGreeting));
       prefSmsGreeting
         .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -365,7 +378,7 @@ public class ActivityUserSetting extends ActionBarActivity {
                 processedSubject = processedSubject.replaceAll(
                   "#c[a-zA-Z0-9]*#", ActivityMain.myselfUserInfo.getCompany());
                 processedSubject = processedSubject.replaceAll(
-                  "#k[a-zA-Z0-9]*#", getLink());
+                  "#k[a-zA-Z0-9]*#", getShortLink());
                 String processedBody = rawBody.replaceAll("#r[a-zA-Z0-9]*#",
                   "Recipient");
                 processedBody = processedBody.replaceAll("#m[a-zA-Z0-9]*#",
@@ -374,7 +387,7 @@ public class ActivityUserSetting extends ActionBarActivity {
                 processedBody = processedBody.replaceAll("#c[a-zA-Z0-9]*#",
                   ActivityMain.myselfUserInfo.getCompany());
                 processedBody = processedBody.replaceAll("#k[a-zA-Z0-9]*#",
-                  getLink());
+                  getShortLink());
                 helpBody.setText(processedBody);
                 new AlertDialog.Builder(ActivityUserSetting.this)
                   .setView(helpView)
@@ -394,7 +407,7 @@ public class ActivityUserSetting extends ActionBarActivity {
 
             if (body == null || body.isEmpty()) {
               messageView
-                .setText("Hi #recipient#,\n\nThis is #myname# from #company#.\n\nIt was great to meet you! Keep in touch! \n\nBest,\n#myname#\n\nPlease accept my business card here: #knowell#");
+                .setText("Hi #recipient#, this is #myname# from #company#. Keep in touch! My business card: #knowell#");
             } else {
               messageView.setText(body);
             }
@@ -419,6 +432,7 @@ public class ActivityUserSetting extends ActionBarActivity {
           }
         });
 
+      // set default doc greeting
       Preference prefDocGreeting = (Preference) findPreference(getString(R.string.prefDocGreeting));
       if (currentUser.getString("docPath") == null
         || currentUser.getString("docPath").isEmpty()) {
@@ -600,6 +614,7 @@ public class ActivityUserSetting extends ActionBarActivity {
           }
         });
 
+      // set default doc name
       Preference prefDocName = (Preference) findPreference(getString(R.string.prefDocName));
       prefDocName
         .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -670,11 +685,149 @@ public class ActivityUserSetting extends ActionBarActivity {
             return true;
           }
         });
+      
+      // Set Push toggle
+      final CheckBoxPreference pushToggle = (CheckBoxPreference) findPreference(getString(R.string.prefPushNotifications));
+      // check sharedpreferences
+      SharedPreferences sharedPref = getSharedPreferences(
+        AppGlobals.MY_PREFS_NAME, MODE_PRIVATE);
+      final SharedPreferences.Editor prefEditor = sharedPref.edit();
+      boolean notificationsEnabled = sharedPref.getBoolean("KnoWellPushToggle",
+        true);
+      if (notificationsEnabled) {
+        pushToggle.setChecked(true);
+      } else {
+        pushToggle.setChecked(false);
+      }
+      pushToggle
+        .setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+
+          @Override
+          public boolean onPreferenceChange(Preference preference,
+            Object newValue) {
+            if ((boolean) newValue) {
+              ParsePush.subscribeInBackground(AppGlobals.PUSH_CHANNEL_NAME,
+                new SaveCallback() {
+                  @Override
+                  public void done(ParseException e) {
+                    if (e == null) {
+                      Log.d("com.parse.push",
+                        "successfully subscribed to the broadcast channel.");
+                      prefEditor.putBoolean("KnoWellPushToggle", true);
+                      prefEditor.commit();
+                      pushToggle.setChecked(true);
+                    } else {
+                      Log
+                        .e("com.parse.push", "failed to subscribe for push", e);
+                    }
+                  }
+                });
+            } else {
+              ParsePush.unsubscribeInBackground(AppGlobals.PUSH_CHANNEL_NAME,
+                new SaveCallback() {
+                  @Override
+                  public void done(ParseException e) {
+                    if (e == null) {
+                      Log
+                        .d("com.parse.push",
+                          "successfully unsubscribed from the broadcast channel.");
+                      prefEditor.putBoolean("KnoWellPushToggle", false);
+                      prefEditor.commit();
+                      pushToggle.setChecked(false);
+                    } else {
+                      Log.e("com.parse.push", "failed to unsubscribe for push",
+                        e);
+                    }
+                  }
+                });
+            }
+            return false;
+          }
+        });
+      
+      // Placeholder for reminder
+      
+      // Rating
+      
+      // Feedback
+      Preference feedback = (Preference) findPreference(getString(R.string.prefFeedBack));
+      feedback.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener(){
+
+        @Override
+        public boolean onPreferenceClick(Preference preference) {
+          LayoutInflater inflaterTmp = getLayoutInflater();
+          View helpView = inflaterTmp.inflate(R.layout.layout_help, null);
+          RobotoTextView helpHeader = (RobotoTextView) helpView
+              .findViewById(R.id.help_header);
+          RobotoTextView helpBody = (RobotoTextView) helpView
+            .findViewById(R.id.help_body);
+          helpHeader.setText("Team KnoWell");
+          helpBody.setText("We appreciate your feedback!");
+          feedbackDialog = new AlertDialog.Builder(ActivityUserSetting.this)
+          .setView(helpView)
+          .setPositiveButton("Sure",
+            new DialogInterface.OnClickListener() {
+              public void onClick(DialogInterface dialog,
+                int whichButton) {
+                sendFeedback();
+              }
+            }).setNegativeButton("Cancel",
+            new DialogInterface.OnClickListener() {
+              public void onClick(DialogInterface dialog,
+                int whichButton) {
+              }
+            }).setCancelable(true).show();
+          return true;
+        }
+        
+      });
+      
+      // Acknowledgement
+      Preference acknowledgement = (Preference) findPreference(getString(R.string.prefAcknowledgement));
+      acknowledgement.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener(){
+
+        @Override
+        public boolean onPreferenceClick(Preference preference) {
+          LayoutInflater inflaterTmp = getLayoutInflater();
+          View helpView = inflaterTmp.inflate(R.layout.layout_help, null);
+          RobotoTextView helpHeader = (RobotoTextView) helpView
+              .findViewById(R.id.help_header);
+          RobotoTextView helpBody = (RobotoTextView) helpView
+            .findViewById(R.id.help_body);
+          helpHeader.setText("Acknowledgement");
+          helpBody.setText(getString(R.string.prefAckList));
+          feedbackDialog = new AlertDialog.Builder(ActivityUserSetting.this)
+          .setView(helpView)
+          .setNeutralButton("Got it",
+            new DialogInterface.OnClickListener() {
+              public void onClick(DialogInterface dialog,
+                int whichButton) {
+              }
+            }).setCancelable(true).show();
+          return false;
+        }
+        
+      });
 
     }
 
   }
 
+  
+  @SuppressLint("NewApi")
+  private void sendFeedback() {
+
+    Intent sendIntent = new Intent(Intent.ACTION_SEND);
+    sendIntent.setType("message/rfc822");
+    sendIntent.putExtra(Intent.EXTRA_EMAIL, new String[] { getString(R.string.prefFeedbackEmail) });
+    String msgSubject = "[Feedback] From " + ActivityMain.myselfUserInfo.getFirstName() + " " + ActivityMain.myselfUserInfo.getLastName();
+    sendIntent.putExtra(Intent.EXTRA_SUBJECT, msgSubject);
+    startActivityForResult(sendIntent, SEND_FEEDBACK);
+
+
+  }
+  
+  
   @SuppressLint("NewApi")
   private void uploadDoc() {
     // Get the layout inflater
@@ -726,7 +879,7 @@ public class ActivityUserSetting extends ActionBarActivity {
 
   @Override
   public void onActivityResult(int requestCode, int resultCode, Intent data) {
-
+    Log.e("res", ""+ resultCode);
     switch (requestCode) {
     case UPLOAD_DOC:
       if (resultCode == Activity.RESULT_OK) {
@@ -759,6 +912,26 @@ public class ActivityUserSetting extends ActionBarActivity {
           e.printStackTrace();
         }
       }
+      break;
+    case SEND_FEEDBACK:
+      feedbackDialog.dismiss();
+      LayoutInflater inflaterTmp = getLayoutInflater();
+      View helpView = inflaterTmp.inflate(R.layout.layout_help, null);
+      RobotoTextView helpHeader = (RobotoTextView) helpView
+          .findViewById(R.id.help_header);
+      RobotoTextView helpBody = (RobotoTextView) helpView
+        .findViewById(R.id.help_body);
+      helpHeader.setText("Team KnoWell");
+      helpBody.setText("Dear "+ ActivityMain.myselfUserInfo.getFirstName()+",\n\nWe deeply appreciate you providing us your valuable feedback. We will be in touch with you in the next 72 hours.\n\nBest,\nTeam KnoWell");
+      new AlertDialog.Builder(ActivityUserSetting.this)
+      .setView(helpView)
+      .setNeutralButton("OK",
+        new DialogInterface.OnClickListener() {
+          public void onClick(DialogInterface dialog,
+            int whichButton) {
+
+          }
+        }).setCancelable(true).show();
       break;
     }
 
@@ -871,6 +1044,15 @@ public class ActivityUserSetting extends ActionBarActivity {
     qrString.append(ActivityMain.myselfUserInfo.getFirstName());
     qrString.append("&ln=");
     qrString.append(ActivityMain.myselfUserInfo.getLastName());
+    return qrString.toString();
+  }
+  
+  private String getShortLink() {
+    String website = ActivityMain.applicationContext
+      .getString(R.string.base_website_user);
+    StringBuffer qrString = new StringBuffer(website);
+    qrString.append("id=");
+    qrString.append(ActivityMain.myselfUserInfo.getObjId());
     return qrString.toString();
   }
 

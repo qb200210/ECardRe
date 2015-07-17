@@ -38,4 +38,7 @@
 	<string name="prefFeedBack">Please tell us how can KnoWell work better for you!</string>
 	<string name="prefAcknowledgement">Acknowledgement</string>
 	<string name="prefCheckUpdates">Check Updates</string>
+	<string name="prefPushNotifications">Enable/disable notifications</string>
+	<string name="prefFeedbackEmail">knowell@micklestudios.com</string>
+	<string name="prefAckList">Brian Spencer</string>
 </resources>

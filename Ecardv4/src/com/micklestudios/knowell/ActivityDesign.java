@@ -35,6 +35,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnFocusChangeListener;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
@@ -114,7 +115,7 @@ public class ActivityDesign extends ActionBarActivity {
     currentUser = ParseUser.getCurrentUser();
     Bundle data = getIntent().getExtras();
     displayMyCard();
-
+    
     // complete list of possible extrainfo items
     infoIcon = (ArrayList<Integer>) ActivityMain.myselfUserInfo.getInfoIcon()
       .clone();
@@ -639,31 +640,31 @@ public class ActivityDesign extends ActionBarActivity {
     dialogText.setText(text);
     switch (title) {
     case "About Me":
-      dialogText.setHint("Highlight and summary of yourself.");
+      dialogText.setHint("Highlight and summary of myself.");
       break;
     case "Email":
-      dialogText.setHint("Your email address.");
+      dialogText.setHint("My email address.");
       break;
     case "Message":
-      dialogText.setHint("Your number that text messages can be sent to. ");
+      dialogText.setHint("My number that can receive text messages.");
       break;
     case "Phone":
-      dialogText.setHint("Your phone number that you can be reached at.");
+      dialogText.setHint("My phone number.");
       break;
     case "Web Link":
-      dialogText.setHint("Paste your website link here.");
+      dialogText.setHint("Paste the link to my website here.");
       break;
     case "LinkedIn":
-      dialogText.setHint("Paste your LinkedIn profile link here.");
+      dialogText.setHint("Paste the link to my LinkedIn profile here.");
       break;
     case "Facebook":
-      dialogText.setHint("Paste your Facebook profile link here.");
+      dialogText.setHint("Paste the link to my Facebook profile here.");
       break;
     case "Twitter":
-      dialogText.setHint("Paste your Twitter profile link here.");
+      dialogText.setHint("Paste the link to my Twitter profile here.");
       break;
     case "Google +":
-      dialogText.setHint("Paste your Google+ profile link here.");
+      dialogText.setHint("Paste the link to my Google+ profile here.");
       break;
     default:
       break;

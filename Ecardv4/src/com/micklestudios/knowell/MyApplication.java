@@ -2,8 +2,11 @@ package com.micklestudios.knowell;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
+import com.micklestudios.knowell.utils.AppGlobals;
 import com.parse.Parse;
 import com.parse.ParseACL;
 import com.parse.ParseException;
@@ -31,17 +34,24 @@ public class MyApplication extends Application {
       getString(R.string.parse_client_key));
     ParseUser.enableRevocableSessionInBackground();
 
-    ParsePush.subscribeInBackground("", new SaveCallback() {
-      @Override
-      public void done(ParseException e) {
-        if (e == null) {
-          Log.d("com.parse.push",
-            "successfully subscribed to the broadcast channel.");
-        } else {
-          Log.e("com.parse.push", "failed to subscribe for push", e);
+    // check sharedpreferences
+    SharedPreferences sharedPref = getSharedPreferences(
+      AppGlobals.MY_PREFS_NAME, MODE_PRIVATE);
+    boolean notificationsEnabled =
+            sharedPref.getBoolean("KnoWellPushToggle", true);
+    if(notificationsEnabled) {
+      ParsePush.subscribeInBackground(AppGlobals.PUSH_CHANNEL_NAME, new SaveCallback() {
+        @Override
+        public void done(ParseException e) {
+          if (e == null) {
+            Log.d("com.parse.push",
+              "successfully subscribed to the broadcast channel.");
+          } else {
+            Log.e("com.parse.push", "failed to subscribe for push", e);
+          }
         }
-      }
-    });
+      });
+    } 
   }
 
   public static Context getContext() {

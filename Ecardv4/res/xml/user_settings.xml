@@ -23,19 +23,20 @@
                 android:summary="@string/prefDocName"/>
         
         <CheckBoxPreference
+            android:id="@+id/push_toggle"
             android:defaultValue="true"
-            android:key="prefPushNotifications"
+            android:key="@string/prefPushNotifications"
             android:title="Push Notifications"
-            android:summary="Receive Push Notifications" >
+            android:summary="@string/prefPushNotifications" >
         </CheckBoxPreference>        
         
-        <ListPreference
-            android:key="prefReminderFrequency"
-            android:title="Reminder Frequency"
-            android:summary="For Getting Back in Touch"
-            android:entries="@array/updateFrequency"
-            android:entryValues="@array/updateFrequencyValues"
-            />
+<!--         <ListPreference -->
+<!--             android:key="prefReminderFrequency" -->
+<!--             android:title="Reminder Frequency" -->
+<!--             android:summary="For Getting Back in Touch" -->
+<!--             android:entries="@array/updateFrequency" -->
+<!--             android:entryValues="@array/updateFrequencyValues" -->
+<!--             /> -->
         
     </PreferenceCategory>
      
@@ -49,15 +50,15 @@
                 android:key="@string/prefFeedBack"
                 android:summary="@string/prefFeedBack"/>
         
-        <Preference android:title="Check Updates"
-                android:key="@string/prefCheckUpdates"/>
-        
         <Preference android:title="Acknowledgement"
                 android:key="@string/prefAcknowledgement"/>
         
         <Preference android:title="Version"
                 android:key="@string/prefVersionNumber"
             android:summary="@string/prefVersionNumber"/>
+        
+        <Preference android:title="Check Updates"
+                android:key="@string/prefCheckUpdates"/>
         
         
     </PreferenceCategory>
