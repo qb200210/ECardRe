@@ -18,11 +18,8 @@ public class ActivityPreLogin extends Activity {
 
   @Override
   public void onCreate(Bundle SavedInstances) {
-    super.onCreate(SavedInstances);
-    // setContentView(R.layout.com_parse_ui_parse_login_third_party_section);
-
-    ParseAnalytics.trackAppOpened(getIntent());
-
+    super.onCreate(SavedInstances);    
+    ParseAnalytics.trackAppOpenedInBackground(getIntent());
     // addListenerOnButton();
   }
 

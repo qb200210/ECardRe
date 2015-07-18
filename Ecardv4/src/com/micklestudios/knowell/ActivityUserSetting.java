@@ -34,6 +34,7 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Spannable;
@@ -122,8 +123,10 @@ public class ActivityUserSetting extends ActionBarActivity {
           @Override
           public boolean onPreferenceClick(Preference preference) {
             ParseUser.logOut();
-            Intent intent = new Intent(ActivityUserSetting.this,
-              ActivityPreLogin.class);
+
+            Intent intent = new Intent(ActivityUserSetting.this, ActivityMain.class);
+            intent.putExtra("finish", true);
+            intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP); // To clean up all activities
             startActivity(intent);
             ActivityUserSetting.this.finish();
             return true;

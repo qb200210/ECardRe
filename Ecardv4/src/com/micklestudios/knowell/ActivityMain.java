@@ -14,9 +14,11 @@ import org.json.JSONObject;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -28,6 +30,7 @@ import android.os.Environment;
 import android.preference.PreferenceFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
@@ -89,9 +92,25 @@ public class ActivityMain extends ActionBarActivity {
   private String targetEmail = null;
   private String targetName = null;
   protected String targetSMS = null;
+  private BroadcastReceiver logoutNotifier;
 
   public static Context applicationContext;
 
+  @Override
+  protected void onNewIntent(Intent intent) {
+      super.onNewIntent(intent);
+      setIntent(intent);
+      Bundle b = getIntent().getExtras();    
+      if(b!=null){
+        boolean finish = b.getBoolean("finish", false);
+        if (finish) {
+            startActivity(new Intent(ActivityMain.this, ActivityPreLogin.class));
+            finish();
+            return;
+        }
+      }
+  }
+  
   @SuppressLint("NewApi")
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -99,10 +118,13 @@ public class ActivityMain extends ActionBarActivity {
     showActionBar();
     setContentView(R.layout.activity_main);
 
-    applicationContext = getApplicationContext();
+    applicationContext = getApplicationContext();    
 
-    Bundle b = getIntent().getExtras();
-    if (b != null) {
+    
+    Bundle b = getIntent().getExtras();    
+    if (b != null) {     
+      Log.e("main", "oncreate");
+      
       if (b.get("imgFromTmpData") != null) {
         imgFromTmpData = (boolean) b.get("imgFromTmpData");
       }
@@ -137,6 +159,12 @@ public class ActivityMain extends ActionBarActivity {
     super.onResume();
     myselfUserInfo = new UserInfo(currentUser.get("ecardId").toString(), "",
       "", true, false, imgFromTmpData);
+  }
+  
+  @Override
+  public void onDestroy(){
+    super.onDestroy();
+    LocalBroadcastManager.getInstance(this).unregisterReceiver(logoutNotifier);
   }
 
   private void InitializeListeners() {
