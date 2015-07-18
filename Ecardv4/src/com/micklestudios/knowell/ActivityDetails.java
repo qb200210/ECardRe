@@ -67,6 +67,7 @@ public class ActivityDetails extends ActionBarActivity {
   private String noteId;
   private int recordstatus1 = 0;
   public Date newDate;
+  private boolean flagVoiceNoteChanged = false;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -235,6 +236,7 @@ public class ActivityDetails extends ActionBarActivity {
       @Override
       public void onClick(View v) {
         if (recordstatus1 == 0) {
+          flagVoiceNoteChanged = true;
           Toast.makeText(ActivityDetails.this, "Recording...",
             Toast.LENGTH_SHORT).show();
           // changebuttontext(R.id.recordButton,"Recording...");
@@ -497,50 +499,52 @@ public class ActivityDetails extends ActionBarActivity {
       public void done(final ParseObject object, ParseException e) {
         if (e == null) {
           if (object != null) {
-            // TO-DO: Should set a flag checking whether voicenote changed
-            // If not, directly go ahead and save
-            FileInputStream fileInputStream = null;
-            File file = new File(filepath);
-            byte[] bFile = new byte[(int) file.length()];
-            // convert file into array of bytes
-            try {
-              fileInputStream = new FileInputStream(file);
-              fileInputStream.read(bFile);
-              fileInputStream.close();
-            } catch (FileNotFoundException e1) {
-              // TODO Auto-generated catch block
-              e1.printStackTrace();
-            } catch (IOException e1) {
-              // TODO Auto-generated catch block
-              e1.printStackTrace();
-            }
-            if (ECardUtils.isNetworkAvailable(ActivityDetails.this)) {
-              final ParseFile voiceFile = new ParseFile("voicenote.mp4", bFile);
-              voiceFile.saveInBackground(new SaveCallback() {
-
-                @Override
-                public void done(ParseException arg0) {
-                  object.put("voiceNotes", voiceFile);
-                  saveChangesToParse(object);
-                  Toast.makeText(ActivityDetails.this, "Changes saved!",
-                    Toast.LENGTH_SHORT).show();
-                }
-
-              });
+            if(flagVoiceNoteChanged){
+              FileInputStream fileInputStream = null;
+              File file = new File(filepath);
+              byte[] bFile = new byte[(int) file.length()];
+              // convert file into array of bytes
+              try {
+                fileInputStream = new FileInputStream(file);
+                fileInputStream.read(bFile);
+                fileInputStream.close();
+              } catch (FileNotFoundException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+              } catch (IOException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+              }
+              if (ECardUtils.isNetworkAvailable(ActivityDetails.this)) {
+                final ParseFile voiceFile = new ParseFile("voicenote.mp4", bFile);
+                voiceFile.saveInBackground(new SaveCallback() {
+  
+                  @Override
+                  public void done(ParseException arg0) {
+                    object.put("voiceNotes", voiceFile);
+                    saveChangesToParse(object);
+                    Toast.makeText(ActivityDetails.this, "Changes saved!",
+                      Toast.LENGTH_SHORT).show();
+                  }
+  
+                });
+              } else {
+                // if network not available, save voicenote with unique name then
+                // record in local database
+                Toast.makeText(ActivityDetails.this,
+                  "No network, caching voice note", Toast.LENGTH_SHORT).show();
+                object.put("tmpVoiceByteArray", bFile);
+                // flush sharedpreferences to 1969 so next time app opens with
+                // internet, convert the file
+                Date currentDate = new Date(0);
+                SharedPreferences prefs = getSharedPreferences(
+                  AppGlobals.MY_PREFS_NAME, MODE_PRIVATE);
+                SharedPreferences.Editor prefEditor = prefs.edit();
+                prefEditor.putLong("DateNoteSynced", currentDate.getTime());
+                prefEditor.commit();
+                saveChangesToParse(object);
+              }
             } else {
-              // if network not available, save voicenote with unique name then
-              // record in local database
-              Toast.makeText(ActivityDetails.this,
-                "No network, caching voice note", Toast.LENGTH_SHORT).show();
-              object.put("tmpVoiceByteArray", bFile);
-              // flush sharedpreferences to 1969 so next time app opens with
-              // internet, convert the file
-              Date currentDate = new Date(0);
-              SharedPreferences prefs = getSharedPreferences(
-                AppGlobals.MY_PREFS_NAME, MODE_PRIVATE);
-              SharedPreferences.Editor prefEditor = prefs.edit();
-              prefEditor.putLong("DateNoteSynced", currentDate.getTime());
-              prefEditor.commit();
               saveChangesToParse(object);
             }
           }
