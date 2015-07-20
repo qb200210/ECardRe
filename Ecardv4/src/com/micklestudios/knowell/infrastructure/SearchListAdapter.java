@@ -143,6 +143,7 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
     convertView.setOnLongClickListener(new OnLongClickListener() {
       @Override
       public boolean onLongClick(View v) {
+        addToSelectedUsers(uInfo);
         return false;
       }
     });
