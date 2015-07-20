@@ -37,21 +37,22 @@ public class MyApplication extends Application {
     // check sharedpreferences
     SharedPreferences sharedPref = getSharedPreferences(
       AppGlobals.MY_PREFS_NAME, MODE_PRIVATE);
-    boolean notificationsEnabled =
-            sharedPref.getBoolean("KnoWellPushToggle", true);
-    if(notificationsEnabled) {
-      ParsePush.subscribeInBackground(AppGlobals.PUSH_CHANNEL_NAME, new SaveCallback() {
-        @Override
-        public void done(ParseException e) {
-          if (e == null) {
-            Log.d("com.parse.push",
-              "successfully subscribed to the broadcast channel.");
-          } else {
-            Log.e("com.parse.push", "failed to subscribe for push", e);
+    boolean notificationsEnabled = sharedPref.getBoolean("KnoWellPushToggle",
+      true);
+    if (notificationsEnabled) {
+      ParsePush.subscribeInBackground(AppGlobals.PUSH_CHANNEL_NAME,
+        new SaveCallback() {
+          @Override
+          public void done(ParseException e) {
+            if (e == null) {
+              Log.d("com.parse.push",
+                "successfully subscribed to the broadcast channel.");
+            } else {
+              Log.e("com.parse.push", "failed to subscribe for push", e);
+            }
           }
-        }
-      });
-    } 
+        });
+    }
   }
 
   public static Context getContext() {

@@ -98,19 +98,19 @@ public class ActivityMain extends ActionBarActivity {
 
   @Override
   protected void onNewIntent(Intent intent) {
-      super.onNewIntent(intent);
-      setIntent(intent);
-      Bundle b = getIntent().getExtras();    
-      if(b!=null){
-        boolean finish = b.getBoolean("finish", false);
-        if (finish) {
-            startActivity(new Intent(ActivityMain.this, ActivityPreLogin.class));
-            finish();
-            return;
-        }
+    super.onNewIntent(intent);
+    setIntent(intent);
+    Bundle b = getIntent().getExtras();
+    if (b != null) {
+      boolean finish = b.getBoolean("finish", false);
+      if (finish) {
+        startActivity(new Intent(ActivityMain.this, ActivityPreLogin.class));
+        finish();
+        return;
       }
+    }
   }
-  
+
   @SuppressLint("NewApi")
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -118,13 +118,12 @@ public class ActivityMain extends ActionBarActivity {
     showActionBar();
     setContentView(R.layout.activity_main);
 
-    applicationContext = getApplicationContext();    
+    applicationContext = getApplicationContext();
 
-    
-    Bundle b = getIntent().getExtras();    
-    if (b != null) {     
+    Bundle b = getIntent().getExtras();
+    if (b != null) {
       Log.e("main", "oncreate");
-      
+
       if (b.get("imgFromTmpData") != null) {
         imgFromTmpData = (boolean) b.get("imgFromTmpData");
       }
@@ -160,9 +159,9 @@ public class ActivityMain extends ActionBarActivity {
     myselfUserInfo = new UserInfo(currentUser.get("ecardId").toString(), "",
       "", true, false, imgFromTmpData);
   }
-  
+
   @Override
-  public void onDestroy(){
+  public void onDestroy() {
     super.onDestroy();
     LocalBroadcastManager.getInstance(this).unregisterReceiver(logoutNotifier);
   }
@@ -487,18 +486,14 @@ public class ActivityMain extends ActionBarActivity {
                   + ActivityMain.myselfUserInfo.getLastName());
               processedBody = processedBody.replaceAll("#c[a-zA-Z0-9]*#",
                 ActivityMain.myselfUserInfo.getCompany());
-              msgBody = processedBody.replaceAll("#k[a-zA-Z0-9]*#", getShortLink());
+              msgBody = processedBody.replaceAll("#k[a-zA-Z0-9]*#",
+                getShortLink());
             } else {
-              msgBody = "Hi "
-                + targetName
-                + ", this is "
-                + ActivityMain.myselfUserInfo.getFirstName()
-                + " "
-                + ActivityMain.myselfUserInfo.getLastName()
-                + " from "
+              msgBody = "Hi " + targetName + ", this is "
+                + ActivityMain.myselfUserInfo.getFirstName() + " "
+                + ActivityMain.myselfUserInfo.getLastName() + " from "
                 + ActivityMain.myselfUserInfo.getCompany()
-                + ". Keep in touch! My business card: "
-                + getShortLink();
+                + ". Keep in touch! My business card: " + getShortLink();
             }
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("smsto:"
               + targetSMS));
@@ -606,7 +601,7 @@ public class ActivityMain extends ActionBarActivity {
     qrString.append(ActivityMain.myselfUserInfo.getLastName());
     return qrString.toString();
   }
-  
+
   private String getShortLink() {
     String website = ActivityMain.applicationContext
       .getString(R.string.base_website_user);

@@ -499,7 +499,7 @@ public class ActivityDetails extends ActionBarActivity {
       public void done(final ParseObject object, ParseException e) {
         if (e == null) {
           if (object != null) {
-            if(flagVoiceNoteChanged){
+            if (flagVoiceNoteChanged) {
               FileInputStream fileInputStream = null;
               File file = new File(filepath);
               byte[] bFile = new byte[(int) file.length()];
@@ -516,9 +516,10 @@ public class ActivityDetails extends ActionBarActivity {
                 e1.printStackTrace();
               }
               if (ECardUtils.isNetworkAvailable(ActivityDetails.this)) {
-                final ParseFile voiceFile = new ParseFile("voicenote.mp4", bFile);
+                final ParseFile voiceFile = new ParseFile("voicenote.mp4",
+                  bFile);
                 voiceFile.saveInBackground(new SaveCallback() {
-  
+
                   @Override
                   public void done(ParseException arg0) {
                     object.put("voiceNotes", voiceFile);
@@ -526,10 +527,11 @@ public class ActivityDetails extends ActionBarActivity {
                     Toast.makeText(ActivityDetails.this, "Changes saved!",
                       Toast.LENGTH_SHORT).show();
                   }
-  
+
                 });
               } else {
-                // if network not available, save voicenote with unique name then
+                // if network not available, save voicenote with unique name
+                // then
                 // record in local database
                 Toast.makeText(ActivityDetails.this,
                   "No network, caching voice note", Toast.LENGTH_SHORT).show();

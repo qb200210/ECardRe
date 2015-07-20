@@ -115,7 +115,7 @@ public class ActivityDesign extends ActionBarActivity {
     currentUser = ParseUser.getCurrentUser();
     Bundle data = getIntent().getExtras();
     displayMyCard();
-    
+
     // complete list of possible extrainfo items
     infoIcon = (ArrayList<Integer>) ActivityMain.myselfUserInfo.getInfoIcon()
       .clone();
@@ -697,19 +697,19 @@ public class ActivityDesign extends ActionBarActivity {
     ECardUtils.findAndSetLogo(ActivityDesign.this, logoImg, cmpName.getText()
       .toString(), true);
 
-    if(companyNames!= null){
+    if (companyNames != null) {
       ArrayAdapter<String> adapterCompanyNames = new ArrayAdapter<String>(this,
         android.R.layout.select_dialog_item, companyNames);
       cmpName.setAdapter(adapterCompanyNames);
       cmpName.setOnItemClickListener(new OnItemClickListener() {
-  
+
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position,
           long id) {
           ECardUtils.findAndSetLogo(ActivityDesign.this, logoImg, parent
             .getItemAtPosition(position).toString(), true);
         }
-  
+
       });
     }
     cmpName.setOnFocusChangeListener(new OnFocusChangeListener() {

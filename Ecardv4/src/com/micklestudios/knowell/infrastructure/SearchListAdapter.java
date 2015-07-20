@@ -10,14 +10,20 @@ import java.util.Locale;
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.micklestudios.knowell.ActivityDetails;
 import com.micklestudios.knowell.ActivitySearch;
 import com.nhaarman.listviewanimations.ArrayAdapter;
 import com.nhaarman.listviewanimations.itemmanipulation.swipedismiss.undo.UndoAdapter;
@@ -95,6 +101,17 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
     Collections.sort(ActivitySearch.filteredUsers, comparer);
   }
 
+  public void addToSelectedUsers(UserInfo uInfo) {
+    // If this is already selected, remove it.
+    if (ActivitySearch.selectedUsers.remove(uInfo) == false) {
+      ActivitySearch.selectedUsers.add(uInfo);
+    } else {
+      ActivitySearch.selectedUsers.remove(uInfo);
+    }
+
+    notifyDataSetChanged();
+  }
+
   @SuppressLint("NewApi")
   @Override
   public View getView(final int position, View convertView,
@@ -104,12 +121,34 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
         R.layout.search_result_card, parent, false);
     }
 
-    UserInfo uInfo = ActivitySearch.filteredUsers.get(position);
+    final UserInfo uInfo = ActivitySearch.filteredUsers.get(position);
 
     ImageView portraitImg = (ImageView) convertView
       .findViewById(R.id.search_image);
-    CheckBox selectionBox = (CheckBox) convertView
+    final CheckBox selectionBox = (CheckBox) convertView
       .findViewById(R.id.chk_contact_select);
+
+    convertView.setOnClickListener(new OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        if (ActivitySearch.isSelectionMode == false) {
+          ActivitySearch.showClickedUser(uInfo);
+        } else {
+          selectionBox.setChecked(!selectionBox.isChecked());
+          addToSelectedUsers(uInfo);
+        }
+      }
+    });
+
+    convertView.setOnLongClickListener(new OnLongClickListener() {
+      @Override
+      public boolean onLongClick(View v) {
+        return false;
+      }
+    });
+
+    selectionBox.setClickable(false);
+
     if (ActivitySearch.isSelectionMode == false) {
       selectionBox.setVisibility(View.INVISIBLE);
     } else {
@@ -118,10 +157,6 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
 
     boolean isSelected = ActivitySearch.selectedUsers.contains(uInfo);
     selectionBox.setChecked(isSelected);
-
-    if (ActivitySearch.selectedUsers.contains(uInfo)) {
-      Log.e("UDB", "Found in selected users " + uInfo.getFirstName());
-    }
 
     if (uInfo.getPortrait() != null) {
       portraitImg.setImageBitmap(uInfo.getPortrait());
@@ -182,8 +217,6 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
   }
 
   private String dateToHeaderString(Date addedDate) {
-    Log.e("Dates parsed", "Created at " + addedDate);
-
     final int SEC = 1000;
     final int MIN = SEC * 60;
     final int HOUR = MIN * 60;

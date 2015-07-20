@@ -18,7 +18,7 @@ public class ActivityPreLogin extends Activity {
 
   @Override
   public void onCreate(Bundle SavedInstances) {
-    super.onCreate(SavedInstances);    
+    super.onCreate(SavedInstances);
     ParseAnalytics.trackAppOpenedInBackground(getIntent());
     // addListenerOnButton();
   }

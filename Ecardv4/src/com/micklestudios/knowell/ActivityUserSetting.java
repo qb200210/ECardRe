@@ -104,7 +104,6 @@ public class ActivityUserSetting extends ActionBarActivity {
 
   public class PrefsFragment extends PreferenceFragment {
 
-
     public void setprefDocGreeting(boolean flag) {
       Preference prefDocGreeting = (Preference) findPreference(getString(R.string.prefDocGreeting));
       prefDocGreeting.setEnabled(flag);
@@ -124,15 +123,17 @@ public class ActivityUserSetting extends ActionBarActivity {
           public boolean onPreferenceClick(Preference preference) {
             ParseUser.logOut();
 
-            Intent intent = new Intent(ActivityUserSetting.this, ActivityMain.class);
+            Intent intent = new Intent(ActivityUserSetting.this,
+              ActivityMain.class);
             intent.putExtra("finish", true);
-            intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP); // To clean up all activities
+            intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP
+              | Intent.FLAG_ACTIVITY_CLEAR_TOP); // To clean up all activities
             startActivity(intent);
             ActivityUserSetting.this.finish();
             return true;
           }
         });
-      
+
       // Set default email greetings
       Preference prefEmailGreeting = (Preference) findPreference(getString(R.string.prefEmailGreeting));
       prefEmailGreeting
@@ -688,7 +689,7 @@ public class ActivityUserSetting extends ActionBarActivity {
             return true;
           }
         });
-      
+
       // Set Push toggle
       final CheckBoxPreference pushToggle = (CheckBoxPreference) findPreference(getString(R.string.prefPushNotifications));
       // check sharedpreferences
@@ -747,90 +748,89 @@ public class ActivityUserSetting extends ActionBarActivity {
             return false;
           }
         });
-      
+
       // Placeholder for reminder
-      
+
       // Rating
-      
+
       // Feedback
       Preference feedback = (Preference) findPreference(getString(R.string.prefFeedBack));
-      feedback.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener(){
+      feedback
+        .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 
-        @Override
-        public boolean onPreferenceClick(Preference preference) {
-          LayoutInflater inflaterTmp = getLayoutInflater();
-          View helpView = inflaterTmp.inflate(R.layout.layout_help, null);
-          RobotoTextView helpHeader = (RobotoTextView) helpView
+          @Override
+          public boolean onPreferenceClick(Preference preference) {
+            LayoutInflater inflaterTmp = getLayoutInflater();
+            View helpView = inflaterTmp.inflate(R.layout.layout_help, null);
+            RobotoTextView helpHeader = (RobotoTextView) helpView
               .findViewById(R.id.help_header);
-          RobotoTextView helpBody = (RobotoTextView) helpView
-            .findViewById(R.id.help_body);
-          helpHeader.setText("Team KnoWell");
-          helpBody.setText("We appreciate your feedback!");
-          feedbackDialog = new AlertDialog.Builder(ActivityUserSetting.this)
-          .setView(helpView)
-          .setPositiveButton("Sure",
-            new DialogInterface.OnClickListener() {
-              public void onClick(DialogInterface dialog,
-                int whichButton) {
-                sendFeedback();
-              }
-            }).setNegativeButton("Cancel",
-            new DialogInterface.OnClickListener() {
-              public void onClick(DialogInterface dialog,
-                int whichButton) {
-              }
-            }).setCancelable(true).show();
-          return true;
-        }
-        
-      });
-      
+            RobotoTextView helpBody = (RobotoTextView) helpView
+              .findViewById(R.id.help_body);
+            helpHeader.setText("Team KnoWell");
+            helpBody.setText("We appreciate your feedback!");
+            feedbackDialog = new AlertDialog.Builder(ActivityUserSetting.this)
+              .setView(helpView)
+              .setPositiveButton("Sure", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                  sendFeedback();
+                }
+              })
+              .setNegativeButton("Cancel",
+                new DialogInterface.OnClickListener() {
+                  public void onClick(DialogInterface dialog, int whichButton) {
+                  }
+                }).setCancelable(true).show();
+            return true;
+          }
+
+        });
+
       // Acknowledgement
       Preference acknowledgement = (Preference) findPreference(getString(R.string.prefAcknowledgement));
-      acknowledgement.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener(){
+      acknowledgement
+        .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 
-        @Override
-        public boolean onPreferenceClick(Preference preference) {
-          LayoutInflater inflaterTmp = getLayoutInflater();
-          View helpView = inflaterTmp.inflate(R.layout.layout_help, null);
-          RobotoTextView helpHeader = (RobotoTextView) helpView
+          @Override
+          public boolean onPreferenceClick(Preference preference) {
+            LayoutInflater inflaterTmp = getLayoutInflater();
+            View helpView = inflaterTmp.inflate(R.layout.layout_help, null);
+            RobotoTextView helpHeader = (RobotoTextView) helpView
               .findViewById(R.id.help_header);
-          RobotoTextView helpBody = (RobotoTextView) helpView
-            .findViewById(R.id.help_body);
-          helpHeader.setText("Acknowledgement");
-          helpBody.setText(getString(R.string.prefAckList));
-          feedbackDialog = new AlertDialog.Builder(ActivityUserSetting.this)
-          .setView(helpView)
-          .setNeutralButton("Got it",
-            new DialogInterface.OnClickListener() {
-              public void onClick(DialogInterface dialog,
-                int whichButton) {
-              }
-            }).setCancelable(true).show();
-          return false;
-        }
-        
-      });
+            RobotoTextView helpBody = (RobotoTextView) helpView
+              .findViewById(R.id.help_body);
+            helpHeader.setText("Acknowledgement");
+            helpBody.setText(getString(R.string.prefAckList));
+            feedbackDialog = new AlertDialog.Builder(ActivityUserSetting.this)
+              .setView(helpView)
+              .setNeutralButton("Got it",
+                new DialogInterface.OnClickListener() {
+                  public void onClick(DialogInterface dialog, int whichButton) {
+                  }
+                }).setCancelable(true).show();
+            return false;
+          }
+
+        });
 
     }
 
   }
 
-  
   @SuppressLint("NewApi")
   private void sendFeedback() {
 
     Intent sendIntent = new Intent(Intent.ACTION_SEND);
     sendIntent.setType("message/rfc822");
-    sendIntent.putExtra(Intent.EXTRA_EMAIL, new String[] { getString(R.string.prefFeedbackEmail) });
-    String msgSubject = "[Feedback] From " + ActivityMain.myselfUserInfo.getFirstName() + " " + ActivityMain.myselfUserInfo.getLastName();
+    sendIntent.putExtra(Intent.EXTRA_EMAIL,
+      new String[] { getString(R.string.prefFeedbackEmail) });
+    String msgSubject = "[Feedback] From "
+      + ActivityMain.myselfUserInfo.getFirstName() + " "
+      + ActivityMain.myselfUserInfo.getLastName();
     sendIntent.putExtra(Intent.EXTRA_SUBJECT, msgSubject);
     startActivityForResult(sendIntent, SEND_FEEDBACK);
 
-
   }
-  
-  
+
   @SuppressLint("NewApi")
   private void uploadDoc() {
     // Get the layout inflater
@@ -882,7 +882,7 @@ public class ActivityUserSetting extends ActionBarActivity {
 
   @Override
   public void onActivityResult(int requestCode, int resultCode, Intent data) {
-    Log.e("res", ""+ resultCode);
+    Log.e("res", "" + resultCode);
     switch (requestCode) {
     case UPLOAD_DOC:
       if (resultCode == Activity.RESULT_OK) {
@@ -921,17 +921,17 @@ public class ActivityUserSetting extends ActionBarActivity {
       LayoutInflater inflaterTmp = getLayoutInflater();
       View helpView = inflaterTmp.inflate(R.layout.layout_help, null);
       RobotoTextView helpHeader = (RobotoTextView) helpView
-          .findViewById(R.id.help_header);
+        .findViewById(R.id.help_header);
       RobotoTextView helpBody = (RobotoTextView) helpView
         .findViewById(R.id.help_body);
       helpHeader.setText("Team KnoWell");
-      helpBody.setText("Dear "+ ActivityMain.myselfUserInfo.getFirstName()+",\n\nWe deeply appreciate you providing us your valuable feedback. We will be in touch with you in the next 72 hours.\n\nBest,\nTeam KnoWell");
-      new AlertDialog.Builder(ActivityUserSetting.this)
-      .setView(helpView)
-      .setNeutralButton("OK",
-        new DialogInterface.OnClickListener() {
-          public void onClick(DialogInterface dialog,
-            int whichButton) {
+      helpBody
+        .setText("Dear "
+          + ActivityMain.myselfUserInfo.getFirstName()
+          + ",\n\nWe deeply appreciate you providing us your valuable feedback. We will be in touch with you in the next 72 hours.\n\nBest,\nTeam KnoWell");
+      new AlertDialog.Builder(ActivityUserSetting.this).setView(helpView)
+        .setNeutralButton("OK", new DialogInterface.OnClickListener() {
+          public void onClick(DialogInterface dialog, int whichButton) {
 
           }
         }).setCancelable(true).show();
@@ -1049,7 +1049,7 @@ public class ActivityUserSetting extends ActionBarActivity {
     qrString.append(ActivityMain.myselfUserInfo.getLastName());
     return qrString.toString();
   }
-  
+
   private String getShortLink() {
     String website = ActivityMain.applicationContext
       .getString(R.string.base_website_user);

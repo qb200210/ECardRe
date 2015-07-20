@@ -101,7 +101,7 @@ public class ActivitySearch extends ActionBarActivity {
   // List of users selected by the user.
   public static HashSet<UserInfo> selectedUsers;
   static ArrayList<String> autoCompleteList;
-  SearchListAdapter adapter;
+  static SearchListAdapter adapter;
   AlphaInAnimationAdapter animationAdapter;
   StickyListHeadersAdapterDecorator stickyListHeadersAdapterDecorator;
   StickyListHeadersListView listView;
@@ -159,6 +159,9 @@ public class ActivitySearch extends ActionBarActivity {
   private ImageView btnDeleteSel;
   private boolean isSelectAllChecked;
 
+  // Needed for static functions requiring context
+  private static Context currentContext;
+
   @SuppressLint("InflateParams")
   @Override
   protected void onCreate(final Bundle savedInstanceState) {
@@ -172,6 +175,7 @@ public class ActivitySearch extends ActionBarActivity {
 
     // show custom action bar (on top of standard action bar)
     showActionBar();
+    currentContext = this;
 
     currentUser = ParseUser.getCurrentUser();
 
@@ -268,29 +272,19 @@ public class ActivitySearch extends ActionBarActivity {
     adapter.notifyDataSetChanged();
   }
 
+  public static void showClickedUser(UserInfo uInfo) {
+    // We are simply browsing through the contacts.
+    Intent intent = new Intent(currentContext, ActivityDetails.class);
+    // passing UserInfo is made possible through Parcelable
+    intent.putExtra("userinfo", uInfo);
+    currentContext.startActivity(intent);
+  }
+
   private void initializeContactList() {
     listView.setOnItemClickListener(new OnItemClickListener() {
       @Override
       public void onItemClick(AdapterView<?> parent, View view, int position,
         long id) {
-        UserInfo clickedUser = (UserInfo) listView.getItemAtPosition(position);
-
-        if (isSelectionMode == false) {
-          // We are simply browsing through the contacts.
-          Intent intent = new Intent(getBaseContext(), ActivityDetails.class);
-          // passing UserInfo is made possible through Parcelable
-          intent.putExtra("userinfo", clickedUser);
-          startActivity(intent);
-        } else {
-          // If this is already selected, remove it.
-          if (selectedUsers.contains(clickedUser)) {
-            selectedUsers.remove(clickedUser);
-          } else {
-            selectedUsers.add(clickedUser);
-          }
-
-          adapter.notifyDataSetChanged();
-        }
       }
     });
 
@@ -706,22 +700,21 @@ public class ActivitySearch extends ActionBarActivity {
         Intent emailIntent = new Intent(Intent.ACTION_SEND);
         emailIntent.setData(Uri.parse("mailto:"));
         emailIntent.setType("message/rfc822");
-        emailIntent.putExtra(Intent.EXTRA_EMAIL, TO.toArray(new String[TO.size()]));
+        emailIntent.putExtra(Intent.EXTRA_EMAIL,
+          TO.toArray(new String[TO.size()]));
         String msgSubject;
         if (ActivityMain.currentUser.get("emailSubject") != null
-          && !ActivityMain.currentUser.get("emailSubject").toString()
-            .isEmpty()) {
-          msgSubject = ActivityMain.currentUser.get("emailSubject")
-            .toString();
-          String processedSubject = msgSubject.replaceAll("#r[a-zA-Z0-9]*#",
-            "");
+          && !ActivityMain.currentUser.get("emailSubject").toString().isEmpty()) {
+          msgSubject = ActivityMain.currentUser.get("emailSubject").toString();
+          String processedSubject = msgSubject
+            .replaceAll("#r[a-zA-Z0-9]*#", "");
           processedSubject = processedSubject.replaceAll("#m[a-zA-Z0-9]*#",
             ActivityMain.myselfUserInfo.getFirstName() + " "
               + ActivityMain.myselfUserInfo.getLastName());
           processedSubject = processedSubject.replaceAll("#c[a-zA-Z0-9]*#",
             ActivityMain.myselfUserInfo.getCompany());
-          msgSubject = processedSubject.replaceAll("#k[a-zA-Z0-9]*#",
-            getLink());
+          msgSubject = processedSubject
+            .replaceAll("#k[a-zA-Z0-9]*#", getLink());
 
         } else {
           msgSubject = "Greetings from "
@@ -736,8 +729,7 @@ public class ActivitySearch extends ActionBarActivity {
         if (ActivityMain.currentUser.get("emailBody") != null
           && !ActivityMain.currentUser.get("emailBody").toString().isEmpty()) {
           msgBody = ActivityMain.currentUser.get("emailBody").toString();
-          String processedBody = msgBody.replaceAll("#r[a-zA-Z0-9]*#",
-            "");
+          String processedBody = msgBody.replaceAll("#r[a-zA-Z0-9]*#", "");
           processedBody = processedBody.replaceAll("#m[a-zA-Z0-9]*#",
             ActivityMain.myselfUserInfo.getFirstName() + " "
               + ActivityMain.myselfUserInfo.getLastName());
@@ -745,12 +737,9 @@ public class ActivitySearch extends ActionBarActivity {
             ActivityMain.myselfUserInfo.getCompany());
           msgBody = processedBody.replaceAll("#k[a-zA-Z0-9]*#", getLink());
         } else {
-          msgBody = "Hi "
-            + ",\n\nThis is "
-            + ActivityMain.myselfUserInfo.getFirstName()
-            + " "
-            + ActivityMain.myselfUserInfo.getLastName()
-            + " from "
+          msgBody = "Hi " + ",\n\nThis is "
+            + ActivityMain.myselfUserInfo.getFirstName() + " "
+            + ActivityMain.myselfUserInfo.getLastName() + " from "
             + ActivityMain.myselfUserInfo.getCompany()
             + ".\n\nIt was great to meet you! Keep in touch! \n\nBest,\n"
             + ActivityMain.myselfUserInfo.getFirstName()
@@ -1187,7 +1176,7 @@ public class ActivitySearch extends ActionBarActivity {
 
     });
   }
-  
+
   private String getLink() {
     String website = ActivityMain.applicationContext
       .getString(R.string.base_website_user);
@@ -1200,7 +1189,7 @@ public class ActivitySearch extends ActionBarActivity {
     qrString.append(ActivityMain.myselfUserInfo.getLastName());
     return qrString.toString();
   }
-  
+
   private String getShortLink() {
     String website = ActivityMain.applicationContext
       .getString(R.string.base_website_user);
