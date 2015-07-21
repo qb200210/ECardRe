@@ -71,7 +71,7 @@ public class ConversationsListAdapter extends ArrayAdapter<UserInfo> implements
 
   public void reSortName(boolean ascending) {
     sortModeName = true;
-    Comparator<UserInfo> comparer = new UserInfoNameComparator();
+    Comparator<UserInfo> comparer = new UserInfoNameUComparator();
 
     if (ascending == false) {
       comparer = Collections.reverseOrder(comparer);
@@ -82,7 +82,7 @@ public class ConversationsListAdapter extends ArrayAdapter<UserInfo> implements
   public void reSortDate(boolean ascending) {
     sortModeName = false;
 
-    Comparator<UserInfo> comparer = new UserInfoDateComparator();
+    Comparator<UserInfo> comparer = new UserInfoDateUComparator();
 
     if (ascending == false) {
       comparer = Collections.reverseOrder(comparer);

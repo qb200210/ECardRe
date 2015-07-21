@@ -28,6 +28,7 @@ import com.micklestudios.knowell.ActivitySearch;
 import com.nhaarman.listviewanimations.ArrayAdapter;
 import com.nhaarman.listviewanimations.itemmanipulation.swipedismiss.undo.UndoAdapter;
 import com.micklestudios.knowell.R;
+import com.micklestudios.knowell.utils.AppGlobals;
 
 public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
     UndoAdapter, StickyListHeadersAdapter {
@@ -35,15 +36,15 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
   private final Context mContext;
   private boolean sortModeName = true;
 
-  public SearchListAdapter(final Context context, ArrayList<UserInfo> users) {
+  public SearchListAdapter(final Context context, ArrayList<Integer> users) {
     mContext = context;
     refreshData(users);
   }
 
-  public void refreshData(ArrayList<UserInfo> users) {
+  public void refreshData(ArrayList<Integer> users) {
     clear();
     for (int i = 0; i < ActivitySearch.filteredUsers.size(); i++) {
-      add(ActivitySearch.filteredUsers.get(i));
+      add(AppGlobals.allUsers.get(ActivitySearch.filteredUsers.get(i)));
     }
   }
 
@@ -54,7 +55,7 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
 
   @Override
   public UserInfo getItem(final int position) {
-    return ActivitySearch.filteredUsers.get(position);
+    return AppGlobals.allUsers.get(ActivitySearch.filteredUsers.get(position));
   }
 
   @Override
@@ -82,7 +83,7 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
 
   public void reSortName(boolean ascending) {
     sortModeName = true;
-    Comparator<UserInfo> comparer = new UserInfoNameComparator();
+    Comparator<Integer> comparer = new UserInfoNameComparator();
 
     if (ascending == false) {
       comparer = Collections.reverseOrder(comparer);
@@ -93,7 +94,7 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
   public void reSortDate(boolean ascending) {
     sortModeName = false;
 
-    Comparator<UserInfo> comparer = new UserInfoDateComparator();
+    Comparator<Integer> comparer = new UserInfoDateComparator();
 
     if (ascending == false) {
       comparer = Collections.reverseOrder(comparer);
@@ -121,7 +122,8 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
         R.layout.search_result_card, parent, false);
     }
 
-    final UserInfo uInfo = ActivitySearch.filteredUsers.get(position);
+    final UserInfo uInfo = AppGlobals.allUsers.get(ActivitySearch.filteredUsers
+      .get(position));
 
     ImageView portraitImg = (ImageView) convertView
       .findViewById(R.id.search_image);
@@ -184,7 +186,8 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
     }
 
     TextView headerText = (TextView) convertView.findViewById(R.id.text_header);
-    UserInfo localUser = ActivitySearch.filteredUsers.get(position);
+    UserInfo localUser = AppGlobals.allUsers.get(ActivitySearch.filteredUsers
+      .get(position));
 
     if (sortModeName) {
       String first = localUser.getFirstName();
@@ -202,18 +205,18 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
 
   @Override
   public long getHeaderId(final int position) {
+    UserInfo uInfo = AppGlobals.allUsers.get(ActivitySearch.filteredUsers
+      .get(position));
     if (sortModeName) {
-      if (ActivitySearch.filteredUsers.get(position).getFirstName() != null
-        && ActivitySearch.filteredUsers.get(position).getFirstName() != "") {
-        return ActivitySearch.filteredUsers.get(position).getFirstName()
-          .toUpperCase(Locale.ENGLISH).toCharArray()[0];
+      String firstName = uInfo.getFirstName();
+      if (firstName != null && firstName != "") {
+        return firstName.toUpperCase(Locale.ENGLISH).toCharArray()[0];
       } else {
         Log.i("getHeaderId", "empty first name");
         return 'N';
       }
     } else {
-      return dateToHeaderString(
-        ActivitySearch.filteredUsers.get(position).getWhenMet()).length();
+      return dateToHeaderString(uInfo.getWhenMet()).length();
     }
   }
 

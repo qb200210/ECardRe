@@ -96,7 +96,7 @@ public class ActivitySearch extends ActionBarActivity {
   AutoCompleteTextView filterTextCompany;
 
   // List of users filtered after search.
-  public static ArrayList<UserInfo> filteredUsers;
+  public static ArrayList<Integer> filteredUsers;
 
   // List of users selected by the user.
   public static HashSet<UserInfo> selectedUsers;
@@ -179,7 +179,7 @@ public class ActivitySearch extends ActionBarActivity {
 
     currentUser = ParseUser.getCurrentUser();
 
-    filteredUsers = new ArrayList<UserInfo>();
+    filteredUsers = new ArrayList<Integer>();
     selectedUsers = new HashSet<UserInfo>();
     autoCompleteList = new ArrayList<String>();
     searchListToUserListMap = new SparseIntArray();
@@ -371,7 +371,6 @@ public class ActivitySearch extends ActionBarActivity {
           }
         }
       }
-
     });
 
     filterTextWhereMet.addTextChangedListener(new TextWatcher() {
@@ -379,14 +378,10 @@ public class ActivitySearch extends ActionBarActivity {
       @Override
       public void beforeTextChanged(CharSequence s, int start, int count,
         int after) {
-        // TODO Auto-generated method stub
-
       }
 
       @Override
       public void onTextChanged(CharSequence s, int start, int before, int count) {
-        // TODO Auto-generated method stub
-
       }
 
       @Override
@@ -465,14 +460,10 @@ public class ActivitySearch extends ActionBarActivity {
       @Override
       public void beforeTextChanged(CharSequence s, int start, int count,
         int after) {
-        // TODO Auto-generated method stub
-
       }
 
       @Override
       public void onTextChanged(CharSequence s, int start, int before, int count) {
-        // TODO Auto-generated method stub
-
       }
 
       @Override
@@ -657,7 +648,9 @@ public class ActivitySearch extends ActionBarActivity {
       public void onClick(View v) {
         selectedUsers.clear();
         if (isSelectAllChecked) {
-          selectedUsers.addAll(filteredUsers);
+          for (int i = 0; i < filteredUsers.size() - 1; i++, selectedUsers
+            .add(AppGlobals.allUsers.get(filteredUsers.get(i))))
+            ;
           isSelectAllChecked = false;
         } else {
           isSelectAllChecked = true;
@@ -805,22 +798,25 @@ public class ActivitySearch extends ActionBarActivity {
     filteredUsers.clear();
 
     // Create a temporary list so that we can iterate over one of them.
-    ArrayList<UserInfo> tempUserInfoList = new ArrayList<UserInfo>();
+    ArrayList<Integer> tempUserInfoList = new ArrayList<Integer>();
 
     /*
      * First, let's go through all the filters. Let's assume that all the users
      * will be selected.
      */
-    filteredUsers.addAll(AppGlobals.allUsers);
+    for (int i = 0; i < AppGlobals.allUsers.size() - 1; i++, filteredUsers
+      .add(i))
+      ;
     {
       // Start with the Where Met filter.
       String filterKey = filterTextWhereMet.getText().toString()
         .toLowerCase(Locale.ENGLISH);
       if (filterKey != "") {
-        for (UserInfo uInfo : filteredUsers) {
+        for (Integer uInfoIndex : filteredUsers) {
+          UserInfo uInfo = AppGlobals.allUsers.get(uInfoIndex);
           if (uInfo.getWhereMet().toLowerCase(Locale.ENGLISH)
             .contains(filterKey)) {
-            tempUserInfoList.add(uInfo);
+            tempUserInfoList.add(uInfoIndex);
           }
         }
         filteredUsers.clear();
@@ -832,10 +828,11 @@ public class ActivitySearch extends ActionBarActivity {
       filterKey = filterTextCompany.getText().toString()
         .toLowerCase(Locale.ENGLISH);
       if (filterKey != "") {
-        for (UserInfo uInfo : filteredUsers) {
+        for (Integer uInfoIndex : filteredUsers) {
+          UserInfo uInfo = AppGlobals.allUsers.get(uInfoIndex);
           if (uInfo.getCompany().toLowerCase(Locale.ENGLISH)
             .contains(filterKey)) {
-            tempUserInfoList.add(uInfo);
+            tempUserInfoList.add(uInfoIndex);
           }
         }
         filteredUsers.clear();
@@ -847,17 +844,17 @@ public class ActivitySearch extends ActionBarActivity {
       filterKey = filterTextEventMet.getText().toString()
         .toLowerCase(Locale.ENGLISH);
       if (filterKey != "") {
-        for (UserInfo uInfo : filteredUsers) {
+        for (Integer uInfoIndex : filteredUsers) {
+          UserInfo uInfo = AppGlobals.allUsers.get(uInfoIndex);
           if (uInfo.getEventMet().toLowerCase(Locale.ENGLISH)
             .contains(filterKey)) {
-            tempUserInfoList.add(uInfo);
+            tempUserInfoList.add(uInfoIndex);
           }
         }
         filteredUsers.clear();
         filteredUsers.addAll(tempUserInfoList);
         tempUserInfoList.clear();
       }
-
     }
 
     /*
@@ -875,7 +872,8 @@ public class ActivitySearch extends ActionBarActivity {
       }
 
       Pattern pattern = Pattern.compile(regex_str);
-      for (UserInfo uInfo : filteredUsers) {
+      for (Integer uInfoIndex : filteredUsers) {
+        UserInfo uInfo = AppGlobals.allUsers.get(uInfoIndex);
         String name_str = uInfo.getFirstName().toLowerCase(Locale.ENGLISH)
           + " " + uInfo.getLastName().toLowerCase(Locale.ENGLISH);
         String company_str = uInfo.getCompany().toLowerCase(Locale.ENGLISH);
@@ -889,15 +887,16 @@ public class ActivitySearch extends ActionBarActivity {
         Matcher title_matcher = pattern.matcher(title_str);
         Matcher city_matcher = pattern.matcher(city_str);
         if (user_str.contains(token)) {
-          tempUserInfoList.add(uInfo);
+          tempUserInfoList.add(uInfoIndex);
         } else if (name_matcher.matches() || company_matcher.matches()
           || title_matcher.matches() || city_matcher.matches()) {
-          tempUserInfoList.add(uInfo);
+          tempUserInfoList.add(uInfoIndex);
         }
       }
 
       if (tempUserInfoList.isEmpty()) {
-        for (UserInfo uInfo : filteredUsers) {
+        for (Integer uInfoIndex : filteredUsers) {
+          UserInfo uInfo = AppGlobals.allUsers.get(uInfoIndex);
           String name_str = uInfo.getFirstName().toLowerCase(Locale.ENGLISH)
             + " " + uInfo.getLastName().toLowerCase(Locale.ENGLISH);
           String company_str = uInfo.getCompany().toLowerCase(Locale.ENGLISH);
@@ -928,7 +927,7 @@ public class ActivitySearch extends ActionBarActivity {
 
           if (name_mismatch_flag * company_mismatch_flag * title_mismatch_flag
             * city_mismatch_flag == 0) {
-            tempUserInfoList.add(uInfo);
+            tempUserInfoList.add(uInfoIndex);
           }
         }
       }

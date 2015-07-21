@@ -5,12 +5,10 @@ import java.util.Date;
 
 import com.micklestudios.knowell.utils.AppGlobals;
 
-public class UserInfoDateComparator implements Comparator<Integer> {
+public class UserInfoDateUComparator implements Comparator<UserInfo> {
 
   @Override
-  public int compare(Integer lhsIndex, Integer rhsIndex) {
-    UserInfo lhs = AppGlobals.allUsers.get(lhsIndex);
-    UserInfo rhs = AppGlobals.allUsers.get(rhsIndex);
+  public int compare(UserInfo lhs, UserInfo rhs) {
     Date lhsDate = lhs.getWhenMet();
     Date rhsDate = rhs.getWhenMet();
 

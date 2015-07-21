@@ -1,41 +1,28 @@
 package com.micklestudios.knowell.infrastructure;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
+import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.res.Resources;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.micklestudios.knowell.ActivityConversations;
-import com.micklestudios.knowell.ActivityHistory;
-import com.micklestudios.knowell.ActivityMain;
-import com.micklestudios.knowell.ActivitySearch;
+import com.micklestudios.knowell.R;
 import com.nhaarman.listviewanimations.ArrayAdapter;
 import com.nhaarman.listviewanimations.itemmanipulation.swipedismiss.undo.UndoAdapter;
 import com.parse.ParseObject;
-import com.micklestudios.knowell.R;
-
-import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 
 public class HistoryListAdapter extends ArrayAdapter<ParseObject> implements
     UndoAdapter, StickyListHeadersAdapter {
 
   private final Context mContext;
-  private boolean sortModeName = true;
   private List<ParseObject> historyObjects;
   protected static final int SHARE_QR_MSG = 1002;
   protected static final int SHARE_QR_EMAIL = 1003;
@@ -106,7 +93,6 @@ public class HistoryListAdapter extends ArrayAdapter<ParseObject> implements
       }
     }
     TextView msgView = (TextView) convertView.findViewById(R.id.history_msg);
-    Log.i("aaaaa", " " + position);
     if (historyObjects.get(position).get("notes") != null) {
       msgView.setText(historyObjects.get(position).get("notes").toString());
     } else {

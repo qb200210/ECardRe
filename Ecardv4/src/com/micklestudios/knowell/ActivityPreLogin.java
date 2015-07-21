@@ -14,7 +14,6 @@ import com.parse.ui.ParseLoginBuilder;
 public class ActivityPreLogin extends Activity {
   private static final int LOGIN_REQUEST = 0;
   ParseFile file = null;
-  ParseUser currentUser;
 
   @Override
   public void onCreate(Bundle SavedInstances) {
@@ -27,9 +26,10 @@ public class ActivityPreLogin extends Activity {
   protected void onStart() {
     super.onStart();
 
-    currentUser = ParseUser.getCurrentUser();
+    AppGlobals.currentUser = ParseUser.getCurrentUser();
 
-    if (currentUser != null && currentUser.get("ecardId") != null) {
+    if (AppGlobals.currentUser != null
+      && AppGlobals.currentUser.get("ecardId") != null) {
       // If already logged in, skip this check
       Intent intent = new Intent(getBaseContext(), ActivityBufferOpening.class);
       startActivity(intent);
@@ -67,7 +67,7 @@ public class ActivityPreLogin extends Activity {
       // Initialize the global lists
       AppGlobals.initializePotentialUsers();
 
-      currentUser = ParseUser.getCurrentUser();
+      AppGlobals.currentUser = ParseUser.getCurrentUser();
       Intent intent = new Intent(getBaseContext(), ActivityBufferOpening.class);
       startActivity(intent);
       finish();
