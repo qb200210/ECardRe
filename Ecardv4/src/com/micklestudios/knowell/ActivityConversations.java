@@ -75,15 +75,10 @@ public class ActivityConversations extends ActionBarActivity {
     dialog.setContentView(R.layout.layout_dialog_scanned_process);
 
     retrieveAllViews();
+    
+    AppGlobals.ensureNonNullUponResume();
 
     initializeContactList();
-  }
-
-  @Override
-  public void onResume() {
-    super.onResume();
-    // Initialize the global lists if needed since we will be using them
-    AppGlobals.initializePotentialUsers();
   }
 
   private void retrieveAllViews() {

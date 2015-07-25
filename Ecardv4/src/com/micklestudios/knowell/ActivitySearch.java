@@ -167,9 +167,10 @@ public class ActivitySearch extends ActionBarActivity {
   protected void onCreate(final Bundle savedInstanceState) {
     // Inflate the layout.
     super.onCreate(savedInstanceState);
+        
     mainView = getLayoutInflater().inflate(R.layout.activity_search, null);
     setContentView(mainView);
-
+    
     // Get all the views from the layout.
     retrieveAllViews();
 
@@ -212,16 +213,13 @@ public class ActivitySearch extends ActionBarActivity {
         searchPanel.setTranslationY(searchMenuRetractedHeight);
       }
     });
+    
+    AppGlobals.ensureNonNullUponResume();
 
     // Finally, load the contacts.
     performSearch();
   }
 
-  @Override
-  public void onResume() {
-    super.onResume();
-    AppGlobals.initializeAllContacts();
-  }
 
   private void retrieveAllViews() {
     // Retrieve all the filters and layouts.
@@ -797,11 +795,6 @@ public class ActivitySearch extends ActionBarActivity {
   private void performSearch() {
     filteredUsers.clear();
     
-    if(AppGlobals.allUsers == null){
-      // If null, block the code and make sure data is re-populated
-      AppGlobals.initializeAllContactsBlocking();
-    }
-
     // Create a temporary list so that we can iterate over one of them.
     ArrayList<Integer> tempUserInfoList = new ArrayList<Integer>();
 

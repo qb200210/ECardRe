@@ -47,6 +47,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.micklestudios.knowell.infrastructure.UserInfo;
 import com.micklestudios.knowell.utils.AppGlobals;
 import com.micklestudios.knowell.utils.ECardUtils;
 import com.micklestudios.knowell.utils.ExpandableHeightGridView;
@@ -109,12 +110,22 @@ public class ActivityDesign extends ActionBarActivity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    
+    // This fixes the lost data/ crash issues upon restoring from resume
+    if(savedInstanceState != null){
+      currentUser = ParseUser.getCurrentUser();
+      ActivityMain.myselfUserInfo = savedInstanceState.getParcelable("myself");
+    } else {
+      currentUser = ParseUser.getCurrentUser();
+      ActivityMain.myselfUserInfo = new UserInfo(currentUser.get("ecardId").toString(), "",
+        "", true, false, false);
+    }
+    
     setContentView(R.layout.activity_design);
     scrollView = (MyScrollView) findViewById(R.id.design_scroll_view);
     scrollView.setmScrollable(true);
     showActionBar();
     currentUser = ParseUser.getCurrentUser();
-    Bundle data = getIntent().getExtras();
     displayMyCard();
 
     // complete list of possible extrainfo items
@@ -177,6 +188,12 @@ public class ActivityDesign extends ActionBarActivity {
       }
     });
 
+  }
+  
+  @Override
+  public void onSaveInstanceState(Bundle outState) {
+    outState.putParcelable("myself", ActivityMain.myselfUserInfo);
+    super.onSaveInstanceState(outState);
   }
 
   private void showActionBar() {

@@ -20,6 +20,7 @@ import android.os.CountDownTimer;
 import android.os.Environment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -68,14 +69,15 @@ public class ActivityDetails extends ActionBarActivity {
   private int recordstatus1 = 0;
   public Date newDate;
   private boolean flagVoiceNoteChanged = false;
+  private UserInfo newUser;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    currentUser = ParseUser.getCurrentUser();
     // show custom action bar (on top of standard action bar)
     showActionBar();
     setContentView(R.layout.activity_scanned);
-    currentUser = ParseUser.getCurrentUser();
 
     replayButtonPanel = (ImageView) findViewById(R.id.panel_play_button);
     recorderButton = (ImageView) findViewById(R.id.panel_recorder_button);
@@ -86,7 +88,14 @@ public class ActivityDetails extends ActionBarActivity {
     scrollView.setmScrollable(true);
 
     Bundle data = getIntent().getExtras();
-    final UserInfo newUser = (UserInfo) data.getParcelable("userinfo");
+    if(data != null){
+      newUser = (UserInfo) data.getParcelable("userinfo");
+    }
+    
+    // This fixes the lost data/ crash issues upon restoring from resume
+    if(savedInstanceState != null){
+      newUser = savedInstanceState.getParcelable("newUser");
+    } 
 
     DetailsPagerAdapter mAdapter = new DetailsPagerAdapter(
       getSupportFragmentManager(), newUser, this);
@@ -357,6 +366,12 @@ public class ActivityDetails extends ActionBarActivity {
     // findViewById(R.id.details_maincard_container);
     // scrollView.requestChildFocus(mainCardContainer, null);
 
+  }
+  
+  @Override
+  public void onSaveInstanceState(Bundle outState) {
+    outState.putParcelable("newUser", newUser);
+    super.onSaveInstanceState(outState);
   }
 
   private void showActionBar() {

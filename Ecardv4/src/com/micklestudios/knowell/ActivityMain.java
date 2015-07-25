@@ -116,6 +116,16 @@ public class ActivityMain extends ActionBarActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     
+    applicationContext = getApplicationContext();
+    Bundle b = getIntent().getExtras();
+    if (b != null) {
+      if (b.get("imgFromTmpData") != null) {
+        // this value is set when returning from ActivityDesign
+        imgFromTmpData = (boolean) b.get("imgFromTmpData");
+      }
+    }
+    
+    // This fixes the lost data/ crash issues upon restoring from resume
     if(savedInstanceState != null){
       currentUser = ParseUser.getCurrentUser();
       myselfUserInfo = savedInstanceState.getParcelable("myself");
@@ -129,17 +139,6 @@ public class ActivityMain extends ActionBarActivity {
     showActionBar();
     setContentView(R.layout.activity_main);
 
-    applicationContext = getApplicationContext();
-
-    Bundle b = getIntent().getExtras();
-    if (b != null) {
-      Log.e("main", "oncreate");
-
-      if (b.get("imgFromTmpData") != null) {
-        imgFromTmpData = (boolean) b.get("imgFromTmpData");
-      }
-    }
-
     Display display = getWindowManager().getDefaultDisplay();
     DisplayMetrics outMetrics = new DisplayMetrics();
     display.getMetrics(outMetrics);
@@ -148,10 +147,6 @@ public class ActivityMain extends ActionBarActivity {
     float dpHeight = outMetrics.heightPixels / density;
     float dpWidth = outMetrics.widthPixels / density;
     Log.i("res", "height: " + dpHeight + "  , width: " + dpWidth);
-
-    currentUser = ParseUser.getCurrentUser();
-    // pull myself info from localdatastore
-    Log.i("imgtmp", " " + imgFromTmpData);
 
     mAdapter = new MyPagerAdapter(getSupportFragmentManager());
 

@@ -111,18 +111,27 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
     // 2. offline, didn't check ecard exist or if collected
 
     super.onCreate(savedInstanceState);
+    currentUser = ParseUser.getCurrentUser();
     setContentView(R.layout.activity_scanned);
     showActionBar();
     filepath = getFilename();
-    currentUser = ParseUser.getCurrentUser();
 
     scrollView = (MyScrollView) findViewById(R.id.scroll_view_scanned);
     scrollView.setmScrollable(true);
 
     Bundle data = getIntent().getExtras();
-    scannedUser = (UserInfo) data.getParcelable("userinfo");
-    flagOfflineMode = (boolean) data.get("offlineMode");
-    deletedNoteId = (String) data.get("deletedNoteId");
+    if(data != null){
+      scannedUser = (UserInfo) data.getParcelable("userinfo");
+      flagOfflineMode = (boolean) data.get("offlineMode");
+      deletedNoteId = (String) data.get("deletedNoteId");
+    }
+    
+    // This fixes the lost data/ crash issues upon restoring from resume
+    if(savedInstanceState != null){
+      scannedUser = savedInstanceState.getParcelable("userinfo");
+      flagOfflineMode = savedInstanceState.getBoolean("offlineMode");
+      deletedNoteId = savedInstanceState.getString("deletedNoteId");
+    }
 
     DetailsPagerAdapter mAdapter = new DetailsPagerAdapter(
       getSupportFragmentManager(), scannedUser, this);
@@ -447,6 +456,14 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
     // findViewById(R.id.details_maincard_container);
     // scrollView.requestChildFocus(mainCardContainer, null);
 
+  }
+  
+  @Override
+  public void onSaveInstanceState(Bundle outState) {
+    outState.putParcelable("userinfo", scannedUser);
+    outState.putBoolean("offlineMode", flagOfflineMode);
+    outState.putString("deletedNoteId", deletedNoteId);
+    super.onSaveInstanceState(outState);
   }
 
   @SuppressLint("NewApi")
