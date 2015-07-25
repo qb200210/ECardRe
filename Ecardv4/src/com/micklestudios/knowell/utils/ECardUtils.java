@@ -118,20 +118,22 @@ public class ECardUtils {
       && listTemplateObjectsLocal.size() != 0) {
       ParseFile logoFile = (ParseFile) listTemplateObjectsLocal.get(0).get(
         "companyLogo");
-      byte[] data;
-      try {
-        data = logoFile.getData();
-        if (data != null) {
-          Bitmap logo = BitmapFactory.decodeByteArray(data, 0, data.length);
-          logoImg.setImageBitmap(logo);
-          Log.i("found", listTemplateObjectsLocal.get(0).get("companyName")
-            .toString());
-        } else {
-          logoImg.setImageResource(R.drawable.emptylogo);
+      if(logoFile != null){
+        byte[] data;
+        try {
+          data = logoFile.getData();
+          if (data != null) {
+            Bitmap logo = BitmapFactory.decodeByteArray(data, 0, data.length);
+            logoImg.setImageBitmap(logo);
+            Log.i("found", listTemplateObjectsLocal.get(0).get("companyName")
+              .toString());
+          } else {
+            logoImg.setImageResource(R.drawable.emptylogo);
+          }
+        } catch (ParseException e1) {
+          // TODO Auto-generated catch block
+          e1.printStackTrace();
         }
-      } catch (ParseException e1) {
-        // TODO Auto-generated catch block
-        e1.printStackTrace();
       }
     } else {
       if (checkOnline) {

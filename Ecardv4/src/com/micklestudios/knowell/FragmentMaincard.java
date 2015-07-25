@@ -32,15 +32,13 @@ public class FragmentMaincard extends Fragment implements UpdateableFragment {
 
   }
 
-  @Override
-  public void onSaveInstanceState(Bundle outState) {
-    super.onSaveInstanceState(outState);
-    Log.v("onsave", "In frag's on save instance state ");
-  }
+  
 
   @Override
   public View onCreateView(LayoutInflater inflater, ViewGroup container,
-    Bundle savedInstanceState) {
+    Bundle savedInstanceState) {    
+    super.onCreate(savedInstanceState);
+    
     Bundle bundle = this.getArguments();
 
     Log.i("maincard", "oncreateview");
