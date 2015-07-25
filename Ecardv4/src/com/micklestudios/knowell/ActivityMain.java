@@ -156,6 +156,7 @@ public class ActivityMain extends ActionBarActivity {
   @Override
   public void onResume() {
     super.onResume();
+    currentUser = ParseUser.getCurrentUser();
     myselfUserInfo = new UserInfo(currentUser.get("ecardId").toString(), "",
       "", true, false, imgFromTmpData);
   }

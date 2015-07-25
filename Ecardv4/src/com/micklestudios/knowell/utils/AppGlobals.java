@@ -226,6 +226,105 @@ public class AppGlobals {
       });
     }
   }
+  
+  public static void initializeAllContactsBlocking() {
+    if (allUsers == null) {
+      allUsers = new ArrayList<UserInfo>();
+    }
+
+    
+      allUsers.clear();
+      
+      currentUser = ParseUser.getCurrentUser();
+
+      /* A map of all the ECardNote objects to the noteID */
+      final HashMap<String, ParseObject> noteIdToNoteObjectMap = new HashMap<String, ParseObject>();
+
+      ParseQuery<ParseObject> queryNotes = ParseQuery.getQuery("ECardNote");
+      queryNotes.fromLocalDatastore();
+      queryNotes.whereEqualTo("userId", AppGlobals.currentUser.getObjectId());
+      queryNotes.whereNotEqualTo("isDeleted", true);
+      List<ParseObject> objectsNoteList = null;
+      try {
+        objectsNoteList = queryNotes.find();
+      } catch (ParseException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+      
+        if (objectsNoteList != null) {
+          // Got a list of all the notes. Now collect all the noteIDs.
+          for (Iterator<ParseObject> iter = objectsNoteList.iterator(); iter
+            .hasNext();) {
+            ParseObject objectNote = iter.next();
+            String infoObjectId = (String) objectNote.get("ecardId");
+
+            // Add these values to the map.
+            noteIdToNoteObjectMap.put(infoObjectId, objectNote);
+          }
+
+          /*
+           * Now, query the ECardInfoTable to get all the ECardInfo for the
+           * notes collected here.
+           */
+          ParseQuery<ParseObject> queryInfo = ParseQuery
+            .getQuery("ECardInfo");
+          queryInfo.fromLocalDatastore();
+          queryInfo.whereContainedIn("objectId",
+            noteIdToNoteObjectMap.keySet());
+
+          List<ParseObject> objectInfoList = null;
+          try {
+            objectInfoList = queryInfo.find();
+          } catch (ParseException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+          }
+          if(objectInfoList!=null){
+            // Create sets to add the strings we find in the contacts.
+            HashSet<String> setCompany = new HashSet<String>();
+            HashSet<String> setWhereMet = new HashSet<String>();
+            HashSet<String> setEventMet = new HashSet<String>();
+            HashSet<String> setAll = new HashSet<String>();
+  
+            ActivitySearch.autoCompleteListAll = new ArrayList<String>();
+            ActivitySearch.autoCompleteListCompany = new ArrayList<String>();
+            ActivitySearch.autoCompleteListEvent = new ArrayList<String>();
+            ActivitySearch.autoCompleteListWhere = new ArrayList<String>();
+  
+            // Iterate over the list.
+            for (Iterator<ParseObject> iter = objectInfoList.iterator(); iter
+              .hasNext();) {
+              ParseObject objectInfo = iter.next();
+              UserInfo contact = new UserInfo(objectInfo);
+              if (contact != null) {
+                // Contact has been created. Populate the "createdAt"
+                // from
+                // the note object.
+                String infoObjectId = (String) objectInfo.getObjectId();
+                ParseObject objectNote = noteIdToNoteObjectMap
+                  .get(infoObjectId);
+                contact.setWhenMet((Date) objectNote.get("whenMet"));
+                contact.setEventMet(objectNote.getString("event_met"));
+                contact.setWhereMet(objectNote.getString("where_met"));
+                contact.setNotes(objectNote.getString("notes"));
+  
+                allUsers.add(contact);
+  
+                setCompany.add(contact.getCompany());
+                setWhereMet.add(contact.getWhereMet());
+                setEventMet.add(contact.getEventMet());
+                setAll.addAll(contact.getAllStrings());
+              }
+            }
+            ActivitySearch.autoCompleteListCompany.addAll(setCompany);
+            ActivitySearch.autoCompleteListEvent.addAll(setEventMet);
+            ActivitySearch.autoCompleteListWhere.addAll(setWhereMet);
+            ActivitySearch.autoCompleteListAll.addAll(setAll);
+          }
+        }
+      
+  }
 
   public static void refreshGlobalParseBasedData() {
     initializeAllContacts();

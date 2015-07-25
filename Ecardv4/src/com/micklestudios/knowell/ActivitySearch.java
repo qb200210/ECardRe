@@ -796,6 +796,11 @@ public class ActivitySearch extends ActionBarActivity {
 
   private void performSearch() {
     filteredUsers.clear();
+    
+    if(AppGlobals.allUsers == null){
+      // If null, block the code and make sure data is re-populated
+      AppGlobals.initializeAllContactsBlocking();
+    }
 
     // Create a temporary list so that we can iterate over one of them.
     ArrayList<Integer> tempUserInfoList = new ArrayList<Integer>();

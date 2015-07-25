@@ -56,6 +56,7 @@ import com.micklestudios.knowell.utils.MySimpleListViewAdapter;
 import com.micklestudios.knowell.utils.MyTag;
 import com.micklestudios.knowell.utils.SquareLayout;
 import com.parse.GetCallback;
+import com.parse.ParseACL;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
@@ -360,6 +361,8 @@ public class ActivityDesign extends ActionBarActivity {
                 templateToBePinned.pinInBackground();
               }
             }
+            
+            
 
             EditText name = (EditText) findViewById(R.id.design_name);
             String fullName = name.getText().toString();
@@ -383,6 +386,17 @@ public class ActivityDesign extends ActionBarActivity {
             object.put("lastName", lastName);
 
             AutoCompleteTextView cmpName = (AutoCompleteTextView) findViewById(R.id.design_com);
+            // Testing beforeSave for ECardTemplate Objects
+            ParseObject newTemplateObj = new ParseObject("ECardTemplate");
+            newTemplateObj.put("companyName", cmpName.getText().toString());
+            ParseACL defaultACL = new ParseACL();
+            defaultACL.setPublicReadAccess(true);
+            defaultACL.setPublicWriteAccess(false);
+            newTemplateObj.setACL(defaultACL);
+            newTemplateObj.saveEventually();
+            
+            
+            
             object.put("company", cmpName.getText().toString());
             name = (EditText) findViewById(R.id.design_job_title);
             object.put("title", name.getText().toString());
