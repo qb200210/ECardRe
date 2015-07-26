@@ -79,6 +79,7 @@ public class ActivityConversations extends ActionBarActivity {
     AppGlobals.ensureNonNullUponResume();
 
     initializeContactList();
+    Log.e("conv", "" + AppGlobals.potentialUsers.size());
   }
 
   private void retrieveAllViews() {
@@ -218,6 +219,7 @@ public class ActivityConversations extends ActionBarActivity {
                     for (ParseObject obj : objects) {
                       obj.put("isDeleted", true);
                       obj.saveEventually();
+                      // Should unpin those EcardInfo which are not associated with Notes
                     }
                   }
                 }

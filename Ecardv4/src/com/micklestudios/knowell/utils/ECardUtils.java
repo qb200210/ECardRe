@@ -75,7 +75,7 @@ public class ECardUtils {
     int index = qrString.indexOf(website);
 
     // We require the website to be in the beginning. Otherwise,
-    // the string is invalid.
+    // the string is invalid. Open the website or display text
     if (index != 0) {
       return null;
     }
@@ -88,9 +88,25 @@ public class ECardUtils {
     while (st.hasMoreTokens()) {
       String thisToken = st.nextToken();
       StringTokenizer st2 = new StringTokenizer(thisToken, "=");
-
-      valuesMap.put(st2.nextToken(), st2.nextToken());
+      String keyString = null;
+      String valueString = null;
+      if(st2.hasMoreTokens()){
+        keyString = st2.nextToken();
+      } 
+      if(st2.hasMoreTokens()){
+        valueString = st2.nextToken();
+      } 
+      if(keyString != null && valueString != null){
+        valuesMap.put(keyString, valueString);
+      }
     }
+    
+    // If the string is apparently ours but somehow messed up, should not proceed displaying
+    if(valuesMap.size() == 0) {
+      valuesMap.put("wrong", "wrong");
+      return valuesMap;
+    }
+      
 
     return valuesMap;
   }

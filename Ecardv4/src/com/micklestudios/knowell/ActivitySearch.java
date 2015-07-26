@@ -295,6 +295,7 @@ public class ActivitySearch extends ActionBarActivity {
       }
     });
 
+    Log.e("search", ""+filteredUsers.size());
     adapter = new SearchListAdapter(getApplicationContext(), filteredUsers);
     animationAdapter = new AlphaInAnimationAdapter(adapter);
     stickyListHeadersAdapterDecorator = new StickyListHeadersAdapterDecorator(
@@ -802,9 +803,8 @@ public class ActivitySearch extends ActionBarActivity {
      * First, let's go through all the filters. Let's assume that all the users
      * will be selected.
      */
-    for (int i = 0; i < AppGlobals.allUsers.size() - 1; i++, filteredUsers
-      .add(i))
-      ;
+    Log.e("perfs", ""+ AppGlobals.allUsers.size());
+    for (int i = 0; i < AppGlobals.allUsers.size(); filteredUsers.add(i), i++)
     {
       // Start with the Where Met filter.
       String filterKey = filterTextWhereMet.getText().toString()

@@ -966,18 +966,31 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
       // TODO Auto-generated catch block
       e1.printStackTrace();
     }
-    if (listConv == null || listConv.size() == 0) {
+    if (listConv == null || listConv.size() == 0 || listConv.size() == 1) {
+      ParseObject object = null;
       // if there is no existing notification, create one
-      ParseObject object = new ParseObject("Conversations");
-      ParseACL myACL = new ParseACL();
-      myACL.setPublicReadAccess(false);
-      myACL.setPublicWriteAccess(false);
-      myACL.setWriteAccess(currentUser.getObjectId().toString(), true);
-      myACL.setWriteAccess(targetUserId, true);
-      object.setACL(myACL);
-      object.put("partyA", currentUser.get("ecardId").toString());
-      object.put("partyB", targetEcardId);
-      object.put("read", false);
+      if(listConv == null || listConv.size() == 0){
+        object = new ParseObject("Conversations");
+        ParseACL myACL = new ParseACL();
+        myACL.setPublicReadAccess(false);
+        myACL.setPublicWriteAccess(false);
+        myACL.setReadAccess(currentUser.getObjectId().toString(), true);
+        myACL.setWriteAccess(currentUser.getObjectId().toString(), true);
+        myACL.setReadAccess(targetUserId, true);
+        myACL.setWriteAccess(targetUserId, true);
+        object.setACL(myACL);
+        object.put("partyA", currentUser.get("ecardId").toString());
+        object.put("partyB", targetEcardId);
+        object.put("read", false);
+      } 
+      if(listConv.size() == 1) {
+        // If there is existing notification, check if it has been deleted
+        object = listConv.get(0);
+        if ((boolean) object.get("isDeleted") == true || (boolean) object.get("read") == true) {
+          object.put("isDeleted", false);
+          object.put("read", false);
+        }
+      }
       object.saveEventually(new SaveCallback() {
 
         @Override
