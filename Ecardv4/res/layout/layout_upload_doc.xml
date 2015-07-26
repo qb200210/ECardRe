@@ -12,13 +12,13 @@
         android:gravity="center"
         android:orientation="horizontal" >
 
-        <com.micklestudios.knowell.utils.RobotoTextView
+        <TextView
             android:id="@+id/dialog_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@android:color/white"
             android:textSize="18sp"
-            app:robotoFont="Roboto-Regular.ttf" />
+              />
     </LinearLayout>
 
     <LinearLayout
@@ -48,7 +48,7 @@
             </ImageView>
         </LinearLayout>
 
-        <com.micklestudios.knowell.utils.RobotoTextView
+        <TextView
             android:id="@+id/target_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -57,8 +57,7 @@
             android:textColor="@color/black"
             android:textSize="18sp"
             android:textStyle="normal"
-            android:text = "Upload"
-            app:robotoFont="Roboto-Bold.ttf" />
+            android:text = "Upload" />
     </LinearLayout>
 
     

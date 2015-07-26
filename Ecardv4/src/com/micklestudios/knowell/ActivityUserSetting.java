@@ -9,8 +9,6 @@ import java.io.OutputStream;
 import java.net.URISyntaxException;
 
 import com.micklestudios.knowell.utils.AppGlobals;
-import com.micklestudios.knowell.utils.RobotoEditText;
-import com.micklestudios.knowell.utils.RobotoTextView;
 import com.parse.ParseException;
 import com.parse.ParsePush;
 import com.parse.ParseUser;
@@ -45,6 +43,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -153,9 +152,9 @@ public class ActivityUserSetting extends ActionBarActivity {
             dialogHeader.setBackgroundColor(getResources().getColor(
               R.color.blue_extra));
             dialogTitle.setText("Set Default Email");
-            final RobotoEditText subjectView = (RobotoEditText) dialogView
+            final EditText subjectView = (EditText) dialogView
               .findViewById(R.id.message_subject);
-            final RobotoEditText messageView = (RobotoEditText) dialogView
+            final EditText messageView = (EditText) dialogView
               .findViewById(R.id.message_body);
 
             LinearLayout helpBtn = (LinearLayout) dialogView
@@ -169,7 +168,7 @@ public class ActivityUserSetting extends ActionBarActivity {
               public void onClick(View v) {
                 LayoutInflater inflaterTmp = getLayoutInflater();
                 View helpView = inflaterTmp.inflate(R.layout.layout_help, null);
-                RobotoTextView helpBody = (RobotoTextView) helpView
+                TextView helpBody = (TextView) helpView
                   .findViewById(R.id.help_body);
 
                 String rawString = "#myname# or #m#:\n"
@@ -210,9 +209,9 @@ public class ActivityUserSetting extends ActionBarActivity {
                 LayoutInflater inflaterTmp = getLayoutInflater();
                 View helpView = inflaterTmp.inflate(R.layout.layout_preview,
                   null);
-                RobotoTextView helpSubject = (RobotoTextView) helpView
+                TextView helpSubject = (TextView) helpView
                   .findViewById(R.id.preview_subject);
-                RobotoTextView helpBody = (RobotoTextView) helpView
+                TextView helpBody = (TextView) helpView
                   .findViewById(R.id.preview_body);
                 String rawSubject = subjectView.getText().toString();
                 String rawBody = messageView.getText().toString();
@@ -307,9 +306,9 @@ public class ActivityUserSetting extends ActionBarActivity {
             dialogHeader.setBackgroundColor(getResources().getColor(
               R.color.blue_extra));
             dialogTitle.setText("Set Default SMS message");
-            final RobotoEditText subjectView = (RobotoEditText) dialogView
+            final EditText subjectView = (EditText) dialogView
               .findViewById(R.id.message_subject);
-            final RobotoEditText messageView = (RobotoEditText) dialogView
+            final EditText messageView = (EditText) dialogView
               .findViewById(R.id.message_body);
 
             LinearLayout panelSubject = (LinearLayout) dialogView
@@ -326,7 +325,7 @@ public class ActivityUserSetting extends ActionBarActivity {
               public void onClick(View v) {
                 LayoutInflater inflaterTmp = getLayoutInflater();
                 View helpView = inflaterTmp.inflate(R.layout.layout_help, null);
-                RobotoTextView helpBody = (RobotoTextView) helpView
+                TextView helpBody = (TextView) helpView
                   .findViewById(R.id.help_body);
 
                 String rawString = "#myname# or #m#:\n"
@@ -370,7 +369,7 @@ public class ActivityUserSetting extends ActionBarActivity {
                 LinearLayout panelSubject = (LinearLayout) helpView
                   .findViewById(R.id.panel_subject);
                 panelSubject.setVisibility(View.GONE);
-                RobotoTextView helpBody = (RobotoTextView) helpView
+                TextView helpBody = (TextView) helpView
                   .findViewById(R.id.preview_body);
                 String rawSubject = subjectView.getText().toString();
                 String rawBody = messageView.getText().toString();
@@ -467,9 +466,9 @@ public class ActivityUserSetting extends ActionBarActivity {
             dialogHeader.setBackgroundColor(getResources().getColor(
               R.color.blue_extra));
             dialogTitle.setText("Set Default Document Message");
-            final RobotoEditText subjectView = (RobotoEditText) dialogView
+            final EditText subjectView = (EditText) dialogView
               .findViewById(R.id.message_subject);
-            final RobotoEditText messageView = (RobotoEditText) dialogView
+            final EditText messageView = (EditText) dialogView
               .findViewById(R.id.message_body);
 
             LinearLayout helpBtn = (LinearLayout) dialogView
@@ -491,7 +490,7 @@ public class ActivityUserSetting extends ActionBarActivity {
               public void onClick(View v) {
                 LayoutInflater inflaterTmp = getLayoutInflater();
                 View helpView = inflaterTmp.inflate(R.layout.layout_help, null);
-                RobotoTextView helpBody = (RobotoTextView) helpView
+                TextView helpBody = (TextView) helpView
                   .findViewById(R.id.help_body);
 
                 String rawString = "#myname# or #m#:\n"
@@ -536,9 +535,9 @@ public class ActivityUserSetting extends ActionBarActivity {
                 LayoutInflater inflaterTmp = getLayoutInflater();
                 View helpView = inflaterTmp.inflate(R.layout.layout_preview,
                   null);
-                RobotoTextView helpSubject = (RobotoTextView) helpView
+                TextView helpSubject = (TextView) helpView
                   .findViewById(R.id.preview_subject);
-                RobotoTextView helpBody = (RobotoTextView) helpView
+                TextView helpBody = (TextView) helpView
                   .findViewById(R.id.preview_body);
                 String rawSubject = subjectView.getText().toString();
                 String rawBody = messageView.getText().toString();
@@ -646,7 +645,7 @@ public class ActivityUserSetting extends ActionBarActivity {
                 dialogHeader.setBackgroundColor(getResources().getColor(
                   R.color.blue_extra));
                 dialogTitle.setText("Change Uploaded Document Name");
-                final RobotoEditText docNameView = (RobotoEditText) dialogView
+                final EditText docNameView = (EditText) dialogView
                   .findViewById(R.id.doc_name);
 
                 final String docName;
@@ -762,9 +761,9 @@ public class ActivityUserSetting extends ActionBarActivity {
           public boolean onPreferenceClick(Preference preference) {
             LayoutInflater inflaterTmp = getLayoutInflater();
             View helpView = inflaterTmp.inflate(R.layout.layout_help, null);
-            RobotoTextView helpHeader = (RobotoTextView) helpView
+            TextView helpHeader = (TextView) helpView
               .findViewById(R.id.help_header);
-            RobotoTextView helpBody = (RobotoTextView) helpView
+            TextView helpBody = (TextView) helpView
               .findViewById(R.id.help_body);
             helpHeader.setText("Team KnoWell");
             helpBody.setText("We appreciate your feedback!");
@@ -794,9 +793,9 @@ public class ActivityUserSetting extends ActionBarActivity {
           public boolean onPreferenceClick(Preference preference) {
             LayoutInflater inflaterTmp = getLayoutInflater();
             View helpView = inflaterTmp.inflate(R.layout.layout_help, null);
-            RobotoTextView helpHeader = (RobotoTextView) helpView
+            TextView helpHeader = (TextView) helpView
               .findViewById(R.id.help_header);
-            RobotoTextView helpBody = (RobotoTextView) helpView
+            TextView helpBody = (TextView) helpView
               .findViewById(R.id.help_body);
             helpHeader.setText("Acknowledgement");
             helpBody.setText(getString(R.string.prefAckList));
@@ -920,9 +919,9 @@ public class ActivityUserSetting extends ActionBarActivity {
       feedbackDialog.dismiss();
       LayoutInflater inflaterTmp = getLayoutInflater();
       View helpView = inflaterTmp.inflate(R.layout.layout_help, null);
-      RobotoTextView helpHeader = (RobotoTextView) helpView
+      TextView helpHeader = (TextView) helpView
         .findViewById(R.id.help_header);
-      RobotoTextView helpBody = (RobotoTextView) helpView
+      TextView helpBody = (TextView) helpView
         .findViewById(R.id.help_body);
       helpHeader.setText("Team KnoWell");
       helpBody
@@ -963,7 +962,7 @@ public class ActivityUserSetting extends ActionBarActivity {
       .setBackgroundColor(getResources().getColor(R.color.blue_extra));
     // Set dialog title and main EditText
     dialogTitle.setText("Rename Uploaded File");
-    RobotoEditText docFilenameView = (RobotoEditText) dialogView
+    EditText docFilenameView = (EditText) dialogView
       .findViewById(R.id.doc_filename);
     docFilenameView.setText(filename);
 
@@ -971,7 +970,7 @@ public class ActivityUserSetting extends ActionBarActivity {
       .setPositiveButton("Done", new DialogInterface.OnClickListener() {
         public void onClick(DialogInterface dialog, int whichButton) {
 
-          RobotoEditText docFilenameView = (RobotoEditText) dialogView
+          EditText docFilenameView = (EditText) dialogView
             .findViewById(R.id.doc_filename);
           String docFilename = docFilenameView.getText().toString();
           if (docFilename == null || docFilename.isEmpty()) {

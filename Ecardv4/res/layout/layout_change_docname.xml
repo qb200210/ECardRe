@@ -12,13 +12,12 @@
         android:gravity="center"
         android:orientation="horizontal" >
 
-        <com.micklestudios.knowell.utils.RobotoTextView
+        <TextView
             android:id="@+id/dialog_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@android:color/white"
-            android:textSize="18sp"
-            app:robotoFont="Roboto-Regular.ttf" />
+            android:textSize="18sp" />
     </LinearLayout>
 
     <LinearLayout
@@ -27,7 +26,7 @@
         android:layout_height="wrap_content" 
         android:orientation="vertical"
         android:layout_marginBottom="12dp">
-        <com.micklestudios.knowell.utils.RobotoTextView
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
@@ -39,9 +38,8 @@
             android:textSize="18sp"
             android:textStyle="normal"
             android:text="Document Name"
-            android:gravity="top"
-            app:robotoFont="Roboto-Regular.ttf" />
-        <com.micklestudios.knowell.utils.RobotoEditText
+            android:gravity="top" />
+        <EditText
             android:id="@+id/doc_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -56,8 +54,7 @@
             android:textColor="@color/black"
             android:textSize="18sp"
             android:textStyle="normal"
-            android:gravity="top"
-            app:robotoFont="Roboto-Regular.ttf" />
+            android:gravity="top" />
     </LinearLayout>
 
     

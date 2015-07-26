@@ -11,7 +11,7 @@
         android:orientation="vertical"
         android:layout_marginBottom="0dp">
 
-        <com.micklestudios.knowell.utils.RobotoTextView
+        <TextView
             android:id="@+id/help_header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -25,8 +25,8 @@
             android:textStyle="normal"
             android:text="Placeholders"
             android:gravity="top"
-            app:robotoFont="Roboto-Regular.ttf" />
-        <com.micklestudios.knowell.utils.RobotoTextView
+              />
+        <TextView
             android:id="@+id/help_body"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -39,7 +39,7 @@
             android:textSize="18sp"
             android:textStyle="normal"
             android:gravity="top"
-            app:robotoFont="Roboto-Regular.ttf" />
+              />
     </LinearLayout>
     
  

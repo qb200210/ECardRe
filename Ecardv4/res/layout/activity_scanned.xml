@@ -136,25 +136,23 @@
                     android:gravity="center_vertical"
                     android:orientation="vertical" >
 
-                    <com.micklestudios.knowell.utils.RobotoTextView
+                    <TextView
                         android:id="@+id/LastUpdated"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="2dp"
                         android:textColor="@color/white"
                         android:textSize="14sp"
-                        android:textStyle="normal"
-                        app:robotoFont="Roboto-Regular.ttf" />
+                        android:textStyle="normal" />
 
-                    <com.micklestudios.knowell.utils.RobotoTextView
+                    <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="2dp"
                         android:text="Last modified"
                         android:textColor="@color/grey_100"
                         android:textSize="12sp"
-                        android:textStyle="normal"
-                        app:robotoFont="Roboto-Regular.ttf" />
+                        android:textStyle="normal" />
                 </LinearLayout>
             </RelativeLayout>
 
@@ -184,7 +182,7 @@
                         android:src="@drawable/ic_clock" >
                     </ImageView>
                     
-                    <com.micklestudios.knowell.utils.RobotoTextView
+                    <TextView
                         android:layout_width="80dp"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="10dp"
@@ -192,10 +190,9 @@
                         android:textColor="@color/white"
                         android:textSize="16sp"
                         android:textStyle="normal"
-                        android:text="We met on"
-                        app:robotoFont="Roboto-Regular.ttf" />
+                        android:text="We met on" />
 
-                    <com.micklestudios.knowell.utils.RobotoTextView
+                    <TextView
                         android:id="@+id/DateAdded2"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -205,8 +202,7 @@
                         android:background="@null"
                         android:textColor="@color/white"
                         android:textSize="16sp"
-                        android:textStyle="normal"
-                        app:robotoFont="Roboto-Regular.ttf" />
+                        android:textStyle="normal"/>
                 </LinearLayout>
 
                 <LinearLayout
@@ -225,7 +221,7 @@
                         android:src="@drawable/ic_location" >
                     </ImageView>
 
-                    <com.micklestudios.knowell.utils.RobotoEditText
+                    <EditText
                         android:id="@+id/PlaceAdded2"
                         android:nextFocusUp="@id/PlaceAdded2" 
                         android:nextFocusLeft="@id/PlaceAdded2"
@@ -239,7 +235,7 @@
                         android:textColor="@color/white"
                         android:textSize="16sp"
                         android:textStyle="normal"
-                        app:robotoFont="Roboto-Regular.ttf" />
+                          />
                 </LinearLayout>
 
                 <LinearLayout
@@ -258,7 +254,7 @@
                         android:src="@drawable/ic_event" >
                     </ImageView>
 
-                    <com.micklestudios.knowell.utils.RobotoEditText
+                    <EditText
                         android:id="@+id/EventAdded2"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -270,7 +266,7 @@
                         android:textColor="@color/white"
                         android:textSize="16sp"
                         android:textStyle="normal"
-                        app:robotoFont="Roboto-Regular.ttf" />
+                          />
                 </LinearLayout>
             </LinearLayout>
 
@@ -284,7 +280,7 @@
                 android:background="@drawable/myrect_note_text"
                 android:orientation="vertical" >
                 
-                <com.micklestudios.knowell.utils.RobotoEditText
+                <EditText
                     android:id="@+id/EditNotes"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -296,7 +292,7 @@
                     android:textColor="@color/white"
                     android:textSize="16sp"
                     android:textStyle="normal"
-                    app:robotoFont="Roboto-Regular.ttf" />
+                      />
             </LinearLayout>
         </RelativeLayout>
 

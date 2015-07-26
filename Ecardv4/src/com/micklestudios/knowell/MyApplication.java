@@ -7,6 +7,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.micklestudios.knowell.utils.AppGlobals;
+import com.micklestudios.knowell.utils.TypefaceUtil;
 import com.parse.Parse;
 import com.parse.ParseACL;
 import com.parse.ParseException;
@@ -22,6 +23,8 @@ public class MyApplication extends Application {
   public void onCreate() {
     super.onCreate();
     context = this;
+    // Set global default font to be Roboto
+    TypefaceUtil.overrideFont(getApplicationContext(), "SERIF", "fonts/Roboto-Regular.ttf");
     // Must extend Application, otherwise get errors when opening app again
     // saying enableOfflineStore() called multiple times
     Parse.enableLocalDatastore(this);

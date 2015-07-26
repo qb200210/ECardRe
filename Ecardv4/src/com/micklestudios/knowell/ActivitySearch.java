@@ -62,7 +62,7 @@ import com.micklestudios.knowell.utils.AppGlobals;
 import com.micklestudios.knowell.utils.AsyncTasks;
 import com.micklestudios.knowell.utils.CurvedAndTiled;
 import com.micklestudios.knowell.utils.ECardUtils;
-import com.micklestudios.knowell.utils.MySimpleListViewAdapterForSearch;
+import com.micklestudios.knowell.utils.MySimpleListViewAdapter;
 import com.nhaarman.listviewanimations.appearance.StickyListHeadersAdapterDecorator;
 import com.nhaarman.listviewanimations.appearance.simple.AlphaInAnimationAdapter;
 import com.nhaarman.listviewanimations.util.StickyListHeadersListViewWrapper;
@@ -76,7 +76,8 @@ public class ActivitySearch extends ActionBarActivity {
 
   AlertDialog actions;
   ParseUser currentUser;
-  String[] sortMethodArray = { "A-Z", "Z-A", "New-Old", "Old-New" };
+  String[] sortMethodArray = { "A to Z", "Recently collected" };
+  Integer[] sortIconArray = { R.drawable.alphabetical, R.drawable.history_lite };
   private static final long NOTES_TIMEOUT = 10000;
 
   static int SEARCH_MENU_OVERHANG = 275;
@@ -158,6 +159,7 @@ public class ActivitySearch extends ActionBarActivity {
   private ImageView btnEmailSel;
   private ImageView btnDeleteSel;
   private boolean isSelectAllChecked;
+  private ArrayList<Integer> sortIconList;
 
   // Needed for static functions requiring context
   private static Context currentContext;
@@ -170,6 +172,8 @@ public class ActivitySearch extends ActionBarActivity {
         
     mainView = getLayoutInflater().inflate(R.layout.activity_search, null);
     setContentView(mainView);
+    
+    sortIconList = new ArrayList<Integer>(Arrays.asList(sortIconArray));
     
     // Get all the views from the layout.
     retrieveAllViews();
@@ -1121,15 +1125,11 @@ public class ActivitySearch extends ActionBarActivity {
     LinearLayout dialogHeader = (LinearLayout) dialogAddMoreView
       .findViewById(R.id.dialog_header);
     TextView dialogTitle = (TextView) dialogAddMoreView
-      .findViewById(R.id.dialog_title);
-    // Set dialog header background with rounded corner
-    Bitmap bm = BitmapFactory
-      .decodeResource(getResources(), R.drawable.striped);
-    BitmapDrawable bmDrawable = new BitmapDrawable(getResources(), bm);
-    setViewBackground(dialogHeader, new CurvedAndTiled(bmDrawable.getBitmap(),
-      5));
+      .findViewById(R.id.dialog_title);    
+    dialogHeader
+    .setBackgroundColor(getResources().getColor(R.color.blue_extra));
     // Set dialog title and main EditText
-    dialogTitle.setText("Sort Method");
+    dialogTitle.setText("Sort cards by:");
 
     AlertDialog.Builder builder = new AlertDialog.Builder(ActivitySearch.this);
     builder.setView(dialogAddMoreView);
@@ -1140,8 +1140,8 @@ public class ActivitySearch extends ActionBarActivity {
     // "addmorebutton dialog"
     ListView listViewInDialog = (ListView) dialogAddMoreView
       .findViewById(R.id.dialog_listview);
-    listViewInDialog.setAdapter(new MySimpleListViewAdapterForSearch(
-      ActivitySearch.this, sortMethodArray));
+    listViewInDialog.setAdapter(new MySimpleListViewAdapter(
+      ActivitySearch.this, sortMethodArray, sortIconList));
     listViewInDialog.setOnItemClickListener(new OnItemClickListener() {
 
       @Override
@@ -1152,13 +1152,7 @@ public class ActivitySearch extends ActionBarActivity {
           currentSortMode = SORT_MODE_NAME_ASC;
           break;
         case (1):
-          currentSortMode = SORT_MODE_NAME_DSC;
-          break;
-        case (2):
           currentSortMode = SORT_MODE_DATE_DSC;
-          break;
-        case (3):
-          currentSortMode = SORT_MODE_DATE_ASC;
           break;
         default:
           Toast.makeText(getApplicationContext(), "Placeholder: Default",
