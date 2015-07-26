@@ -809,7 +809,7 @@ public class ActivitySearch extends ActionBarActivity {
       // Start with the Where Met filter.
       String filterKey = filterTextWhereMet.getText().toString()
         .toLowerCase(Locale.ENGLISH);
-      if (filterKey != "") {
+      if (!filterKey.isEmpty()) {
         for (Integer uInfoIndex : filteredUsers) {
           UserInfo uInfo = AppGlobals.allUsers.get(uInfoIndex);
           if (uInfo.getWhereMet().toLowerCase(Locale.ENGLISH)
@@ -825,7 +825,7 @@ public class ActivitySearch extends ActionBarActivity {
       // Then look at the Company filter.
       filterKey = filterTextCompany.getText().toString()
         .toLowerCase(Locale.ENGLISH);
-      if (filterKey != "") {
+      if (!filterKey.isEmpty()) {
         for (Integer uInfoIndex : filteredUsers) {
           UserInfo uInfo = AppGlobals.allUsers.get(uInfoIndex);
           if (uInfo.getCompany().toLowerCase(Locale.ENGLISH)
@@ -841,7 +841,7 @@ public class ActivitySearch extends ActionBarActivity {
       // Then look at the Event filter.
       filterKey = filterTextEventMet.getText().toString()
         .toLowerCase(Locale.ENGLISH);
-      if (filterKey != "") {
+      if (!filterKey.isEmpty()) {
         for (Integer uInfoIndex : filteredUsers) {
           UserInfo uInfo = AppGlobals.allUsers.get(uInfoIndex);
           if (uInfo.getEventMet().toLowerCase(Locale.ENGLISH)

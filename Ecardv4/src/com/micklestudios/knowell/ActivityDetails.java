@@ -26,6 +26,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -78,6 +79,7 @@ public class ActivityDetails extends ActionBarActivity {
     // show custom action bar (on top of standard action bar)
     showActionBar();
     setContentView(R.layout.activity_scanned);
+    
 
     replayButtonPanel = (ImageView) findViewById(R.id.panel_play_button);
     recorderButton = (ImageView) findViewById(R.id.panel_recorder_button);
@@ -96,6 +98,11 @@ public class ActivityDetails extends ActionBarActivity {
     if(savedInstanceState != null){
       newUser = savedInstanceState.getParcelable("newUser");
     } 
+    
+    TextView motto = (TextView) findViewById(R.id.motto);
+    String tmpString = newUser.getMotto();
+    if (tmpString != null)
+      motto.setText(tmpString);
 
     DetailsPagerAdapter mAdapter = new DetailsPagerAdapter(
       getSupportFragmentManager(), newUser, this);
@@ -159,14 +166,35 @@ public class ActivityDetails extends ActionBarActivity {
 
         });
 
-        EditText whereMet2 = (EditText) findViewById(R.id.PlaceAdded2);
+        final EditText whereMet2 = (EditText) findViewById(R.id.PlaceAdded2);
+        whereMet2.setOnFocusChangeListener(new OnFocusChangeListener(){
+          @Override
+          public void onFocusChange(View v, boolean hasFocus) {
+            if(hasFocus) {
+              whereMet2.setHint("Eg: Portland, OR");
+            } else {
+              whereMet2.setHint("Where did we meet?");
+            }
+          }
+        });        
         String cityName = object.getString("where_met");
-        if (cityName != null) {
+        if (cityName != null && !cityName.isEmpty()) {
           whereMet2.setText(cityName);
         }
-        EditText eventMet = (EditText) findViewById(R.id.EventAdded2);
+        
+        final EditText eventMet = (EditText) findViewById(R.id.EventAdded2);
+        eventMet.setOnFocusChangeListener(new OnFocusChangeListener(){
+          @Override
+          public void onFocusChange(View v, boolean hasFocus) {
+            if(hasFocus) {
+              eventMet.setHint("Eg: Portland Beer Festival");
+            } else {
+              eventMet.setHint("We met in which event?");
+            }
+          }
+        });
         String eventName = object.getString("event_met");
-        if (eventName != null) {
+        if (eventName != null && !eventName.isEmpty()) {
           eventMet.setText(eventName);
         }
         EditText notes = (EditText) findViewById(R.id.EditNotes);
@@ -466,43 +494,6 @@ public class ActivityDetails extends ActionBarActivity {
     default:
       return super.onOptionsItemSelected(item);
     }
-  }
-
-  public void displayCard(UserInfo newUser) {
-
-    ImageView portraitImg = (ImageView) findViewById(R.id.my_portrait);
-    if (newUser.getPortrait() != null) {
-      portraitImg.setImageBitmap(newUser.getPortrait());
-    }
-
-    TextView name = (TextView) findViewById(R.id.my_name);
-    String tmpString = newUser.getFirstName();
-    String nameString = null;
-    if (tmpString != null)
-      nameString = tmpString;
-    tmpString = newUser.getLastName();
-    if (tmpString != null)
-      nameString = nameString + " " + tmpString;
-    if (nameString != null)
-      name.setText(nameString);
-    name = (TextView) findViewById(R.id.my_com);
-    tmpString = newUser.getCompany();
-    if (tmpString != null) {
-      name.setText(tmpString);
-      ImageView logoImg = (ImageView) findViewById(R.id.my_logo);
-      // display logo
-      ECardUtils.findAndSetLogo(this, logoImg, tmpString, false);
-    }
-
-    name = (TextView) findViewById(R.id.my_job_title);
-    tmpString = newUser.getTitle();
-    if (tmpString != null)
-      name.setText(tmpString);
-    name = (TextView) findViewById(R.id.my_add);
-    tmpString = newUser.getCity();
-    if (tmpString != null)
-      name.setText(tmpString);
-
   }
 
   private void saveNoteChanges(String noteId) {

@@ -132,6 +132,11 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
       flagOfflineMode = savedInstanceState.getBoolean("offlineMode");
       deletedNoteId = savedInstanceState.getString("deletedNoteId");
     }
+    
+    TextView motto = (TextView) findViewById(R.id.motto);
+    String tmpString = scannedUser.getMotto();
+    if (tmpString != null)
+      motto.setText(tmpString);
 
     DetailsPagerAdapter mAdapter = new DetailsPagerAdapter(
       getSupportFragmentManager(), scannedUser, this);
@@ -730,41 +735,6 @@ public class ActivityScanned extends ActionBarActivity implements AsyncResponse 
       olDatas.get(0).setStored(0);
       db.updataData(olDatas.get(0));
     }
-  }
-
-  public void displayCard(UserInfo newUser) {
-
-    TextView name = (TextView) findViewById(R.id.my_name);
-    String tmpString = newUser.getFirstName();
-    String nameString = null;
-    if (tmpString != null)
-      nameString = tmpString;
-    tmpString = newUser.getLastName();
-    if (tmpString != null)
-      nameString = nameString + " " + tmpString;
-    if (nameString != null)
-      name.setText(nameString);
-    name = (TextView) findViewById(R.id.my_com);
-    tmpString = newUser.getCompany();
-    if (tmpString != null) {
-      name.setText(tmpString);
-      ImageView logoImg = (ImageView) findViewById(R.id.my_logo);
-      // display logo
-      ECardUtils.findAndSetLogo(this, logoImg, tmpString, true);
-    }
-    name = (TextView) findViewById(R.id.my_job_title);
-    tmpString = newUser.getTitle();
-    if (tmpString != null)
-      name.setText(tmpString);
-    name = (TextView) findViewById(R.id.my_add);
-    tmpString = newUser.getCity();
-    if (tmpString != null)
-      name.setText(tmpString);
-    ImageView portraitImg = (ImageView) findViewById(R.id.my_portrait);
-    if (newUser.getPortrait() != null) {
-      portraitImg.setImageBitmap(newUser.getPortrait());
-    }
-
   }
 
   private void stopRecording() {

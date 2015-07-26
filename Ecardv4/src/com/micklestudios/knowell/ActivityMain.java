@@ -138,6 +138,10 @@ public class ActivityMain extends ActionBarActivity {
     
     showActionBar();
     setContentView(R.layout.activity_main);
+    TextView motto = (TextView) findViewById(R.id.my_motto);
+    String tmpString = myselfUserInfo.getMotto();
+    if (tmpString != null)
+      motto.setText(tmpString);
 
     Display display = getWindowManager().getDefaultDisplay();
     DisplayMetrics outMetrics = new DisplayMetrics();
@@ -734,6 +738,11 @@ public class ActivityMain extends ActionBarActivity {
       // Refreshing fragments
       if (resultCode == Activity.RESULT_OK) {
         mAdapter.notifyDataSetChanged();
+        // Motto is not part of madapter
+        TextView motto = (TextView) findViewById(R.id.my_motto);
+        String tmpString = myselfUserInfo.getMotto();
+        if (tmpString != null)
+          motto.setText(tmpString);
       }
       break;
     case UPLOAD_DOC:

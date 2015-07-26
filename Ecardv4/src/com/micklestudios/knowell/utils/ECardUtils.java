@@ -166,23 +166,25 @@ public class ECardUtils {
                 if (objects != null && objects.size() != 0) {
                   ParseFile logoFile = (ParseFile) objects.get(0).get(
                     "companyLogo");
-                  byte[] data;
-                  try {
-                    data = logoFile.getData();
-                    if (data != null) {
-                      // sloppy: whatever found object, pin it to local
-                      objects.get(0).pinInBackground();
-                      Bitmap logo = BitmapFactory.decodeByteArray(data, 0,
-                        data.length);
-                      logoImg.setImageBitmap(logo);
-                      Log.i("found2", objects.get(0).get("companyName")
-                        .toString());
-                    } else {
-                      logoImg.setImageResource(R.drawable.emptylogo);
+                  if(logoFile != null){
+                    byte[] data;
+                    try {
+                      data = logoFile.getData();
+                      if (data != null) {
+                        // sloppy: whatever found object, pin it to local
+                        objects.get(0).pinInBackground();
+                        Bitmap logo = BitmapFactory.decodeByteArray(data, 0,
+                          data.length);
+                        logoImg.setImageBitmap(logo);
+                        Log.i("found2", objects.get(0).get("companyName")
+                          .toString());
+                      } else {
+                        logoImg.setImageResource(R.drawable.emptylogo);
+                      }
+                    } catch (ParseException e1) {
+                      // TODO Auto-generated catch block
+                      e1.printStackTrace();
                     }
-                  } catch (ParseException e1) {
-                    // TODO Auto-generated catch block
-                    e1.printStackTrace();
                   }
                 } else {
                   logoImg.setImageResource(R.drawable.emptylogo);
