@@ -175,6 +175,8 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
       .get(ActivitySearch.filteredUsers.get(position));
     String matchString = null;
     TextView matchTv = null;
+    int matchStart = 0;
+    int matchEnd = 0;
 
     TextView nameView = (TextView) convertView
       .findViewById(R.id.search_result_card_name);
@@ -190,16 +192,27 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
       switch (fieldName) {
       case UserInfo.FIELD_TYPE.TYPE_FNAME:
         matchString = nameString;
+        matchStart = 0;
+        matchEnd = matchString.length();
         matchTv = nameView;
         break;
       case UserInfo.FIELD_TYPE.TYPE_TITLE:
+        matchString = jobString;
+        matchStart = 0;
+        matchEnd = uInfo.getTitle().length();
+        matchTv = jobCompanyView;
+        break;
       case UserInfo.FIELD_TYPE.TYPE_COMPANY:
         matchString = jobString;
+        matchStart = uInfo.getTitle().length() + " at ".length();
+        matchEnd = matchString.length();
         matchTv = jobCompanyView;
         break;
       case UserInfo.FIELD_TYPE.TYPE_CITY:
         matchString = cityString;
         matchTv = addressView;
+        matchStart = 0;
+        matchEnd = matchString.length();
       }
     }
 
@@ -207,8 +220,8 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
       Log.e("Knowell", "Matched string is " + matchString);
       Spannable spanText = Spannable.Factory.getInstance().newSpannable(
         matchString);
-      spanText.setSpan(new BackgroundColorSpan(0xFFFFFF00), 0,
-        matchString.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+      spanText.setSpan(new BackgroundColorSpan(0xFFff8a65), matchStart,
+        matchEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
       matchTv.setText(spanText);
     }
 
