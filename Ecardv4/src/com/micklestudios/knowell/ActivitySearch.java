@@ -171,7 +171,7 @@ public class ActivitySearch extends ActionBarActivity {
   protected void onCreate(final Bundle savedInstanceState) {
     // Inflate the layout.
     super.onCreate(savedInstanceState);
-        
+
     mainView = getLayoutInflater().inflate(R.layout.activity_search, null);
     setContentView(mainView);
 
@@ -221,13 +221,12 @@ public class ActivitySearch extends ActionBarActivity {
         searchPanel.setTranslationY(searchMenuRetractedHeight);
       }
     });
-    
+
     AppGlobals.ensureNonNullUponResume();
 
     // Finally, load the contacts.
     performSearch();
   }
-
 
   private void retrieveAllViews() {
     // Retrieve all the filters and layouts.
@@ -303,7 +302,7 @@ public class ActivitySearch extends ActionBarActivity {
       }
     });
 
-    Log.e("search", ""+filteredUsers.size());
+    Log.e("search", "" + filteredUsers.size());
     adapter = new SearchListAdapter(getApplicationContext(), filteredUsers);
     animationAdapter = new AlphaInAnimationAdapter(adapter);
     stickyListHeadersAdapterDecorator = new StickyListHeadersAdapterDecorator(
@@ -815,9 +814,8 @@ public class ActivitySearch extends ActionBarActivity {
      * First, let's go through all the filters. Let's assume that all the users
      * will be selected.
      */
-    Log.e("perfs", ""+ AppGlobals.allUsers.size());
-    for (int i = 0; i < AppGlobals.allUsers.size(); filteredUsers.add(i), i++)
-    {
+    Log.e("perfs", "" + AppGlobals.allUsers.size());
+    for (int i = 0; i < AppGlobals.allUsers.size(); filteredUsers.add(i), i++) {
       // Start with the Where Met filter.
       String filterKey = filterTextWhereMet.getText().toString()
         .toLowerCase(Locale.ENGLISH);
@@ -826,7 +824,7 @@ public class ActivitySearch extends ActionBarActivity {
           UserInfo uInfo = AppGlobals.allUsers.get(uInfoIndex);
           if (uInfo.getWhereMet().toLowerCase(Locale.ENGLISH)
             .contains(filterKey)) {
-            Log.e("Knowell", "Match 1");
+            matchedFields.put(uInfoIndex, UserInfo.FIELD_TYPE.TYPE_WHERE_MET);
             tempUserInfoList.add(uInfoIndex);
           }
         }
@@ -846,7 +844,6 @@ public class ActivitySearch extends ActionBarActivity {
             Log.e("Knowell", "Match 2");
             tempUserInfoList.add(uInfoIndex);
             matchedFields.put(uInfoIndex, UserInfo.FIELD_TYPE.TYPE_COMPANY);
-            Log.e("Knowell", "Matched string is " + filterKey);
           }
         }
         filteredUsers.clear();
@@ -862,7 +859,7 @@ public class ActivitySearch extends ActionBarActivity {
           UserInfo uInfo = AppGlobals.allUsers.get(uInfoIndex);
           if (uInfo.getEventMet().toLowerCase(Locale.ENGLISH)
             .contains(filterKey)) {
-            Log.e("Knowell", "Match 3");
+            matchedFields.put(uInfoIndex, UserInfo.FIELD_TYPE.TYPE_EVENT_MET);
             tempUserInfoList.add(uInfoIndex);
           }
         }
@@ -915,8 +912,6 @@ public class ActivitySearch extends ActionBarActivity {
         }
 
         if (matched_field != null) {
-          Log.e("Knowell", "Match 5");
-          Log.e("Knowell", "Matched string is " + matched_field);
           matchedFields.put(uInfoIndex, matched_field);
           tempUserInfoList.add(uInfoIndex);
         }
@@ -1151,9 +1146,9 @@ public class ActivitySearch extends ActionBarActivity {
     LinearLayout dialogHeader = (LinearLayout) dialogAddMoreView
       .findViewById(R.id.dialog_header);
     TextView dialogTitle = (TextView) dialogAddMoreView
-      .findViewById(R.id.dialog_title);    
+      .findViewById(R.id.dialog_title);
     dialogHeader
-    .setBackgroundColor(getResources().getColor(R.color.blue_extra));
+      .setBackgroundColor(getResources().getColor(R.color.blue_extra));
     // Set dialog title and main EditText
     dialogTitle.setText("Sort cards by:");
 

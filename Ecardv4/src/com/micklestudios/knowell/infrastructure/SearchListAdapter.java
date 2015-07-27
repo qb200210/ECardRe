@@ -181,12 +181,12 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
     TextView nameView = (TextView) convertView
       .findViewById(R.id.search_result_card_name);
     nameView.setText(uInfo.getFirstName() + " " + uInfo.getLastName());
-    TextView jobCompanyView = (TextView) convertView
+    TextView textCompany = (TextView) convertView
       .findViewById(R.id.search_result_card_job_company);
-    jobCompanyView.setText(uInfo.getTitle() + " at " + uInfo.getCompany());
-    TextView addressView = (TextView) convertView
+    textCompany.setText(uInfo.getTitle() + " at " + uInfo.getCompany());
+    TextView textDetail = (TextView) convertView
       .findViewById(R.id.search_result_card_address);
-    addressView.setText(uInfo.getCity());
+    textDetail.setText(uInfo.getCity());
 
     if (fieldName != null) {
       switch (fieldName) {
@@ -200,19 +200,32 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
         matchString = jobString;
         matchStart = 0;
         matchEnd = uInfo.getTitle().length();
-        matchTv = jobCompanyView;
+        matchTv = textCompany;
         break;
       case UserInfo.FIELD_TYPE.TYPE_COMPANY:
         matchString = jobString;
         matchStart = uInfo.getTitle().length() + " at ".length();
         matchEnd = matchString.length();
-        matchTv = jobCompanyView;
+        matchTv = textCompany;
         break;
       case UserInfo.FIELD_TYPE.TYPE_CITY:
         matchString = cityString;
-        matchTv = addressView;
+        matchTv = textDetail;
         matchStart = 0;
         matchEnd = matchString.length();
+        break;
+      case UserInfo.FIELD_TYPE.TYPE_WHERE_MET:
+        matchString = uInfo.getWhereMet();
+        matchTv = textDetail;
+        matchStart = 0;
+        matchEnd = matchString.length();
+        break;
+      case UserInfo.FIELD_TYPE.TYPE_EVENT_MET:
+        matchString = uInfo.getWhereMet();
+        matchTv = textDetail;
+        matchStart = 0;
+        matchEnd = matchString.length();
+        break;
       }
     }
 
