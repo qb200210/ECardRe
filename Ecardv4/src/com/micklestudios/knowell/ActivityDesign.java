@@ -361,8 +361,6 @@ public class ActivityDesign extends ActionBarActivity {
                 templateToBePinned.pinInBackground();
               }
             }
-            
-            
 
             EditText name = (EditText) findViewById(R.id.design_name);
             String fullName = name.getText().toString();
@@ -394,9 +392,7 @@ public class ActivityDesign extends ActionBarActivity {
             defaultACL.setPublicWriteAccess(false);
             newTemplateObj.setACL(defaultACL);
             newTemplateObj.saveEventually();
-            
-            
-            
+
             object.put("company", cmpName.getText().toString());
             name = (EditText) findViewById(R.id.design_job_title);
             object.put("title", name.getText().toString());

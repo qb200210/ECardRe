@@ -118,7 +118,7 @@ public class ECardUtils {
       && listTemplateObjectsLocal.size() != 0) {
       ParseFile logoFile = (ParseFile) listTemplateObjectsLocal.get(0).get(
         "companyLogo");
-      if(logoFile != null){
+      if (logoFile != null) {
         byte[] data;
         try {
           data = logoFile.getData();

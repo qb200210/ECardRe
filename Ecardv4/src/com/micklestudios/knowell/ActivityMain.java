@@ -115,8 +115,8 @@ public class ActivityMain extends ActionBarActivity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    
-    if(savedInstanceState != null){
+
+    if (savedInstanceState != null) {
       currentUser = ParseUser.getCurrentUser();
       myselfUserInfo = savedInstanceState.getParcelable("myself");
       imgFromTmpData = savedInstanceState.getBoolean("imgFromTmpData");
@@ -125,7 +125,7 @@ public class ActivityMain extends ActionBarActivity {
       myselfUserInfo = new UserInfo(currentUser.get("ecardId").toString(), "",
         "", true, false, imgFromTmpData);
     }
-    
+
     showActionBar();
     setContentView(R.layout.activity_main);
 
@@ -163,7 +163,7 @@ public class ActivityMain extends ActionBarActivity {
     InitializeListeners();
 
   }
-  
+
   @Override
   public void onSaveInstanceState(Bundle outState) {
     outState.putParcelable("myself", ActivityMain.myselfUserInfo);

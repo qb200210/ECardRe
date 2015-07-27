@@ -11,6 +11,8 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.text.Spannable;
+import android.text.style.BackgroundColorSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -165,6 +167,15 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
       portraitImg.setImageBitmap(uInfo.getPortrait());
     }
 
+    String nameString = uInfo.getFirstName() + " " + uInfo.getLastName();
+    String jobString = uInfo.getTitle() + " at " + uInfo.getCompany();
+    String cityString = uInfo.getCity();
+
+    Integer fieldName = ActivitySearch.matchedFields
+      .get(ActivitySearch.filteredUsers.get(position));
+    String matchString = null;
+    TextView matchTv = null;
+
     TextView nameView = (TextView) convertView
       .findViewById(R.id.search_result_card_name);
     nameView.setText(uInfo.getFirstName() + " " + uInfo.getLastName());
@@ -174,6 +185,33 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
     TextView addressView = (TextView) convertView
       .findViewById(R.id.search_result_card_address);
     addressView.setText(uInfo.getCity());
+
+    if (fieldName != null) {
+      switch (fieldName) {
+      case UserInfo.FIELD_TYPE.TYPE_FNAME:
+        matchString = nameString;
+        matchTv = nameView;
+        break;
+      case UserInfo.FIELD_TYPE.TYPE_TITLE:
+      case UserInfo.FIELD_TYPE.TYPE_COMPANY:
+        matchString = jobString;
+        matchTv = jobCompanyView;
+        break;
+      case UserInfo.FIELD_TYPE.TYPE_CITY:
+        matchString = cityString;
+        matchTv = addressView;
+      }
+    }
+
+    if (matchString != null) {
+      Log.e("Knowell", "Matched string is " + matchString);
+      Spannable spanText = Spannable.Factory.getInstance().newSpannable(
+        matchString);
+      spanText.setSpan(new BackgroundColorSpan(0xFFFFFF00), 0,
+        matchString.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+      matchTv.setText(spanText);
+    }
+
     return convertView;
   }
 

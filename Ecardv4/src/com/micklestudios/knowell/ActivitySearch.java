@@ -2,6 +2,7 @@ package com.micklestudios.knowell;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -97,6 +98,7 @@ public class ActivitySearch extends ActionBarActivity {
 
   // List of users filtered after search.
   public static ArrayList<Integer> filteredUsers;
+  public static SparseIntArray matchedFields;
 
   // List of users selected by the user.
   public static HashSet<UserInfo> selectedUsers;
@@ -169,6 +171,8 @@ public class ActivitySearch extends ActionBarActivity {
     super.onCreate(savedInstanceState);
     mainView = getLayoutInflater().inflate(R.layout.activity_search, null);
     setContentView(mainView);
+
+    matchedFields = new SparseIntArray();
 
     // Get all the views from the layout.
     retrieveAllViews();
@@ -417,8 +421,6 @@ public class ActivitySearch extends ActionBarActivity {
       @Override
       public void beforeTextChanged(CharSequence s, int start, int count,
         int after) {
-        // TODO Auto-generated method stub
-
       }
 
       @Override
@@ -796,8 +798,9 @@ public class ActivitySearch extends ActionBarActivity {
 
   private void performSearch() {
     filteredUsers.clear();
-    
-    if(AppGlobals.allUsers == null){
+    matchedFields.clear();
+
+    if (AppGlobals.allUsers == null) {
       // If null, block the code and make sure data is re-populated
       AppGlobals.initializeAllContactsBlocking();
     }
@@ -821,6 +824,7 @@ public class ActivitySearch extends ActionBarActivity {
           UserInfo uInfo = AppGlobals.allUsers.get(uInfoIndex);
           if (uInfo.getWhereMet().toLowerCase(Locale.ENGLISH)
             .contains(filterKey)) {
+            Log.e("Knowell", "Match 1");
             tempUserInfoList.add(uInfoIndex);
           }
         }
@@ -832,12 +836,15 @@ public class ActivitySearch extends ActionBarActivity {
       // Then look at the Company filter.
       filterKey = filterTextCompany.getText().toString()
         .toLowerCase(Locale.ENGLISH);
-      if (filterKey != "") {
+      if (!filterKey.isEmpty()) {
         for (Integer uInfoIndex : filteredUsers) {
           UserInfo uInfo = AppGlobals.allUsers.get(uInfoIndex);
           if (uInfo.getCompany().toLowerCase(Locale.ENGLISH)
             .contains(filterKey)) {
+            Log.e("Knowell", "Match 2");
             tempUserInfoList.add(uInfoIndex);
+            matchedFields.put(uInfoIndex, UserInfo.FIELD_TYPE.TYPE_COMPANY);
+            Log.e("Knowell", "Matched string is " + filterKey);
           }
         }
         filteredUsers.clear();
@@ -853,6 +860,7 @@ public class ActivitySearch extends ActionBarActivity {
           UserInfo uInfo = AppGlobals.allUsers.get(uInfoIndex);
           if (uInfo.getEventMet().toLowerCase(Locale.ENGLISH)
             .contains(filterKey)) {
+            Log.e("Knowell", "Match 3");
             tempUserInfoList.add(uInfoIndex);
           }
         }
@@ -884,17 +892,30 @@ public class ActivitySearch extends ActionBarActivity {
         String company_str = uInfo.getCompany().toLowerCase(Locale.ENGLISH);
         String title_str = uInfo.getTitle().toLowerCase(Locale.ENGLISH);
         String city_str = uInfo.getCity().toLowerCase(Locale.ENGLISH);
-        String user_str = name_str + " " + company_str + " " + title_str + " "
-          + city_str;
+
         // Log.v("search_user_str", user_str);
         Matcher name_matcher = pattern.matcher(name_str);
         Matcher company_matcher = pattern.matcher(company_str);
         Matcher title_matcher = pattern.matcher(title_str);
         Matcher city_matcher = pattern.matcher(city_str);
-        if (user_str.contains(token)) {
-          tempUserInfoList.add(uInfoIndex);
-        } else if (name_matcher.matches() || company_matcher.matches()
-          || title_matcher.matches() || city_matcher.matches()) {
+
+        Integer matched_field = null;
+        if (name_matcher.matches())
+          matched_field = UserInfo.FIELD_TYPE.TYPE_FNAME;
+        if (company_matcher.matches()) {
+          matched_field = UserInfo.FIELD_TYPE.TYPE_COMPANY;
+        }
+        if (title_matcher.matches()) {
+          matched_field = UserInfo.FIELD_TYPE.TYPE_TITLE;
+        }
+        if (city_matcher.matches()) {
+          matched_field = UserInfo.FIELD_TYPE.TYPE_CITY;
+        }
+
+        if (matched_field != null) {
+          Log.e("Knowell", "Match 5");
+          Log.e("Knowell", "Matched string is " + matched_field);
+          matchedFields.put(uInfoIndex, matched_field);
           tempUserInfoList.add(uInfoIndex);
         }
       }
