@@ -43,6 +43,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -57,7 +58,6 @@ import com.micklestudios.knowell.utils.CurvedAndTiled;
 import com.micklestudios.knowell.utils.CustomQRScanner;
 import com.micklestudios.knowell.utils.MyPagerAdapter;
 import com.micklestudios.knowell.utils.MyViewPager;
-import com.micklestudios.knowell.utils.RobotoEditText;
 import com.parse.ParseACL;
 import com.parse.ParseInstallation;
 import com.parse.ParseObject;
@@ -115,30 +115,38 @@ public class ActivityMain extends ActionBarActivity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-
-    if (savedInstanceState != null) {
+    
+    applicationContext = getApplicationContext();
+    Bundle b = getIntent().getExtras();
+    if (b != null) {
+      if (b.get("imgFromTmpData") != null) {
+        // this value is set when returning from ActivityDesign
+        imgFromTmpData = (boolean) b.get("imgFromTmpData");
+      }
+    }
+    
+    // This fixes the lost data/ crash issues upon restoring from resume
+    if(savedInstanceState != null) {
       currentUser = ParseUser.getCurrentUser();
-      myselfUserInfo = savedInstanceState.getParcelable("myself");
-      imgFromTmpData = savedInstanceState.getBoolean("imgFromTmpData");
+      if(myselfUserInfo == null){
+        myselfUserInfo = savedInstanceState.getParcelable("myself");
+        imgFromTmpData = savedInstanceState.getBoolean("imgFromTmpData");
+      }
+      Log.e("main", "getting savedisntance");
     } else {
       currentUser = ParseUser.getCurrentUser();
-      myselfUserInfo = new UserInfo(currentUser.get("ecardId").toString(), "",
-        "", true, false, imgFromTmpData);
+      if(myselfUserInfo == null){
+        myselfUserInfo = new UserInfo(currentUser.get("ecardId").toString(), "",
+          "", true, false, imgFromTmpData);
+      }
     }
 
     showActionBar();
     setContentView(R.layout.activity_main);
-
-    applicationContext = getApplicationContext();
-
-    Bundle b = getIntent().getExtras();
-    if (b != null) {
-      Log.e("main", "oncreate");
-
-      if (b.get("imgFromTmpData") != null) {
-        imgFromTmpData = (boolean) b.get("imgFromTmpData");
-      }
-    }
+    TextView motto = (TextView) findViewById(R.id.my_motto);
+    String tmpString = myselfUserInfo.getMotto();
+    if (tmpString != null)
+      motto.setText(tmpString);
 
     Display display = getWindowManager().getDefaultDisplay();
     DisplayMetrics outMetrics = new DisplayMetrics();
@@ -149,17 +157,13 @@ public class ActivityMain extends ActionBarActivity {
     float dpWidth = outMetrics.widthPixels / density;
     Log.i("res", "height: " + dpHeight + "  , width: " + dpWidth);
 
-    currentUser = ParseUser.getCurrentUser();
-    // pull myself info from localdatastore
-    Log.i("imgtmp", " " + imgFromTmpData);
-
     mAdapter = new MyPagerAdapter(getSupportFragmentManager());
 
     mPager = (MyViewPager) findViewById(R.id.pager);
     mPager.setAdapter(mAdapter);
     mPager.setCurrentItem(0x40000000);
     mPager.setPageTransformer(true, new FlipHorizontalTransformer());
-
+    
     InitializeListeners();
 
   }
@@ -329,9 +333,9 @@ public class ActivityMain extends ActionBarActivity {
 
         public void onClick(DialogInterface dialog, int whichButton) {
           String link = getLink();
-          RobotoEditText targetEmailView = (RobotoEditText) dialogView
+          EditText targetEmailView = (EditText) dialogView
             .findViewById(R.id.target_email);
-          RobotoEditText targetNameView = (RobotoEditText) dialogView
+          EditText targetNameView = (EditText) dialogView
             .findViewById(R.id.target_name);
           targetEmail = targetEmailView.getText().toString();
           targetName = targetNameView.getText().toString();
@@ -472,11 +476,11 @@ public class ActivityMain extends ActionBarActivity {
       .setPositiveButton("Send", new DialogInterface.OnClickListener() {
         public void onClick(DialogInterface dialog, int whichButton) {
           String link = getLink();
-          RobotoEditText targetEmailView = (RobotoEditText) dialogView
+          EditText targetEmailView = (EditText) dialogView
             .findViewById(R.id.target_email);
-          RobotoEditText targetSMSView = (RobotoEditText) dialogView
+          EditText targetSMSView = (EditText) dialogView
             .findViewById(R.id.target_sms);
-          RobotoEditText targetNameView = (RobotoEditText) dialogView
+          EditText targetNameView = (EditText) dialogView
             .findViewById(R.id.target_name);
 
           targetEmail = targetEmailView.getText().toString();
@@ -681,7 +685,7 @@ public class ActivityMain extends ActionBarActivity {
       .setBackgroundColor(getResources().getColor(R.color.blue_extra));
     // Set dialog title and main EditText
     dialogTitle.setText("Rename Uploaded File");
-    RobotoEditText docFilenameView = (RobotoEditText) dialogView
+    EditText docFilenameView = (EditText) dialogView
       .findViewById(R.id.doc_filename);
     docFilenameView.setText(filename);
 
@@ -689,7 +693,7 @@ public class ActivityMain extends ActionBarActivity {
       .setPositiveButton("Done", new DialogInterface.OnClickListener() {
         public void onClick(DialogInterface dialog, int whichButton) {
 
-          RobotoEditText docFilenameView = (RobotoEditText) dialogView
+          EditText docFilenameView = (EditText) dialogView
             .findViewById(R.id.doc_filename);
           String docFilename = docFilenameView.getText().toString();
           if (docFilename == null || docFilename.isEmpty()) {
@@ -739,6 +743,11 @@ public class ActivityMain extends ActionBarActivity {
       // Refreshing fragments
       if (resultCode == Activity.RESULT_OK) {
         mAdapter.notifyDataSetChanged();
+        // Motto is not part of madapter
+        TextView motto = (TextView) findViewById(R.id.my_motto);
+        String tmpString = myselfUserInfo.getMotto();
+        if (tmpString != null)
+          motto.setText(tmpString);
       }
       break;
     case UPLOAD_DOC:
@@ -805,13 +814,13 @@ public class ActivityMain extends ActionBarActivity {
     // Set dialog title and main EditText
     dialogTitle.setText("Keep record?");
 
-    final RobotoEditText addHistoryNameView = (RobotoEditText) dialogView
+    final EditText addHistoryNameView = (EditText) dialogView
       .findViewById(R.id.add_history_name);
-    final RobotoEditText addHistoryEmailView = (RobotoEditText) dialogView
+    final EditText addHistoryEmailView = (EditText) dialogView
       .findViewById(R.id.add_history_email);
-    final RobotoEditText addHistorySmsView = (RobotoEditText) dialogView
+    final EditText addHistorySmsView = (EditText) dialogView
       .findViewById(R.id.add_history_sms);
-    final RobotoEditText addHistoryNotesView = (RobotoEditText) dialogView
+    final EditText addHistoryNotesView = (EditText) dialogView
       .findViewById(R.id.add_history_note);
 
     if (targetName != null && !targetName.isEmpty()) {

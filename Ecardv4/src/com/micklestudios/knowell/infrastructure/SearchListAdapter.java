@@ -229,7 +229,7 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
 
     if (sortModeName) {
       String first = localUser.getFirstName();
-      if (first != null && first != "") {
+      if (first != null && !first.isEmpty()) {
         headerText.setText(first.toUpperCase(Locale.ENGLISH).toCharArray(), 0,
           1);
       } else {
@@ -247,7 +247,7 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
       .get(position));
     if (sortModeName) {
       String firstName = uInfo.getFirstName();
-      if (firstName != null && firstName != "") {
+      if (firstName != null && !firstName.isEmpty()) {
         return firstName.toUpperCase(Locale.ENGLISH).toCharArray()[0];
       } else {
         Log.i("getHeaderId", "empty first name");

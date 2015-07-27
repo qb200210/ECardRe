@@ -41,6 +41,7 @@ public class UserInfo implements Parcelable {
   String company;
   String title;
   String city;
+  String motto;
   Bitmap portrait;
   String whereMet;
   String eventMet;
@@ -62,8 +63,9 @@ public class UserInfo implements Parcelable {
     public static final int TYPE_EMAIL = 9;
     public static final int TYPE_WHENMET = 10;
     public static final int TYPE_UPDATEDAT = 11;
+    public static final int TYPE_MOTTO = 12;
   }
-
+  
   ArrayList<String> shownArrayList = new ArrayList<String>();
   ArrayList<Integer> infoIcon = new ArrayList<Integer>();
   ArrayList<String> infoLink = new ArrayList<String>();
@@ -73,14 +75,16 @@ public class UserInfo implements Parcelable {
   private void ensureDefaults() {
     this.objId = this.objId == null ? "Unspecified" : this.objId;
     this.userId = this.userId == null ? "Unspecified" : this.userId;
-    this.firstName = this.firstName == null ? "Mysterious User X"
+    this.firstName = (this.firstName == null || this.firstName.isEmpty()) ? "(Undisclosed Name)"
       : this.firstName;
     this.lastName = this.lastName == null ? "" : this.lastName;
-    this.company = this.company == null ? "Mysterious Company" : this.company;
-    this.title = this.title == null ? "Mysterious Position" : this.title;
-    this.city = this.city == null ? "Somewhere on Earth" : this.city;
-    this.whereMet = this.whereMet == null ? "Mysterious Place" : this.whereMet;
-    this.eventMet = this.eventMet == null ? "Mysterious Event" : this.eventMet;
+    this.company = (this.company == null || this.company.isEmpty()) ? "(Undisclosed Company)" : this.company;
+    this.title = (this.title == null || this.title.isEmpty()) ? "(Undisclosed Position)" : this.title;
+    this.city = (this.city == null || this.city.isEmpty()) ? "(Undisclosed Location)" : this.city;
+    this.motto = this.motto == null ? "" : this.motto;
+    
+    this.whereMet = this.whereMet == null ? "" : this.whereMet;
+    this.eventMet = this.eventMet == null ? "" : this.eventMet;
     this.notes = this.notes == null ? "" : this.notes;
     this.whenMet = this.whenMet == null ? (new Date()) : this.whenMet;
     this.updatedAt = this.updatedAt == null ? (new Date()) : this.whenMet;
@@ -101,6 +105,7 @@ public class UserInfo implements Parcelable {
       || company.toLowerCase(Locale.ENGLISH).contains(keyLower)
       || title.toLowerCase(Locale.ENGLISH).contains(keyLower)
       || city.toLowerCase(Locale.ENGLISH).contains(keyLower)
+      || motto.toLowerCase(Locale.ENGLISH).contains(keyLower)
       || whereMet.toLowerCase(Locale.ENGLISH).contains(keyLower)
       || eventMet.toLowerCase(Locale.ENGLISH).contains(keyLower)
       || notes.toLowerCase(Locale.ENGLISH).contains(keyLower)) {
@@ -204,6 +209,7 @@ public class UserInfo implements Parcelable {
       company = parseObj.getString("company");
       title = parseObj.getString("title");
       city = parseObj.getString("city");
+      motto = parseObj.getString("motto");
       email = parseObj.getString("email");
 
       // extra info
@@ -215,7 +221,7 @@ public class UserInfo implements Parcelable {
         String item = allowedArray[i];
         // the value of this extra info item
         Object value = parseObj.get(item);
-        if (value != null && value.toString() != "") {
+        if (value != null && !value.toString().isEmpty()) {
           infoIcon.add(iconSelector(item));
           infoLink.add(value.toString());
           // note down the existing extra info items
@@ -267,6 +273,7 @@ public class UserInfo implements Parcelable {
       company = parseObj.getString("company");
       title = parseObj.getString("title");
       city = parseObj.getString("city");
+      motto = parseObj.getString("motto");
 
       // extra info
       infoIcon.clear();
@@ -277,7 +284,7 @@ public class UserInfo implements Parcelable {
         String item = allowedArray[i];
         // the value of this extra info item
         Object value = parseObj.get(item);
-        if (value != null && value.toString() != "") {
+        if (value != null && !value.toString().isEmpty()) {
           infoIcon.add(iconSelector(item));
           infoLink.add(value.toString());
           // note down the existing extra info items
@@ -298,6 +305,7 @@ public class UserInfo implements Parcelable {
     this.company = source.readString();
     this.title = source.readString();
     this.city = source.readString();
+    this.motto = source.readString();
     this.portrait = (Bitmap) source.readParcelable(getClass().getClassLoader());
     source.readStringList(this.shownArrayList);
     source.readStringList(this.infoLink);
@@ -322,6 +330,7 @@ public class UserInfo implements Parcelable {
     dest.writeString(company);
     dest.writeString(title);
     dest.writeString(city);
+    dest.writeString(motto);
     dest.writeParcelable(portrait, flags);
     dest.writeStringList(shownArrayList);
     dest.writeStringList(infoLink);
@@ -462,6 +471,14 @@ public class UserInfo implements Parcelable {
 
   public String getTitle() {
     return title;
+  }
+
+  public String getMotto() {
+    return motto;
+  }
+
+  public void setMotto(String motto) {
+    this.motto = motto;
   }
 
   public ArrayList<String> getShownArrayList() {

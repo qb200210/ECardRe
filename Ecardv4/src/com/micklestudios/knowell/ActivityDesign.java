@@ -47,6 +47,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.micklestudios.knowell.infrastructure.UserInfo;
 import com.micklestudios.knowell.utils.AppGlobals;
 import com.micklestudios.knowell.utils.ECardUtils;
 import com.micklestudios.knowell.utils.ExpandableHeightGridView;
@@ -109,12 +110,22 @@ public class ActivityDesign extends ActionBarActivity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    
+    // This fixes the lost data/ crash issues upon restoring from resume
+    if(savedInstanceState != null){
+      currentUser = ParseUser.getCurrentUser();
+      ActivityMain.myselfUserInfo = savedInstanceState.getParcelable("myself");
+    } else {
+      currentUser = ParseUser.getCurrentUser();
+      ActivityMain.myselfUserInfo = new UserInfo(currentUser.get("ecardId").toString(), "",
+        "", true, false, false);
+    }
+    
     setContentView(R.layout.activity_design);
     scrollView = (MyScrollView) findViewById(R.id.design_scroll_view);
     scrollView.setmScrollable(true);
     showActionBar();
     currentUser = ParseUser.getCurrentUser();
-    Bundle data = getIntent().getExtras();
     displayMyCard();
 
     // complete list of possible extrainfo items
@@ -177,6 +188,12 @@ public class ActivityDesign extends ActionBarActivity {
       }
     });
 
+  }
+  
+  @Override
+  public void onSaveInstanceState(Bundle outState) {
+    outState.putParcelable("myself", ActivityMain.myselfUserInfo);
+    super.onSaveInstanceState(outState);
   }
 
   private void showActionBar() {
@@ -367,18 +384,25 @@ public class ActivityDesign extends ActionBarActivity {
             String[] splitName = fullName.split(" ");
             String firstName = "";
             String lastName = "";
-            Toast.makeText(getApplicationContext(), splitName.length + " ll",
-              Toast.LENGTH_SHORT).show();
-            if (splitName.length > 1) {
-              for (int i = 0; i < splitName.length - 2; i++) {
+            if(splitName.length == 1){
+              // first name only
+              firstName = splitName[0];
+              lastName = "";
+            } else{
+              // at least 2 segments
+              for(int i=0; i< splitName.length-2; i++){
                 firstName = firstName + splitName[i] + " ";
-              }
-              for (int i = splitName.length - 2; i < splitName.length - 1; i++) {
+              } 
+              for(int i=splitName.length-2; i< splitName.length-1; i++){
                 firstName = firstName + splitName[i];
               }
-              lastName = splitName[splitName.length - 1];
-            } else {
-              firstName = splitName[0];
+              lastName = splitName[splitName.length-1];
+            }
+            if(firstName ==null || firstName.isEmpty()){
+              firstName = "";
+            }
+            if(lastName ==null || lastName.isEmpty()){
+              lastName = "";
             }
             object.put("firstName", firstName);
             object.put("lastName", lastName);
@@ -398,6 +422,8 @@ public class ActivityDesign extends ActionBarActivity {
             object.put("title", name.getText().toString());
             name = (EditText) findViewById(R.id.design_address);
             object.put("city", name.getText().toString());
+            name = (EditText) findViewById(R.id.design_motto);
+            object.put("motto", name.getText().toString());
 
             ArrayList<String> remainedList = new ArrayList<String>();
             int numBtns = gridView.getChildCount() - 1;
@@ -445,17 +471,27 @@ public class ActivityDesign extends ActionBarActivity {
 
     String firstName = "";
     String lastName = "";
-    if (splitName.length > 1) {
-      for (int i = 0; i < splitName.length - 2; i++) {
+    if(splitName.length == 1){
+      // first name only
+      firstName = splitName[0];
+      lastName = "";
+    } else{
+      // at least 2 segments
+      for(int i=0; i< splitName.length-2; i++){
         firstName = firstName + splitName[i] + " ";
-      }
-      for (int i = splitName.length - 2; i < splitName.length - 1; i++) {
+      } 
+      for(int i=splitName.length-2; i< splitName.length-1; i++){
         firstName = firstName + splitName[i];
       }
-      lastName = splitName[splitName.length - 1];
-    } else {
-      firstName = splitName[0];
+      lastName = splitName[splitName.length-1];
     }
+    if(firstName ==null || firstName.isEmpty()){
+      firstName = "";
+    }
+    if(lastName ==null || lastName.isEmpty()){
+      lastName = "";
+    }
+    
     ActivityMain.myselfUserInfo.setFirstName(firstName);
     ActivityMain.myselfUserInfo.setLastName(lastName);
 
@@ -465,6 +501,8 @@ public class ActivityDesign extends ActionBarActivity {
     ActivityMain.myselfUserInfo.setTitle(name.getText().toString());
     name = (EditText) findViewById(R.id.design_address);
     ActivityMain.myselfUserInfo.setCity(name.getText().toString());
+    name = (EditText) findViewById(R.id.design_motto);
+    ActivityMain.myselfUserInfo.setMotto(name.getText().toString());
     infoIcon.remove(infoIcon.size() - 1);
     infoLink.remove(infoLink.size() - 1);
     shownArrayList.remove(shownArrayList.size() - 1);
@@ -698,6 +736,8 @@ public class ActivityDesign extends ActionBarActivity {
     name.setText(ActivityMain.myselfUserInfo.getTitle());
     name = (EditText) findViewById(R.id.design_address);
     name.setText(ActivityMain.myselfUserInfo.getCity());
+    name = (EditText) findViewById(R.id.design_motto);
+    name.setText(ActivityMain.myselfUserInfo.getMotto());
     ImageView portraitImg = (ImageView) findViewById(R.id.design_portrait);
     portraitImg.setImageBitmap(ActivityMain.myselfUserInfo.getPortrait());
 

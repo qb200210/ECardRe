@@ -24,6 +24,7 @@ import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -34,7 +35,6 @@ import com.micklestudios.knowell.infrastructure.UserInfo;
 import com.micklestudios.knowell.utils.AppGlobals;
 import com.micklestudios.knowell.utils.AsyncTasks;
 import com.micklestudios.knowell.utils.ECardUtils;
-import com.micklestudios.knowell.utils.RobotoEditText;
 import com.nhaarman.listviewanimations.appearance.simple.AlphaInAnimationAdapter;
 import com.parse.FindCallback;
 import com.parse.ParseException;
@@ -180,13 +180,13 @@ public class ActivityHistory extends ActionBarActivity {
       + android.text.format.DateFormat.format("yyyy",
         selectedRecord.getCreatedAt()));
 
-    final RobotoEditText addHistoryNameView = (RobotoEditText) dialogView
+    final EditText addHistoryNameView = (EditText) dialogView
       .findViewById(R.id.add_history_name);
-    final RobotoEditText addHistoryEmailView = (RobotoEditText) dialogView
+    final EditText addHistoryEmailView = (EditText) dialogView
       .findViewById(R.id.add_history_email);
-    final RobotoEditText addHistorySmsView = (RobotoEditText) dialogView
+    final EditText addHistorySmsView = (EditText) dialogView
       .findViewById(R.id.add_history_sms);
-    final RobotoEditText addHistoryNotesView = (RobotoEditText) dialogView
+    final EditText addHistoryNotesView = (EditText) dialogView
       .findViewById(R.id.add_history_note);
 
     if (selectedRecord.get("fullName") != null) {

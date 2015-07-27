@@ -476,6 +476,7 @@ public class AsyncTasks {
       } catch (ParseException e1) {
         e1.printStackTrace();
       }
+      
       if (noteObjects != null && noteObjects.size() != 0) {
         // If some of the notes have been updated, otherwise skip the rest
         flagShouldSync = true;
@@ -486,11 +487,11 @@ public class AsyncTasks {
           // unpin those notes that are deleted along with the ecards
           if (objNote.get("isDeleted") != null) {
             if ((boolean) objNote.get("isDeleted") == true) {
-              try {
-                // unpin the "deleted" object
-                objNote.unpin();
-                if (objNote.get("ecardId").toString() != currentUser.get(
-                  "ecardId").toString()) {
+              try {             
+                // Lesson taken: when directly comparing two strings, cannot use ==
+                if (!(objNote.get("ecardId").toString().equals(currentUser.get(
+                  "ecardId").toString()))) {
+                  Log.e("notedel", "delete card");
                   // If the note is with self, then unpinning card may result in
                   // crash
                   // unpin corresponding local Ecard copy
@@ -500,6 +501,8 @@ public class AsyncTasks {
                     "ecardId").toString());
                   objEcard.unpin();
                 }
+                // unpin the "deleted" object
+                objNote.unpin();
                 // remove the note from the to-be-pinned list
                 iter.remove();
               } catch (ParseException e) {
@@ -636,6 +639,7 @@ public class AsyncTasks {
       if (flagToast) {
         Toast.makeText(context, "Card Collection Up to Date",
           Toast.LENGTH_SHORT).show();
+        AppGlobals.initializeAllContactsBlocking();
       }
     }
 
@@ -665,66 +669,6 @@ public class AsyncTasks {
     @Override
     protected String doInBackground(String... params) {
 
-      // remove those conversations associated with cards that are already
-      // collected
-      // find all local conversations
-      ParseQuery<ParseObject> queryLocal = ParseQuery.getQuery("Conversations");
-      queryLocal.whereEqualTo("partyB", currentUser.get("ecardId").toString());
-      queryLocal.fromLocalDatastore();
-      List<ParseObject> convObjs = null;
-      try {
-        convObjs = queryLocal.find();
-      } catch (ParseException e3) {
-        e3.printStackTrace();
-      }
-      TreeSet<String> ecardIdsToCollect = new TreeSet();
-      if (convObjs != null) {
-        if (convObjs.size() > 0) {
-          for (ParseObject convObj : convObjs) {
-            // record all ecards associated with local conversations
-            ecardIdsToCollect.add(convObj.get("partyA").toString());
-          }
-          // check notes to see if the note corresponding to this ecard in conv
-          // already exist locally
-          ParseQuery<ParseObject> queryNote = ParseQuery.getQuery("ECardNote");
-          queryNote.whereContainedIn("ecardId", ecardIdsToCollect);
-          queryNote.whereNotEqualTo("isDeleted", true);
-          queryNote
-            .whereEqualTo("userId", currentUser.getObjectId().toString());
-          queryNote.fromLocalDatastore();
-          List<ParseObject> noteObjs = null;
-          try {
-            noteObjs = queryNote.find();
-          } catch (ParseException e) {
-            e.printStackTrace();
-          }
-          TreeSet<String> ecardIdsToRemove = new TreeSet();
-          if (noteObjs != null) {
-            if (noteObjs.size() > 0) {
-              for (ParseObject noteObj : noteObjs) {
-                ecardIdsToRemove.add(noteObj.get("ecardId").toString());
-              }
-            }
-          }
-          // remove those conversations
-          for (ParseObject convObj : convObjs) {
-            if (ecardIdsToRemove.contains(convObj.get("partyA").toString())) {
-              // if a conversation object corresponds to an existing note,
-              // remove it
-              convObj.put("isDeleted", true);
-              try {
-                convObj.save();
-                convObj.unpin();
-              } catch (ParseException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-              }
-            }
-          }
-
-        }
-      }
-
       // get the stored shared last sync date, if null, default to 1969
       long millis = prefs.getLong("DateConversationsSynced", 0L);
       Date lastSyncedDate = new Date(millis);
@@ -734,10 +678,11 @@ public class AsyncTasks {
 
       ParseQuery<ParseObject> query = ParseQuery.getQuery("Conversations");
       query.whereEqualTo("partyB", currentUser.get("ecardId").toString());
-      query.whereGreaterThan("updatedAt", lastSyncedDate);
+      // query.whereGreaterThan("updatedAt", lastSyncedDate);
       List<ParseObject> convObjects = null;
       try {
         convObjects = query.find();
+        Log.e("synconv", currentUser.get("ecardId").toString() + convObjects.size());
       } catch (ParseException e2) {
         // TODO Auto-generated catch block
         e2.printStackTrace();
@@ -841,6 +786,7 @@ public class AsyncTasks {
       if (flagToast)
         Toast.makeText(context, "Notifications Up to Date", Toast.LENGTH_SHORT)
           .show();
+      AppGlobals.initializePotentialUsersBlocking();
     }
 
   }
@@ -1301,6 +1247,9 @@ public class AsyncTasks {
         // if the note didn't exist, create note and save note changes
         createNote();
       }
+      
+      // Refresh the collection for ActivitySearch
+      AppGlobals.initializeAllContactsBlocking();
 
       return null;
     }

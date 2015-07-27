@@ -90,7 +90,7 @@ public class FragmentMaincard extends Fragment implements UpdateableFragment {
     name = (TextView) rootView.findViewById(R.id.my_add);
     tmpString = newUser.getCity();
     if (tmpString != null)
-      name.setText(tmpString);
+      name.setText(tmpString);    
     ImageView portraitImg = (ImageView) rootView.findViewById(R.id.my_portrait);
     if (newUser.getPortrait() != null) {
       portraitImg.setImageBitmap(newUser.getPortrait());

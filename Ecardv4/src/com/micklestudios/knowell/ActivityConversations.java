@@ -75,15 +75,11 @@ public class ActivityConversations extends ActionBarActivity {
     dialog.setContentView(R.layout.layout_dialog_scanned_process);
 
     retrieveAllViews();
+    
+    AppGlobals.ensureNonNullUponResume();
 
     initializeContactList();
-  }
-
-  @Override
-  public void onResume() {
-    super.onResume();
-    // Initialize the global lists if needed since we will be using them
-    AppGlobals.initializePotentialUsers();
+    Log.e("conv", "" + AppGlobals.potentialUsers.size());
   }
 
   private void retrieveAllViews() {
@@ -223,6 +219,7 @@ public class ActivityConversations extends ActionBarActivity {
                     for (ParseObject obj : objects) {
                       obj.put("isDeleted", true);
                       obj.saveEventually();
+                      // Should unpin those EcardInfo which are not associated with Notes
                     }
                   }
                 }

@@ -14,7 +14,7 @@
         android:layout_height="wrap_content" 
         android:orientation="vertical"
         android:layout_marginBottom="0dp">
-        <com.micklestudios.knowell.utils.RobotoTextView
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
@@ -27,8 +27,8 @@
             android:textStyle="normal"
             android:text="Subject"
             android:gravity="top"
-            app:robotoFont="Roboto-Regular.ttf" />
-        <com.micklestudios.knowell.utils.RobotoTextView
+              />
+        <TextView
             android:id="@+id/preview_subject"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -42,7 +42,7 @@
             android:textSize="18sp"
             android:textStyle="normal"
             android:gravity="top"
-            app:robotoFont="Roboto-Regular.ttf" />
+              />
     </LinearLayout>
 
     <LinearLayout
@@ -51,7 +51,7 @@
         android:orientation="vertical"
         android:layout_marginBottom="0dp">
 
-        <com.micklestudios.knowell.utils.RobotoTextView
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
@@ -64,8 +64,8 @@
             android:textStyle="normal"
             android:text="Body"
             android:gravity="top"
-            app:robotoFont="Roboto-Regular.ttf" />
-        <com.micklestudios.knowell.utils.RobotoTextView
+              />
+        <TextView
             android:id="@+id/preview_body"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -79,7 +79,7 @@
             android:textSize="18sp"
             android:textStyle="normal"
             android:gravity="top"
-            app:robotoFont="Roboto-Regular.ttf" />
+              />
     </LinearLayout>
 </LinearLayout>
 </ScrollView>

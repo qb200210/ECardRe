@@ -16,6 +16,9 @@
          android:layout_marginBottom="30dp"
         />
     	<TextView
+    	    android:id="@+id/my_motto"
+	        android:paddingLeft="30dp"
+	        android:paddingRight="30dp"
     	    android:layout_width="wrap_content"
     	    android:layout_height="wrap_content"
     	    android:layout_centerInParent="true"

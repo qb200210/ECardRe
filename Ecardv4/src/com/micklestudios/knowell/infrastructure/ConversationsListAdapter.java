@@ -140,7 +140,7 @@ public class ConversationsListAdapter extends ArrayAdapter<UserInfo> implements
 
     if (sortModeName) {
       String first = localUser.getFirstName();
-      if (first != null && first != "") {
+      if (first != null && !first.isEmpty()) {
         headerText.setText(first.toUpperCase(Locale.ENGLISH).toCharArray(), 0,
           1);
       } else {
@@ -156,7 +156,7 @@ public class ConversationsListAdapter extends ArrayAdapter<UserInfo> implements
   public long getHeaderId(final int position) {
     if (sortModeName) {
       if (AppGlobals.potentialUsers.get(position).getFirstName() != null
-        && AppGlobals.potentialUsers.get(position).getFirstName() != "") {
+        && !AppGlobals.potentialUsers.get(position).getFirstName().isEmpty()) {
         return AppGlobals.potentialUsers.get(position).getFirstName()
           .toUpperCase(Locale.ENGLISH).toCharArray()[0];
       } else {

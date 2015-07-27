@@ -114,8 +114,8 @@ public class ActivityBufferOpening extends Activity {
         public void run() {
           // if no network, generate userInfo objects directly from
           // localDataStore
-          AppGlobals.initializeAllContacts(true);
-          AppGlobals.initializePotentialUsers(true);
+          AppGlobals.initializeAllContactsBlocking();
+          AppGlobals.initializePotentialUsersBlocking();
           createCompanyNamesFromLocal(prefs);
           totalProgress = 100;
           Message myMessage = new Message();
@@ -276,8 +276,8 @@ public class ActivityBufferOpening extends Activity {
             Log.i("msg", "all others complete");
             // when all other syncs complete, generate UserInfo objects from
             // LocalDataStore
-            AppGlobals.initializeAllContacts(true);
-            AppGlobals.initializePotentialUsers(true);
+            AppGlobals.initializeAllContactsBlocking();
+            AppGlobals.initializePotentialUsersBlocking();
             totalProgress = 100;
           }
           if ((createSelfCopy.getStatus() != AsyncTask.Status.RUNNING || timeoutFlagSelf)

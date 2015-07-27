@@ -20,11 +20,13 @@ import android.os.CountDownTimer;
 import android.os.Environment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -40,7 +42,6 @@ import com.micklestudios.knowell.utils.DetailsPagerAdapter;
 import com.micklestudios.knowell.utils.ECardUtils;
 import com.micklestudios.knowell.utils.MyScrollView;
 import com.micklestudios.knowell.utils.MyViewPager;
-import com.micklestudios.knowell.utils.RobotoTextView;
 import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.ParseException;
@@ -56,26 +57,28 @@ public class ActivityDetails extends ActionBarActivity {
   ParseUser currentUser;
   private MediaRecorder recorder = null;
   private MediaPlayer mp = null;
-  private ImageView replayButtonPanel;
-  private ImageView recorderButton;
-  private ImageView timerButton;
-  private static final String AUDIO_RECORDER_FOLDER = "AudioRecorder";
-  private static final long SAVENOTE_TIMEOUT = 5000;
+  ImageView replayButtonPanel;
+  ImageView recorderButton;
+  ImageView timerButton;
+  static final String AUDIO_RECORDER_FOLDER = "AudioRecorder";
+  static final long SAVENOTE_TIMEOUT = 5000;
   CountDownTimer t;
-  private int flag = 0;
-  private String filepath;
-  private String noteId;
-  private int recordstatus1 = 0;
+  int flag = 0;
+  String filepath;
+  String noteId;
+  int recordstatus1 = 0;
   public Date newDate;
   private boolean flagVoiceNoteChanged = false;
+  private UserInfo newUser;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    currentUser = ParseUser.getCurrentUser();
     // show custom action bar (on top of standard action bar)
     showActionBar();
     setContentView(R.layout.activity_scanned);
-    currentUser = ParseUser.getCurrentUser();
+    
 
     replayButtonPanel = (ImageView) findViewById(R.id.panel_play_button);
     recorderButton = (ImageView) findViewById(R.id.panel_recorder_button);
@@ -86,7 +89,19 @@ public class ActivityDetails extends ActionBarActivity {
     scrollView.setmScrollable(true);
 
     Bundle data = getIntent().getExtras();
-    final UserInfo newUser = (UserInfo) data.getParcelable("userinfo");
+    if(data != null){
+      newUser = (UserInfo) data.getParcelable("userinfo");
+    }
+    
+    // This fixes the lost data/ crash issues upon restoring from resume
+    if(savedInstanceState != null){
+      newUser = savedInstanceState.getParcelable("newUser");
+    } 
+    
+    TextView motto = (TextView) findViewById(R.id.motto);
+    String tmpString = newUser.getMotto();
+    if (tmpString != null)
+      motto.setText(tmpString);
 
     DetailsPagerAdapter mAdapter = new DetailsPagerAdapter(
       getSupportFragmentManager(), newUser, this);
@@ -115,239 +130,12 @@ public class ActivityDetails extends ActionBarActivity {
         }
       }
 
-      private void displayNote(final ParseObject object) {
-        TextView updatedAt = (TextView) findViewById(R.id.LastUpdated);
-        updatedAt.setText(android.text.format.DateFormat.format("MMM",
-          object.getUpdatedAt())
-          + " "
-          + android.text.format.DateFormat.format("dd", object.getUpdatedAt())
-          + ", "
-          + android.text.format.DateFormat.format("yyyy", object.getUpdatedAt()));
-
-        RobotoTextView whenMet2 = (RobotoTextView) findViewById(R.id.DateAdded2);
-        whenMet2.setText(android.text.format.DateFormat.format("MMM",
-          (Date) object.get("whenMet"))
-          + " "
-          + android.text.format.DateFormat.format("dd",
-            (Date) object.get("whenMet"))
-          + ", "
-          + android.text.format.DateFormat.format("yyyy",
-            (Date) object.get("whenMet")));
-        newDate = (Date) object.get("whenMet");
-        whenMet2.setOnClickListener(new OnClickListener() {
-
-          @Override
-          public void onClick(View v) {
-            Calendar newCalendar = Calendar.getInstance();
-            newCalendar.setTime(newDate);
-            DatePickerDialog dialog = new DatePickerDialog(
-              ActivityDetails.this, new mDateSetListener(), newCalendar
-                .get(Calendar.YEAR), newCalendar.get(Calendar.MONTH),
-              newCalendar.get(Calendar.DAY_OF_MONTH));
-            dialog.setTitle("When did you meet?");
-            dialog.show();
-          }
-
-        });
-
-        EditText whereMet2 = (EditText) findViewById(R.id.PlaceAdded2);
-        String cityName = object.getString("where_met");
-        if (cityName != null) {
-          whereMet2.setText(cityName);
-        }
-        EditText eventMet = (EditText) findViewById(R.id.EventAdded2);
-        String eventName = object.getString("event_met");
-        if (eventName != null) {
-          eventMet.setText(eventName);
-        }
-        EditText notes = (EditText) findViewById(R.id.EditNotes);
-        String notesContent = object.getString("notes");
-        if (notesContent != null) {
-          notes.setText(notesContent);
-        }
-        byte[] tmpVoiceData = (byte[]) object.get("tmpVoiceByteArray");
-        if (tmpVoiceData != null) {
-          // save as parseFile then clean the array if there is network
-          // this is necessary as user can switch on network without restarting
-          // app
-          if (ECardUtils.isNetworkAvailable(ActivityDetails.this)) {
-            final ParseFile voiceFile = new ParseFile("voicenote.mp4",
-              tmpVoiceData);
-            voiceFile.saveInBackground(new SaveCallback() {
-
-              @Override
-              public void done(ParseException arg0) {
-                object.put("voiceNotes", voiceFile);
-                object.remove("tmpVoiceByteArray");
-                object.saveEventually();
-              }
-
-            });
-          }
-          // use the array to populate replay no matter with network or not
-          FileOutputStream out;
-          try {
-            out = new FileOutputStream(filepath);
-            out.write(tmpVoiceData);
-            out.close();
-          } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-          } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-          }
-
-        } else {
-          // only check the voiceNotes when tmpVoice data is empty
-          // that is always use tmpArray to overwrite voiceNotes if there is
-          // conflict
-          ParseFile audioFile = (ParseFile) object.get("voiceNotes");
-          if (audioFile != null) {
-            byte[] audioData;
-            try {
-              audioData = audioFile.getData();
-              FileOutputStream out = new FileOutputStream(filepath);
-              out.write(audioData);
-              out.close();
-            } catch (ParseException e1) {
-              // TODO Auto-generated catch block
-              e1.printStackTrace();
-            } catch (FileNotFoundException e) {
-              // TODO Auto-generated catch block
-              e.printStackTrace();
-            } catch (IOException e) {
-              // TODO Auto-generated catch block
-              e.printStackTrace();
-            }
-          } else {
-            // if both tmparray and voiceNotes are null, then it means no voice
-            // note at all
-            replayButtonPanel.setVisibility(View.GONE);
-          }
-        }
-      }
-
     });
 
     // recorder-related begins
-
-    recorderButton.setOnClickListener(new OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        if (recordstatus1 == 0) {
-          flagVoiceNoteChanged = true;
-          Toast.makeText(ActivityDetails.this, "Recording...",
-            Toast.LENGTH_SHORT).show();
-          // changebuttontext(R.id.recordButton,"Recording...");
-          replayButtonPanel.setVisibility(View.GONE);
-          startRecording();
-          recordstatus1 = 1;
-          recorderButton.setImageResource(R.drawable.ic_action_stop);
-
-          findViewById(R.id.timer).setVisibility(View.VISIBLE);
-          scrollView = (MyScrollView) findViewById(R.id.scroll_view_scanned);
-          scrollView.setmScrollable(false);
-
-          disableViewElements((ViewGroup) findViewById(R.id.backlayer));
-
-          t = new CountDownTimer(30000, 1000) { // 30 seconds recording time
-            TextView counter = (TextView) findViewById(R.id.time_left);
-
-            @Override
-            public void onTick(long millisUntilFinished) {
-              counter.setText(millisUntilFinished / 1000
-                + " seconds remaining.");
-            }
-
-            @Override
-            public void onFinish() {
-              stopRecording();
-              recordstatus1 = 0;
-              Toast.makeText(ActivityDetails.this,
-                "Max Recording Length Reached.", Toast.LENGTH_SHORT).show();
-              recorderButton.setImageResource(R.drawable.recorder);
-              replayButtonPanel.setVisibility(View.VISIBLE);
-              findViewById(R.id.timer).setVisibility(View.GONE);
-              enableViewElements((ViewGroup) findViewById(R.id.backlayer));
-              scrollView = (MyScrollView) findViewById(R.id.scroll_view_scanned);
-              scrollView.setmScrollable(true);
-
-            }
-          }.start();
-
-        } else if (recordstatus1 == 1) {
-          stopRecording();
-          t.cancel();
-          recordstatus1 = 0;
-          recorderButton.setImageResource(R.drawable.recorder);
-          replayButtonPanel.setVisibility(View.VISIBLE);
-          findViewById(R.id.timer).setVisibility(View.GONE);
-          enableViewElements((ViewGroup) findViewById(R.id.backlayer));
-          scrollView = (MyScrollView) findViewById(R.id.scroll_view_scanned);
-          scrollView.setmScrollable(true);
-        }
-      }
-    });
-
-    timerButton.setOnClickListener(new OnClickListener() {
-      @Override
-      public void onClick(View v) {
-
-        stopRecording();
-        t.cancel();
-        recordstatus1 = 0;
-        recorderButton.setImageResource(R.drawable.recorder);
-        replayButtonPanel.setVisibility(View.VISIBLE);
-        findViewById(R.id.timer).setVisibility(View.GONE);
-        enableViewElements((ViewGroup) findViewById(R.id.backlayer));
-        scrollView = (MyScrollView) findViewById(R.id.scroll_view_scanned);
-        scrollView.setmScrollable(true);
-      }
-    });
-
-    replayButtonPanel.setOnClickListener(new OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        if (null != mp && mp.isPlaying()) {
-          mp.pause();
-          flag = 1;
-          replayButtonPanel.setImageResource(R.drawable.play);
-        } else if (null != mp && flag == 1) {
-          mp.start();
-          flag = 0;
-          replayButtonPanel.setImageResource(R.drawable.pause);
-        } else {
-          stopRecording();
-          mp = new MediaPlayer();
-          try {
-            mp.setDataSource(filepath);
-          } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-          } catch (SecurityException e) {
-            e.printStackTrace();
-          } catch (IllegalStateException e) {
-            e.printStackTrace();
-          } catch (IOException e) {
-            e.printStackTrace();
-          }
-          try {
-            mp.prepare();
-          } catch (IllegalStateException | IOException e) {
-            e.printStackTrace();
-          }
-          mp.start();
-          replayButtonPanel.setImageResource(R.drawable.pause);
-
-          mp.setOnCompletionListener(new OnCompletionListener() {
-            // @Override
-            public void onCompletion(MediaPlayer mp) {
-              replayButtonPanel.setImageResource(R.drawable.play);
-            }
-          });
-        }
-      }
-    });
+    recorderButton.setOnClickListener(recorderListener);
+    timerButton.setOnClickListener(timerListener);
+    replayButtonPanel.setOnClickListener(replayListener);
     // recorder-related ends
 
     // This is the life-saver! It fixes the bug that scrollView will go to the
@@ -358,8 +146,131 @@ public class ActivityDetails extends ActionBarActivity {
     // scrollView.requestChildFocus(mainCardContainer, null);
 
   }
+  
+  OnClickListener replayListener = new OnClickListener() {
+    @Override
+    public void onClick(View v) {
+      if (null != mp && mp.isPlaying()) {
+        mp.pause();
+        flag = 1;
+        replayButtonPanel.setImageResource(R.drawable.play);
+      } else if (null != mp && flag == 1) {
+        mp.start();
+        flag = 0;
+        replayButtonPanel.setImageResource(R.drawable.pause);
+      } else {
+        stopRecording();
+        mp = new MediaPlayer();
+        try {
+          mp.setDataSource(filepath);
+        } catch (IllegalArgumentException e) {
+          e.printStackTrace();
+        } catch (SecurityException e) {
+          e.printStackTrace();
+        } catch (IllegalStateException e) {
+          e.printStackTrace();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+        try {
+          mp.prepare();
+        } catch (IllegalStateException | IOException e) {
+          e.printStackTrace();
+        }
+        mp.start();
+        replayButtonPanel.setImageResource(R.drawable.pause);
 
-  private void showActionBar() {
+        mp.setOnCompletionListener(new OnCompletionListener() {
+          // @Override
+          public void onCompletion(MediaPlayer mp) {
+            replayButtonPanel.setImageResource(R.drawable.play);
+          }
+        });
+      }
+    }
+  };
+  
+  OnClickListener timerListener = new OnClickListener() {
+    @Override
+    public void onClick(View v) {
+
+      stopRecording();
+      t.cancel();
+      recordstatus1 = 0;
+      recorderButton.setImageResource(R.drawable.recorder);
+      replayButtonPanel.setVisibility(View.VISIBLE);
+      findViewById(R.id.timer).setVisibility(View.GONE);
+      enableViewElements((ViewGroup) findViewById(R.id.backlayer));
+      scrollView = (MyScrollView) findViewById(R.id.scroll_view_scanned);
+      scrollView.setmScrollable(true);
+    }
+  };
+  
+  OnClickListener recorderListener = new OnClickListener() {
+    @Override
+    public void onClick(View v) {
+      if (recordstatus1 == 0) {
+        flagVoiceNoteChanged = true;
+        Toast.makeText(ActivityDetails.this, "Recording...",
+          Toast.LENGTH_SHORT).show();
+        // changebuttontext(R.id.recordButton,"Recording...");
+        replayButtonPanel.setVisibility(View.GONE);
+        startRecording();
+        recordstatus1 = 1;
+        recorderButton.setImageResource(R.drawable.ic_action_stop);
+
+        findViewById(R.id.timer).setVisibility(View.VISIBLE);
+        scrollView = (MyScrollView) findViewById(R.id.scroll_view_scanned);
+        scrollView.setmScrollable(false);
+
+        disableViewElements((ViewGroup) findViewById(R.id.backlayer));
+
+        t = new CountDownTimer(30000, 1000) { // 30 seconds recording time
+          TextView counter = (TextView) findViewById(R.id.time_left);
+
+          @Override
+          public void onTick(long millisUntilFinished) {
+            counter.setText(millisUntilFinished / 1000
+              + " seconds remaining.");
+          }
+
+          @Override
+          public void onFinish() {
+            stopRecording();
+            recordstatus1 = 0;
+            Toast.makeText(ActivityDetails.this,
+              "Max Recording Length Reached.", Toast.LENGTH_SHORT).show();
+            recorderButton.setImageResource(R.drawable.recorder);
+            replayButtonPanel.setVisibility(View.VISIBLE);
+            findViewById(R.id.timer).setVisibility(View.GONE);
+            enableViewElements((ViewGroup) findViewById(R.id.backlayer));
+            scrollView = (MyScrollView) findViewById(R.id.scroll_view_scanned);
+            scrollView.setmScrollable(true);
+
+          }
+        }.start();
+
+      } else if (recordstatus1 == 1) {
+        stopRecording();
+        t.cancel();
+        recordstatus1 = 0;
+        recorderButton.setImageResource(R.drawable.recorder);
+        replayButtonPanel.setVisibility(View.VISIBLE);
+        findViewById(R.id.timer).setVisibility(View.GONE);
+        enableViewElements((ViewGroup) findViewById(R.id.backlayer));
+        scrollView = (MyScrollView) findViewById(R.id.scroll_view_scanned);
+        scrollView.setmScrollable(true);
+      }
+    }
+  };
+  
+  @Override
+  public void onSaveInstanceState(Bundle outState) {
+    outState.putParcelable("newUser", newUser);
+    super.onSaveInstanceState(outState);
+  }
+
+  void showActionBar() {
     LayoutInflater inflator = (LayoutInflater) this
       .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     View v = inflator.inflate(R.layout.layout_actionbar_search, null);
@@ -383,6 +294,140 @@ public class ActivityDetails extends ActionBarActivity {
       actionBar.setCustomView(v);
     }
   }
+  
+  void displayNote(final ParseObject object) {
+    TextView updatedAt = (TextView) findViewById(R.id.LastUpdated);
+    updatedAt.setText(android.text.format.DateFormat.format("MMM",
+      object.getUpdatedAt())
+      + " "
+      + android.text.format.DateFormat.format("dd", object.getUpdatedAt())
+      + ", "
+      + android.text.format.DateFormat.format("yyyy", object.getUpdatedAt()));
+
+    TextView whenMet2 = (TextView) findViewById(R.id.DateAdded2);
+    whenMet2.setText(android.text.format.DateFormat.format("MMM",
+      (Date) object.get("whenMet"))
+      + " "
+      + android.text.format.DateFormat.format("dd",
+        (Date) object.get("whenMet"))
+      + ", "
+      + android.text.format.DateFormat.format("yyyy",
+        (Date) object.get("whenMet")));
+    newDate = (Date) object.get("whenMet");
+    whenMet2.setOnClickListener(new OnClickListener() {
+
+      @Override
+      public void onClick(View v) {
+        Calendar newCalendar = Calendar.getInstance();
+        newCalendar.setTime(newDate);
+        DatePickerDialog dialog = new DatePickerDialog(
+          ActivityDetails.this, new mDateSetListener(), newCalendar
+            .get(Calendar.YEAR), newCalendar.get(Calendar.MONTH),
+          newCalendar.get(Calendar.DAY_OF_MONTH));
+        dialog.setTitle("When did you meet?");
+        dialog.show();
+      }
+
+    });
+
+    final EditText whereMet2 = (EditText) findViewById(R.id.PlaceAdded2);
+    whereMet2.setOnFocusChangeListener(new OnFocusChangeListener(){
+      @Override
+      public void onFocusChange(View v, boolean hasFocus) {
+        if(hasFocus) {
+          whereMet2.setHint("Eg: Portland, OR");
+        } else {
+          whereMet2.setHint("Where did we meet?");
+        }
+      }
+    });        
+    String cityName = object.getString("where_met");
+    if (cityName != null && !cityName.isEmpty()) {
+      whereMet2.setText(cityName);
+    }
+    
+    final EditText eventMet = (EditText) findViewById(R.id.EventAdded2);
+    eventMet.setOnFocusChangeListener(new OnFocusChangeListener(){
+      @Override
+      public void onFocusChange(View v, boolean hasFocus) {
+        if(hasFocus) {
+          eventMet.setHint("Eg: Portland Beer Festival");
+        } else {
+          eventMet.setHint("We met in which event?");
+        }
+      }
+    });
+    String eventName = object.getString("event_met");
+    if (eventName != null && !eventName.isEmpty()) {
+      eventMet.setText(eventName);
+    }
+    EditText notes = (EditText) findViewById(R.id.EditNotes);
+    String notesContent = object.getString("notes");
+    if (notesContent != null) {
+      notes.setText(notesContent);
+    }
+    byte[] tmpVoiceData = (byte[]) object.get("tmpVoiceByteArray");
+    if (tmpVoiceData != null) {
+      // save as parseFile then clean the array if there is network
+      // this is necessary as user can switch on network without restarting
+      // app
+      if (ECardUtils.isNetworkAvailable(ActivityDetails.this)) {
+        final ParseFile voiceFile = new ParseFile("voicenote.mp4",
+          tmpVoiceData);
+        voiceFile.saveInBackground(new SaveCallback() {
+
+          @Override
+          public void done(ParseException arg0) {
+            object.put("voiceNotes", voiceFile);
+            object.remove("tmpVoiceByteArray");
+            object.saveEventually();
+          }
+
+        });
+      }
+      // use the array to populate replay no matter with network or not
+      FileOutputStream out;
+      try {
+        out = new FileOutputStream(filepath);
+        out.write(tmpVoiceData);
+        out.close();
+      } catch (FileNotFoundException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      } catch (IOException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+
+    } else {
+      // only check the voiceNotes when tmpVoice data is empty
+      // that is always use tmpArray to overwrite voiceNotes if there is
+      // conflict
+      ParseFile audioFile = (ParseFile) object.get("voiceNotes");
+      if (audioFile != null) {
+        byte[] audioData;
+        try {
+          audioData = audioFile.getData();
+          FileOutputStream out = new FileOutputStream(filepath);
+          out.write(audioData);
+          out.close();
+        } catch (ParseException e1) {
+          // TODO Auto-generated catch block
+          e1.printStackTrace();
+        } catch (FileNotFoundException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        } catch (IOException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        }
+      } else {
+        // if both tmparray and voiceNotes are null, then it means no voice
+        // note at all
+        replayButtonPanel.setVisibility(View.GONE);
+      }
+    }
+  }
 
   class mDateSetListener implements DatePickerDialog.OnDateSetListener {
 
@@ -396,7 +441,7 @@ public class ActivityDetails extends ActionBarActivity {
       int mDay = dayOfMonth;
       newDate = getDate(year, monthOfYear, dayOfMonth);
 
-      RobotoTextView whenMet2 = (RobotoTextView) findViewById(R.id.DateAdded2);
+      TextView whenMet2 = (TextView) findViewById(R.id.DateAdded2);
       whenMet2.setText(android.text.format.DateFormat.format("MMM", newDate)
         + " " + android.text.format.DateFormat.format("dd", newDate) + ", "
         + android.text.format.DateFormat.format("yyyy", newDate));
@@ -415,7 +460,7 @@ public class ActivityDetails extends ActionBarActivity {
     return cal.getTime();
   }
 
-  private void deleteLocalVoiceNote() {
+  void deleteLocalVoiceNote() {
     File myFile = new File(filepath);
     if (myFile.exists())
       myFile.delete();
@@ -425,7 +470,8 @@ public class ActivityDetails extends ActionBarActivity {
     super.onBackPressed();
     deleteLocalVoiceNote();
   }
-
+  
+  @Override
   public boolean onCreateOptionsMenu(Menu menu) {
     getMenuInflater().inflate(R.menu.details_actionbar, menu);
     return true;
@@ -436,7 +482,7 @@ public class ActivityDetails extends ActionBarActivity {
     // this function is called when either action bar icon is tapped
     switch (item.getItemId()) {
     case R.id.details_discard:
-      Toast.makeText(this, "Discarded Notes changes!", Toast.LENGTH_SHORT)
+      Toast.makeText(this, "Discarded changes in Note!", Toast.LENGTH_SHORT)
         .show();
       setResult(RESULT_CANCELED);
       deleteLocalVoiceNote();
@@ -451,43 +497,6 @@ public class ActivityDetails extends ActionBarActivity {
     default:
       return super.onOptionsItemSelected(item);
     }
-  }
-
-  public void displayCard(UserInfo newUser) {
-
-    ImageView portraitImg = (ImageView) findViewById(R.id.my_portrait);
-    if (newUser.getPortrait() != null) {
-      portraitImg.setImageBitmap(newUser.getPortrait());
-    }
-
-    TextView name = (TextView) findViewById(R.id.my_name);
-    String tmpString = newUser.getFirstName();
-    String nameString = null;
-    if (tmpString != null)
-      nameString = tmpString;
-    tmpString = newUser.getLastName();
-    if (tmpString != null)
-      nameString = nameString + " " + tmpString;
-    if (nameString != null)
-      name.setText(nameString);
-    name = (TextView) findViewById(R.id.my_com);
-    tmpString = newUser.getCompany();
-    if (tmpString != null) {
-      name.setText(tmpString);
-      ImageView logoImg = (ImageView) findViewById(R.id.my_logo);
-      // display logo
-      ECardUtils.findAndSetLogo(this, logoImg, tmpString, false);
-    }
-
-    name = (TextView) findViewById(R.id.my_job_title);
-    tmpString = newUser.getTitle();
-    if (tmpString != null)
-      name.setText(tmpString);
-    name = (TextView) findViewById(R.id.my_add);
-    tmpString = newUser.getCity();
-    if (tmpString != null)
-      name.setText(tmpString);
-
   }
 
   private void saveNoteChanges(String noteId) {
@@ -574,7 +583,7 @@ public class ActivityDetails extends ActionBarActivity {
     deleteLocalVoiceNote();
   }
 
-  private void stopRecording() {
+  void stopRecording() {
     if (null != recorder) {
       try {
         recorder.stop();
@@ -596,7 +605,7 @@ public class ActivityDetails extends ActionBarActivity {
     }
   }
 
-  private void startRecording() {
+  void startRecording() {
     if (null != mp) {
       try {
         mp.stop();
@@ -627,13 +636,22 @@ public class ActivityDetails extends ActionBarActivity {
     }
   }
 
-  private String getFilename() {
+  String getFilename() {
     String filepath = Environment.getExternalStorageDirectory().getPath();
     File file = new File(filepath, AUDIO_RECORDER_FOLDER);
     if (!file.exists()) {
       file.mkdirs();
     }
     return (file.getAbsolutePath() + "/voicenote.mp4");
+  }
+  
+  String getUniqueFilename() {
+    String filepath = Environment.getExternalStorageDirectory().getPath();
+    File file = new File(filepath, AUDIO_RECORDER_FOLDER);
+    if (!file.exists()) {
+      file.mkdirs();
+    }
+    return (file.getAbsolutePath() + "/" + System.currentTimeMillis() + ".mp4");
   }
 
   private MediaRecorder.OnErrorListener errorListener = new MediaRecorder.OnErrorListener() {

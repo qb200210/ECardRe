@@ -17,13 +17,13 @@
             android:layout_height="30dp"
             android:src="@drawable/share_button" />
 
-        <com.micklestudios.knowell.utils.RobotoTextView
+        <TextView
             android:id="@+id/dialog_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@android:color/white"
             android:textSize="18sp"
-            app:robotoFont="Roboto-Regular.ttf" />
+              />
     </LinearLayout>
 
     <RelativeLayout
@@ -57,7 +57,7 @@
                 </ImageView>
             </com.micklestudios.knowell.utils.SquareLayout>
 
-            <com.micklestudios.knowell.utils.RobotoEditText
+            <EditText
                 android:id="@+id/target_email"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -70,8 +70,7 @@
                 android:text=""
                 android:textColor="@color/black"
                 android:textSize="16sp"
-                android:textStyle="normal"
-                app:robotoFont="Roboto-Bold.ttf" />
+                android:textStyle="normal" />
 			<LinearLayout                 
                 android:layout_width="20dp"
                 android:layout_height="60dp"
@@ -126,7 +125,7 @@
                 </ImageView>
             </com.micklestudios.knowell.utils.SquareLayout>
 
-            <com.micklestudios.knowell.utils.RobotoEditText
+            <EditText
                 android:id="@+id/target_sms"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -138,8 +137,7 @@
                 android:singleLine="true"
                 android:textColor="@color/black"
                 android:textSize="16sp"
-                android:textStyle="normal"
-                app:robotoFont="Roboto-Bold.ttf" />
+                android:textStyle="normal" />
 
             <LinearLayout                 
                 android:layout_width="20dp"
@@ -195,7 +193,7 @@
             </ImageView>
         </com.micklestudios.knowell.utils.SquareLayout>
 
-        <com.micklestudios.knowell.utils.RobotoEditText
+        <EditText
             android:id="@+id/target_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -207,8 +205,7 @@
             android:singleLine="true"
             android:textColor="@color/black"
             android:textSize="16sp"
-            android:textStyle="normal"
-            app:robotoFont="Roboto-Bold.ttf" />
+            android:textStyle="normal" />
     </RelativeLayout>
 
     

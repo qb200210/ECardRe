@@ -23,7 +23,7 @@
                 android:layout_alignParentTop="true"
                 android:layout_marginLeft="10dp"
                 android:layout_marginTop="10dp"
-                android:src="@drawable/testp" />
+                android:src="@drawable/emptyprofile3" />
 
             <TextView
                 android:id="@+id/my_name"
@@ -36,7 +36,7 @@
                 android:layout_toRightOf="@id/my_portrait"
                 android:gravity="center"
                 android:padding="0dp"
-                android:text="Jianfang (Olena) Zhu"
+                android:text="(Undisclosed Name)"
                 android:textColor="#000000"
                 android:textSize="24sp"
                 android:textStyle="bold" />
@@ -63,7 +63,7 @@
                 android:layout_marginRight="10dp"
                 android:gravity="left"
                 android:padding="0dp"
-                android:text="Staff Hardware Engineer"
+                android:text="(Undisclosed Position)"
                 android:textColor="#000000"
                 android:textSize="20sp" />
 
@@ -77,7 +77,7 @@
                 android:layout_marginRight="10dp"
                 android:gravity="left"
                 android:padding="0dp"
-                android:text="Intel Corporation"
+                android:text="(Undisclosed Company)"
                 android:textColor="#000000"
                 android:textSize="18sp" />
 
@@ -91,7 +91,7 @@
                 android:layout_marginRight="10dp"
                 android:gravity="left"
                 android:padding="0dp"
-                android:text="Portland, OR"
+                android:text="(Undisclosed Location)"
                 android:textColor="#000000"
                 android:textSize="20sp" />
 

@@ -5,6 +5,7 @@
         AppBaseTheme from res/values/styles.xml on API 11+ devices.
     -->
     <style name="AppBaseTheme" parent="Theme.AppCompat.Light">
+        <item name="android:typeface">serif</item>
         <item name="android:actionBarStyle"> @style/MyActionBar </item>
         <item name="actionBarStyle"> @style/MyActionBar </item>        
         <item name="android:actionOverflowButtonStyle">@style/OverFlow</item>
