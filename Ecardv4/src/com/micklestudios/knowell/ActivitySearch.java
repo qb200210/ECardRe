@@ -891,7 +891,10 @@ public class ActivitySearch extends ActionBarActivity {
         String company_str = uInfo.getCompany().toLowerCase(Locale.ENGLISH);
         String title_str = uInfo.getTitle().toLowerCase(Locale.ENGLISH);
         String city_str = uInfo.getCity().toLowerCase(Locale.ENGLISH);
-
+        String eventMet_str = uInfo.getEventMet().toLowerCase(Locale.ENGLISH);
+        String whereMet_str = uInfo.getWhereMet().toLowerCase(Locale.ENGLISH);
+        String note_str = uInfo.getNotes().toLowerCase(Locale.ENGLISH);
+        
         // Log.v("search_user_str", user_str);
         Matcher name_matcher = pattern.matcher(name_str);
         Matcher company_matcher = pattern.matcher(company_str);
@@ -915,6 +918,12 @@ public class ActivitySearch extends ActionBarActivity {
           matchedFields.put(uInfoIndex, matched_field);
           tempUserInfoList.add(uInfoIndex);
         }
+        
+        if (eventMet_str.contains(token)||whereMet_str.contains(token)||note_str.contains(token))
+        {
+        	tempUserInfoList.add(uInfoIndex);
+        }
+        
       }
 
       if (tempUserInfoList.isEmpty()) {
