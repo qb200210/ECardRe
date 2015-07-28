@@ -177,7 +177,7 @@ public class ActivityUserSetting extends ActionBarActivity {
                   + ActivityMain.myselfUserInfo.getLastName()
                   + "\n#company# or #c#:\n"
                   + ActivityMain.myselfUserInfo.getCompany()
-                  + "\n#recipient# or #r#:\nThe name of recipient\n#knowell# or #k#:\nLink to your card.";
+                  + "\n#recipient# or #r#:\nThe name of recipient\n#knowell# or #k#:\nLink to my card.";
                 helpBody.setText(rawString, TextView.BufferType.SPANNABLE);
                 Spannable str = (Spannable) helpBody.getText();
                 setColor(helpBody, rawString, "#myname# or #m#:",
@@ -334,7 +334,7 @@ public class ActivityUserSetting extends ActionBarActivity {
                   + ActivityMain.myselfUserInfo.getLastName()
                   + "\n#company# or #c#:\n"
                   + ActivityMain.myselfUserInfo.getCompany()
-                  + "\n#recipient# or #r#:\nThe name of recipient\n#knowell# or #k#:\nLink to your card.";
+                  + "\n#recipient# or #r#:\nThe name of recipient\n#knowell# or #k#:\nLink to my card.";
                 helpBody.setText(rawString, TextView.BufferType.SPANNABLE);
                 Spannable str = (Spannable) helpBody.getText();
                 setColor(helpBody, rawString, "#myname# or #m#:",
@@ -501,7 +501,7 @@ public class ActivityUserSetting extends ActionBarActivity {
                   + docName
                   + "\n#company# or #c#:\n"
                   + ActivityMain.myselfUserInfo.getCompany()
-                  + "\n#recipient# or #r#:\nThe name of recipient\n#knowell# or #k#:\nLink to your card.";
+                  + "\n#recipient# or #r#:\nThe name of recipient\n#knowell# or #k#:\nLink to my card.";
                 helpBody.setText(rawString, TextView.BufferType.SPANNABLE);
                 Spannable str = (Spannable) helpBody.getText();
                 setColor(helpBody, rawString, "#myname# or #m#:",

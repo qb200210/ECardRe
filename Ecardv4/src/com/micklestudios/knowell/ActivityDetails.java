@@ -324,7 +324,7 @@ public class ActivityDetails extends ActionBarActivity {
           ActivityDetails.this, new mDateSetListener(), newCalendar
             .get(Calendar.YEAR), newCalendar.get(Calendar.MONTH),
           newCalendar.get(Calendar.DAY_OF_MONTH));
-        dialog.setTitle("When did you meet?");
+        dialog.setTitle("When did we meet?");
         dialog.show();
       }
 

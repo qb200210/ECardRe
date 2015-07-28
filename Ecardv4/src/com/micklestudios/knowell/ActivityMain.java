@@ -105,6 +105,7 @@ public class ActivityMain extends ActionBarActivity {
       boolean finish = b.getBoolean("finish", false);
       if (finish) {
         startActivity(new Intent(ActivityMain.this, ActivityPreLogin.class));
+        myselfUserInfo = null;
         finish();
         return;
       }

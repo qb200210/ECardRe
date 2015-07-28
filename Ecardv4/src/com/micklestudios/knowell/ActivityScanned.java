@@ -126,7 +126,7 @@ public class ActivityScanned extends ActivityDetails implements AsyncResponse {
         new GeocoderHelper(delegate).fetchCityName(getBaseContext(), location);
       } else {
         // if getting location fails, will bypass the processFinish() function
-        Toast.makeText(getBaseContext(), "Your GPS is off...",
+        Toast.makeText(getBaseContext(), "I need to turn on GPS ...",
           Toast.LENGTH_SHORT).show();
         whereMet = null;
       }
@@ -174,7 +174,7 @@ public class ActivityScanned extends ActivityDetails implements AsyncResponse {
           DatePickerDialog dialog = new DatePickerDialog(ActivityScanned.this,
             new mDateSetListener(), newCalendar.get(Calendar.YEAR), newCalendar
               .get(Calendar.MONTH), newCalendar.get(Calendar.DAY_OF_MONTH));
-          dialog.setTitle("When did you meet?");
+          dialog.setTitle("When did we meet?");
           dialog.show();
         }
 
