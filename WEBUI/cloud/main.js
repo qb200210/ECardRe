@@ -5,6 +5,153 @@ Parse.Cloud.define("hello", function(request, response) {
   response.success("Hello world!");
 });
 
+Parse.Cloud.beforeSave("History", function(request, status) {
+         var request_obj_id = request.object.get("objectId");
+         var request_user_id = request.object.get("userId");
+         var historyObject = Parse.Object.extend('History');
+         var query = new Parse.Query(historyObject);
+         query.equalTo("objectId", request_obj_id);
+         query.find( {
+	  success: function(results) {
+			if (results.length > 0) {
+				console.log("entry already existed");
+				if (results[0].get("userId") ==  request_user_id )
+				{
+					console.log("userId does not change");
+					status.success(" approve save");
+				}
+				else
+				{
+					console.log("Warning: userId was set to change")
+					status.error(" Save operation is denied ");
+				}
+			}
+			else{
+				console.log("entry not existe");
+				status.success("First time entry save, approve!");
+			}
+			},
+	error:  function(){
+				status.error("History Query Error");
+		}
+	});
+});
+
+Parse.Cloud.beforeSave("ECardNote", function(request, status) {
+         var request_obj_id = request.object.get("objectId");
+         var request_user_id = request.object.get("userId");
+         var noteObject = Parse.Object.extend('ECardNote');
+         var query = new Parse.Query(noteObject);
+         query.equalTo("objectId", request_obj_id);
+         query.find( {
+	  success: function(results) {
+			if (results.length > 0) {
+				console.log("entry already existed");
+				if (results[0].get("userId") ==  request_user_id )
+				{
+					console.log("userId does not change");
+					status.success(" approve save");
+				}
+				else
+				{
+					console.log("Warning: userId was set to change")
+					status.error(" Save operation is denied ");
+				}
+			}
+			else{
+				console.log("entry not existe");
+				status.success("First time entry save, approve!");
+			}
+			},
+	error:  function(){
+				status.error("ECardNote Query Error");
+		}
+	});
+});
+
+
+Parse.Cloud.beforeSave("User", function(request, status) {
+         var request_obj_id = request.object.get("objectId");
+         var max_num_card = request.object.get("maxNumCard");
+         var max_num_notes = request.object.get("maxNotes");
+         var max_history = request.object.get("maxHistory");
+         var max_conv = request.object.get("maxConv");
+         var premium_field = request.object.get("Premium");
+         var auth_data = request.object.get("authData");
+         var email_verified = request.object.get("emailVerified");
+         var ecard_id = request.object.get("ecardId");
+
+
+         var noteObject = Parse.Object.extend('User');
+         var query = new Parse.Query(noteObject);
+         query.equalTo("objectId", request_obj_id);
+         query.find( {
+	  success: function(results) {
+			if (results.length > 0) {
+				console.log("entry already existed");
+				if (results[0].get("ecardId") == ecard_id  &&
+				    results[0].get("maxNumCard") == max_num_card && 
+				    results[0].get("maxNotes") == max_notes && 
+				    results[0].get("maxHistory") == max_history&& 
+				    results[0].get("maxConv") == max_conv && 
+				    results[0].get("Premium") == premium_field && 
+				    results[0].get("authData") == auth_data && 
+				    results[0].get("emailVerified") == email_verified
+				  )
+				{
+					console.log("userId does not change");
+					status.success(" approve save");
+				}
+				else
+				{
+					console.log("Warning: protected field was set to change")
+					status.error(" Save operation is denied ");
+				}
+			}
+			else{
+				console.log("entry not existe");
+				status.success("First time entry save, approve!");
+			}
+			},
+	error:  function(){
+				status.error("ECardNote Query Error");
+		}
+	});
+});
+
+
+Parse.Cloud.beforeSave("ECardInfo", function(request, status) {
+         var request_obj_id = request.object.get("objectId");
+         var request_user_id = request.object.get("userId");
+         var infoObject = Parse.Object.extend('ECardInfo');
+         var query = new Parse.Query(infoObject);
+         query.equalTo("objectId", request_obj_id);
+         query.find( {
+	  success: function(results) {
+			if (results.length > 0) {
+				console.log("entry already existed");
+				if (results[0].get("userId") ==  request_user_id )
+				{
+					console.log("userId does not change");
+					status.success(" approve save");
+				}
+				else
+				{
+					console.log("Warning: userId was set to change")
+					status.error(" Save operation is denied ");
+				}
+			}
+			else{
+				console.log("entry not existe");
+				status.success("First time entry save, approve!");
+			}
+			},
+	error:  function(){
+				status.error("ECardInfo Query Error");
+		}
+	});
+});
+
 Parse.Cloud.beforeSave("ECardTemplate", function(request, status) {
   // Set up to modify user data
   var  company_str = request.object.get("companyName").replace(/^\s+|\s+$/g, '');
