@@ -11,6 +11,8 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.ColorMatrix;
 import android.text.Spannable;
 import android.text.style.BackgroundColorSpan;
 import android.util.Log;
@@ -174,6 +176,7 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
     Integer fieldName = ActivitySearch.matchedFields
       .get(ActivitySearch.filteredUsers.get(position));
     String matchString = null;
+    
     TextView matchTv = null;
     int matchStart = 0;
     int matchEnd = 0;
@@ -215,19 +218,19 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
         matchEnd = matchString.length();
         break;
       case UserInfo.FIELD_TYPE.TYPE_WHERE_MET:
-        matchString = uInfo.getWhereMet();
+        matchString = "Met in: " + uInfo.getWhereMet();
         matchTv = textDetail;
         matchStart = 0;
         matchEnd = matchString.length();
         break;
       case UserInfo.FIELD_TYPE.TYPE_EVENT_MET:
-        matchString = uInfo.getEventMet();
+        matchString = "Met at: " + uInfo.getEventMet();
         matchTv = textDetail;
         matchStart = 0;
         matchEnd = matchString.length();
         break;
       case UserInfo.FIELD_TYPE.TYPE_NOTES:
-        matchString = uInfo.getNotes();
+        matchString = "Notes: " + uInfo.getNotes();
         matchTv = textDetail;
         matchStart = 0;
         matchEnd = matchString.length();
@@ -239,7 +242,7 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
       Log.e("Knowell", "Matched string is " + matchString);
       Spannable spanText = Spannable.Factory.getInstance().newSpannable(
         matchString);
-      spanText.setSpan(new BackgroundColorSpan(0xFFff8a65), matchStart,
+      spanText.setSpan(new BackgroundColorSpan(Color.YELLOW), matchStart,
         matchEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
       matchTv.setText(spanText);
     }

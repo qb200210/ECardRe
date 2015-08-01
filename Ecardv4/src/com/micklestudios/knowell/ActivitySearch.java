@@ -2,7 +2,6 @@ package com.micklestudios.knowell;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -16,9 +15,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -61,7 +57,6 @@ import com.micklestudios.knowell.infrastructure.SearchListAdapter;
 import com.micklestudios.knowell.infrastructure.UserInfo;
 import com.micklestudios.knowell.utils.AppGlobals;
 import com.micklestudios.knowell.utils.AsyncTasks;
-import com.micklestudios.knowell.utils.CurvedAndTiled;
 import com.micklestudios.knowell.utils.ECardUtils;
 import com.micklestudios.knowell.utils.MySimpleListViewAdapter;
 import com.nhaarman.listviewanimations.appearance.StickyListHeadersAdapterDecorator;
@@ -588,6 +583,15 @@ public class ActivitySearch extends ActionBarActivity {
       }
     });
 
+    searchBox.setOnItemClickListener(new OnItemClickListener() {
+
+      @Override
+      public void onItemClick(AdapterView<?> parent, View view, int position,
+        long id) {
+        performSearch();
+      }
+    });
+
     searchButton.setOnClickListener(new OnClickListener() {
       @Override
       public void onClick(View v) {
@@ -798,9 +802,20 @@ public class ActivitySearch extends ActionBarActivity {
     lLayoutCompany.setVisibility(visibility);
   }
 
+  private void hideKeyboard() {
+    // Check if no view has focus:
+    View view = this.getCurrentFocus();
+    if (view != null) {
+      InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+      imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+  }
+
   private void performSearch() {
     filteredUsers.clear();
     matchedFields.clear();
+
+    hideKeyboard();
 
     if (AppGlobals.allUsers == null) {
       // If null, block the code and make sure data is re-populated
