@@ -110,17 +110,17 @@ public class ActivityDesign extends ActionBarActivity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    
+
     // This fixes the lost data/ crash issues upon restoring from resume
-    if(savedInstanceState != null){
+    if (savedInstanceState != null) {
       currentUser = ParseUser.getCurrentUser();
       ActivityMain.myselfUserInfo = savedInstanceState.getParcelable("myself");
     } else {
       currentUser = ParseUser.getCurrentUser();
-      ActivityMain.myselfUserInfo = new UserInfo(currentUser.get("ecardId").toString(), "",
-        "", true, false, false);
+      ActivityMain.myselfUserInfo = new UserInfo(currentUser.get("ecardId")
+        .toString(), "", "", true, false, false);
     }
-    
+
     setContentView(R.layout.activity_design);
     scrollView = (MyScrollView) findViewById(R.id.design_scroll_view);
     scrollView.setmScrollable(true);
@@ -189,7 +189,7 @@ public class ActivityDesign extends ActionBarActivity {
     });
 
   }
-  
+
   @Override
   public void onSaveInstanceState(Bundle outState) {
     outState.putParcelable("myself", ActivityMain.myselfUserInfo);
@@ -384,24 +384,24 @@ public class ActivityDesign extends ActionBarActivity {
             String[] splitName = fullName.split(" ");
             String firstName = "";
             String lastName = "";
-            if(splitName.length == 1){
+            if (splitName.length == 1) {
               // first name only
               firstName = splitName[0];
               lastName = "";
-            } else{
+            } else {
               // at least 2 segments
-              for(int i=0; i< splitName.length-2; i++){
+              for (int i = 0; i < splitName.length - 2; i++) {
                 firstName = firstName + splitName[i] + " ";
-              } 
-              for(int i=splitName.length-2; i< splitName.length-1; i++){
+              }
+              for (int i = splitName.length - 2; i < splitName.length - 1; i++) {
                 firstName = firstName + splitName[i];
               }
-              lastName = splitName[splitName.length-1];
+              lastName = splitName[splitName.length - 1];
             }
-            if(firstName ==null || firstName.isEmpty()){
+            if (firstName == null || firstName.isEmpty()) {
               firstName = "";
             }
-            if(lastName ==null || lastName.isEmpty()){
+            if (lastName == null || lastName.isEmpty()) {
               lastName = "";
             }
             object.put("firstName", firstName);
@@ -471,27 +471,27 @@ public class ActivityDesign extends ActionBarActivity {
 
     String firstName = "";
     String lastName = "";
-    if(splitName.length == 1){
+    if (splitName.length == 1) {
       // first name only
       firstName = splitName[0];
       lastName = "";
-    } else{
+    } else {
       // at least 2 segments
-      for(int i=0; i< splitName.length-2; i++){
+      for (int i = 0; i < splitName.length - 2; i++) {
         firstName = firstName + splitName[i] + " ";
-      } 
-      for(int i=splitName.length-2; i< splitName.length-1; i++){
+      }
+      for (int i = splitName.length - 2; i < splitName.length - 1; i++) {
         firstName = firstName + splitName[i];
       }
-      lastName = splitName[splitName.length-1];
+      lastName = splitName[splitName.length - 1];
     }
-    if(firstName ==null || firstName.isEmpty()){
+    if (firstName == null || firstName.isEmpty()) {
       firstName = "";
     }
-    if(lastName ==null || lastName.isEmpty()){
+    if (lastName == null || lastName.isEmpty()) {
       lastName = "";
     }
-    
+
     ActivityMain.myselfUserInfo.setFirstName(firstName);
     ActivityMain.myselfUserInfo.setLastName(lastName);
 

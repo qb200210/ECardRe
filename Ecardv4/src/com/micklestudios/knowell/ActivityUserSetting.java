@@ -919,10 +919,8 @@ public class ActivityUserSetting extends ActionBarActivity {
       feedbackDialog.dismiss();
       LayoutInflater inflaterTmp = getLayoutInflater();
       View helpView = inflaterTmp.inflate(R.layout.layout_help, null);
-      TextView helpHeader = (TextView) helpView
-        .findViewById(R.id.help_header);
-      TextView helpBody = (TextView) helpView
-        .findViewById(R.id.help_body);
+      TextView helpHeader = (TextView) helpView.findViewById(R.id.help_header);
+      TextView helpBody = (TextView) helpView.findViewById(R.id.help_body);
       helpHeader.setText("Team KnoWell");
       helpBody
         .setText("Dear "

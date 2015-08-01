@@ -116,7 +116,7 @@ public class ActivityMain extends ActionBarActivity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    
+
     applicationContext = getApplicationContext();
     Bundle b = getIntent().getExtras();
     if (b != null) {
@@ -125,20 +125,20 @@ public class ActivityMain extends ActionBarActivity {
         imgFromTmpData = (boolean) b.get("imgFromTmpData");
       }
     }
-    
+
     // This fixes the lost data/ crash issues upon restoring from resume
-    if(savedInstanceState != null) {
+    if (savedInstanceState != null) {
       currentUser = ParseUser.getCurrentUser();
-      if(myselfUserInfo == null){
+      if (myselfUserInfo == null) {
         myselfUserInfo = savedInstanceState.getParcelable("myself");
         imgFromTmpData = savedInstanceState.getBoolean("imgFromTmpData");
       }
       Log.e("main", "getting savedisntance");
     } else {
       currentUser = ParseUser.getCurrentUser();
-      if(myselfUserInfo == null){
-        myselfUserInfo = new UserInfo(currentUser.get("ecardId").toString(), "",
-          "", true, false, imgFromTmpData);
+      if (myselfUserInfo == null) {
+        myselfUserInfo = new UserInfo(currentUser.get("ecardId").toString(),
+          "", "", true, false, imgFromTmpData);
       }
     }
 
@@ -164,7 +164,7 @@ public class ActivityMain extends ActionBarActivity {
     mPager.setAdapter(mAdapter);
     mPager.setCurrentItem(0x40000000);
     mPager.setPageTransformer(true, new FlipHorizontalTransformer());
-    
+
     InitializeListeners();
 
   }

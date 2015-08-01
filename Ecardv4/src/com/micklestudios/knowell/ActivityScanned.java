@@ -87,19 +87,19 @@ public class ActivityScanned extends ActivityDetails implements AsyncResponse {
     scrollView.setmScrollable(true);
 
     Bundle data = getIntent().getExtras();
-    if(data != null){
+    if (data != null) {
       scannedUser = (UserInfo) data.getParcelable("userinfo");
       flagOfflineMode = (boolean) data.get("offlineMode");
       deletedNoteId = (String) data.get("deletedNoteId");
     }
-    
+
     // This fixes the lost data/ crash issues upon restoring from resume
-    if(savedInstanceState != null){
+    if (savedInstanceState != null) {
       scannedUser = savedInstanceState.getParcelable("userinfo");
       flagOfflineMode = savedInstanceState.getBoolean("offlineMode");
       deletedNoteId = savedInstanceState.getString("deletedNoteId");
     }
-    
+
     TextView motto = (TextView) findViewById(R.id.motto);
     String tmpString = scannedUser.getMotto();
     if (tmpString != null)
@@ -200,7 +200,7 @@ public class ActivityScanned extends ActivityDetails implements AsyncResponse {
     // scrollView.requestChildFocus(mainCardContainer, null);
 
   }
-  
+
   @Override
   public void onSaveInstanceState(Bundle outState) {
     outState.putParcelable("userinfo", scannedUser);
@@ -208,7 +208,7 @@ public class ActivityScanned extends ActivityDetails implements AsyncResponse {
     outState.putString("deletedNoteId", deletedNoteId);
     super.onSaveInstanceState(outState);
   }
- 
+
   @Override
   void showActionBar() {
     LayoutInflater inflator = (LayoutInflater) this
@@ -234,13 +234,13 @@ public class ActivityScanned extends ActivityDetails implements AsyncResponse {
       actionBar.setCustomView(v);
     }
   }
-  
+
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
     getMenuInflater().inflate(R.menu.details_actionbar, menu);
     return true;
   }
-  
+
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     // this function is called when either action bar icon is tapped
@@ -286,7 +286,7 @@ public class ActivityScanned extends ActivityDetails implements AsyncResponse {
         cacheScannedIds(scannedUser.getObjId());
         // TO-DO: disabled offline shareback because there maybe no
         // userId, so ACL of conversation can be messy
-        //askIfShareBack(false);
+        // askIfShareBack(false);
       }
       return true;
     default:
@@ -298,8 +298,7 @@ public class ActivityScanned extends ActivityDetails implements AsyncResponse {
   private void askIfShareBack(final boolean isOnline) {
     // Get the layout inflater
     LayoutInflater inflater = getLayoutInflater();
-    View dialogView = inflater.inflate(R.layout.layout_empty,
-      null);
+    View dialogView = inflater.inflate(R.layout.layout_empty, null);
     LinearLayout dialogHeader = (LinearLayout) dialogView
       .findViewById(R.id.dialog_header);
     final TextView dialogText = (TextView) dialogView
@@ -473,7 +472,7 @@ public class ActivityScanned extends ActivityDetails implements AsyncResponse {
     if (listConv == null || listConv.size() == 0 || listConv.size() == 1) {
       ParseObject object = null;
       // if there is no existing notification, create one
-      if(listConv == null || listConv.size() == 0){
+      if (listConv == null || listConv.size() == 0) {
         object = new ParseObject("Conversations");
         ParseACL myACL = new ParseACL();
         myACL.setPublicReadAccess(false);
@@ -486,11 +485,12 @@ public class ActivityScanned extends ActivityDetails implements AsyncResponse {
         object.put("partyA", currentUser.get("ecardId").toString());
         object.put("partyB", targetEcardId);
         object.put("read", false);
-      } 
-      if(listConv.size() == 1) {
+      }
+      if (listConv.size() == 1) {
         // If there is existing notification, check if it has been deleted
         object = listConv.get(0);
-        if ((boolean) object.get("isDeleted") == true || (boolean) object.get("read") == true) {
+        if ((boolean) object.get("isDeleted") == true
+          || (boolean) object.get("read") == true) {
           object.put("isDeleted", false);
           object.put("read", false);
         }

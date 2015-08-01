@@ -221,7 +221,13 @@ public class SearchListAdapter extends ArrayAdapter<UserInfo> implements
         matchEnd = matchString.length();
         break;
       case UserInfo.FIELD_TYPE.TYPE_EVENT_MET:
-        matchString = uInfo.getWhereMet();
+        matchString = uInfo.getEventMet();
+        matchTv = textDetail;
+        matchStart = 0;
+        matchEnd = matchString.length();
+        break;
+      case UserInfo.FIELD_TYPE.TYPE_NOTES:
+        matchString = uInfo.getNotes();
         matchTv = textDetail;
         matchStart = 0;
         matchEnd = matchString.length();

@@ -24,7 +24,8 @@ public class MyApplication extends Application {
     super.onCreate();
     context = this;
     // Set global default font to be Roboto
-    TypefaceUtil.overrideFont(getApplicationContext(), "SERIF", "fonts/Roboto-Regular.ttf");
+    TypefaceUtil.overrideFont(getApplicationContext(), "SERIF",
+      "fonts/Roboto-Regular.ttf");
     // Must extend Application, otherwise get errors when opening app again
     // saying enableOfflineStore() called multiple times
     Parse.enableLocalDatastore(this);
