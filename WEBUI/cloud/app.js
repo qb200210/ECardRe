@@ -25,6 +25,7 @@ app.use(function(req, res, next) {
 	sess=req.session;
 	// define session variable
 	sess.id;
+	sess.flagHasPrev;
 	sess.userinfoObjs; // session copy of notes belonging to current user
 	next();
 });
@@ -36,6 +37,13 @@ app.use(parseExpressCookieSession({ cookie: { maxAge: 365 * 24 * 60 * 60 * 1000 
 app.get('/search', function(req, res) {
 	var query = require('url').parse(req.url,true).query;
 	sess.id = query.id;
+	if(!(typeof query.fl === 'undefined') && query.fl!=""){
+		// marking this /search comes from notifications
+		sess.flagHasPrev = 1;
+	} else {
+		// marking this /search comes from shared link
+		sess.flagHasPrev = 0;
+	}
 	
 	var ecardInfoClass = Parse.Object.extend("ECardInfo");
 	var query = new Parse.Query(ecardInfoClass);
@@ -43,13 +51,18 @@ app.get('/search', function(req, res) {
 		success: function(object) {
 			var collectedData = { 
 				ecardId: sess.id,
-				firstName: (typeof object.get("firstName") === 'undefined') ? "Mysterious user X" : object.get("firstName"),
+				firstName: (typeof object.get("firstName") === 'undefined') ? "(Undisclosed Name)" : object.get("firstName"),
 				lastName: (typeof object.get("lastName") === 'undefined') ? "" : object.get("lastName"),
-				company: (typeof object.get("company") === 'undefined') ? "Mysterious Company" : object.get("company"),
-				title: (typeof object.get("title") === 'undefined') ? "Mysterious Position" : object.get("title"),
-				city: (typeof object.get("city") === 'undefined') ? "Somewhere on Earth" : object.get("city"),
+				company: (typeof object.get("company") === 'undefined') ? "(Undisclosed Company)" : object.get("company"),
+				title: (typeof object.get("title") === 'undefined') ? "(Undisclosed Position)" : object.get("title"),
+				city: (typeof object.get("city") === 'undefined') ? "(Undisclosed Location)" : object.get("city"),
 				portrait_url: object.get("portrait").url(),
+				flagHasPrev: sess.flagHasPrev,
 			};
+			if(sess.flagHasPrev == 1) {
+				// if this /search comes from notification, do not persist the collecting card page.
+				sess.id = '';
+			}
 			if(Parse.User.current()) {
 				// If the user has already login, don't offer login/signup
 				res.render('ecardloggedin.ejs', collectedData);
@@ -123,16 +136,20 @@ app.get('/note', function(req, res){
 						var updatedAt = noteObj.updatedAt.toString();
 						splitDate = updatedAt.split(" ");
 						updatedAt= splitDate[1] + " "+ splitDate[2] + " " + splitDate[3];
-						var whenMet = noteObj.createdAt.toString();
-						splitDate = whenMet.split(" ");
-						whenMet= splitDate[1] + " "+ splitDate[2] + " " + splitDate[3];
+						var whenMet = '';
+						var whenMetDate = noteObj.get("whenMet");
+						if(!(typeof whenMetDate === 'undefined') && whenMetDate != '') {							
+							whenMet = whenMetDate.toString();
+							splitDate = whenMet.split(" ");
+							whenMet= splitDate[1] + " "+ splitDate[2] + " " + splitDate[3];
+						}
 						res.render('notedetails.ejs', { 
 							noteId: noteId,
-							firstName: (typeof infoObj.get("firstName") === 'undefined') ? "Mysterious User X" : infoObj.get("firstName"),
+							firstName: (typeof infoObj.get("firstName") === 'undefined') ? "(Undisclosed Name)" : infoObj.get("firstName"),
 							lastName: (typeof infoObj.get("lastName") === 'undefined') ? "" : infoObj.get("lastName"),
-							company: (typeof infoObj.get("company") === 'undefined') ? "Mysterious Company" : infoObj.get("company"),
-							title: (typeof infoObj.get("title") === 'undefined') ? "Mysterious Position" : infoObj.get("title"),
-							city: (typeof infoObj.get("city") === 'undefined') ? "Somewhere on Earth" : infoObj.get("city"),
+							company: (typeof infoObj.get("company") === 'undefined') ? "(Undisclosed Company)" : infoObj.get("company"),
+							title: (typeof infoObj.get("title") === 'undefined') ? "(Undisclosed Position)" : infoObj.get("title"),
+							city: (typeof infoObj.get("city") === 'undefined') ? "(Undisclosed Location)" : infoObj.get("city"),
 							about: infoObj.get("about"),
 							phone: infoObj.get("phone"),
 							message: infoObj.get("message"),
@@ -145,8 +162,8 @@ app.get('/note', function(req, res){
 							portrait_url: infoObj.get("portrait").url(),
 							updatedAt: updatedAt,
 							whenMet: whenMet,
-							whereMet: (typeof noteObj.get("event_met") === 'undefined') ? "Mysterious Place" : noteObj.get("where_met"),
-							eventMet: (typeof noteObj.get("event_met") === 'undefined') ? "Mysterious Event" : noteObj.get("event_met"),
+							whereMet: (typeof noteObj.get("event_met") === 'undefined') ? "" : noteObj.get("where_met"),
+							eventMet: (typeof noteObj.get("event_met") === 'undefined') ? "" : noteObj.get("event_met"),
 							notes: (typeof noteObj.get("notes") === 'undefined') ? "" : noteObj.get("notes"),
 						});
 					},
@@ -173,6 +190,9 @@ app.post('/savenote', function(req, res){
 		var query = new Parse.Query(ecardNoteClass);
 		query.get(req.body.noteId, {
 			success: function(object) {
+				var whenMetString = req.body.whenMet;
+				var whenMet = new Date(whenMetString);	
+				object.set("whenMet", whenMet);
 				object.set("where_met", req.body.whereMet);
 				object.set("event_met", req.body.eventMet);
 				object.set("notes", req.body.notes);
@@ -238,11 +258,11 @@ app.get('/notif', function(req, res){
 											  whenMet= splitDate[1] + " "+ splitDate[2];
 											  userinfoObjs[tasksToDo] = {
 															cardId : rstcard.id,
-															firstName: rstcard.get("firstName"), 
-															lastName: rstcard.get("lastName"),
-															company: rstcard.get("company"),
-															title: rstcard.get("title"),
-															city: rstcard.get("city"),																	
+															firstName: (typeof rstcard.get("firstName") === 'undefined') ? "(Undisclosed Name)" : rstcard.get("firstName"),
+															lastName: (typeof rstcard.get("lastName") === 'undefined') ? "" : rstcard.get("lastName"),
+															company: (typeof rstcard.get("company") === 'undefined') ? "(Undisclosed Company)" : rstcard.get("company"),
+															title: (typeof rstcard.get("title") === 'undefined') ? "(Undisclosed Position)" : rstcard.get("title"),
+															city: (typeof rstcard.get("city") === 'undefined') ? "(Undisclosed Location)" : rstcard.get("city"),													
 															portrait_url: rstcard.get("portrait").url(),
 															whenmet: whenMet
 														}
@@ -349,11 +369,11 @@ app.get('/searchcards', function(req, res){
 												  userinfoObjs[tasksToDo] = {
 													            noteId : noteobj.id,
 																cardId : rstcard.id,
-																firstName: rstcard.get("firstName"), 
-																lastName: rstcard.get("lastName"),
-																company: rstcard.get("company"),
-																title: rstcard.get("title"),
-																city: rstcard.get("city"),																	
+																firstName: (typeof rstcard.get("firstName") === 'undefined') ? "(Undisclosed Name)" : rstcard.get("firstName"),
+																lastName: (typeof rstcard.get("lastName") === 'undefined') ? "" : rstcard.get("lastName"),
+																company: (typeof rstcard.get("company") === 'undefined') ? "(Undisclosed Company)" : rstcard.get("company"),
+																title: (typeof rstcard.get("title") === 'undefined') ? "(Undisclosed Position)" : rstcard.get("title"),
+																city: (typeof rstcard.get("city") === 'undefined') ? "(Undisclosed Location)" : rstcard.get("city"),												
 																portrait_url: rstcard.get("portrait").url(),
 																wheremet: noteobj.get("where_met"),
 																eventmet: noteobj.get("event_met"),
@@ -420,129 +440,141 @@ app.post('/savedesign', function(req, res){
 		query.get(user.get("ecardId"), {
 			success: function(object) {
 				// split the input full name into first/last name
-				splitName = req.body.name.split(" ");
-				firstName = "";
-				lastName = "";
-				for(var i=0; i< splitName.length-2; i++){
-					firstName = firstName + splitName[i] + " ";
+				if(req.body.name != "" && typeof(req.body.name) != "undefined"){
+					splitName = req.body.name.split(" ");
+					firstName = "";
+					lastName = "";
+					if(splitName.length == 1){
+						// first name only
+						firstName = splitName[0];
+						lastName = "";
+					} else{
+						// at least 2 segments
+						for(var i=0; i< splitName.length-2; i++){
+							firstName = firstName + splitName[i] + " ";
+						} 
+						for(var i=splitName.length-2; i< splitName.length-1; i++){
+							firstName = firstName + splitName[i];
+						}
+						lastName = splitName[splitName.length-1];
+					}
+					if(firstName != "" && typeof(firstName) != "undefined"){
+						object.set("firstName", firstName);
+					} else {
+						object.unset("firstName");
+					}
+					if(lastName != "" && typeof(lastName) != "undefined"){
+						object.set("lastName", lastName);
+					} else {						
+						object.unset("lastName");
+					}
+					
+				} else{
+					// if the name is left empty
+					object.set("firstName", "My");
+					object.set("lastName", "Name?");
 				}
-				for(var i=splitName.length-2; i< splitName.length-1; i++){
-					firstName = firstName + splitName[i];
-				}
-				if(splitName.length>0){
-					lastName = splitName[splitName.length-1];
-				}
-				if(firstName != ""){
-					object.set("firstName", firstName);
-				} else {
-					object.unset("firstName");
-				}
-				if(lastName != ""){
-					object.set("lastName", lastName);
-				} else {						
-					object.unset("lastName");
-				}
+				
 				// the rest of main card
-				if(req.body.title != ""){
+				if(req.body.title != "" && typeof(req.body.title) != "undefined"){
 					object.set("title", req.body.title);
+				} else{
+					object.unset("title");
 				}
-				if(req.body.company != ""){
+				if(req.body.company != "" && typeof(req.body.company) != "undefined"){
 					object.set("company", req.body.company);
+				} else{
+					object.unset("company");
 				}
-				if(req.body.city != ""){
+				if(req.body.city != "" && typeof(req.body.city) != "undefined"){
 					object.set("city", req.body.city);
+				} else{
+					object.set("city", "Where am I?");
 				}
 				// put extra info
-				if(req.body.about != ""){
+				if(req.body.about != "" && typeof(req.body.about) != "undefined"){
 					object.set("about", req.body.about);
 				} else {
 					object.unset("about");
 				}
-				if(req.body.linkedin != ""){
+				if(req.body.linkedin != "" && typeof(req.body.linkedin) != "undefined"){
 					object.set("linkedin", req.body.linkedin);
 				} else {
 					object.unset("linkedin");
 				}
-				if(req.body.phone != ""){
+				if(req.body.phone != "" && typeof(req.body.phone) != "undefined"){
 					object.set("phone", req.body.phone);
 				} else {
 					object.unset("phone");
 				}
-				if(req.body.message != ""){
+				if(req.body.message != "" && typeof(req.body.message) != "undefined"){
 					object.set("message", req.body.message);
 				} else {
 					object.unset("message");
 				}
-				if(req.body.email != ""){
+				if(req.body.email != "" && typeof(req.body.email) != "undefined"){
 					object.set("email", req.body.email);
 				} else {
 					object.unset("email");
 				}
-				if(req.body.facebook != ""){
+				if(req.body.facebook != "" && typeof(req.body.facebook) != "undefined"){
 					object.set("facebook", req.body.facebook);
 				} else {
 					object.unset("facebook");
 				}
-				if(req.body.twitter != ""){
+				if(req.body.twitter != "" && typeof(req.body.twitter) != "undefined"){
 					object.set("twitter", req.body.twitter);
 				} else {
 					object.unset("twitter");
 				}
-				if(req.body.googleplus != ""){
+				if(req.body.googleplus != "" && typeof(req.body.googleplus) != "undefined"){
 					object.set("googleplus", req.body.googleplus);
 				} else {
 					object.unset("googleplus");
 				}
-				if(req.body.web != ""){
+				if(req.body.web != "" && typeof(req.body.web) != "undefined"){
 					object.set("web", req.body.web);
 				} else {
 					object.unset("web");
 				}
-				if(req.body.img_url != ""){
+				if(req.body.img_url != "" && typeof(req.body.img_url) != "undefined"){
+					// chrome returns "" as "", but IE returns "" as undefined!
 					var Image = require("parse-image");
 					Parse.Cloud.httpRequest({
 						url: req.body.img_url	 
-					  }).then(function(response) {						
-						var image = new Image();
-						return image.setData(response.buffer);		 
-					  }).then(function(image) {
-						// Crop the image to the smaller of width or height.
-						width = Math.min(image.width(), image.width()* req.body.perc_width);
-						height = Math.min(image.height(), image.height()* req.body.perc_height);
-						left = Math.max(0, image.width()* req.body.perc_left);
-						top = Math.max(0,image.height()* req.body.perc_top);
-						return image.crop({
-						  left: left,
-						  top: top,
-						  width: width,
-						  height: height
-						});
-					 
+					  }).then(function(response) {		
+						//console.log("got img from url");
+						var image = new Image();	
+						return image.setData(response.buffer);					
 					  }).then(function(image) {
 						// Resize the image to 64x64.
+						//console.log("resize img");
 						return image.scale({
-						  width: 64,
-						  height: 64
+						  width: 200,
+						  height: 200
 						});
 					 
 					  }).then(function(image) {
 						// Make sure it's a JPEG to save disk space and bandwidth.
-						return image.setFormat("PNG");
+						//console.log("format img");
+						return image.setFormat("JPEG");
 					 
 					  }).then(function(image) {
 						// Get the image data in a Buffer.
+						//console.log("data img");
 						return image.data();
 					 
 					  }).then(function(buffer) {
 						// Save the image into a new file.
+						//console.log("make img a file");
 						var base64 = buffer.toString("base64");
 						var cropped = new Parse.File("newPortrait.jpg", { base64: base64 });
 						return cropped.save();
 					 
 					  }).then(function(cropped) {
 						// Attach the image file to the original object.
+						//console.log("save img into obj");
 						object.set("portrait", cropped);
-						console.log('portrait updated');
 						
 						// save changes
 						object.save(null, {
@@ -611,7 +643,7 @@ app.post('/save', function(req, res){
 			query.find({
 				success: function(results) {
 					if(results.length === 0){
-						// This card has not been collected
+						// This card has not been collected ever
 						var ecardInfoClass = Parse.Object.extend("ECardInfo");
 						var query1 = new Parse.Query(ecardInfoClass);
 						query1.get(ecardId, {
@@ -622,6 +654,8 @@ app.post('/save', function(req, res){
 								usrACL.setPublicReadAccess(false);
 								usrACL.setPublicWriteAccess(false);
 								noteObject.setACL(usrACL);
+								noteObject.set("userId", user.id);
+								noteObject.set("whenMet", new Date());
 								noteObject.save({userId: Parse.User.current().id, ecardId: object.id, EcardUpdatedAt: object.updatedAt }, {
 									success: function(){
 										console.log('Save note successful');
@@ -631,6 +665,7 @@ app.post('/save', function(req, res){
 									},
 									error: function(error){
 										console.log('Save note fails');
+										sess.id='';
 										res.json({status : 9});
 									}
 								});
@@ -638,6 +673,7 @@ app.post('/save', function(req, res){
 							error: function(error) {
 								// If the ecard is not found, bring user to login/signup page
 								console.log('Ecard not found');
+								sess.id='';
 								res.json({status : 9});
 							}
 						});	
@@ -657,6 +693,7 @@ app.post('/save', function(req, res){
 									res.json({status : 0});
 								},
 								error: function(error){
+									sess.id='';
 									console.log('Save note fails');
 									res.json({status : 9});
 								}
@@ -666,11 +703,14 @@ app.post('/save', function(req, res){
 				},
 				error: function(error) {
 					console.log('error finding my ecardinfo');
+					sess.id='';
 					res.json({status : 9});
 				}
 			});	
 		}, function(error){
-			
+			console.log('current session error');
+			sess.id='';
+			res.json({status : 9});
 		});
 	} else {
 		// discard
@@ -695,34 +735,8 @@ app.post('/login', function(req, res){
 			// console.log('forget me');
 		// }
 		
-		if(!(typeof sess.id === 'undefined') && sess.id != '') {
-			console.log('An Ecard to be collected');
-			// If there is an ecard to be collected from the url, display the page and offer to save
-			var ecardInfoClass = Parse.Object.extend("ECardInfo");
-			var query = new Parse.Query(ecardInfoClass);
-			query.get(sess.id, {
-				success: function(object) {
-					var collectedData = { 
-						ecardId: sess.id,
-						firstName: (typeof object.get("firstName") === 'undefined') ? "Mysterious user X" : object.get("firstName"),
-						lastName: (typeof object.get("lastName") === 'undefined') ? "" : object.get("lastName"),
-						company: (typeof object.get("company") === 'undefined') ? "Mysterious Company" : object.get("company"),
-						title: (typeof object.get("title") === 'undefined') ? "Mysterious Position" : object.get("title"),
-						city: (typeof object.get("city") === 'undefined') ? "Somewhere on Earth" : object.get("city"),
-						portrait_url: object.get("portrait").url(),
-					};					
-					// The user has already login, don't offer login/signup
-					res.render('ecardloggedin.ejs', collectedData);					
-				},
-				error: function(error) {
-					// If the ecard is not found, bring user to login/signup page
-					res.redirect('/');
-				}
-			});						
-		} else{
-			// if no ecard to collect, redirect to dashboard
-			res.redirect('/');
-		}
+		// if no ecard to collect, redirect to dashboard
+		res.redirect('/');
 	}, 
 	function(error){
 		// Login fails, redirect to homepage, where login/signup page is shown	
@@ -845,36 +859,8 @@ app.post('/linkedinSignin', function(req, res){
 					// somwhow currentUser cannot be used as function(currentUser) or the actual value is not passed down
 					currentUser.save({ecardId : infoObject.id});
 					console.log(sess.id);
-					if(!(typeof sess.id === 'undefined') && sess.id != '') {
-						console.log('An Ecard to be collected');
-						// If there is an ecard to be collected from the url, display the page and offer to save
-						var ecardInfoClass = Parse.Object.extend("ECardInfo");
-						var query = new Parse.Query(ecardInfoClass);
-						query.get(sess.id, {
-							success: function(object) {
-								var collectedData = { 
-									firstName: (typeof object.get("firstName") === 'undefined') ? "Mysterious user X" : object.get("firstName"),
-									lastName: (typeof object.get("lastName") === 'undefined') ? "" : object.get("lastName"),
-									company: (typeof object.get("company") === 'undefined') ? "Mysterious Company" : object.get("company"),
-									title: (typeof object.get("title") === 'undefined') ? "Mysterious Position" : object.get("title"),
-									city: (typeof object.get("city") === 'undefined') ? "Somewhere on Earth" : object.get("city"),
-									portrait_url: object.get("portrait").url(),
-								};					
-								// The user has already login, don't offer login/signup
-								console.log("before rendering");
-								res.render('ecardloggedin.ejs', collectedData);					
-							},
-							error: function(error) {
-								// If the ecard is not found, bring user to login/signup page
-								res.redirect('/');
-							}
-						});						
-					} else{
-						// this redirect statement must be included here, as save() is non-blocking
-						// if not placed here, redirect will happen before save is complete
-						// if no ecard to collect, redirect to dashboard
-						res.redirect('/');
-					}
+					// if no ecard to collect, redirect to dashboard
+					res.redirect('/');
 				},
 				error: function(error){
 					console.log('save info fails')		
@@ -890,35 +876,8 @@ app.post('/linkedinSignin', function(req, res){
 			// here forces to use email as login name
 			console.log('log in successful')
 			console.log(sess.id);
-		
-			if(!(typeof sess.id === 'undefined') && sess.id != '') {
-				console.log('An Ecard to be collected');
-				// If there is an ecard to be collected from the url, display the page and offer to save
-				var ecardInfoClass = Parse.Object.extend("ECardInfo");
-				var query = new Parse.Query(ecardInfoClass);
-				query.get(sess.id, {
-					success: function(object) {
-						var collectedData = { 
-							ecardId: sess.id,
-							firstName: (typeof object.get("firstName") === 'undefined') ? "Mysterious user X" : object.get("firstName"),
-							lastName: (typeof object.get("lastName") === 'undefined') ? "" : object.get("lastName"),
-							company: (typeof object.get("company") === 'undefined') ? "Mysterious Company" : object.get("company"),
-							title: (typeof object.get("title") === 'undefined') ? "Mysterious Position" : object.get("title"),
-							city: (typeof object.get("city") === 'undefined') ? "Somewhere on Earth" : object.get("city"),
-							portrait_url: object.get("portrait").url(),
-							};					
-						// The user has already login, don't offer login/signup
-						res.render('ecardloggedin.ejs', collectedData);				
-						},
-					error: function(error) {
-						// If the ecard is not found, bring user to login/signup page
-						res.redirect('/');
-						}
-					});						
-			} else{
-				// if no ecard to collect, redirect to dashboard
-				res.redirect('/');
-			}
+			// redirect to dashboard
+			res.redirect('/');
 		}, 
 		function(error){
 			// Login fails, redirect to homepage, where login/signup page is shown	
@@ -927,6 +886,57 @@ app.post('/linkedinSignin', function(req, res){
 	})
 })
 
+app.post('/deletenote', function(req, res){
+	// This is to respond to user's save Ecard action
+	
+	console.log("here");
+	
+	var splitIds = req.body.noteIds.split(",");
+	for(var i=0; i< splitIds.length; i++){
+	console.log(splitIds[i]);
+	}
+					
+	Parse.User.current().fetch().then(function(user){
+			var ecardNoteClass = Parse.Object.extend("ECardNote");
+			var query = new Parse.Query(ecardNoteClass);
+			query.equalTo("userId", user.id);
+			query.containedIn("objectId", splitIds);
+			
+			query.find({
+				success: function(results) {
+					if(results.length === 0){
+						//note doesn't exist
+						res.json({successful : true});
+					} else {
+						// This note does exist, delete it
+						for(var i=0 ; i< results.length ; i++) {
+							results[i].set("isDeleted", true);											
+						}
+						Parse.Object.saveAll(results, {
+							success: function(){
+								console.log('Delete note successful');
+								res.json({successful : true});
+							},
+							error: function(error){
+								console.log('Delete note fails');
+								res.json({successful : false});
+							}
+						  });			
+						
+					} 
+				},
+				error: function(error) {
+					//note doesn't exist
+					res.json({successful : false});
+				}
+			});	
+		}, function(error){
+			console.log('current session error');
+			res.json({successful : false});
+		});
+		
+	
+})
 
 app.post('/signup', function(req, res){
 	if(Parse.User.current()){
@@ -934,9 +944,18 @@ app.post('/signup', function(req, res){
 		Parse.User.logOut();
 	}
 	var password = "jsdj32RIfd28UFaf2";
-	var user = new Parse.User();
+	var flagDefaultPassword = false;
+	if(req.body.password != "" && typeof(req.body.password) != "undefined"){
+		// If a password is set, use it
+		password = req.body.password;
+		flagDefaultPassword = false;
+	} else {
+		// If a password is not set, use default password and send a recovery email
+		flagDefaultPassword = true;
+	}	
+	var user = new Parse.User(); 
 	user.set("username", req.body.email); // email==username
-	user.set("name", req.body.name);
+	// user.set("name", req.body.name);
 	user.set("password", password);
 	user.set("email", req.body.email);
 	// the ACL must be set over here, instead of on current()
@@ -947,38 +966,24 @@ app.post('/signup', function(req, res){
 	user.signUp(null).then(function(currentUser){
 		// Signup successful, redirect to homepage, where dashboard will be shown
 		console.log('sign up successful')
-
-		// Parse.User.requestPasswordReset(currentUser.getEmail());
+		// if(flagDefaultPassword) {
+		// 	Parse.User.requestPasswordReset(currentUser.getEmail());
+		// }
 		// Upon sign up, create the user's ECard with basically no information
 		var infoObject = new Parse.Object('ECardInfo');
 		var usrACL = new Parse.ACL(Parse.User.current());
 		usrACL.setPublicReadAccess(true);
 		usrACL.setPublicWriteAccess(false);
 		infoObject.setACL(usrACL);
-		// set name 
-		splitName = req.body.name.split(" ");
-		firstName = "";
-		lastName = "";
-		for(var i=0; i< splitName.length-1; i++){
-			firstName = firstName + splitName[i] + " ";
-		}
-		if(splitName.length>0){
-			lastName = splitName[splitName.length-1];
-		}
-		if(firstName != ""){
-			infoObject.set("firstName", firstName);
-		} else {
-			infoObject.unset("firstName");
-		}
-		if(lastName != ""){
-			infoObject.set("lastName", lastName);
-		} else {						
-			infoObject.unset("lastName");
-		}
+		// set email
+		infoObject.set("email", currentUser.getEmail());
+		infoObject.set("userId", currentUser.id);
 		// initiate default profile portrait
+		ran_min = 0;
+		ran_max = 8;
 		var Image = require("parse-image");
 		Parse.Cloud.httpRequest({
-			url: "http://www.micklestudios.com/assets/img/emptyprofile.png"		 
+			url: "http://www.micklestudios.com/assets/img/emptyprofile"+(Math.floor(Math.random() * (ran_max - ran_min + 1)) + ran_min)+".png"	 
 		  }).then(function(response) {
 			
 			var image = new Image();
@@ -996,13 +1001,13 @@ app.post('/signup', function(req, res){
 		  }).then(function(image) {
 			// Resize the image to 64x64.
 			return image.scale({
-			  width: 64,
-			  height: 64
+			  width: 200,
+			  height: 200
 			});
 		 
 		  }).then(function(image) {
 			// Make sure it's a JPEG to save disk space and bandwidth.
-			return image.setFormat("PNG");
+			return image.setFormat("JPEG");
 		 
 		  }).then(function(image) {
 			// Get the image data in a Buffer.
@@ -1022,35 +1027,16 @@ app.post('/signup', function(req, res){
 					// somwhow currentUser cannot be used as function(currentUser) or the actual value is not passed down
 					currentUser.save({ecardId : infoObject.id});
 					console.log(sess.id);
-					if(!(typeof sess.id === 'undefined') && sess.id != '') {
-						console.log('An Ecard to be collected');
-						// If there is an ecard to be collected from the url, display the page and offer to save
-						var ecardInfoClass = Parse.Object.extend("ECardInfo");
-						var query = new Parse.Query(ecardInfoClass);
-						query.get(sess.id, {
-							success: function(object) {
-								var collectedData = { 
-									firstName: (typeof object.get("firstName") === 'undefined') ? "Mysterious user X" : object.get("firstName"),
-									lastName: (typeof object.get("lastName") === 'undefined') ? "" : object.get("lastName"),
-									company: (typeof object.get("company") === 'undefined') ? "Mysterious Company" : object.get("company"),
-									title: (typeof object.get("title") === 'undefined') ? "Mysterious Position" : object.get("title"),
-									city: (typeof object.get("city") === 'undefined') ? "Somewhere on Earth" : object.get("city"),
-									portrait_url: object.get("portrait").url(),
-								};					
-								// The user has already login, don't offer login/signup
-								res.render('ecardloggedin.ejs', collectedData);					
-							},
-							error: function(error) {
-								// If the ecard is not found, bring user to login/signup page
-								res.redirect('/');
-							}
-						});						
-					} else{
-						// this redirect statement must be included here, as save() is non-blocking
-						// if not placed here, redirect will happen before save is complete
-						// if no ecard to collect, redirect to dashboard
-						res.redirect('/');
-					}
+					
+					// if no ecard to collect, redirect to infocollector
+					// this redirect statement must be included here, as save() is non-blocking
+					// if not placed here, redirect will happen before save is complete
+					var prefilledData = { 
+							email: infoObject.get("email"),
+							portrait_url: infoObject.get("portrait").url(),
+							};
+					res.render('infocollector.ejs', prefilledData);	
+					
 				},
 				error: function(error){
 					console.log('save info fails')		
@@ -1074,38 +1060,67 @@ app.get('/logout', function(req, res){
 app.get('/', function(req, res){
 	if(Parse.User.current()){
 		// if the user has logged in, show dashboard
-		
-		// Must use fetch(), previously tried current().get("name"), returns null
-		Parse.User.current().fetch().then(function(user){
+		if(!(typeof sess.id === 'undefined') && sess.id != '') {
+			console.log('An Ecard to be collected');
+			// If there is an ecard to be collected from the url, display the page and offer to save
 			var ecardInfoClass = Parse.Object.extend("ECardInfo");
 			var query = new Parse.Query(ecardInfoClass);
-			query.get(user.get("ecardId"), {
+			query.get(sess.id, {
 				success: function(object) {
-					// display the current user's ecard
-					res.render('dashboard.ejs', { 
-						ecardId: object.id,
-						firstName: (typeof object.get("firstName") === 'undefined') ? "Mysterious user X" : object.get("firstName"),
+					console.log(sess.id);
+					var collectedData = { 
+						ecardId: sess.id,
+						flagHasPrev: 0,
+						firstName: (typeof object.get("firstName") === 'undefined') ? "(Undisclosed Name)" : object.get("firstName"),
 						lastName: (typeof object.get("lastName") === 'undefined') ? "" : object.get("lastName"),
-						company: (typeof object.get("company") === 'undefined') ? "Mysterious Company" : object.get("company"),
-						title: (typeof object.get("title") === 'undefined') ? "Mysterious Position" : object.get("title"),
-						city: (typeof object.get("city") === 'undefined') ? "Somewhere on Earth" : object.get("city"),
-						username: user.get('username'),
+						company: (typeof object.get("company") === 'undefined') ? "(Undisclosed Company)" : object.get("company"),
+						title: (typeof object.get("title") === 'undefined') ? "(Undisclosed Position)" : object.get("title"),
+						city: (typeof object.get("city") === 'undefined') ? "(Undisclosed Location)" : object.get("city"),
 						portrait_url: object.get("portrait").url(),
-					 });				 
+					};					
+					// The user has already login, don't offer login/signup
+					res.render('ecardloggedin.ejs', collectedData);					
 				},
 				error: function(error) {
-					console.log('error finding my ecardinfo')
+					// If the ecard is not found, bring user to login/signup page
+					sess.id = '';
+					res.redirect('/');
 				}
-			});	
-		}, function(error){
-			
-		});
-		
+			});						
+		} else {
+			// Must use fetch(), previously tried current().get("name"), returns null
+			Parse.User.current().fetch().then(function(user){
+				var ecardInfoClass = Parse.Object.extend("ECardInfo");
+				var query = new Parse.Query(ecardInfoClass);
+				query.get(user.get("ecardId"), {
+					success: function(object) {
+						// display the current user's ecard
+						res.render('dashboard.ejs', { 
+							ecardId: object.id,
+							firstName: (typeof object.get("firstName") === 'undefined') ? "(Undisclosed Name)" : object.get("firstName"),
+							lastName: (typeof object.get("lastName") === 'undefined') ? "" : object.get("lastName"),
+							company: (typeof object.get("company") === 'undefined') ? "(Undisclosed Company)" : object.get("company"),
+							title: (typeof object.get("title") === 'undefined') ? "(Undisclosed Position)" : object.get("title"),
+							city: (typeof object.get("city") === 'undefined') ? "(Undisclosed Location)" : object.get("city"),
+							username: user.get('username'),
+							portrait_url: object.get("portrait").url(),
+						 });				 
+					},
+					error: function(error) {
+						console.log('error finding my ecardinfo')
+					}
+				});	
+			}, function(error){
+				
+			});
+		}
 	} else {
 		// if the user hasn't logged in, redirect to login/signup page
 		res.render('loginpage.ejs');
 	}
 })
+
+
 
 // if the url points to unhandled pages, redirect to login/dashboard
 app.get('*', function(req, res, next) {
