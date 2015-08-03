@@ -4,7 +4,7 @@ require('cloud/app.js');
 Parse.Cloud.define("hello", function(request, response) {
   response.success("Hello world!");
 });
- 
+   
 Parse.Cloud.beforeSave("History", function(request, status) {
          var request_obj_id = request.object.get("objectId");
          var request_user_id = request.object.get("userId");
@@ -36,7 +36,7 @@ Parse.Cloud.beforeSave("History", function(request, status) {
         }
     });
 });
- 
+   
 Parse.Cloud.beforeSave("ECardNote", function(request, status) {
          var request_obj_id = request.object.get("objectId");
          var request_user_id = request.object.get("userId");
@@ -68,8 +68,8 @@ Parse.Cloud.beforeSave("ECardNote", function(request, status) {
         }
     });
 });
- 
- 
+   
+   
 Parse.Cloud.beforeSave("User", function(request, status) {
          var request_obj_id = request.object.get("objectId");
          var max_num_card = request.object.get("maxNumCard");
@@ -80,8 +80,8 @@ Parse.Cloud.beforeSave("User", function(request, status) {
          var auth_data = request.object.get("authData");
          var email_verified = request.object.get("emailVerified");
          var ecard_id = request.object.get("ecardId");
- 
- 
+   
+   
          var noteObject = Parse.Object.extend('User');
          var query = new Parse.Query(noteObject);
          query.equalTo("objectId", request_obj_id);
@@ -118,8 +118,8 @@ Parse.Cloud.beforeSave("User", function(request, status) {
         }
     });
 });
- 
- 
+   
+   
 Parse.Cloud.beforeSave("ECardInfo", function(request, status) {
          var request_obj_id = request.object.get("objectId");
          var request_user_id = request.object.get("userId");
@@ -151,7 +151,7 @@ Parse.Cloud.beforeSave("ECardInfo", function(request, status) {
         }
     });
 });
- 
+   
 Parse.Cloud.beforeSave("ECardTemplate", function(request, status) {
   // Set up to modify user data
   var  company_str = request.object.get("companyName").replace(/^\s+|\s+$/g, '');
@@ -238,9 +238,9 @@ Parse.Cloud.beforeSave("ECardTemplate", function(request, status) {
             status.error("ECardTemplate Query Error");
         });
  });
- 
- 
- 
+   
+   
+   
 Parse.Cloud.job("logoSearch", function(request, status) {
   // Set up to modify user data
   //Parse.Cloud.useMasterKey();
@@ -251,7 +251,7 @@ Parse.Cloud.job("logoSearch", function(request, status) {
   query.limit (100);
   query.equalTo("companyLogo", null);
   //query.equalTo("companyName", "NASA");
- 
+   
 query.find(). then(function(list) {
       // need to add counter to enforce the quota of the google query
       console.log("successfully retrieved " + list.length + " entries" );
