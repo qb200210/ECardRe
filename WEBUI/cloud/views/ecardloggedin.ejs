@@ -1,125 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <link rel="icon" href="../../favicon.ico">
-    <script src="../assets/js/jquery.min.js"></script>	
-    <title>KnoWell - Know Each Other Well</title>
-	
-    <!-- Bootstrap core CSS -->
-    <link href="../dist/css/bootstrap.min.css" rel="stylesheet">
-	<!-- Custom styles for this template -->
-    <link href="../assets/css/signin.css" rel="stylesheet">
-	<!-- Custom styles for this template -->
-	<link href="../assets/css/carousel.css" rel="stylesheet">
-    <style type="text/css">
-	
-		body {
-		  padding-bottom: 40px;
-		  background-color: #64b5f6;
-		}
-		
-		.navbar-default {
-  background-color: #0064c8;
-  border-color: #64b5f6;
-}
-.navbar-default .navbar-brand {
-  color: #ecf0f1;
-}
-.navbar-default .navbar-brand:hover, .navbar-default .navbar-brand:focus {
-  color: #ffffff;
-}
-.navbar-default .navbar-text {
-  color: #ecf0f1;
-}
-.navbar-default .navbar-nav > li > a {
-  color: #ecf0f1;
-}
-.navbar-default .navbar-nav > li > a:hover, .navbar-default .navbar-nav > li > a:focus {
-  color: #ffffff;
-}
-.navbar-default .navbar-nav > .active > a, .navbar-default .navbar-nav > .active > a:hover, .navbar-default .navbar-nav > .active > a:focus {
-  color: #ffffff;
-  background-color: #64b5f6;
-}
-.navbar-default .navbar-nav > .open > a, .navbar-default .navbar-nav > .open > a:hover, .navbar-default .navbar-nav > .open > a:focus {
-  color: #ffffff;
-  background-color: #64b5f6;
-}
-.navbar-default .navbar-toggle {
-  border-color: #64b5f6;
-}
-.navbar-default .navbar-toggle:hover, .navbar-default .navbar-toggle:focus {
-  background-color: #64b5f6;
-}
-.navbar-default .navbar-toggle .icon-bar {
-  background-color: #ecf0f1;
-}
-.navbar-default .navbar-collapse,
-.navbar-default .navbar-form {
-  border-color: #ecf0f1;
-}
-.navbar-default .navbar-link {
-  color: #ecf0f1;
-}
-.navbar-default .navbar-link:hover {
-  color: #ffffff;
-}
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+		<meta name="description" content="KnoWell, Not Only Know. By MickleStudios. Electronics Business Cards.">
+		<meta name="author" content="">
+		<link rel="icon" href="../../favicon.ico">
 
-@media (max-width: 767px) {
-  .navbar-default .navbar-nav .open .dropdown-menu > li > a {
-    color: #ecf0f1;
-  }
-  .navbar-default .navbar-nav .open .dropdown-menu > li > a:hover, .navbar-default .navbar-nav .open .dropdown-menu > li > a:focus {
-    color: #ffffff;
-  }
-  .navbar-default .navbar-nav .open .dropdown-menu > .active > a, .navbar-default .navbar-nav .open .dropdown-menu > .active > a:hover, .navbar-default .navbar-nav .open .dropdown-menu > .active > a:focus {
-    color: #ffffff;
-    background-color: #64b5f6;
-  }
-}
-		
-		.fromtop {
-			margin: 60px auto 0px;		
-		}
+		<title>KnoWell &mdash; Not Only Know</title>
 
-      .form-signin {
-        max-width: 300px;
-        padding: 19px 29px 29px;
-        margin: 0px auto 0px;
-        background-color: #fff;
-        border: 1px solid #e5e5e5;
-        -webkit-border-radius: 2px;
-           -moz-border-radius: 2px;
-                border-radius: 2px;
-        -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.05);
-           -moz-box-shadow: 0 1px 2px rgba(0,0,0,.05);
-                box-shadow: 0 1px 2px rgba(0,0,0,.05);
-      }
-	  
-	  .switcher {
-		max-width: 300px;
-		margin-bottom: auto;
-		margin-top: 10px;
-	  }
-	  
-      
-	  .greeting {
+		<!-- Bootstrap core CSS -->
+		<link href="../dist/css/bootstrap.min.css" rel="stylesheet">
+		<link href="../assets/css/general.css" rel="stylesheet">
+		<script src="../assets/js/jquery.min.js"></script>
+
+		<style type="text/css">
+
+			.form-signin {
+				max-width: 300px;
+				padding: 19px 29px 29px;
+				margin: 0px auto 0px;
+				background-color: #fff;
+				border: 1px solid #e5e5e5;
+				-webkit-border-radius: 2px;
+				-moz-border-radius: 2px;
+				border-radius: 2px;
+				-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+				-moz-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+				box-shadow: 0 1px 2px rgba(0,0,0,.05);
+			}
+
+			.switcher {
+				max-width: 300px;
+				margin-bottom: auto;
+				margin-top: 10px;
+			}
+
+
+			.greeting {
 				max-width: 300px;
 				padding: 0px 20px 0px;
 				margin: 0px auto 0px;
 				background-color: #00fff;
 			}
-			
-	  .container-card {
-				max-width: 300px;
-				padding: 20px 20px 20px;
-				margin: 0px auto 40px;
+
+			.container-card-header {
+				min-width: 260px;
+				max-width: 260px;
+				padding: 10px 0px 10px;
+				margin: 0px auto 20px;
+				background-color: #fff;
+				border: 1px solid #e5e5e5;
+				-webkit-border-radius: 2px;
+				-moz-border-radius: 2px;
+				border-radius: 2px;
+				-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+				-moz-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+				box-shadow: 0 1px 2px rgba(0,0,0,.05);
+			}
+
+			.container-card {
+				max-width: 260px;
+				min-height: 250px;
+				max-height: 260px;
+				padding: 10px 0px 10px;
+				margin: 0px auto 20px;
 				background-color: #fff;
 				border: 1px solid #e5e5e5;
 				-webkit-border-radius: 2px;
@@ -131,166 +78,225 @@
 			}
 
 			.maincard {
-				display: table-cell;
-				width: 260px;
-				height: 260px;
+				width: 240px;
 				vertical-align: top;
-				padding: 0 0 0;
-				margin: 10px 20px 10px;
+				padding: 0 3px 0;
+				margin:0px auto 0px;
 				background-color: #ffffff;
 				overflow: auto
 			}
 
-			.center-block {
-				display: inline-block;
-				max-width: 160px;
-				max-height: 200px;
-				padding: 0 0 0;
-				margin: 0 auto 0;
-				vertical-align: middle;
-			}
-			
 			.toppart{
-				width: 260px;
-				height: 110px;
+				display:table-cell;
+				width: 230px;
+				height: 100px;
 				margin: 0 0 0;
 				vertical-align: middle;
 			}
-			
-			.botpart{
-				width: 260px;
-				height: 130px;				
+			.midpart{
+				width: 230px;
 				margin: 0 0 0;
 			}
-			
+
+			.botpart{
+				width: 230px;
+				height: 100px;
+				margin: 0 0 0;
+			}
+
+			.botpart p{
+				display: inline;
+				height: 100px;
+				vertical-align: middle;
+
+			}
+
+
 			.profile {
 				float: left;
-				width: 110px;
-				height: 110px;
+				width: 100px;
+				height: 100px;
 				margin: 0px 0 0px;
 			}
-			
-			
+
+			.profile_header {
+				text-align: center;
+				float: middle;
+				width: 180px;
+				margin: 0px auto 0px;
+				padding: 0px 0px 0px;
+			}
+
 			.profile img {
-				width: 110px;
-				height: 110px;
+				width: 100px;
+				height: 100px;
 			}
 
-			.name {
-				float: left;
+			.toppart .name {
+				display:table-cell;
+				vertical-align: middle;
+				float: right;
+				text-align:center;
 				margin-left: 10px;
+				padding-left: 0px;
+				padding-bottom: 0px;
+				width: 120px;
+				height:100px;
 				max-width: 120px;
-				margin-bottom: 20px;
-				margin-top: 30px;
+				max-height: 100px;
+				overflow: hidden;
 			}
-			
+
+			.toppart p{
+				width: 120px;
+				height: 100px;
+				display:table-cell;
+				vertical-align: middle;
+
+			}
+
 			.hr {
-				margin : 15px 0 0;
+				width: 100%;
+				margin : 10px 0px 0px;
+			}
+
+			.indicator{
+				margin: 0px auto 0px;
 			}
 
 
-    </style>
-  
-	<script>
-	
-		function goBack() {
-			window.history.back();
-		}
+
+			.logo {
+				position:absolute;
+				width: 50px;
+				height: 50px;
+				bottom: 10px;
+				right: 10px;
+			}
+
+			.margintop {
+				margin-top: 10px
+			}
+
+			.ellipsis {
+				white-space: nowrap;
+				text-overflow: ellipsis;
+				width: 235px;
+				overflow: hidden;
+			}
+
+
+		</style>
+
+		<script>
 		
-		function redirect() {
-			window.location.href='dummypage.html';
-		}
-		
-		function discard() {
-			document.getElementById('saveordiscard').value = '1'; // discard
-			document.getElementById('saveForm').submit();
-		}
-			
-		function switchSignInRegister(){
-			if(document.getElementById('submitBtn').innerHTML == 'Sign Up') {
-				document.getElementById('submitBtn').innerHTML = 'Sign In';
-				document.getElementById('password').type = 'password';
-				document.getElementById('switcher').innerHTML = 'Have not got an account?';
-				document.getElementById('saveHeader').innerHTML = 'Sign In to Save My Card.';
-				document.getElementById('signForm').action = '/login';
-			} else {
+			var flagH = <%= flagHasPrev %>;
 				
-				document.getElementById('submitBtn').innerHTML = 'Sign Up';
-				document.getElementById('password').type = 'hidden';
-				document.getElementById('switcher').innerHTML = 'Already have an account?';
-				document.getElementById('saveHeader').innerHTML = 'Save My Card With One-Click Sign-Up.';
-				document.getElementById('signForm').action = '/signup';
-			}
-		}
-		
-		$(document).ready(function(){
-		   var $form = $('form');
-		   $form.submit(function(e){				
-			  e.preventDefault();
-			  // post to server without refreshing page
-			  $.post($(this).attr('action'), $(this).serialize(), function(response){
-				if(response.status == 0){
-					// save note successful
-					$('#saveResults').modal('show');
-					document.getElementById("display_save_results").innerHTML = "Successfully Saved!"
-					flagRefreshHome = true;
-					redirect(); // return to previous page
-				} else if (response.status == 2){
-					// note exists
-					$('#saveResults').modal('show');
-					document.getElementById("display_save_results").innerHTML = "Note existed ..."
-					redirect(); // return to previous page
-				} else if (response.status == 3){
-					// note exists
-					$('#saveResults').modal('show');
-					document.getElementById("display_save_results").innerHTML = "Discarded ..."
-					redirect(); // return to previous page
+			function redirect() {
+				if( flagH == 1){
+					// if there is a valid flag, upon goBack, go to previous page, otherwise return to dashboard
+					goBack();
 				} else {
-					$('#saveResults').modal('show');
-					document.getElementById("display_save_results").innerHTML = "Something is wrong ..."
-					redirect(); // return to previous page
+					window.location.href='dummypage.html';
 				}
-			  },'json');
-			  return false;
-		   });
-		});
-	</script>
-  </head>
+			}
 
-  <body>
-  
-		<div class="navbar-wrapper">
+			function goBack() {
+				window.history.back();
+			}
+
+			function discard() {
+				document.getElementById('saveordiscard').value = '1'; // discard
+				$('#save_button').trigger('click');
+			}
+
+			function switchSignInRegister(){
+				if(document.getElementById('submitBtn').innerHTML == 'Sign Up') {
+					document.getElementById('submitBtn').innerHTML = 'Sign In';
+					document.getElementById('password').type = 'password';
+					document.getElementById('switcher').innerHTML = 'Have not got an account?';
+					document.getElementById('saveHeader').innerHTML = 'Sign In to Save My Card.';
+					document.getElementById('signForm').action = '/login';
+				} else {
+
+					document.getElementById('submitBtn').innerHTML = 'Sign Up';
+					document.getElementById('password').type = 'hidden';
+					document.getElementById('switcher').innerHTML = 'Already have an account?';
+					document.getElementById('saveHeader').innerHTML = 'Save My Card With One-Click Sign-Up.';
+					document.getElementById('signForm').action = '/signup';
+				}
+			}
+
+			$(document).ready(function(){
+				
+				
+				
+				var $form = $('form');
+				$form.submit(function(e){
+					e.preventDefault();
+					// post to server without refreshing page
+					$.post($(this).attr('action'), $(this).serialize(), function(response){
+						if(response.status == 0){
+							// save note successful
+							$('#saveResults').modal('show');
+							document.getElementById("display_save_results").innerHTML = "Successfully Saved!"
+							flagRefreshHome = true;
+						} else if (response.status == 2){
+							// note exists
+							$('#saveResults').modal('show');
+							document.getElementById("display_save_results").innerHTML = "Note existed ..."
+						} else if (response.status == 3){
+							// note exists
+							$('#saveResults').modal('show');
+							document.getElementById("display_save_results").innerHTML = "Discarded ..."
+						} else {
+							$('#saveResults').modal('show');
+							document.getElementById("display_save_results").innerHTML = "Something is wrong ..."
+						}
+						setTimeout(function(){
+							redirect();
+						}, 1500)
+
+					},'json');
+					return false;
+				});
+			});
+		</script>
+	</head>
+
+	<body>
+
+		<nav class="navbar navbar-inverse navbar-fixed-top">
 			<div class="container">
-
-				<nav class="navbar navbar-default navbar-static-top">
-					<div class="container">
-						<div class="navbar-header">							
-							<a class="navbar-brand" href="javascript:void(0)" onclick="goBack();">KnoWell</a>
-						</div>
-					</div>
-				</nav>
-
-			</div>
-		</div>
-		
-		<div class="modal fade bs-example-modal-sm" id="saveResults" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
-		  <div class="modal-dialog modal-sm">
-			<div class="modal-content">			  
-			  <div class="modal-body">
-			    <p id="display_save_results"></p>
-			  </div>
-			  <div class="modal-footer">
-				<button type="button" class="btn btn-default" data-dismiss="modal">OK</button>						
-			  </div>
-			</div>
-		  </div>
-		</div>
-		
-		<div class="row fromtop">
-			<div class="col-md-4 col-md-offset-2">
-				<div class="greeting">
-					<h4>Hey, here is my card:</h4>
+				<div class="navbar-header">
+					<a class="navbar-brand" href="javascript:redirect();">KnoWell</a>
 				</div>
+			</div>
+		</nav>
+
+		<div class="modal fade bs-example-modal-sm" id="saveResults" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" data-backdrop="static">
+			<div class="modal-dialog modal-sm">
+				<div class="modal-content">
+					<div class="modal-body">
+						<p id="display_save_results"></p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">OK</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-sm-5 col-sm-offset-1 col-md-4 col-md-offset-2 col-lg-3 col-lg-offset-3" style="min-width: 280px">
+
+				<div class="container-card-header" id="header_div" style="padding: 10px;">
+					<!-- The actual button has to be placed inside <form></form> wrapper or IE doesn't honor it -->
+					<div class="profile_header">
+						<p style="margin: 0 0 0;"><b>Please accept my card for more info</b></p>
+					</div>
+				</div>
+
 				<div class="container-card">
 					<div class="maincard">
 						<div class="toppart">
@@ -298,41 +304,42 @@
 								<img src="<%=portrait_url%>">
 							</div>
 							<div class= "name">
-								<h5> <b><%= firstName %> <%= lastName %></b> </h5> 
+								<p style="font-size: medium; margin-bottom: 0px"> <b><%= firstName %> <%= lastName %></b> </p>
 							</div>
 						</div>
-						<div class="botpart">						
-						<hr class= "hr">
-						<address style="margin-top: 10px">
-							<%= title %><br>
-							<%= company %> <br>
-							<%= city %>
-						</address>
+						<div class="midpart">
+							<hr class= "hr">
+						</div>
+						<div class="botpart">
+							<address class="ellipsis" style="margin-top: 10px">
+								<p style="font-size: medium; margin-bottom: 0px;"><%= title %></p>
+								<br><p style="font-size: small; margin-bottom: 0px"><%= company %></p>
+								<br><p style="font-size: medium; margin-bottom: 0px"><%= city %></p>
+							</address>
 						</div>
 					</div>
-					
 				</div>
 			</div>
-			<div class="col-md-4 ">					  
-			  <form id="saveForm" class="form-signin" action='/save' method='POST'>
-				<h4 id="saveHeader" class="form-signin-heading">Please accept it.</h4>	
-				<input type="hidden" name="_csrf" value="<%= csrf_field %>" />
-				<input type="hidden" name="ecardId" value="<%= ecardId %>" />
-				<input type="hidden" id="saveordiscard" name="saveordiscard" value="0" />
-				<button class="btn btn-large btn-primary" type="submit" name="action">Sure!</button>
-				<button class="btn btn-large" onclick="javascript:discard();">Nope</button><br>
-			  </form>
-			</div>	
-		</div>
-		  
-	  <!-- Bootstrap core JavaScript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    <script src="../dist/js/bootstrap.min.js"></script>
-    <!-- Just to make our placeholder images work. Don't actually copy the next line! -->
-    <script src="../assets/js/vendor/holder.js"></script>
-    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-    <script src="../assets/js/ie10-viewport-bug-workaround.js"></script>
+			<div class="col-sm-4 col-md-4 col-lg-4">
+				<div class="container-card-header" id="save_div" style="padding: 10px; ">
+					<form id="saveForm" action='/save' method='POST'>
+						<input type="hidden" name="_csrf" value="<%= csrf_field %>" style="display: none;"/>
+						<input type="hidden" name="ecardId" value="<%= ecardId %>"  style="display: none;"/>
+						<input type="hidden" id="saveordiscard" name="saveordiscard" value="0"  style="display: none;"/>
+						<button id="save_button" class="btn btn-md btn-primary btn-block" type="submit" name="action ">Sure!</button>
+						<button type="button" class="btn btn-md btn-default btn-block" onclick="javascript:discard();">Nope</button>
 
-  </body>
-</html>
+					</form>
+				</div>
+			</div>
+		</div>
+
+		<!-- Bootstrap core JavaScript
+		================================================== -->
+		<!-- Placed at the end of the document so the pages load faster -->
+		<script src="../dist/js/bootstrap.min.js"></script>
+		<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+		<script src="../assets/js/ie10-viewport-bug-workaround.js"></script>
+
+	</body>
+</html> 

@@ -65,7 +65,7 @@ public class UserInfo implements Parcelable {
     public static final int TYPE_UPDATEDAT = 11;
     public static final int TYPE_MOTTO = 12;
   }
-  
+
   ArrayList<String> shownArrayList = new ArrayList<String>();
   ArrayList<Integer> infoIcon = new ArrayList<Integer>();
   ArrayList<String> infoLink = new ArrayList<String>();
@@ -78,11 +78,14 @@ public class UserInfo implements Parcelable {
     this.firstName = (this.firstName == null || this.firstName.isEmpty()) ? "(Undisclosed Name)"
       : this.firstName;
     this.lastName = this.lastName == null ? "" : this.lastName;
-    this.company = (this.company == null || this.company.isEmpty()) ? "(Undisclosed Company)" : this.company;
-    this.title = (this.title == null || this.title.isEmpty()) ? "(Undisclosed Position)" : this.title;
-    this.city = (this.city == null || this.city.isEmpty()) ? "(Undisclosed Location)" : this.city;
+    this.company = (this.company == null || this.company.isEmpty()) ? "(Undisclosed Company)"
+      : this.company;
+    this.title = (this.title == null || this.title.isEmpty()) ? "(Undisclosed Position)"
+      : this.title;
+    this.city = (this.city == null || this.city.isEmpty()) ? "(Undisclosed Location)"
+      : this.city;
     this.motto = this.motto == null ? "" : this.motto;
-    
+
     this.whereMet = this.whereMet == null ? "" : this.whereMet;
     this.eventMet = this.eventMet == null ? "" : this.eventMet;
     this.notes = this.notes == null ? "" : this.notes;

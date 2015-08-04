@@ -36,9 +36,9 @@ public class AppGlobals {
   // Global Strings
   public static final String MY_PREFS_NAME = "KnoWellSyncParams";
   public static final String PUSH_CHANNEL_NAME = "KnoWellPush";
-  
+
   public static void ensureNonNullUponResume() {
-    if(allUsers == null || potentialUsers == null){
+    if (allUsers == null || potentialUsers == null) {
       // If null, block the code and make sure data is re-populated
       initializeAllContactsBlocking();
       initializePotentialUsersBlocking();
@@ -329,9 +329,8 @@ public class AppGlobals {
     }
 
   }
-  
+
   public static void initializePotentialUsersBlocking() {
-    
 
     if (potentialUsers == null) {
       potentialUsers = new ArrayList<UserInfo>();
@@ -339,63 +338,63 @@ public class AppGlobals {
     potentialUsers.clear();
     currentUser = ParseUser.getCurrentUser();
 
-      /* A map of all the ECardNote objects to the noteID */
-      final HashMap<String, Date> infoIdToConvDateMap = new HashMap<String, Date>();
-      // During SyncConversations, all conversations should have been synced to
-      // local
-      ParseQuery<ParseObject> queryConvs = ParseQuery.getQuery("Conversations");
-      queryConvs.fromLocalDatastore();
-      queryConvs.whereEqualTo("partyB", currentUser.get("ecardId").toString());
-      queryConvs.whereNotEqualTo("isDeleted", true);
-      List<ParseObject> objectConvList = null;
+    /* A map of all the ECardNote objects to the noteID */
+    final HashMap<String, Date> infoIdToConvDateMap = new HashMap<String, Date>();
+    // During SyncConversations, all conversations should have been synced to
+    // local
+    ParseQuery<ParseObject> queryConvs = ParseQuery.getQuery("Conversations");
+    queryConvs.fromLocalDatastore();
+    queryConvs.whereEqualTo("partyB", currentUser.get("ecardId").toString());
+    queryConvs.whereNotEqualTo("isDeleted", true);
+    List<ParseObject> objectConvList = null;
+    try {
+      objectConvList = queryConvs.find();
+    } catch (ParseException e) {
+      e.printStackTrace();
+    }
+    if (objectConvList != null && objectConvList.size() != 0) {
+      // If there are conversations, don't worry about notes yet, just create
+      // userInfo using ecards
+      for (Iterator<ParseObject> iter = objectConvList.iterator(); iter
+        .hasNext();) {
+        ParseObject objectConv = iter.next();
+        // don't need to check if the conversation is deleted, because that
+        // should be done by SyncConversations
+        String infoObjectId = objectConv.get("partyA").toString();
+        Log.i("actbuf", objectConv.getUpdatedAt().toString());
+
+        infoIdToConvDateMap.put(infoObjectId, objectConv.getUpdatedAt());
+      }
+      /*
+       * Now, query the ECardInfoTable to get all the ECardInfo for the
+       * conversations collected here.
+       */
+      ParseQuery<ParseObject> queryInfo = ParseQuery.getQuery("ECardInfo");
+      queryInfo.fromLocalDatastore();
+      queryInfo.whereContainedIn("objectId", infoIdToConvDateMap.keySet());
+      List<ParseObject> objectInfoList = null;
       try {
-        objectConvList = queryConvs.find();
+        objectInfoList = queryInfo.find();
       } catch (ParseException e) {
         e.printStackTrace();
       }
-      if (objectConvList != null && objectConvList.size() != 0) {
-        // If there are conversations, don't worry about notes yet, just create
-        // userInfo using ecards
-        for (Iterator<ParseObject> iter = objectConvList.iterator(); iter
+
+      if (objectInfoList != null && objectInfoList.size() != 0) {
+        for (Iterator<ParseObject> iter = objectInfoList.iterator(); iter
           .hasNext();) {
-          ParseObject objectConv = iter.next();
-          // don't need to check if the conversation is deleted, because that
-          // should be done by SyncConversations
-          String infoObjectId = objectConv.get("partyA").toString();
-          Log.i("actbuf", objectConv.getUpdatedAt().toString());
-
-          infoIdToConvDateMap.put(infoObjectId, objectConv.getUpdatedAt());
-        }
-        /*
-         * Now, query the ECardInfoTable to get all the ECardInfo for the
-         * conversations collected here.
-         */
-        ParseQuery<ParseObject> queryInfo = ParseQuery.getQuery("ECardInfo");
-        queryInfo.fromLocalDatastore();
-        queryInfo.whereContainedIn("objectId", infoIdToConvDateMap.keySet());
-        List<ParseObject> objectInfoList = null;
-        try {
-          objectInfoList = queryInfo.find();
-        } catch (ParseException e) {
-          e.printStackTrace();
-        }
-
-        if (objectInfoList != null && objectInfoList.size() != 0) {
-          for (Iterator<ParseObject> iter = objectInfoList.iterator(); iter
-            .hasNext();) {
-            ParseObject objectInfo = iter.next();
-            UserInfo contact = new UserInfo(objectInfo);
-            if (contact != null) {
-              contact.setWhenMet(infoIdToConvDateMap.get(objectInfo
-                .getObjectId()));
-              // If there are 20 conversations, while only 4 of corresponding
-              // ecard pinned down, then final conv for display will be 4
-              AppGlobals.potentialUsers.add(contact);
-            }
+          ParseObject objectInfo = iter.next();
+          UserInfo contact = new UserInfo(objectInfo);
+          if (contact != null) {
+            contact
+              .setWhenMet(infoIdToConvDateMap.get(objectInfo.getObjectId()));
+            // If there are 20 conversations, while only 4 of corresponding
+            // ecard pinned down, then final conv for display will be 4
+            AppGlobals.potentialUsers.add(contact);
           }
         }
       }
-    
+    }
+
   }
 
   public static void refreshGlobalParseBasedData() {

@@ -2,7 +2,6 @@ package com.micklestudios.knowell;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -16,9 +15,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -61,7 +57,6 @@ import com.micklestudios.knowell.infrastructure.SearchListAdapter;
 import com.micklestudios.knowell.infrastructure.UserInfo;
 import com.micklestudios.knowell.utils.AppGlobals;
 import com.micklestudios.knowell.utils.AsyncTasks;
-import com.micklestudios.knowell.utils.CurvedAndTiled;
 import com.micklestudios.knowell.utils.ECardUtils;
 import com.micklestudios.knowell.utils.MySimpleListViewAdapter;
 import com.nhaarman.listviewanimations.appearance.StickyListHeadersAdapterDecorator;
@@ -588,6 +583,15 @@ public class ActivitySearch extends ActionBarActivity {
       }
     });
 
+    searchBox.setOnItemClickListener(new OnItemClickListener() {
+
+      @Override
+      public void onItemClick(AdapterView<?> parent, View view, int position,
+        long id) {
+        performSearch();
+      }
+    });
+
     searchButton.setOnClickListener(new OnClickListener() {
       @Override
       public void onClick(View v) {
@@ -798,9 +802,20 @@ public class ActivitySearch extends ActionBarActivity {
     lLayoutCompany.setVisibility(visibility);
   }
 
+  private void hideKeyboard() {
+    // Check if no view has focus:
+    View view = this.getCurrentFocus();
+    if (view != null) {
+      InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+      imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+  }
+
   private void performSearch() {
     filteredUsers.clear();
     matchedFields.clear();
+
+    hideKeyboard();
 
     if (AppGlobals.allUsers == null) {
       // If null, block the code and make sure data is re-populated
@@ -824,6 +839,7 @@ public class ActivitySearch extends ActionBarActivity {
           UserInfo uInfo = AppGlobals.allUsers.get(uInfoIndex);
           if (uInfo.getWhereMet().toLowerCase(Locale.ENGLISH)
             .contains(filterKey)) {
+            Log.e("Knowell", "ZZMatthinsknfdlshlkjghdfkljgh");
             matchedFields.put(uInfoIndex, UserInfo.FIELD_TYPE.TYPE_WHERE_MET);
             tempUserInfoList.add(uInfoIndex);
           }
@@ -859,6 +875,7 @@ public class ActivitySearch extends ActionBarActivity {
           UserInfo uInfo = AppGlobals.allUsers.get(uInfoIndex);
           if (uInfo.getEventMet().toLowerCase(Locale.ENGLISH)
             .contains(filterKey)) {
+            Log.e("Knowell", "Matthinsknfdlshlkjghdfkljgh");
             matchedFields.put(uInfoIndex, UserInfo.FIELD_TYPE.TYPE_EVENT_MET);
             tempUserInfoList.add(uInfoIndex);
           }
@@ -894,7 +911,7 @@ public class ActivitySearch extends ActionBarActivity {
         String eventMet_str = uInfo.getEventMet().toLowerCase(Locale.ENGLISH);
         String whereMet_str = uInfo.getWhereMet().toLowerCase(Locale.ENGLISH);
         String note_str = uInfo.getNotes().toLowerCase(Locale.ENGLISH);
-        
+
         // Log.v("search_user_str", user_str);
         Matcher name_matcher = pattern.matcher(name_str);
         Matcher company_matcher = pattern.matcher(company_str);
@@ -902,8 +919,9 @@ public class ActivitySearch extends ActionBarActivity {
         Matcher city_matcher = pattern.matcher(city_str);
 
         Integer matched_field = null;
-        if (name_matcher.matches())
+        if (name_matcher.matches()) {
           matched_field = UserInfo.FIELD_TYPE.TYPE_FNAME;
+        }
         if (company_matcher.matches()) {
           matched_field = UserInfo.FIELD_TYPE.TYPE_COMPANY;
         }
@@ -913,17 +931,20 @@ public class ActivitySearch extends ActionBarActivity {
         if (city_matcher.matches()) {
           matched_field = UserInfo.FIELD_TYPE.TYPE_CITY;
         }
+        if (eventMet_str.contains(token)) {
+          matched_field = UserInfo.FIELD_TYPE.TYPE_EVENT_MET;
+        }
+        if (whereMet_str.contains(token)) {
+          matched_field = UserInfo.FIELD_TYPE.TYPE_WHERE_MET;
+        }
+        if (note_str.contains(token)) {
+          matched_field = UserInfo.FIELD_TYPE.TYPE_NOTES;
+        }
 
         if (matched_field != null) {
           matchedFields.put(uInfoIndex, matched_field);
           tempUserInfoList.add(uInfoIndex);
         }
-        
-        if (eventMet_str.contains(token)||whereMet_str.contains(token)||note_str.contains(token))
-        {
-        	tempUserInfoList.add(uInfoIndex);
-        }
-        
       }
 
       if (tempUserInfoList.isEmpty()) {

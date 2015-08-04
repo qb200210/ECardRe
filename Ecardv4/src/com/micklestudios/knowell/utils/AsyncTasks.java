@@ -476,7 +476,7 @@ public class AsyncTasks {
       } catch (ParseException e1) {
         e1.printStackTrace();
       }
-      
+
       if (noteObjects != null && noteObjects.size() != 0) {
         // If some of the notes have been updated, otherwise skip the rest
         flagShouldSync = true;
@@ -487,8 +487,9 @@ public class AsyncTasks {
           // unpin those notes that are deleted along with the ecards
           if (objNote.get("isDeleted") != null) {
             if ((boolean) objNote.get("isDeleted") == true) {
-              try {             
-                // Lesson taken: when directly comparing two strings, cannot use ==
+              try {
+                // Lesson taken: when directly comparing two strings, cannot use
+                // ==
                 if (!(objNote.get("ecardId").toString().equals(currentUser.get(
                   "ecardId").toString()))) {
                   Log.e("notedel", "delete card");
@@ -682,7 +683,8 @@ public class AsyncTasks {
       List<ParseObject> convObjects = null;
       try {
         convObjects = query.find();
-        Log.e("synconv", currentUser.get("ecardId").toString() + convObjects.size());
+        Log.e("synconv",
+          currentUser.get("ecardId").toString() + convObjects.size());
       } catch (ParseException e2) {
         // TODO Auto-generated catch block
         e2.printStackTrace();
@@ -1247,7 +1249,7 @@ public class AsyncTasks {
         // if the note didn't exist, create note and save note changes
         createNote();
       }
-      
+
       // Refresh the collection for ActivitySearch
       AppGlobals.initializeAllContactsBlocking();
 

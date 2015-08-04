@@ -1,108 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <link rel="icon" href="../../favicon.ico">
-    <script src="../assets/js/jquery.min.js"></script>	
-    <script src="../assets/js/jquery-dateFormat.min.js"></script>	
-    <title>KnoWell - Know Each Other Well</title>
-	
-    <!-- Bootstrap core CSS -->
-    <link href="../dist/css/bootstrap.min.css" rel="stylesheet">
-	<!-- Custom styles for this template -->
-    <link href="../assets/css/sticky-footer.css" rel="stylesheet">
-	<!-- Custom styles for this template -->
-	<link href="../assets/css/carousel.css" rel="stylesheet">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+		<meta name="description" content="KnoWell, Not Only Know. By MickleStudios. Electronics Business Cards.">
+		<meta name="author" content="">
+		<link rel="icon" href="../../favicon.ico">
+
+		<title>KnoWell &mdash; Not Only Know</title>
+
+		<!-- Bootstrap core CSS -->
+		<link href="../dist/css/bootstrap.min.css" rel="stylesheet">
+		<link href="../assets/css/general.css" rel="stylesheet">
 
 		<style type="text/css">
-			body {
-				  padding-bottom: 40px;
-				  background-color: #64b5f6;
-				}
-				
-					.navbar-default {
-  background-color: #0064c8;
-  border-color: #64b5f6;
-}
-.navbar-default .navbar-brand {
-  color: #ecf0f1;
-}
-.navbar-default .navbar-brand:hover, .navbar-default .navbar-brand:focus {
-  color: #ffffff;
-}
-.navbar-default .navbar-text {
-  color: #ecf0f1;
-}
-.navbar-default .navbar-nav > li > a {
-  color: #ecf0f1;
-}
-.navbar-default .navbar-nav > li > a:hover, .navbar-default .navbar-nav > li > a:focus {
-  color: #ffffff;
-}
-.navbar-default .navbar-nav > .active > a, .navbar-default .navbar-nav > .active > a:hover, .navbar-default .navbar-nav > .active > a:focus {
-  color: #ffffff;
-  background-color: #64b5f6;
-}
-.navbar-default .navbar-nav > .open > a, .navbar-default .navbar-nav > .open > a:hover, .navbar-default .navbar-nav > .open > a:focus {
-  color: #ffffff;
-  background-color: #64b5f6;
-}
-.navbar-default .navbar-toggle {
-  border-color: #64b5f6;
-}
-.navbar-default .navbar-toggle:hover, .navbar-default .navbar-toggle:focus {
-  background-color: #64b5f6;
-}
-.navbar-default .navbar-toggle .icon-bar {
-  background-color: #ecf0f1;
-}
-.navbar-default .navbar-collapse,
-.navbar-default .navbar-form {
-  border-color: #ecf0f1;
-}
-.navbar-default .navbar-link {
-  color: #ecf0f1;
-}
-.navbar-default .navbar-link:hover {
-  color: #ffffff;
-}
 
-@media (max-width: 767px) {
-  .navbar-default .navbar-nav .open .dropdown-menu > li > a {
-    color: #ecf0f1;
-  }
-  .navbar-default .navbar-nav .open .dropdown-menu > li > a:hover, .navbar-default .navbar-nav .open .dropdown-menu > li > a:focus {
-    color: #ffffff;
-  }
-  .navbar-default .navbar-nav .open .dropdown-menu > .active > a, .navbar-default .navbar-nav .open .dropdown-menu > .active > a:hover, .navbar-default .navbar-nav .open .dropdown-menu > .active > a:focus {
-    color: #ffffff;
-    background-color: #64b5f6;
-  }
-}
-				
-				.fromtop {
-					margin: 100px auto 0px;		
-				}
-			  
-			  .advSearch {
+			.advSearch {
 				max-width: 300px;
 				padding: 19px 19px 19px;
 				margin: 0px auto 10px;
 				background-color: #fff;
 				border: 1px solid #e5e5e5;
 				-webkit-border-radius: 5px;
-				   -moz-border-radius: 5px;
-						border-radius: 5px;
+				-moz-border-radius: 5px;
+				border-radius: 5px;
 				-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.05);
-				   -moz-box-shadow: 0 1px 2px rgba(0,0,0,.05);
-						box-shadow: 0 1px 2px rgba(0,0,0,.05);
-			  }
-			  
+				-moz-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+				box-shadow: 0 1px 2px rgba(0,0,0,.05);
+			}
+
 			.maincard {
 				min-height: 80px;
 				padding: 9px 9px 9px;
@@ -120,32 +48,40 @@
 				float: left;
 				width: 60px;
 				height: 60px;
-				display: block; 
-				vertical-align: top;  
+				display: block;
+				vertical-align: top;
 				margin-right: 8px;
 			}
 			.maincard span{
 				margin-left: 68px;
 				max-width: 200px;
-				display: block; 
+				display: block;
 				overflow: auto;
 			}
-			
+
+			.profile_header {
+				text-align: center;
+				float: middle;
+				width: 220px;
+				margin: 0px auto 0px;
+				padding: 0px 0px 0px;
+			}
+
 		</style>
-		
+
 		<script>
 			function toggleAdvSearch(){
 				if(document.getElementById('advSearchPanel').style.display == "none"){
-					document.getElementById('advSearchPanel').style.display = "inherit";	
+					document.getElementById('advSearchPanel').style.display = "inherit";
 					document.getElementById('toggleAdvSearch').innerHTML = "Quick Search";
 				} else {
-					document.getElementById('advSearchPanel').style.display = "none";	
+					document.getElementById('advSearchPanel').style.display = "none";
 					document.getElementById('toggleAdvSearch').innerHTML = "Advanced Search";
 					clear_criteria();
 				}
-						
+
 			}
-			
+
 			function clear_criteria(){
 				document.getElementById('search_whenmet').value = '';
 				document.getElementById('search_company').value = '';
@@ -154,12 +90,12 @@
 				document.getElementById('search_wheremet').value = '';
 			}
 		</script>
-		
+
 		<script>
 			var allConvs = [];
 			var localNumConvs;
 			<% for(i=0; i<  numConvs  ; i++){ %>
-				convObj = { 
+				convObj = {
 					cardId: "<%= convobjs[i].cardId %>",
 					firstName: "<%= convobjs[i].firstName %>",
 					lastName : "<%= convobjs[i].lastName %>",
@@ -168,12 +104,12 @@
 					city : "<%= convobjs[i].city %>",
 					portrait_url : "<%= convobjs[i].portrait_url %>",
 					whenmet : "<%= convobjs[i].whenmet %>",
-				} 
+				}
 				allConvs.push(convObj);
 			<% } %>
-			
+
 			localNumConvs = <%= numConvs %>;
-			
+
 			function check_criteria(){
 				var foundNumConv = 0;
 				var foundConv = [];
@@ -184,19 +120,19 @@
 				queryEventmet = document.getElementById('eventmet').value;
 				queryWheremet = document.getElementById('wheremet').value;
 				for(i = 0; i< localNumConv; i++){
-					if( ((allConv[i].firstName.indexOf(queryName) > -1) || (allConv[i].lastName.indexOf(queryName) > -1)) 
-						&& allConv[i].title.indexOf(queryTitle) > -1
-						&& allConv[i].company.indexOf(queryCompany) > -1
-						&& allConv[i].city.indexOf(queryCity) > -1
-						&& allConv[i].eventmet.indexOf(queryEventmet) > -1
-						&& allConv[i].wheremet.indexOf(queryWheremet) > -1 ) {
+					if( ((allConv[i].firstName.indexOf(queryName) > -1) || (allConv[i].lastName.indexOf(queryName) > -1))
+					&& allConv[i].title.indexOf(queryTitle) > -1
+					&& allConv[i].company.indexOf(queryCompany) > -1
+					&& allConv[i].city.indexOf(queryCity) > -1
+					&& allConv[i].eventmet.indexOf(queryEventmet) > -1
+					&& allConv[i].wheremet.indexOf(queryWheremet) > -1 ) {
 						foundConv[foundNumConv] = allConv[i];
 						foundNumConv = foundNumConv + 1;
 					}
 				}
 				updateResults(foundConv, foundNumConv);
 			}
-			
+
 			function updateResults(foundConv, foundNumConv){
 				var mainContainer = document.getElementById("maincontainer");
 				var leftColumn = document.getElementById("leftcolumn");
@@ -210,7 +146,7 @@
 					newLeftColumn.appendChild(cardElm);
 				}
 				mainContainer.replaceChild(newLeftColumn, leftColumn);
-				
+
 				var rightColumn = document.getElementById("rightcolumn");
 				var newRightColumn = document.createElement("div");
 				newRightColumn.className = "span4";
@@ -223,38 +159,33 @@
 				}
 				mainContainer.replaceChild(newRightColumn, rightColumn);
 			}
-			
+
 			function goBack() {
 				window.history.back();
 			}
-			
+
 			function doNothing(){
 			}
-			
-			
+
+
 		</script>
 	</head>
 
 	<body data-spy="scroll" data-target=".bs-docs-sidebar">
-						
-		<div class="navbar-wrapper">
-			<div class="container">
 
-				<nav class="navbar navbar-default navbar-static-top">
-					<div class="container">
-						<div class="navbar-header">
-							<a class="navbar-brand" href="javascript:void(0)" onclick="goBack();">KnoWell</a>
-						</div>
-					</div>
-				</nav>
-
-			</div>
-		</div>
+		<nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="javascript:void(0)" onclick="goBack();">KnoWell</a>
+        </div>
+      </div>
+    </nav>
+    
 		<div class="container-fluid">
-			<div class="row fromtop">				
-				<div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-8 col-md-offset-2 col-lg-8 col-lg-offset-2" id="leftcolumn">
+			<div class="row">
+				<div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-8 col-md-offset-2 col-lg-6 col-lg-offset-3" id="leftcolumn">
 					<div id="emptyPanel" class="maincard" style="display:none">
-						<p>You haven't collected any card yet ...</p>
+						<p class="profile_header">-- No notifications to show --</p>
 					</div>
 					<script>
 						if(<%= numConvs %> == 0){
@@ -263,58 +194,58 @@
 					</script>
 					<% if( numConvs  > 0){ %>
 					<div class="maincard">
-						
-						<% for(i=0; i<1 ; i++){ %>		
-							<a href="/search?id=<%= convobjs[i].cardId %>&fn=<%= convobjs[i].firstName %>&ln=<%= convobjs[i].lastName %>">							
+
+						<% for(i=0; i<1 ; i++){ %>
+							<a href="/search?id=<%= convobjs[i].cardId %>&fn=<%= convobjs[i].firstName %>&ln=<%= convobjs[i].lastName %>&fl=1" style="text-decoration:none;">
 								<div class="media">
-								  <div class="media-left">
-									<img src="<%= convobjs[i].portrait_url %>">
-								  </div>
-								  <div class="media-body" style="padding-top:5px">
-									<b><%= convobjs[i].firstName %> <%= convobjs[i].lastName %></b><br>
-									Hi, I'm <%= convobjs[i].firstName %> from <%= convobjs[i].company %>
-								  </div>
-								  <div class="media-right">
-								    <p style="width:50px; color: black"><%= convobjs[i].whenmet %></p>
-								  </div>
+									<div class="media-left">
+										<img src="<%= convobjs[i].portrait_url %>">
+									</div>
+									<div class="media-body" style="padding-top:5px">
+										<b><%= convobjs[i].firstName %> <%= convobjs[i].lastName %></b><br>
+										Hi, I'm <%= convobjs[i].firstName %> from <%= convobjs[i].company %>
+									</div>
+									<div class="media-right">
+										<p style="width:50px; color: black"><%= convobjs[i].whenmet %></p>
+									</div>
 								</div>
 							</a>
-							<%    } %>	
-						
-						<% for(i=1; i<numConvs ; i++){ %>		
-							<hr>
-							<a href="/search?id=<%= convobjs[i].cardId %>&fn=<%= convobjs[i].firstName %>&ln=<%= convobjs[i].lastName %>">							
-								<div class="media">
-								  <div class="media-left">
-									<img src="<%= convobjs[i].portrait_url %>">
-								  </div>
-								  <div class="media-body" style="padding-top:5px">
-									<b><%= convobjs[i].firstName %> <%= convobjs[i].lastName %></b><br>
-									Hi, I'm <%= convobjs[i].firstName %> from <%= convobjs[i].company %>
-								  </div>
-								  <div class="media-right">
-								    <p style="width:50px; color: black"><%= convobjs[i].whenmet %></p>
-								  </div>
-								</div>
-							</a>
-							<%    } %>						
+							<%    } %>
+
+							<% for(i=1; i<numConvs ; i++){ %>
+								<hr>
+								<a href="/search?id=<%= convobjs[i].cardId %>&fn=<%= convobjs[i].firstName %>&ln=<%= convobjs[i].lastName %>&fl=1" style="text-decoration:none;">
+									<div class="media">
+										<div class="media-left">
+											<img src="<%= convobjs[i].portrait_url %>">
+										</div>
+										<div class="media-body" style="padding-top:5px">
+											<b><%= convobjs[i].firstName %> <%= convobjs[i].lastName %></b><br>
+											Hi, I'm <%= convobjs[i].firstName %> from <%= convobjs[i].company %>
+										</div>
+										<div class="media-right">
+											<p style="width:50px; color: black"><%= convobjs[i].whenmet %></p>
+										</div>
+									</div>
+								</a>
+								<%    } %>
+							</div>
+							<%    } %>
+						</div>
 					</div>
-					<%    } %>	
-				</div>				
-			</div>
-		</div>
+				</div>
 
-	  
-	  <!-- Bootstrap core JavaScript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    <script src="../dist/js/bootstrap.min.js"></script>
-    <!-- Just to make our placeholder images work. Don't actually copy the next line! -->
-    <script src="../assets/js/vendor/holder.js"></script>
-    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-    <script src="../assets/js/ie10-viewport-bug-workaround.js"></script>
-	
-	
 
-  </body>
-</html>
+				<!-- Bootstrap core JavaScript
+				================================================== -->
+				<!-- Placed at the end of the document so the pages load faster -->
+				<script src="../dist/js/bootstrap.min.js"></script>
+				<script src="../assets/js/jquery.min.js"></script>
+				<script src="../assets/js/jquery-dateFormat.min.js"></script>
+				<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+				<script src="../assets/js/ie10-viewport-bug-workaround.js"></script>
+
+
+
+			</body>
+		</html>

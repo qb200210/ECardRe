@@ -1,128 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <link rel="icon" href="../../favicon.ico">
-    <script src="../assets/js/jquery.min.js"></script>	
-    <title>KnoWell - Know Each Other Well</title>
-	
-    <!-- Bootstrap core CSS -->
-    <link href="../dist/css/bootstrap.min.css" rel="stylesheet">
-	<!-- Custom styles for this template -->
-    <link href="../assets/css/sticky-footer.css" rel="stylesheet">
-	<!-- Custom styles for this template -->
-	<link href="../assets/css/carousel.css" rel="stylesheet">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+		<meta name="description" content="KnoWell, Not Only Know. By MickleStudios. Electronics Business Cards.">
+		<meta name="author" content="">
+		<link rel="icon" href="../../favicon.ico">
 
+		<title>KnoWell &mdash; Not Only Know</title>
+
+		<!-- Bootstrap core CSS -->
+		<link href="../dist/css/bootstrap.min.css" rel="stylesheet">
+		<link href="../assets/css/general.css" rel="stylesheet">
+		<script src="../assets/js/jquery.min.js"></script>
 		<style type="text/css">
-			body {
-				  padding-bottom: 40px;
-				  background-color: #64b5f6;
-				}
-				
-					.navbar-default {
-  background-color: #0064c8;
-  border-color: #64b5f6;
-}
-.navbar-default .navbar-brand {
-  color: #ecf0f1;
-}
-.navbar-default .navbar-brand:hover, .navbar-default .navbar-brand:focus {
-  color: #ffffff;
-}
-.navbar-default .navbar-text {
-  color: #ecf0f1;
-}
-.navbar-default .navbar-nav > li > a {
-  color: #ecf0f1;
-}
-.navbar-default .navbar-nav > li > a:hover, .navbar-default .navbar-nav > li > a:focus {
-  color: #ffffff;
-}
-.navbar-default .navbar-nav > .active > a, .navbar-default .navbar-nav > .active > a:hover, .navbar-default .navbar-nav > .active > a:focus {
-  color: #ffffff;
-  background-color: #64b5f6;
-}
-.navbar-default .navbar-nav > .open > a, .navbar-default .navbar-nav > .open > a:hover, .navbar-default .navbar-nav > .open > a:focus {
-  color: #ffffff;
-  background-color: #64b5f6;
-}
-.navbar-default .navbar-toggle {
-  border-color: #64b5f6;
-}
-.navbar-default .navbar-toggle:hover, .navbar-default .navbar-toggle:focus {
-  background-color: #64b5f6;
-}
-.navbar-default .navbar-toggle .icon-bar {
-  background-color: #ecf0f1;
-}
-.navbar-default .navbar-collapse,
-.navbar-default .navbar-form {
-  border-color: #ecf0f1;
-}
-.navbar-default .navbar-link {
-  color: #ecf0f1;
-}
-.navbar-default .navbar-link:hover {
-  color: #ffffff;
-}
 
-@media (max-width: 767px) {
-  .navbar-default .navbar-nav .open .dropdown-menu > li > a {
-    color: #ecf0f1;
-  }
-  .navbar-default .navbar-nav .open .dropdown-menu > li > a:hover, .navbar-default .navbar-nav .open .dropdown-menu > li > a:focus {
-    color: #ffffff;
-  }
-  .navbar-default .navbar-nav .open .dropdown-menu > .active > a, .navbar-default .navbar-nav .open .dropdown-menu > .active > a:hover, .navbar-default .navbar-nav .open .dropdown-menu > .active > a:focus {
-    color: #ffffff;
-    background-color: #64b5f6;
-  }
-}
+			.ellipsis {
+				white-space: nowrap;
+				text-overflow: ellipsis;
+				width: 200px;
+				overflow: hidden;
+			}
 
-.ellipsis {
-white-space: nowrap;
-text-overflow: ellipsis;
-width: 200px;
-overflow: hidden;
-}
-				
-				.fromtop {
-					margin: 100px auto 0px;		
-				}
-
-			  .form-signin {
+			.form-signin {
 				max-width: 300px;
 				padding: 19px 19px 19px;
 				margin: 0px auto 10px;
 				background-color: #fff;
 				border: 1px solid #e5e5e5;
 				-webkit-border-radius: 2px;
-				   -moz-border-radius: 2px;
-						border-radius: 2px;
+				-moz-border-radius: 2px;
+				border-radius: 2px;
 				-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.05);
-				   -moz-box-shadow: 0 1px 2px rgba(0,0,0,.05);
-						box-shadow: 0 1px 2px rgba(0,0,0,.05);
-			  }
-			  
-			  .advSearch {
+				-moz-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+				box-shadow: 0 1px 2px rgba(0,0,0,.05);
+			}
+
+			.advSearch {
 				max-width: 300px;
 				padding: 19px 19px 19px;
 				margin: 0px auto 10px;
 				background-color: #fff;
 				border: 1px solid #e5e5e5;
 				-webkit-border-radius: 2px;
-				   -moz-border-radius: 2px;
-						border-radius: 2px;
+				-moz-border-radius: 2px;
+				border-radius: 2px;
 				-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.05);
-				   -moz-box-shadow: 0 1px 2px rgba(0,0,0,.05);
-						box-shadow: 0 1px 2px rgba(0,0,0,.05);
-			  }
-			  
+				-moz-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+				box-shadow: 0 1px 2px rgba(0,0,0,.05);
+			}
+
 			.maincard {
 				max-width: 300px;
 				min-height: 80px;
@@ -141,32 +70,32 @@ overflow: hidden;
 				float: left;
 				width: 60px;
 				height: 60px;
-				display: block; 
-				vertical-align: top;  
+				display: block;
+				vertical-align: top;
 				margin-right: 8px;
 			}
 			.maincard span{
 				margin-left: 68px;
 				max-width: 200px;
-				display: block; 
+				display: block;
 				overflow: auto;
 			}
-			
+
 		</style>
-		
+
 		<script>
 			function toggleAdvSearch(){
 				if(document.getElementById('advSearchPanel').style.display == "none"){
-					document.getElementById('advSearchPanel').style.display = "inherit";	
+					document.getElementById('advSearchPanel').style.display = "inherit";
 					document.getElementById('toggleAdvSearch').innerHTML = "Quick Search";
 				} else {
-					document.getElementById('advSearchPanel').style.display = "none";	
+					document.getElementById('advSearchPanel').style.display = "none";
 					document.getElementById('toggleAdvSearch').innerHTML = "Advanced Search";
 					clear_criteria();
 				}
-						
+
 			}
-			
+
 			function clear_criteria(){
 				document.getElementById('search_whenmet').value = '';
 				document.getElementById('search_company').value = '';
@@ -175,12 +104,12 @@ overflow: hidden;
 				document.getElementById('search_wheremet').value = '';
 			}
 		</script>
-		
+
 		<script>
 			var allNotes = [];
 			var localNumNotes;
 			<% for(i=0; i<  numNotes  ; i++){ %>
-				noteObj = { 
+				noteObj = {
 					noteId: "<%= usrobjs[i].noteId %>",
 					cardId: "<%= usrobjs[i].cardId %>",
 					firstName: "<%= usrobjs[i].firstName %>",
@@ -191,12 +120,12 @@ overflow: hidden;
 					portrait_url : "<%= usrobjs[i].portrait_url %>",
 					wheremet : "<%= usrobjs[i].wheremet %>",
 					eventmet : "<%= usrobjs[i].eventmet %>",
-				} 
+				}
 				allNotes.push(noteObj);
 			<% } %>
-			
+
 			localNumNotes = <%= numNotes %>;
-			
+
 			function adv_filter(){
 				var foundNumNotes = 0;
 				var foundNotes = [];
@@ -209,134 +138,147 @@ overflow: hidden;
 						my_reg_1 = new RegExp(".*");
 					}
 					else
-					{
-						var strArray= queryEventmet.toLowerCase().split('');
+						{
+							var strArray= queryEventmet.toLowerCase().split('');
+							var reg_str = '';
+							for (i=0; i<strArray.length; i++){
+								reg_str = reg_str + strArray[i] + ".*";
+							}
+							my_reg_1 = new RegExp(reg_str);
+						}
+						if  (queryWheremet == '') {
+							my_reg_2 = new RegExp(".*");
+						}
+						else
+							{
+								var strArray= queryWheremet.toLowerCase().split('');
+								var reg_str = '';
+								for (i=0; i<strArray.length; i++){
+									reg_str = reg_str + strArray[i] + ".*";
+								}
+								my_reg_2 = new RegExp(reg_str);
+							}
+
+							for(i = 0; i< localNumNotes; i++){
+								if (queryEventmet != '' && queryWheremet !='') {
+									if( my_reg_1.test(allNotes[i].eventmet.toLowerCase())
+									&& my_reg_2.test(allNotes[i].wheremet.toLowerCase()) ) {
+										foundNotes[foundNumNotes] = allNotes[i];
+										foundNumNotes = foundNumNotes + 1;
+									}
+								}
+								else if ( queryEventmet != '' ){
+									if( my_reg_1.test(allNotes[i].eventmet.toLowerCase()) ) {
+										foundNotes[foundNumNotes] = allNotes[i];
+										foundNumNotes = foundNumNotes + 1;
+									}
+								}
+								else if (queryWheremet !='') {
+									if( my_reg_2.test(allNotes[i].wheremet.toLowerCase()) ) {
+										foundNotes[foundNumNotes] = allNotes[i];
+										foundNumNotes = foundNumNotes + 1;
+									}
+								}
+							}
+							updateResults(foundNotes, foundNumNotes);
+							return foundNotes;
+						}
+						else {
+							return allNotes;
+						}
+					}
+
+					function updateResults(foundNotes, foundNumNotes){
+						var mainContainer = document.getElementById("maincontainer");
+						var leftColumn = document.getElementById("leftcolumn");
+						var newLeftColumn = document.createElement("div");
+						newLeftColumn.className = "col-sm-6 col-md-6 col-lg-4";
+						newLeftColumn.id = "leftcolumn";
+						console.log(foundNumNotes);
+						for(i = 0 ; i< Math.ceil(foundNumNotes/2); i++){
+							var cardElm = document.createElement("div");
+							cardElm.className = "maincard";
+							cardElm.innerHTML="<a href='/note?id=" + foundNotes[i].noteId + ">\n" + "<div class='media'>\n<div class='media-left'> <img src=" + foundNotes[i].portrait_url + "> </div>\n <div class='media-body minicard'> \n" + "<b>" + foundNotes[i].firstName + " " + foundNotes[i].lastName + "</b> <br> \n" + "<div class='ellipsis'>" + foundNotes[i].title + " at " + foundNotes[i].company + "</div> \n" + foundNotes[i].city + "</div>\n</div>\n</a>\n";
+							console.log(cardElm.innerHTML);
+							newLeftColumn.appendChild(cardElm);
+						}
+
+						mainContainer.replaceChild(newLeftColumn, leftColumn);
+
+						var rightColumn = document.getElementById("rightcolumn");
+						var newRightColumn = document.createElement("div");
+						newRightColumn.className = "col-sm-6 col-sm-offset-6 col-md-6 col-md-offset-6 col-lg-4 col-lg-offset-0";
+						newRightColumn.id = "rightcolumn";
+						for(i = Math.ceil(foundNumNotes/2) ; i< foundNumNotes; i++){
+							var cardElm = document.createElement("div");
+							cardElm.className = "maincard";
+							cardElm.innerHTML="<a href='/note?id=" + foundNotes[i].noteId + ">\n" + "<div class='media'>\n<div class='media-left'> <img src=" + foundNotes[i].portrait_url + "> </div>\n <div class='media-body minicard'> \n" + "<b>" + foundNotes[i].firstName + " " + foundNotes[i].lastName + "</b> <br> \n" + "<div class='ellipsis'>" + foundNotes[i].title + " at " + foundNotes[i].company + "</div> \n" + foundNotes[i].city + "</div>\n</div>\n</a>\n";
+							newRightColumn.appendChild(cardElm);
+						}
+						mainContainer.replaceChild(newRightColumn, rightColumn);
+					}
+
+					function goBack() {
+						window.history.back();
+					}
+
+					function doNothing(){
+					}
+
+					function mySearch(){
+						var search_val = document.getElementById("search_str").value;
+						console.log(search_val);
+						var foundNumNotes = 0;
+						var foundNotes = [];
+
+						var strArray= search_val.toLowerCase().split('');
 						var reg_str = '';
 						for (i=0; i<strArray.length; i++){
-							reg_str = reg_str + strArray[i] + ".*";	
+							reg_str = reg_str + strArray[i] + ".*";
 						}
-						my_reg_1 = new RegExp(reg_str);
-					}
-					if  (queryWheremet == '') {
-						my_reg_2 = new RegExp(".*");
-					}
-					else
-					{
-						var strArray= queryWheremet.toLowerCase().split('');
-						var reg_str = '';
-						for (i=0; i<strArray.length; i++){
-							reg_str = reg_str + strArray[i] + ".*";	
-						}
-						my_reg_2 = new RegExp(reg_str);
-					}
-					
-					for(i = 0; i< localNumNotes; i++){
-						if (queryEventmet != '' && queryWheremet !='') {
-							if( my_reg_1.test(allNotes[i].eventmet.toLowerCase())
-					  	 	 && my_reg_2.test(allNotes[i].wheremet.toLowerCase()) ) {
-								foundNotes[foundNumNotes] = allNotes[i];
+						console.log("before");
+
+						var filteredNotes = adv_filter();
+						// first as a complete word
+						var my_reg = new RegExp(reg_str);
+
+						for(i = 0; i< filteredNotes.length; i++){
+							if (my_reg.test(filteredNotes[i].firstName.toLowerCase()) || my_reg.test(filteredNotes[i].lastName.toLowerCase())
+							|| my_reg.test(filteredNotes[i].firstName.toLowerCase() + filteredNotes[i].lastName.toLowerCase())
+							|| my_reg.test(filteredNotes[i].firstName.toLowerCase() + " " + filteredNotes[i].lastName.toLowerCase())
+							|| my_reg.test(filteredNotes[i].company.toLowerCase()) || my_reg.test(filteredNotes[i].title.toLowerCase())
+							|| my_reg.test(filteredNotes[i].city.toLowerCase()) ){
+								foundNotes[foundNumNotes] = filteredNotes[i];
 								foundNumNotes = foundNumNotes + 1;
 							}
 						}
-						else if ( queryEventmet != '' ){
-							if( my_reg_1.test(allNotes[i].eventmet.toLowerCase()) ) {
-								foundNotes[foundNumNotes] = allNotes[i];
-								foundNumNotes = foundNumNotes + 1;
-							}
-						}
-						else if (queryWheremet !='') {
-							if( my_reg_2.test(allNotes[i].wheremet.toLowerCase()) ) {
-								foundNotes[foundNumNotes] = allNotes[i];
-								foundNumNotes = foundNumNotes + 1;
-							}
-						} 
+
+						updateResults(foundNotes, foundNumNotes);
 					}
-					updateResults(foundNotes, foundNumNotes);
-					return foundNotes;
-				}
-				else {
-					return allNotes;
-				}
-			}
-			
-			function updateResults(foundNotes, foundNumNotes){
-				var mainContainer = document.getElementById("maincontainer");
-				var leftColumn = document.getElementById("leftcolumn");
-				var newLeftColumn = document.createElement("div");
-				newLeftColumn.className = "col-sm-6 col-md-6 col-lg-4";
-				newLeftColumn.id = "leftcolumn";
-				console.log(foundNumNotes);
-				for(i = 0 ; i< Math.ceil(foundNumNotes/2); i++){
-					var cardElm = document.createElement("div");
-					cardElm.className = "maincard";
-					cardElm.innerHTML="<a href='/note?id=" + foundNotes[i].noteId + ">\n" + "<div class='media'>\n<div class='media-left'> <img src=" + foundNotes[i].portrait_url + "> </div>\n <div class='media-body minicard'> \n" + "<b>" + foundNotes[i].firstName + " " + foundNotes[i].lastName + "</b> <br> \n" + "<div class='ellipsis'>" + foundNotes[i].title + " at " + foundNotes[i].company + "</div> \n" + foundNotes[i].city + "</div>\n</div>\n</a>\n";
-					console.log(cardElm.innerHTML);
-					newLeftColumn.appendChild(cardElm);
-				}
-				
-				mainContainer.replaceChild(newLeftColumn, leftColumn);
-				
-				var rightColumn = document.getElementById("rightcolumn");
-				var newRightColumn = document.createElement("div");
-				newRightColumn.className = "col-sm-6 col-sm-offset-6 col-md-6 col-md-offset-6 col-lg-4 col-lg-offset-0";
-				newRightColumn.id = "rightcolumn";
-				for(i = Math.ceil(foundNumNotes/2) ; i< foundNumNotes; i++){
-					var cardElm = document.createElement("div");
-					cardElm.className = "maincard";
-					cardElm.innerHTML="<a href='/note?id=" + foundNotes[i].noteId + ">\n" + "<div class='media'>\n<div class='media-left'> <img src=" + foundNotes[i].portrait_url + "> </div>\n <div class='media-body minicard'> \n" + "<b>" + foundNotes[i].firstName + " " + foundNotes[i].lastName + "</b> <br> \n" + "<div class='ellipsis'>" + foundNotes[i].title + " at " + foundNotes[i].company + "</div> \n" + foundNotes[i].city + "</div>\n</div>\n</a>\n";
-																			newRightColumn.appendChild(cardElm);
-				}
-				mainContainer.replaceChild(newRightColumn, rightColumn);
-			}
-			
-			function goBack() {
-				window.history.back();
-			}
-			
-			function doNothing(){
-			}
-			
-			function mySearch(){
-				var search_val = document.getElementById("search_str").value;
-				console.log(search_val);
-				var foundNumNotes = 0;
-				var foundNotes = [];
-				
-				var strArray= search_val.toLowerCase().split('');
-				var reg_str = '';
-				for (i=0; i<strArray.length; i++){
-					reg_str = reg_str + strArray[i] + ".*";	
-				}
-				console.log("before");
-				
-				var filteredNotes = adv_filter();
-				// first as a complete word
-				var my_reg = new RegExp(reg_str);
 
-				for(i = 0; i< filteredNotes.length; i++){
-					if (my_reg.test(filteredNotes[i].firstName.toLowerCase()) || my_reg.test(filteredNotes[i].lastName.toLowerCase()) 
-						|| my_reg.test(filteredNotes[i].firstName.toLowerCase() + filteredNotes[i].lastName.toLowerCase())
-						|| my_reg.test(filteredNotes[i].firstName.toLowerCase() + " " + filteredNotes[i].lastName.toLowerCase())
-						|| my_reg.test(filteredNotes[i].company.toLowerCase()) || my_reg.test(filteredNotes[i].title.toLowerCase())
-						|| my_reg.test(filteredNotes[i].city.toLowerCase()) ){
-						foundNotes[foundNumNotes] = filteredNotes[i];
-						foundNumNotes = foundNumNotes + 1;
-					}
-				}
-				
-				updateResults(foundNotes, foundNumNotes);
-			}
-			
-			
-		</script>
-	</head>
 
-	<body data-spy="scroll" data-target=".bs-docs-sidebar">
-						
-		<div class="navbar-wrapper">
-			<div class="container">
+					$(document).ready(function(){
 
-				<nav class="navbar navbar-default navbar-static-top">
+
+						var $formDelete = $('#deleteForm');
+						$formDelete.submit(function(e){
+							e.preventDefault();
+							$.post($(this).attr('action'), $(this).serialize(), function(response){
+								if(response.successful){
+									history.go(0);
+								} else {
+									history.go(0);
+								}
+							},'json');
+							return false;
+						});
+					});
+				</script>
+			</head>
+
+			<body data-spy="scroll" data-target=".bs-docs-sidebar">
+
+				<nav class="navbar navbar-inverse navbar-fixed-top">
 					<div class="container">
 						<div class="navbar-header">
 							<a class="navbar-brand" href="javascript:void(0)" onclick="goBack();">KnoWell</a>
@@ -344,95 +286,151 @@ overflow: hidden;
 					</div>
 				</nav>
 
-			</div>
-		</div>
-		<div class="container">
-			<div class="row fromtop" id="maincontainer">
-				<div class="col-sm-6 col-md-6 col-lg-3 col-lg-offset-1">
-					
-					<div id="advSearchPanel" class="advSearch" style="display : none">
-						<div class="input-group">
-							<span class="glyphicon glyphicon-map-marker input-group-addon" aria-hidden="true"></span>
-							<input id="search_wheremet" name="search_wheremet" class="form-control" type="text" placeholder="Where Met" value="">
-						</div>
-						<div class="input-group">
-							<span class="glyphicon glyphicon-time input-group-addon" aria-hidden="true"></span>
-							<input id="search_whenmet" name="search_whenmet" class="form-control" type="text" placeholder="When Met" value="">
-						</div>
-						<div class="input-group">
-							<span class="glyphicon glyphicon-glass input-group-addon" aria-hidden="true"></span>
-							<input id="search_eventmet" name="search_eventmet" class="form-control" type="text" placeholder="Event Met" value="">
+				<div class="modal fade bs-example-modal-sm" id="saveResults1" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" data-backdrop="static">
+					<div class="modal-dialog modal-sm">
+						<div class="modal-content">
+							<div class="modal-body">
+								<p id="display_save_results1"></p>
+							</div>
 						</div>
 					</div>
-					<div id="signForm" class="form-signin">	
-						<div class="input-group" style="margin-bottom: 3px">
-						  <input id="search_str" type="text" class="form-control" placeholder="Search for..." value=""/>
-						  <span class="input-group-btn">
-							<button class="btn btn-primary" type="button" onclick="mySearch()">Go!</button>
-						  </span>
-						</div><!-- /input-group -->
-						<button type="button" id="toggleAdvSearch" class="btn btn-default btn-block" name="clearquery" onclick="javascript:toggleAdvSearch();">Advanced Search</button>
-						
-					</div>					
 				</div>
-				<div class="col-sm-6 col-md-6 col-lg-4" id="leftcolumn">
-					<div id="emptyPanel" class="form-signin" style="display:none">
-						<p>You haven't collected any card yet ...</p>
-					</div>
-					<script>
-						if(<%= numNotes %> == 0){
-							document.getElementById('emptyPanel').style.display = "inherit";
+
+				<script>
+					var flagShow = false;
+					function showcheckboxes(){
+						if(flagShow != true){
+							flagShow = true;
+							checkboxes = document.getElementsByName('foo');
+							for(var i=0, n=checkboxes.length;i<n;i++) {
+								checkboxes[i].style.display = "inherit";
+							}
+							document.getElementById('selector').innerHTML = 'Exit Selection'
+							document.getElementById('deletor').style.display = "inherit";
+						} else {
+							flagShow = false;
+							checkboxes = document.getElementsByName('foo');
+							for(var i=0, n=checkboxes.length;i<n;i++) {
+								checkboxes[i].style.display = "none";
+							}
+							document.getElementById('selector').innerHTML = 'Select Cards'
+							document.getElementById('deletor').style.display = "none";
 						}
-					</script>
-					<% for(i=0; i<Math.ceil(numNotes/2) ; i++){ %>					
-						<div class="maincard">
-							<a href="/note?id=<%= usrobjs[i].noteId %>">							
-								<div class="media">
-								  <div class="media-left">
-									<img src="<%= usrobjs[i].portrait_url %>">
-								  </div>
-								  <div class="media-body minicard">
-									<b><%= usrobjs[i].firstName %> <%= usrobjs[i].lastName %></b>  <br>
-									<div class="ellipsis"><%= usrobjs[i].title %> at <%= usrobjs[i].company %></div>
-									<%= usrobjs[i].city %>
-								  </div>
-								</div>								
-							</a>
-						</div>					
-					<%    } %>
-				</div>
-				<div class="col-sm-6 col-sm-offset-6 col-md-6 col-md-offset-6 col-lg-4 col-lg-offset-0" id="rightcolumn">
-					<% for(i=Math.ceil(numNotes/2); i<numNotes; i++){ %>					
-						<div class="maincard">
-							<a href="/note?id=<%= usrobjs[i].noteId %>">
-								<div class="media">
-								  <div class="media-left">
-									<img src="<%= usrobjs[i].portrait_url %>">
-								  </div>
-								  <div class="media-body ">
-									<b><%= usrobjs[i].firstName %> <%= usrobjs[i].lastName %></b>  <br>
-									<div class="ellipsis"><%= usrobjs[i].title %> at <%= usrobjs[i].company %></div>
-									<%= usrobjs[i].city %>
-								  </div>
-								</div>		
-							</a>
+
+					}
+
+					function ab(){
+						var checkedValues = $('input:checkbox:checked').map(function() {
+							return this.value;
+						}).get();
+
+						//alert(checkedValues);
+						document.getElementById('notesIdsToDelete').value = checkedValues;
+						$('#phantomDeleteBtn').trigger('click');
+
+					}
+				</script>
+
+				<div class="container">
+					<div class="row" id="maincontainer">
+						<div class="col-sm-6 col-md-6 col-lg-3 col-lg-offset-1">
+
+							<div id="advSearchPanel" class="advSearch" style="display : none">
+								<div class="input-group">
+									<span class="glyphicon glyphicon-map-marker input-group-addon" aria-hidden="true"></span>
+									<input id="search_wheremet" name="search_wheremet" class="form-control" type="text" placeholder="Where Met" value="">
+								</div>
+								<div class="input-group">
+									<span class="glyphicon glyphicon-time input-group-addon" aria-hidden="true"></span>
+									<input id="search_whenmet" name="search_whenmet" class="form-control" type="text" placeholder="When Met" value="">
+								</div>
+								<div class="input-group">
+									<span class="glyphicon glyphicon-glass input-group-addon" aria-hidden="true"></span>
+									<input id="search_eventmet" name="search_eventmet" class="form-control" type="text" placeholder="Event Met" value="">
+								</div>
+							</div>
+							<div id="signForm" class="form-signin">
+								<div class="input-group" style="margin-bottom: 3px">
+									<input id="search_str" type="text" class="form-control" placeholder="Search for..." value=""/>
+									<span class="input-group-btn">
+										<button class="btn btn-primary" type="button" onclick="mySearch()">Go!</button>
+									</span>
+								</div><!-- /input-group -->
+								<button type="button" id="toggleAdvSearch" class="btn btn-default btn-block" name="clearquery" onclick="javascript:toggleAdvSearch();">Advanced Search</button>
+								<button type="button" id="selector" class="btn btn-default btn-block" onclick="javascript:showcheckboxes();">Select cards</button>
+								<button type="button" id="deletor" class="btn btn-default btn-block" onclick="javascript:ab();" style="display: none;">Delete cards</button>
+							</div>
 						</div>
-					<%    } %>		
+						<div class="col-sm-6 col-md-6 col-lg-4" id="leftcolumn">
+							<div id="emptyPanel" class="form-signin" style="display:none">
+								<p>You haven't collected any card yet ...</p>
+							</div>
+							<script>
+								if(<%= numNotes %> == 0){
+									document.getElementById('emptyPanel').style.display = "inherit";
+								}
+							</script>
+							<form>
+								<% for(i=0; i<Math.ceil(numNotes/2) ; i++){ %>
+									<div class="maincard">
+										<input type="checkbox" name="foo" value="<%= usrobjs[i].noteId %>" style="display: none;">
+										<a href="/note?id=<%= usrobjs[i].noteId %>">
+											<div class="media">
+												<div class="media-left">
+													<img src="<%= usrobjs[i].portrait_url %>">
+												</div>
+												<div class="media-body minicard">
+													<b><%= usrobjs[i].firstName %> <%= usrobjs[i].lastName %></b>  <br>
+													<div class="ellipsis"><%= usrobjs[i].title %> at <%= usrobjs[i].company %></div>
+													<%= usrobjs[i].city %>
+												</div>
+											</div>
+										</a>
+									</div>
+									<%    } %>
+								</div>
+								<div class="col-sm-6 col-sm-offset-6 col-md-6 col-md-offset-6 col-lg-4 col-lg-offset-0" id="rightcolumn">
+									<% for(i=Math.ceil(numNotes/2); i<numNotes; i++){ %>
+										<div class="maincard">
+											<input type="checkbox" name="foo" value="<%= usrobjs[i].noteId %>" style="display: none;">
+											<a href="/note?id=<%= usrobjs[i].noteId %>">
+												<div class="media">
+													<div class="media-left">
+														<img src="<%= usrobjs[i].portrait_url %>">
+													</div>
+													<div class="media-body ">
+														<b><%= usrobjs[i].firstName %> <%= usrobjs[i].lastName %></b>  <br>
+														<div class="ellipsis"><%= usrobjs[i].title %> at <%= usrobjs[i].company %></div>
+														<%= usrobjs[i].city %>
+													</div>
+												</div>
+											</a>
+										</div>
+										<%    } %>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
 				</div>
-			</div>
-		</div>
 
-	  
-	  <!-- Bootstrap core JavaScript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    <script src="../dist/js/bootstrap.min.js"></script>
-    <!-- Just to make our placeholder images work. Don't actually copy the next line! -->
-    <script src="../assets/js/vendor/holder.js"></script>
-    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-    <script src="../assets/js/ie10-viewport-bug-workaround.js"></script>
-	
-	
+				<div style="display: none;">
+					<form id="deleteForm" action='/deletenote' method='POST' style="display: none;">
+						<input id="notesIdsToDelete" name="noteIds" value="" style="display: none">
+						<button id="phantomDeleteBtn" type="submit" class="btn btn-success" style="display: none;">Phatom</button>
+						<input type="hidden" name="_csrf" value="<%= csrf_field %>" style="display: none">
+					</form>
+				</div>
 
-  </body>
-</html>
+
+				<!-- Bootstrap core JavaScript
+				================================================== -->
+				<!-- Placed at the end of the document so the pages load faster -->
+				<script src="../dist/js/bootstrap.min.js"></script>
+				<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+				<script src="../assets/js/ie10-viewport-bug-workaround.js"></script>
+
+
+
+			</body>
+		</html>

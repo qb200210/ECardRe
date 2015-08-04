@@ -78,7 +78,6 @@ public class ActivityDetails extends ActionBarActivity {
     // show custom action bar (on top of standard action bar)
     showActionBar();
     setContentView(R.layout.activity_scanned);
-    
 
     replayButtonPanel = (ImageView) findViewById(R.id.panel_play_button);
     recorderButton = (ImageView) findViewById(R.id.panel_recorder_button);
@@ -89,15 +88,15 @@ public class ActivityDetails extends ActionBarActivity {
     scrollView.setmScrollable(true);
 
     Bundle data = getIntent().getExtras();
-    if(data != null){
+    if (data != null) {
       newUser = (UserInfo) data.getParcelable("userinfo");
     }
-    
+
     // This fixes the lost data/ crash issues upon restoring from resume
-    if(savedInstanceState != null){
+    if (savedInstanceState != null) {
       newUser = savedInstanceState.getParcelable("newUser");
-    } 
-    
+    }
+
     TextView motto = (TextView) findViewById(R.id.motto);
     String tmpString = newUser.getMotto();
     if (tmpString != null)
@@ -146,7 +145,7 @@ public class ActivityDetails extends ActionBarActivity {
     // scrollView.requestChildFocus(mainCardContainer, null);
 
   }
-  
+
   OnClickListener replayListener = new OnClickListener() {
     @Override
     public void onClick(View v) {
@@ -189,7 +188,7 @@ public class ActivityDetails extends ActionBarActivity {
       }
     }
   };
-  
+
   OnClickListener timerListener = new OnClickListener() {
     @Override
     public void onClick(View v) {
@@ -205,14 +204,15 @@ public class ActivityDetails extends ActionBarActivity {
       scrollView.setmScrollable(true);
     }
   };
-  
+
   OnClickListener recorderListener = new OnClickListener() {
     @Override
     public void onClick(View v) {
       if (recordstatus1 == 0) {
         flagVoiceNoteChanged = true;
-        Toast.makeText(ActivityDetails.this, "Recording...",
-          Toast.LENGTH_SHORT).show();
+        Toast
+          .makeText(ActivityDetails.this, "Recording...", Toast.LENGTH_SHORT)
+          .show();
         // changebuttontext(R.id.recordButton,"Recording...");
         replayButtonPanel.setVisibility(View.GONE);
         startRecording();
@@ -230,8 +230,7 @@ public class ActivityDetails extends ActionBarActivity {
 
           @Override
           public void onTick(long millisUntilFinished) {
-            counter.setText(millisUntilFinished / 1000
-              + " seconds remaining.");
+            counter.setText(millisUntilFinished / 1000 + " seconds remaining.");
           }
 
           @Override
@@ -263,7 +262,7 @@ public class ActivityDetails extends ActionBarActivity {
       }
     }
   };
-  
+
   @Override
   public void onSaveInstanceState(Bundle outState) {
     outState.putParcelable("newUser", newUser);
@@ -294,7 +293,7 @@ public class ActivityDetails extends ActionBarActivity {
       actionBar.setCustomView(v);
     }
   }
-  
+
   void displayNote(final ParseObject object) {
     TextView updatedAt = (TextView) findViewById(R.id.LastUpdated);
     updatedAt.setText(android.text.format.DateFormat.format("MMM",
@@ -320,10 +319,9 @@ public class ActivityDetails extends ActionBarActivity {
       public void onClick(View v) {
         Calendar newCalendar = Calendar.getInstance();
         newCalendar.setTime(newDate);
-        DatePickerDialog dialog = new DatePickerDialog(
-          ActivityDetails.this, new mDateSetListener(), newCalendar
-            .get(Calendar.YEAR), newCalendar.get(Calendar.MONTH),
-          newCalendar.get(Calendar.DAY_OF_MONTH));
+        DatePickerDialog dialog = new DatePickerDialog(ActivityDetails.this,
+          new mDateSetListener(), newCalendar.get(Calendar.YEAR), newCalendar
+            .get(Calendar.MONTH), newCalendar.get(Calendar.DAY_OF_MONTH));
         dialog.setTitle("When did we meet?");
         dialog.show();
       }
@@ -331,26 +329,26 @@ public class ActivityDetails extends ActionBarActivity {
     });
 
     final EditText whereMet2 = (EditText) findViewById(R.id.PlaceAdded2);
-    whereMet2.setOnFocusChangeListener(new OnFocusChangeListener(){
+    whereMet2.setOnFocusChangeListener(new OnFocusChangeListener() {
       @Override
       public void onFocusChange(View v, boolean hasFocus) {
-        if(hasFocus) {
+        if (hasFocus) {
           whereMet2.setHint("Eg: Portland, OR");
         } else {
           whereMet2.setHint("Where did we meet?");
         }
       }
-    });        
+    });
     String cityName = object.getString("where_met");
     if (cityName != null && !cityName.isEmpty()) {
       whereMet2.setText(cityName);
     }
-    
+
     final EditText eventMet = (EditText) findViewById(R.id.EventAdded2);
-    eventMet.setOnFocusChangeListener(new OnFocusChangeListener(){
+    eventMet.setOnFocusChangeListener(new OnFocusChangeListener() {
       @Override
       public void onFocusChange(View v, boolean hasFocus) {
-        if(hasFocus) {
+        if (hasFocus) {
           eventMet.setHint("Eg: Portland Beer Festival");
         } else {
           eventMet.setHint("We met in which event?");
@@ -372,8 +370,7 @@ public class ActivityDetails extends ActionBarActivity {
       // this is necessary as user can switch on network without restarting
       // app
       if (ECardUtils.isNetworkAvailable(ActivityDetails.this)) {
-        final ParseFile voiceFile = new ParseFile("voicenote.mp4",
-          tmpVoiceData);
+        final ParseFile voiceFile = new ParseFile("voicenote.mp4", tmpVoiceData);
         voiceFile.saveInBackground(new SaveCallback() {
 
           @Override
@@ -470,7 +467,7 @@ public class ActivityDetails extends ActionBarActivity {
     super.onBackPressed();
     deleteLocalVoiceNote();
   }
-  
+
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
     getMenuInflater().inflate(R.menu.details_actionbar, menu);
@@ -644,7 +641,7 @@ public class ActivityDetails extends ActionBarActivity {
     }
     return (file.getAbsolutePath() + "/voicenote.mp4");
   }
-  
+
   String getUniqueFilename() {
     String filepath = Environment.getExternalStorageDirectory().getPath();
     File file = new File(filepath, AUDIO_RECORDER_FOLDER);

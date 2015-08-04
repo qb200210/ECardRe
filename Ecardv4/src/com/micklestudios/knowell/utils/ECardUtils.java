@@ -90,23 +90,23 @@ public class ECardUtils {
       StringTokenizer st2 = new StringTokenizer(thisToken, "=");
       String keyString = null;
       String valueString = null;
-      if(st2.hasMoreTokens()){
+      if (st2.hasMoreTokens()) {
         keyString = st2.nextToken();
-      } 
-      if(st2.hasMoreTokens()){
+      }
+      if (st2.hasMoreTokens()) {
         valueString = st2.nextToken();
-      } 
-      if(keyString != null && valueString != null){
+      }
+      if (keyString != null && valueString != null) {
         valuesMap.put(keyString, valueString);
       }
     }
-    
-    // If the string is apparently ours but somehow messed up, should not proceed displaying
-    if(valuesMap.size() == 0) {
+
+    // If the string is apparently ours but somehow messed up, should not
+    // proceed displaying
+    if (valuesMap.size() == 0) {
       valuesMap.put("wrong", "wrong");
       return valuesMap;
     }
-      
 
     return valuesMap;
   }
@@ -166,7 +166,7 @@ public class ECardUtils {
                 if (objects != null && objects.size() != 0) {
                   ParseFile logoFile = (ParseFile) objects.get(0).get(
                     "companyLogo");
-                  if(logoFile != null){
+                  if (logoFile != null) {
                     byte[] data;
                     try {
                       data = logoFile.getData();

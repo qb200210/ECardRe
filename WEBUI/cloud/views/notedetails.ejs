@@ -5,119 +5,99 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-		<meta name="description" content="">
+		<meta name="description" content="KnoWell, Not Only Know. By MickleStudios. Electronics Business Cards.">
 		<meta name="author" content="">
 		<link rel="icon" href="../../favicon.ico">
-		<script src="../assets/js/jquery.min.js"></script>
-		<title>KnoWell - Know Each Other Well</title>
+
+		<title>KnoWell &mdash; Not Only Know</title>
 
 		<!-- Bootstrap core CSS -->
 		<link href="../dist/css/bootstrap.min.css" rel="stylesheet">
-		<!-- Custom styles for this template -->
-		<link href="../assets/css/signin.css" rel="stylesheet">
-		<!-- Custom styles for this template -->
-		<link href="../assets/css/sticky-footer.css" rel="stylesheet">
-		<!-- Custom styles for this template -->
-		<link href="../assets/css/carousel.css" rel="stylesheet">
-		<link href="../dist/css/cropper.css" rel="stylesheet">
-		<link href="../dist/css/main.css" rel="stylesheet">
+		<link href="../assets/css/general.css" rel="stylesheet">
+		<link href="../assets/css/bootstrap-datepicker.css" rel="stylesheet">
+		<script src="../assets/js/jquery.min.js"></script>
+
 		<style type="text/css">
-
-			body {
-				  padding-bottom: 40px;
-				  background-color: #64b5f6;
-				}
-				
-					.navbar-default {
-  background-color: #0064c8;
-  border-color: #64b5f6;
-}
-.navbar-default .navbar-brand {
-  color: #ecf0f1;
-}
-.navbar-default .navbar-brand:hover, .navbar-default .navbar-brand:focus {
-  color: #ffffff;
-}
-.navbar-default .navbar-text {
-  color: #ecf0f1;
-}
-.navbar-default .navbar-nav > li > a {
-  color: #ecf0f1;
-}
-.navbar-default .navbar-nav > li > a:hover, .navbar-default .navbar-nav > li > a:focus {
-  color: #ffffff;
-}
-.navbar-default .navbar-nav > .active > a, .navbar-default .navbar-nav > .active > a:hover, .navbar-default .navbar-nav > .active > a:focus {
-  color: #ffffff;
-  background-color: #64b5f6;
-}
-.navbar-default .navbar-nav > .open > a, .navbar-default .navbar-nav > .open > a:hover, .navbar-default .navbar-nav > .open > a:focus {
-  color: #ffffff;
-  background-color: #64b5f6;
-}
-.navbar-default .navbar-toggle {
-  border-color: #64b5f6;
-}
-.navbar-default .navbar-toggle:hover, .navbar-default .navbar-toggle:focus {
-  background-color: #64b5f6;
-}
-.navbar-default .navbar-toggle .icon-bar {
-  background-color: #ecf0f1;
-}
-.navbar-default .navbar-collapse,
-.navbar-default .navbar-form {
-  border-color: #ecf0f1;
-}
-.navbar-default .navbar-link {
-  color: #ecf0f1;
-}
-.navbar-default .navbar-link:hover {
-  color: #ffffff;
-}
-
-@media (max-width: 767px) {
-  .navbar-default .navbar-nav .open .dropdown-menu > li > a {
-    color: #ecf0f1;
-  }
-  .navbar-default .navbar-nav .open .dropdown-menu > li > a:hover, .navbar-default .navbar-nav .open .dropdown-menu > li > a:focus {
-    color: #ffffff;
-  }
-  .navbar-default .navbar-nav .open .dropdown-menu > .active > a, .navbar-default .navbar-nav .open .dropdown-menu > .active > a:hover, .navbar-default .navbar-nav .open .dropdown-menu > .active > a:focus {
-    color: #ffffff;
-    background-color: #64b5f6;
-  }
-}
-
-			.fromtop {
-				margin: 60px auto 0px;
-			}
 
 			.switcher {
 				max-width: 300px;
 				margin-bottom: auto;
 				margin-top: 10px;
 			}
-			
+
 			.infoicon{
-				margin: 0px 10px 0px;
-				
+				margin: 0px 0px 0px;
+
 			}
 
 			.infoicon .peritem {
-				padding: 15px 5px 5px;
-				margin: 0px auto 0px;
+				padding: 0px 5px 0px;
+				margin: 5px auto 0px;
 			}
 
 			.infoicon img{
-				width: 56px;
-				height: 56px;
+				width:  60px;
+				height: 60px;
 				margin: 0 0 0;
 				padding: 10px 10px 10px;
 				background-color:#00ffffff;
 			}
-			
-			.container-note {
+
+
+			.media-text {
+				vertical-align: middle;
+				margin: 3px 0px 0px;
+			}
+
+			.panelbar {
 				max-width: 300px;
+				padding: 0px 0 0;
+				background-color: #8bc34a;
+
+				margin: 10px 5px 10px;
+			}
+			.panelbar img{
+				float: left;
+				width: 40px;
+				height: 40px;
+				display: block;
+				vertical-align: top;
+				margin-right: 8px;
+			}
+
+			.panellower {
+				max-width: 300px;
+				padding: 0px 0 0;
+				background-color: #8bc34a;
+
+				margin: 20px 5px 10px;
+			}
+			.panellower img{
+				float: left;
+				width: 20px;
+				height: 20px;
+				display: block;
+				vertical-align: top;
+				margin-right: 8px;
+			}
+
+			.savdiv {
+				display: table-cell;
+				vertical-align: middle;
+				max-width: 240px;
+				padding: 10px 10px 10px;
+				margin: 0px auto 2px;
+			}
+
+
+			.notetext{
+				max-width: 238px;
+				margin: 10px 0px 0px;
+				padding: 10px 10px 10px;
+			}
+
+			.container-note {
+				max-width: 260px;
 				padding: 5px 5px 5px;
 				margin: 0px auto 40px;
 				background-color: #8bc34a;
@@ -129,15 +109,15 @@
 				-moz-box-shadow: 0 1px 2px rgba(0,0,0,.05);
 				box-shadow: 0 1px 2px rgba(0,0,0,.05);
 			}
-			
+
 			.noteicon .peritem {
 				padding: 5px 5px 5px;
 			}
-			
+
 			.noteicon .peritem1 {
 				padding: 0px 0px 0px;
 			}
-			
+
 			.noteicon .snapshot {
 				display: table-cell;
 				max-width: 140px;
@@ -145,62 +125,28 @@
 				padding: 0 0 0;
 				margin: 10px 0px 0px;
 			}
-			.media-text {
-				vertical-align: middle;
-				margin: 3px 0px 0px;
-			}
-			
-			.panelbar {
-				max-width: 300px;
-				padding: 0px 0 0;
-				background-color: #8bc34a;
-				
-				margin: 10px 5px 10px;
-			}
-			.panelbar img{
-				float: left;
-				width: 45px;
-				height: 45px;
-				display: block; 
-				vertical-align: top;  
-				margin-right: 8px;
-			}
-			
-			.panellower {
-				max-width: 300px;
-				padding: 0px 0 0;
-				background-color: #8bc34a;
-				
-				margin: 10px 5px 10px;
-			}
-			.panellower img{
-				float: left;
-				width: 30px;
-				height: 30px;
-				display: block; 
-				vertical-align: top;  
-				margin-right: 8px;
-			}
-			
-			.savdiv {
-				display: table-cell;
-				vertical-align: middle;
-				max-width: 240px;
-				padding: 10px 10px 10px;
-				margin: 0px auto 2px;
-			}
-			
-			
-			.notetext{
-				max-width: 275px;
-				margin: 10px 0px 0px;
-				padding: 10px 10px 10px;				
-			}
 
 			.container-card {
-				max-width: 300px;
-				padding: 20px 20px 20px;
-				margin: 0px auto 40px;
+				max-width: 260px;
+				min-height: 250px;
+				max-height: 260px;
+				padding: 10px 0px 10px;
+				margin: 0px auto 20px;
+				background-color: #fff;
+				border: 1px solid #e5e5e5;
+				-webkit-border-radius: 2px;
+				-moz-border-radius: 2px;
+				border-radius: 2px;
+				-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+				-moz-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+				box-shadow: 0 1px 2px rgba(0,0,0,.05);
+			}
+
+			.container-card-header {
+				min-width: 260px;
+				max-width: 260px;
+				padding: 10px 0px 10px;
+				margin: 0px auto 20px;
 				background-color: #fff;
 				border: 1px solid #e5e5e5;
 				-webkit-border-radius: 2px;
@@ -212,72 +158,101 @@
 			}
 
 			.maincard {
-				display: table-cell;
-				width: 260px;
-				height: 260px;
-				vertical-align: middle;
-				padding: 0 0 0;
-				margin: 10px 20px 10px;
+				width: 240px;
+				vertical-align: top;
+				padding: 0 3px 0;
+				margin:0px auto 0px;
 				background-color: #ffffff;
 				overflow: auto
-				border: 1px solid #e5e5e5;
-				-webkit-border-radius: 2px;
-				-moz-border-radius: 2px;
-				border-radius: 2px;
 			}
-			
-			.center-block {
-				display: inline-block;
-				max-width: 160px;
-				max-height: 200px;
-				padding: 0 0 0;
-				margin: 0 auto 0;
-				vertical-align: middle;
-			}
-			
+
 			.toppart{
-				width: 260px;
-				height: 110px;
+				display:table-cell;
+				width: 230px;
+				height: 100px;
 				margin: 0 0 0;
 				vertical-align: middle;
 			}
-			
-			.botpart{
-				width: 260px;
-				height: 130px;				
+			.midpart{
+				width: 230px;
 				margin: 0 0 0;
 			}
-			
+
+			.botpart{
+				width: 230px;
+				margin: 0 0 0;
+			}
+
+			.botpart p{
+				display: inline;
+				height: 100px;
+				vertical-align: middle;
+
+			}
+
+
 			.profile {
 				float: left;
-				width: 110px;
-				height: 110px;
+				width: 100px;
+				height: 100px;
 				margin: 0px 0 0px;
 			}
-			
+
 			.profile img {
-				width: 110px;
-				height: 110px;
+				width: 100px;
+				height: 100px;
 			}
 
-			.name {
-				float: left;
+			.toppart .name {
+				display:table-cell;
+				vertical-align: middle;
+				float: right;
+				text-align:center;
 				margin-left: 10px;
+				padding-top: 20px;
+				padding-left: 0px;
+				padding-bottom: 0px;
+				width: 120px;
+				height:100px;
 				max-width: 120px;
-				margin-bottom: 20px;
-				margin-top: 30px;
+				max-height: 100px;
+				overflow: hidden;
 			}
-			
+
+			.toppart nameinput{
+				width: 120px;
+				height: 100px;
+				display:table-cell;
+				vertical-align: middle;
+
+			}
+
 			.hr {
-				margin : 15px 0 0;
+				width: 100%;
+				margin : 10px 0px 0px;
 			}
 
-			
 
-			
+
+
 			.inputstyle {
 				background: transparent;
 				border: none;
+			}
+
+			::-webkit-input-placeholder { /* WebKit browsers */
+				color:    #616161;
+			}
+			:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+				color:    #616161;
+				opacity:  1;
+			}
+			::-moz-placeholder { /* Mozilla Firefox 19+ */
+				color:    #616161;
+				opacity:  1;
+			}
+			:-ms-input-placeholder { /* Internet Explorer 10+ */
+				color:    #616161;
 			}
 
 		</style>
@@ -295,18 +270,18 @@
 		<link rel="shortcut icon" href="../ico/favicon.png">
 
 
-		<script>			
+		<script>
 			var flagCropPanel = false;
 			var flagPortraitChanged = false;
 			var stringArray = ["about", "email", "message", "phone", "web", "linkedin", "facebook", "twitter", "googleplus"];
-			
+
 			if (typeof String.prototype.startsWith != 'function') {
-			  // see below for better implementation!
-			  String.prototype.startsWith = function (str){
-				return this.indexOf(str) === 0;
-			  };
+				// see below for better implementation!
+				String.prototype.startsWith = function (str){
+					return this.indexOf(str) === 0;
+				};
 			}
-			
+
 			function close_window() {
 				if (confirm("Exit App?")) {
 					window.close();
@@ -321,44 +296,17 @@
 					case 'about':
 					document.getElementById('myModalLabel').innerHTML = 'About Me';
 					break;
-					case 'linkedin':
-					document.getElementById('myModalLabel').innerHTML = 'Edit ' + 'LinkedIn Address';
-					break;
-					case 'phone':
-					document.getElementById('myModalLabel').innerHTML = 'Edit ' + 'Phone No.';
-					break;
-					case 'message':
-					document.getElementById('myModalLabel').innerHTML = 'Edit ' + 'SMS No.';
-					break;
-					case 'email':
-					document.getElementById('myModalLabel').innerHTML = 'Edit ' + 'Email';
-					break;
-					case 'facebook':
-					document.getElementById('myModalLabel').innerHTML = 'Edit ' + 'Facebook Address';
-					break;
-					case 'twitter':
-					document.getElementById('myModalLabel').innerHTML = 'Edit ' + 'Twitter Address';
-					break;
-					case 'googleplus':
-					document.getElementById('myModalLabel').innerHTML = 'Edit ' + 'Google+ Address';
-					break;
-					case 'web':
-					document.getElementById('myModalLabel').innerHTML = 'Edit ' + 'Website Address';
-					break;
 					default:
 					document.getElementById('myModalLabel').innerHTML = 'Edit ' + 'Something ...';
 				}
 			}
 
-			function save_content(infoitem) {
-				document.getElementById(''+infoitem).value = document.getElementById(infoitem+'_dialog').value;
+
+			function dismiss_content(infoitem) {
+				window.history.back();
 				document.getElementById(infoitem+'_dialog').style.display="none";
 			}
 
-			function dismiss_content(infoitem) {
-				document.getElementById(infoitem+'_dialog').style.display="none";
-			}
-			
 			function switchtopanel(){
 				document.getElementById('notes_bar').style.display="none";
 				document.getElementById('notes_panel').style.display="inherit";
@@ -368,14 +316,20 @@
 				document.getElementById('notes_panel').style.display="none";
 				document.getElementById('notes_bar').style.display="inherit";
 			}
-			
+
 			function goBack() {
 				window.history.back();
 			}
 			
-			function doNothing(){
+			function confirmDelete() {
+				$('#confirmDeletion').modal('show');
 			}
 			
+			function proceedDeletion(){
+				goBack();
+				$('#phantomDeleteBtn').trigger('click');
+			}
+
 			function offerSave(notes){
 				if(notes) {
 					document.getElementById("textarea_feedback").style.display="inherit";
@@ -384,22 +338,51 @@
 			}
 
 			$(document).ready(function(){
-			   var $form = $('form');
-			   $form.submit(function(e){
-				  e.preventDefault();
-				  $.post($(this).attr('action'), $(this).serialize(), function(response){
-					if(response.successful){
-						document.getElementById("save_div").style.display="none";
-						document.getElementById("textarea_feedback").style.display="none";
-						$('#saveResults').modal('show');
-						document.getElementById("display_save_results").innerHTML = "Successfully Saved!"
-					} else {
-						$('#saveResults').modal('show');
-						document.getElementById("display_save_results").innerHTML = "Something wrong while saving ..."
-					}
-				  },'json');
-				  return false;
-			   });
+
+				$('#example1').datepicker({
+					format: "M dd yyyy",
+					autoclose: true,
+					todayHighlight: true
+				});
+
+				$(function(){
+					$('#saveResults').on('show.bs.modal', function(){
+						var myModal = $(this);
+						clearTimeout(myModal.data('hideInterval'));
+						myModal.data('hideInterval', setTimeout(function(){
+							window.history.back();
+						}, 1000));
+					});
+				});
+
+				$(".modal").on("shown.bs.modal", function()  { // any time a modal is shown
+					var urlReplace = "#" + $(this).attr('id'); // make the hash the id of the modal shown
+					history.pushState(null, null, urlReplace); // push state that hash into the url
+				});
+
+				// If a pushstate has previously happened and the back button is clicked, hide any modals.
+				$(window).on('popstate', function() {
+					$(".modal").modal('hide');
+				});
+
+
+				var $form = $('#noteForm');
+				$form.submit(function(e){
+					e.preventDefault();
+					$.post($(this).attr('action'), $(this).serialize(), function(response){
+						if(response.successful){
+							document.getElementById("save_div").style.display="none";
+							document.getElementById("textarea_feedback").style.display="none";
+							$('#saveResults').modal('show');
+							document.getElementById("display_save_results").innerHTML = "Successfully Saved!"
+						} else {
+							$('#saveResults').modal('show');
+							document.getElementById("display_save_results").innerHTML = "Something wrong while saving ..."
+						}
+					},'json');
+					return false;
+				});
+				
 			});
 		</script>
 
@@ -409,58 +392,66 @@
 		<!-- Navbar
 		================================================== -->
 
-		<div class="navbar-wrapper">
+		<nav class="navbar navbar-inverse navbar-fixed-top">
 			<div class="container">
-
-				<nav class="navbar navbar-default navbar-static-top">
-					<div class="container">
-						<div class="navbar-header">							
-							<a class="navbar-brand" href="javascript:void(0)" onclick="goBack();">KnoWell</a>
-						</div>
-					</div>
-				</nav>
-
+				
+				<div class="navbar-header">
+          <a class="navbar-brand" href="javascript:void(0)" onclick="goBack();">KnoWell</a>
+        </div>        
 			</div>
-		</div>
+		</nav>
 
 		<!-- General Modal -->
-		<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
 			<div class="modal-dialog modal-lg">
 				<div class="modal-content">
 					<div class="modal-header">
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<button type="button" class="close" onclick="window.history.back();" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 						<h4 class="modal-title" id="myModalLabel"></h4>
 					</div>
 					<div class="modal-body">
 						<p id="about_dialog" style="display: none"></p>
-						<input class="input-small" id="phone_dialog" type="text" style="display: none">
-						<input class="input-small" id="message_dialog" type="text" style="display: none">
-						<input class="input-small" id="email_dialog" type="text" style="display: none">
-						<input class="input-small" id="linkedin_dialog" type="text" style="display: none">
-						<input class="input-small" id="facebook_dialog" type="text" style="display: none">
-						<input class="input-small" id="twitter_dialog" type="text" style="display: none">
-						<input class="input-small" id="googleplus_dialog" type="text" style="display: none">
-						<input class="input-small" id="web_dialog" type="text" style="display: none">
 						<p id="recorder" style="display: none"></p>
 					</div>
 					<div class="modal-footer">
-						<button type="button" class="btn btn-default" data-dismiss="modal" onclick="javascript:dismiss_content(document.getElementById('recorder').innerHTML);">OK</button>						
+						<button type="button" class="btn btn-default" onclick="javascript:dismiss_content(document.getElementById('recorder').innerHTML);">OK</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="modal fade bs-example-modal-sm" id="saveResults" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" data-backdrop="static">
+			<div class="modal-dialog modal-sm">
+				<div class="modal-content">
+					<div class="modal-body">
+						<p id="display_save_results"></p>
 					</div>
 				</div>
 			</div>
 		</div>
 		
-		<div class="modal fade bs-example-modal-sm" id="saveResults" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
-		  <div class="modal-dialog modal-sm">
-			<div class="modal-content">			  
-			  <div class="modal-body">
-			    <p id="display_save_results"></p>
-			  </div>
-			  <div class="modal-footer">
-				<button type="button" class="btn btn-default" data-dismiss="modal">OK</button>						
-			  </div>
+		<div class="modal fade bs-example-modal-sm" id="saveResults1" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" data-backdrop="static">
+			<div class="modal-dialog modal-sm">
+				<div class="modal-content">
+					<div class="modal-body">
+						<p id="display_save_results1"></p>
+					</div>
+				</div>
 			</div>
-		  </div>
+		</div>
+		
+		<div class="modal fade bs-example-modal-sm" id="confirmDeletion" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" data-backdrop="static">
+			<div class="modal-dialog modal-sm">
+				<div class="modal-content">
+					<div class="modal-body">
+						<p id="warning">You will lose this card and the notes you've made for it so far</p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" onclick="javascript:proceedDeletion();">Do it</button>
+						<button type="button" class="btn btn-primary" onclick="javascript:goBack();">Forget it</button>
+					</div>
+				</div>
+			</div>
 		</div>
 
 		<div class="hidden">
@@ -473,42 +464,37 @@
 			<input id="twitter" name="twitter"  value="<%=twitter%>">
 			<input id="googleplus" name="googleplus"  value="<%=googleplus%>">
 			<input id="web" name="web"  value="<%=web%>">
-			<input id="perc_left" name="perc_left" class="input-small" type="text"  value=""><br>
-			<input id="perc_top"  name="perc_top" class="input-small" type="text"  value=""><br>
-			<input id="perc_width" name="perc_width" class="input-small" type="text"  value=""><br>
-			<input id="perc_height" name="perc_height" class="input-small" type="text"  value=""><br>
-			<input id="img_url" name="img_url" class="input-small" type="text"  value=""><br>
 			<input id="action" name="action" class="input-small" type="text"  value=""><br>
 		</div>
 
-		
-		<div class="container-fluid">
-			<div class="row fromtop">
-				<div class="col-sm-5 col-sm-offset-1 col-md-4 col-md-offset-2 col-lg-3 col-lg-offset-3" style="min-width: 330px">
-					
-					<div class="container-card">
-						<div class="maincard">
-							<div class="toppart">
-								<div class="profile">
-									<img src="<%=portrait_url%>">
-								</div>
-								<div class= "name">
-									<h5> <b><%= firstName %> <%= lastName %></b> </h5> 
-								</div>
+		<div class="row">
+			<div class="col-sm-5 col-sm-offset-1 col-md-4 col-md-offset-2 col-lg-3 col-lg-offset-3" style="min-width: 280px">
+
+				<div class="container-card">
+					<div class="maincard">
+						<div class="toppart">
+							<div class="profile">
+								<img src="<%=portrait_url%>">
 							</div>
-							<div class="botpart">						
-							<hr class= "hr">
-							<address style="margin-top: 10px">
-								<%= title %><br>
-								<%= company %> <br>
-								<%= city %>
-							</address>
+							<div class= "name">
+								<p style="font-size: medium; margin-bottom: 0px"> <b><%= firstName %> <%= lastName %></b> </p>
 							</div>
 						</div>
+						<div class="midpart">
+							<hr class= "hr">
+						</div>
+						<div class="botpart">
+							<address class="ellipsis" style="margin-top: 10px">
+								<p style="font-size: medium; margin-bottom: 0px;"><%= title %></p>
+								<br><p style="font-size: small; margin-bottom: 0px"><%= company %></p>
+								<br><p style="font-size: medium; margin-bottom: 0px"><%= city %></p>
+							</address>
+						</div>
 					</div>
-					<div id="contact" class="container-card" style="display : inherit">
-						<div class="maincard">
-						<div class="container-fluid">
+				</div>
+				<div id="contact" class="container-card-header" style="display : inherit">
+					<div class="maincard">
+						<div class="container-fluid" style="padding: 0px 0px 0px;">
 							<div class="row infoicon">
 								<div id="about_button" class="col-xs-4 col-sm-4 peritem" style="display : none">
 									<img src="../assets/img/me.png"  class="img-responsive" data-toggle="modal" data-target="#myModal" data-backdrop="static" onclick="javascript:fill_content('about');">
@@ -522,11 +508,11 @@
 								<div id="phone_button" class="col-xs-4 col-sm-4 peritem" style="display : none">
 									<a href="tel:<%=phone%>"><img src="../assets/img/phone.png"  class="img-responsive"></a>
 								</div>
-								<div id="web_button" class="col-xs-4 col-sm-4 peritem" style="display : none">								
+								<div id="web_button" class="col-xs-4 col-sm-4 peritem" style="display : none">
 									<a id="web_url" href="#" target="_blank"><img src="../assets/img/web.png"  class="img-responsive"></a>
 									<script>
 										var web_url = "<%=web%>";
-										if(! web_url.startsWith("http://") && !web_url.startsWith("https://") && !web_url.startsWith("ftp://")){	
+										if(! web_url.startsWith("http://") && !web_url.startsWith("https://") && !web_url.startsWith("ftp://")){
 											web_url= "http://www.google.com/#q="+web_url;
 										}
 										$("#web_url").attr("href", web_url);
@@ -536,7 +522,7 @@
 									<a id="linkedin_url" href="#" target="_blank"><img src="../assets/img/linkedin.png"  class="img-responsive"></a>
 									<script>
 										var linkedin_url = "<%=linkedin%>";
-										if(! linkedin_url.startsWith("http://") && !linkedin_url.startsWith("https://") && !linkedin_url.startsWith("ftp://")){	
+										if(! linkedin_url.startsWith("http://") && !linkedin_url.startsWith("https://") && !linkedin_url.startsWith("ftp://")){
 											linkedin_url= "http://www.google.com/#q="+linkedin_url;
 										}
 										$("#linkedin_url").attr("href", linkedin_url);
@@ -546,7 +532,7 @@
 									<a id="facebook_url" href="#" target="_blank"><img src="../assets/img/facebook.png"  class="img-responsive"></a>
 									<script>
 										var facebook_url = "<%=facebook%>";
-										if(! facebook_url.startsWith("http://") && !facebook_url.startsWith("https://") && !facebook_url.startsWith("ftp://")){	
+										if(! facebook_url.startsWith("http://") && !facebook_url.startsWith("https://") && !facebook_url.startsWith("ftp://")){
 											facebook_url= "http://www.google.com/#q="+facebook_url;
 										}
 										$("#facebook_url").attr("href", facebook_url);
@@ -556,17 +542,17 @@
 									<a id="twitter_url" href="#" target="_blank"><img src="../assets/img/twitter.png"  class="img-responsive"></a>
 									<script>
 										var twitter_url = "<%=twitter%>";
-										if(! twitter_url.startsWith("http://") && !twitter_url.startsWith("https://") && !twitter_url.startsWith("ftp://")){	
+										if(! twitter_url.startsWith("http://") && !twitter_url.startsWith("https://") && !twitter_url.startsWith("ftp://")){
 											twitter_url= "http://www.google.com/#q="+twitter_url;
 										}
 										$("#twitter_url").attr("href", twitter_url);
 									</script>
 								</div>
-								<div id="googleplus_button" class="col-xs-4 col-sm-4 peritem" style="display : none">								
+								<div id="googleplus_button" class="col-xs-4 col-sm-4 peritem" style="display : none">
 									<a id="googleplus_url" target="_blank"><img src="../assets/img/googleplus.png"  class="img-responsive"></a>
 									<script>
 										var googleplus_url = "<%=googleplus%>";
-										if(! googleplus_url.startsWith("http://") && !googleplus_url.startsWith("https://") && !googleplus_url.startsWith("ftp://")){	
+										if(! googleplus_url.startsWith("http://") && !googleplus_url.startsWith("https://") && !googleplus_url.startsWith("ftp://")){
 											googleplus_url= "http://www.google.com/#q="+googleplus_url;
 										}
 										$("#googleplus_url").attr("href", googleplus_url);
@@ -574,79 +560,82 @@
 								</div>
 							</div>
 						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-sm-4 col-md-4 col-lg-4">
+
+				<script>
+					$(function() {
+						$("textarea[maxlength]").bind('input propertychange', function() {
+							var maxLength = $(this).attr('maxlength');
+							$('#textarea_feedback').html((maxLength -$(this).val().length) +' characters remaining');
+							if ($(this).val().length > maxLength) {
+								$(this).val($(this).val().substring(0, maxLength));
+							}
+						})
+					});
+
+
+				</script>
+
+				<div id="notes_panel" class="container-note" style="display : inherit; min-width: 260px">
+					<div class="panelbar">
+						<div class="media">
+							<div class="media-left">
+								<img src="../assets/img/note.png">
+							</div>
+							<div class="media-body media-text">
+								<font color="white"><%= updatedAt %> <br>
+							<small>Last Modified </small></font>
+							</div>
 						</div>
 					</div>
-				</div>
 
-				<div class="col-sm-5 col-md-4 col-lg-3">
-					
-					<script>
-						$(function() {  
-							$("textarea[maxlength]").bind('input propertychange', function() {  
-								var maxLength = $(this).attr('maxlength');  
-								$('#textarea_feedback').html((maxLength -$(this).val().length) +' characters remaining');
-								if ($(this).val().length > maxLength) {  
-									$(this).val($(this).val().substring(0, maxLength));  
-								}  
-							})  
-						});
-					</script>
-					
-					<div id="notes_panel" class="container-note" style="display : inherit; min-width: 300px">
-							<div class="panelbar">
-								<div class="media">
-								  <div class="media-left">
-									<img src="../assets/img/note.png">
-								  </div>
-								  <div class="media-body media-text">
-									<b><%= updatedAt %> </b><br>
-									<small>Last Modified </small>
-								  </div>
-								</div>					
-							</div>	
-						
-							<div class="panellower">
-								<div class="media" style="margin-left: 10px">
-								  <div class="media-left">
+					<div class="panellower">
+						<form id="noteForm" action='/savenote' method='POST'>
+							<input name="noteId" value="<%=noteId%>" style="display: none">
+							<input type="hidden" name="_csrf" value="<%= csrf_field %>" style="display: none">
+
+							<div class="media" style="margin-left: 10px">
+								<div class="media-left">
 									<img src="../assets/img/clock.png">
-								  </div>
-								  <div class="media-body media-text">
-									<%= whenMet %>
-								  </div>
-								</div>	
-								<div class="media" style="margin-left: 10px">
-								  <div class="media-left">
+								</div>
+								<div class="media-body media-text">
+									<font color="white">We met on <input style="width: 100px" onkeydown="return false" name="whenMet" type="text" type="text" class="input-small inputstyle" placeholder="when?" id="example1" value="<%= whenMet %>" onchange="offerSave(false);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();"></font>
+								</div>
+							</div>
+							<div class="media" style="margin-left: 10px">
+								<div class="media-left">
 									<img src="../assets/img/location.png">
-								  </div>
-								  <div class="media-body media-text">
-									<input form="noteForm" name="whereMet" class="input-small inputstyle" id="about_dialog" type="text" value="<%= whereMet %>" onchange="offerSave(false);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();"> 
-								  </div>
-								</div>	
-								<div class="media" style="margin-left: 10px">
-								  <div class="media-left">
+								</div>
+								<div class="media-body media-text">
+									<font color="white">At <input name="whereMet" class="input-small inputstyle" placeholder="where?" id="about_dialog" type="text" value="<%= whereMet %>" onchange="offerSave(false);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();"></font>
+								</div>
+							</div>
+							<div class="media" style="margin-left: 10px">
+								<div class="media-left">
 									<img src="../assets/img/event.png">
-								  </div>
-								  <div class="media-body media-text">
-									<input form="noteForm" name="eventMet" class="input-small inputstyle" id="about_dialog" type="text" value="<%= eventMet %>" onchange="offerSave(false);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();">
-								  </div>
-								</div>	
-								<textarea form="noteForm" name="notes" maxlength="1000" id="textarea" class="form-control notetext" rows="3" placeholder="Something you want to remember about her/him" onchange="offerSave(true);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();"><%= notes%></textarea>
-								<small id="textarea_feedback" style="padding: 0px 5px 0px; display: none"></small>
-							</div>							
-						
-							<div id="save_div" class="savdiv" style="display: none">
-								<form id="noteForm" action='/savenote' method='POST' style="display: none">
-									<input name="noteId" value="<%=noteId%>">
-									<input type="hidden" name="_csrf" value="<%= csrf_field %>" />
-								</form>
-								<button id="uploadbutton" class="btn btn-sm btn-success btn-block" type="submit" form="noteForm" name="action">Save Changes</button>
-								<button class="btn btn-sm btn-default btn-block" onclick="javascript:goBack();">Forget it</button>
-							</div>	
+								</div>
+								<div class="media-body media-text">
+									<font color="white">In <input name="eventMet" class="input-small inputstyle" placeholder="which event?" id="about_dialog" type="text" value="<%= eventMet %>" onchange="offerSave(false);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();"></font>
+								</div>
+							</div>
+							<textarea name="notes" maxlength="1000" id="textarea" class="form-control notetext" rows="3" placeholder="Context of this conversation or things worth noting" value="<%= notes%>" onchange="offerSave(true);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();"></textarea>
+							<small id="textarea_feedback" style="padding: 0px 5px 0px; display: none"></small>
+							<button id="phatomBtn" type="submit" class="btn btn-success" style="display: none;">Phatom</button>
+						</form>
 					</div>
-				
-				
-					
+
+					<div id="save_div" class="savdiv" style="display: none">
+						<button type="button" class="btn btn-sm btn-success btn-block" onclick="javascript:$('#phatomBtn').trigger('click');">Save Changes</button>
+						<button type="button" class="btn btn-sm btn-default btn-block" onclick="javascript:goBack();">Forget it</button>
+					</div>
 				</div>
+				
+
+
 			</div>
 		</div>
 
@@ -673,13 +662,8 @@
 		================================================== -->
 		<!-- Placed at the end of the document so the pages load faster -->
 		<script src="../dist/js/bootstrap.min.js"></script>
-		<!-- Just to make our placeholder images work. Don't actually copy the next line! -->
-		<script src="../assets/js/vendor/holder.js"></script>
 		<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
 		<script src="../assets/js/ie10-viewport-bug-workaround.js"></script>
-		<script src="../dist/js/cropper.js"></script>
-		<script src="../dist/js/main.js"></script>
-
-
+		<script src="../assets/js/bootstrap-datepicker.js"></script>
 	</body>
 </html>
