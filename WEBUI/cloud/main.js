@@ -18,7 +18,7 @@ Parse.Cloud.beforeSave("History", function(request, status) {
 				if (results[0].get("userId") ==  request_user_id )
 				{
 					console.log("userId does not change");
-					status.success(" approve save");
+					status.success();
 				}
 				else
 				{
@@ -28,7 +28,7 @@ Parse.Cloud.beforeSave("History", function(request, status) {
 			}
 			else{
 				console.log("entry not existe");
-				status.success("First time entry save, approve!");
+				status.success();
 			}
 			},
 	error:  function(){
@@ -50,7 +50,7 @@ Parse.Cloud.beforeSave("ECardNote", function(request, status) {
 				if (results[0].get("userId") ==  request_user_id )
 				{
 					console.log("userId does not change");
-					status.success(" approve save");
+					status.success();
 				}
 				else
 				{
@@ -60,7 +60,7 @@ Parse.Cloud.beforeSave("ECardNote", function(request, status) {
 			}
 			else{
 				console.log("entry not existe");
-				status.success("First time entry save, approve!");
+				status.success();
 			}
 			},
 	error:  function(){
@@ -100,7 +100,7 @@ Parse.Cloud.beforeSave("User", function(request, status) {
 				  )
 				{
 					console.log("userId does not change");
-					status.success(" approve save");
+					status.success();
 				}
 				else
 				{
@@ -110,7 +110,7 @@ Parse.Cloud.beforeSave("User", function(request, status) {
 			}
 			else{
 				console.log("entry not existe");
-				status.success("First time entry save, approve!");
+				status.success();
 			}
 			},
 	error:  function(){
@@ -133,7 +133,7 @@ Parse.Cloud.beforeSave("ECardInfo", function(request, status) {
 				if (results[0].get("userId") ==  request_user_id )
 				{
 					console.log("userId does not change");
-					status.success(" approve save");
+					status.success();
 				}
 				else
 				{
@@ -143,7 +143,7 @@ Parse.Cloud.beforeSave("ECardInfo", function(request, status) {
 			}
 			else{
 				console.log("entry not existe");
-				status.success("First time entry save, approve!");
+				status.success();
 			}
 			},
 	error:  function(){
