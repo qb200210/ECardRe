@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.micklestudios.knowells"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk
+        android:minSdkVersion="14"
+        android:targetSdkVersion="19" />
+    
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    
+	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+	<uses-permission android:name="android.permission.VIBRATE" />
+	<uses-permission android:name="android.permission.WAKE_LOCK" />
+	<uses-permission android:name="android.permission.GET_ACCOUNTS" />
+	<uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+	<permission android:name="com.micklestudios.knowells.permission.C2D_MESSAGE"
+		android:protectionLevel="signature" />
+	<uses-permission android:name="com.micklestudios.knowells.permission.C2D_MESSAGE" />
+	
+	<uses-feature android:name="android.hardware.camera" android:required="true"/>
+	<uses-feature android:name="android.hardware.wifi" android:required="false"/>
+	<uses-feature android:name="android.hardware.location" android:required="false"/>
+	<uses-feature android:name="android.hardware.location.gps" android:required="false"/>
+	<uses-feature android:name="android.hardware.location.network" android:required="false"/>
+	<uses-feature android:name="android.hardware.location" android:required="false"/>
+	<uses-feature android:name="android.hardware.audio.low_latency" android:required="false"/>
+	<uses-feature android:name="android.hardware.microphone" android:required="false"/>
+	
+<!-- 	<compatible-screens> -->
+<!--         all small size screens -->
+<!--         <screen android:screenSize="small" android:screenDensity="mdpi" /> -->
+<!--         <screen android:screenSize="small" android:screenDensity="hdpi" /> -->
+<!--         <screen android:screenSize="small" android:screenDensity="xhdpi" /> -->
+<!--         all normal size screens -->
+<!--         <screen android:screenSize="normal" android:screenDensity="mdpi" /> -->
+<!--         <screen android:screenSize="normal" android:screenDensity="hdpi" /> -->
+<!--         <screen android:screenSize="normal" android:screenDensity="xhdpi" /> -->
+<!--         all normal size screens -->
+<!--         <screen android:screenSize="large" android:screenDensity="ldpi" /> -->
+<!--         <screen android:screenSize="large" android:screenDensity="mdpi" /> -->
+<!--         <screen android:screenSize="large" android:screenDensity="hdpi" /> -->
+<!--         <screen android:screenSize="large" android:screenDensity="xhdpi" /> -->
+<!--     </compatible-screens> -->
+    
+    <application
+        android:name="com.micklestudios.knowells.MyApplication"
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" 
+        >
+        <activity android:name="com.micklestudios.knowells.ActivityPreLogin"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop"
+            android:theme="@style/Transparent">   
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>         
+        </activity>
+        <activity
+            android:name="com.parse.ui.ParseLoginActivity"
+            android:screenOrientation="portrait"
+            android:label="@string/app_name"
+            android:launchMode="singleTop" >
+            <meta-data
+                android:name="com.parse.ui.ParseLoginActivity.PARSE_LOGIN_ENABLED"
+                android:value="true" />
+            <meta-data
+                android:name="com.parse.ui.ParseLoginActivity.PARSE_LOGIN_EMAIL_AS_USERNAME"
+                android:value="true" />
+            <meta-data
+                android:name="com.parse.ui.ParseLoginActivity.FACEBOOK_LOGIN_ENABLED"
+                android:value="false" />
+            <meta-data
+                android:name="com.parse.ui.ParseLoginActivity.TWITTER_LOGIN_ENABLED"
+                android:value="false" />
+        </activity>
+        <activity
+            android:name="com.parse.ui.ActivityInfoCollector"
+            android:screenOrientation="portrait"
+            android:label="@string/app_name"
+            android:launchMode="singleTop" >            
+        </activity>
+        <activity
+            android:name="com.micklestudios.knowells.ActivityBufferOpening"
+            android:screenOrientation="portrait"
+            android:theme="@style/OpenTheme"
+            android:label="BufferOpening" >
+        </activity>
+        <activity
+            android:name="com.micklestudios.knowells.ActivityMain"
+            android:label="@string/app_name" 
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop">
+        </activity>        
+        <activity
+            android:name="com.micklestudios.knowells.ActivityUserSetting"
+            android:label="@string/app_name" 
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop">
+        </activity>
+        <activity
+            android:name="com.micklestudios.knowells.ActivityDesign"
+            android:windowSoftInputMode="adjustPan"
+            android:label="@string/app_name" 
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop">
+        </activity>
+        <activity
+            android:name="com.micklestudios.knowells.ActivityScanned"
+            android:label="@string/app_name" 
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop">
+        </activity>
+        <activity android:name="com.micklestudios.knowells.ActivityDetails"
+            android:label="@string/app_name" 
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop">            
+        </activity>
+        <activity android:name="com.micklestudios.knowells.ActivityConversations"
+            android:label="@string/app_name" 
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop">            
+        </activity>
+        <activity android:name="com.micklestudios.knowells.ActivityHistory"
+            android:label="@string/app_name" 
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop">            
+        </activity>
+        <activity android:name="com.micklestudios.knowells.utils.CustomQRScanner"
+            android:screenOrientation="portrait"></activity>
+        <activity android:name="com.micklestudios.knowells.ActivityWebView"
+            android:label="@string/app_name" 
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop">
+		</activity>
+        <activity android:name="ActivitySearch"  
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop"></activity>
+        
+        <service android:name="com.parse.PushService" />
+		<receiver android:name="com.parse.ParseBroadcastReceiver">
+			<intent-filter>
+				<action android:name="android.intent.action.BOOT_COMPLETED" />
+				<action android:name="android.intent.action.USER_PRESENT" />
+			</intent-filter>
+		</receiver>
+				
+		<receiver android:name="com.micklestudios.knowells.utils.MyPushReceiver" android:exported="false">
+			<intent-filter>  
+			    <action android:name="EcardOpenConversations" />
+			    <action android:name="com.parse.push.intent.RECEIVE" />
+			    <action android:name="com.parse.push.intent.DELETE" />
+			    <action android:name="com.parse.push.intent.OPEN" />
+			</intent-filter>
+		</receiver>
+		<receiver android:name="com.parse.GcmBroadcastReceiver"
+			android:permission="com.google.android.c2dm.permission.SEND">
+			<intent-filter>
+				<action android:name="com.google.android.c2dm.intent.RECEIVE" />
+				<action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+
+				<!--
+				  IMPORTANT: If you change the package name of this sample app,
+				  change "com.parse.tutorials.pushnotifications" in the lines
+				  below to match the new package name.
+				-->
+				<category android:name="com.micklestudios.knowell" />
+			</intent-filter>
+		</receiver>
+        
+    </application>
+
+</manifest>

@@ -1,0 +1,23 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools" >
+
+    <item
+      android:id="@+id/edit_item"
+      android:icon="@drawable/design"
+      android:orderInCategory="10"
+      android:title="@string/edit_item" 
+      app:showAsAction="ifRoom" />
+        
+    <item
+        android:id="@+id/settings"
+      	android:icon="@drawable/ic_action_settings"
+        android:orderInCategory="11"
+        android:title="@string/settings"
+        app:showAsAction="ifRoom"/>
+    
+    
+    
+    
+
+</menu>

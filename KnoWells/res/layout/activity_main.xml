@@ -1,0 +1,308 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/blue_300"
+    android:orientation="vertical" >
+    
+    <com.micklestudios.knowells.utils.SquareRelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+    	<View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+         android:background="@color/grey_300"
+         android:layout_marginTop="30dp"
+         android:layout_marginBottom="30dp"
+        />
+    	<TextView
+    	    android:id="@+id/my_motto"
+	        android:paddingLeft="30dp"
+	        android:paddingRight="30dp"
+    	    android:layout_width="wrap_content"
+    	    android:layout_height="wrap_content"
+    	    android:layout_centerInParent="true"
+    	    android:text="心若在，梦就在"
+    	    />
+    	</com.micklestudios.knowells.utils.SquareRelativeLayout>
+
+    <com.micklestudios.knowells.utils.MyViewPager
+        android:id="@+id/pager"
+        android:layout_width="match_parent"
+        android:layout_height="0dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/pager"
+        android:gravity="center"
+        android:background="@color/white"
+        android:orientation="vertical"
+        android:padding="0dp" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:layout_marginBottom="1dp"
+            android:padding="0dp" >
+<!--                 CHANGE HERE                                                 -->
+            <LinearLayout
+                android:id="@+id/ll_add"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@color/green_300"
+                android:gravity="left"
+                android:orientation="vertical"
+                android:padding="0dp" >
+                
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@null"
+                    android:gravity="left"
+                    android:orientation="vertical"
+                    android:padding="0dp" >
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.3"
+                    android:background="@null"
+                    android:gravity="left"
+                    android:orientation="horizontal"
+                    android:padding="0dp" >
+
+                    <com.micklestudios.knowells.utils.SquareLayoutSpecial
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@null"
+                        android:gravity="left" >
+
+                        <ImageView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:padding="0dp"
+                            android:src="@drawable/scan_button" />
+                    </com.micklestudios.knowells.utils.SquareLayoutSpecial>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:padding="0dp" >
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Scan QR"
+                            android:textColor="#ffffff"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                
+            </LinearLayout>
+
+<!--                 CHANGE HERE                                                 -->
+            <LinearLayout
+                android:id="@+id/ll_search"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@color/orange_300"
+                android:gravity="left"
+                android:orientation="vertical"
+            	android:layout_marginLeft="1dp"
+                android:padding="0dp" >
+                
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@null"
+                    android:gravity="left"
+                    android:orientation="vertical"
+                    android:padding="0dp" >
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.3"
+                    android:background="@null"
+                    android:gravity="left"
+                    android:orientation="horizontal"
+                    android:padding="0dp" >
+
+                    <com.micklestudios.knowells.utils.SquareLayoutSpecial
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@null"
+                        android:gravity="left" >
+
+                        <ImageView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:padding="0dp"
+                            android:src="@drawable/search_button" />
+                    </com.micklestudios.knowells.utils.SquareLayoutSpecial>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:padding="0dp" >
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Search Cards"
+                            android:textColor="#ffffff"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:padding="0dp" >
+<!--                 CHANGE HERE                                                 -->
+            <LinearLayout
+                android:id="@+id/ll_share"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@color/light_blue_300"
+                android:gravity="left"
+                android:orientation="vertical"
+                android:padding="0dp" >
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@null"
+                    android:gravity="left"
+                    android:orientation="vertical"
+                    android:padding="0dp" >
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.3"
+                    android:background="@null"
+                    android:gravity="left"
+                    android:orientation="horizontal"
+                    android:padding="0dp" >
+
+                    <com.micklestudios.knowells.utils.SquareLayoutSpecial
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@null"
+                        android:gravity="left" >
+
+                        <ImageView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:padding="0dp"
+                            android:src="@drawable/share_button" />
+                    </com.micklestudios.knowells.utils.SquareLayoutSpecial>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:padding="0dp" >
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Share My Card"
+                            android:textColor="#ffffff"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+<!--                 CHANGE HERE                                                 -->
+            <LinearLayout
+                android:id="@+id/ll_doc"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@color/teal_300"
+                android:gravity="left"
+                android:orientation="vertical"
+            	android:layout_marginLeft="1dp"
+                android:padding="0dp" >
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@null"
+                    android:gravity="left"
+                    android:orientation="vertical"
+                    android:padding="0dp" >
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.3"
+                    android:background="@null"
+                    android:gravity="left"
+                    android:orientation="horizontal"
+                    android:padding="0dp" >
+
+                    <com.micklestudios.knowells.utils.SquareLayoutSpecial
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@null"
+                        android:gravity="left" >
+
+                        <ImageView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:padding="0dp"
+                            android:src="@drawable/doc_button" />
+                    </com.micklestudios.knowells.utils.SquareLayoutSpecial>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:padding="0dp" >
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Share My Doc"
+                            android:textColor="#ffffff"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    
+
+</RelativeLayout>

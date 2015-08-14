@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <PreferenceCategory android:title="Default Messages" >
+        <Preference android:title="Email"
+                android:key="@string/prefEmailGreeting"
+                android:summary="@string/prefEmailGreeting"/>
+        
+        <Preference android:title="SMS"
+                android:key="@string/prefSMSGreeting"
+                android:summary="@string/prefSMSGreeting"/>
+        
+        <Preference android:title="Document"
+                android:key="@string/prefDocGreeting"
+                android:summary="@string/prefDocGreeting"/>
+                
+    </PreferenceCategory>
+    
+    <PreferenceCategory android:title="General Settings" >
+        
+        <Preference android:title="Upload Document"
+                android:key="@string/prefDocName"
+                android:summary="@string/prefDocName"/>
+        
+        <CheckBoxPreference
+            android:id="@+id/push_toggle"
+            android:defaultValue="true"
+            android:key="@string/prefPushNotifications"
+            android:title="Push Notifications"
+            android:summary="@string/prefPushNotifications" >
+        </CheckBoxPreference>        
+        
+<!--         <ListPreference -->
+<!--             android:key="prefReminderFrequency" -->
+<!--             android:title="Reminder Frequency" -->
+<!--             android:summary="For Getting Back in Touch" -->
+<!--             android:entries="@array/updateFrequency" -->
+<!--             android:entryValues="@array/updateFrequencyValues" -->
+<!--             /> -->
+        
+    </PreferenceCategory>
+     
+    <PreferenceCategory android:title="About" >
+        
+        <Preference android:title="Please Give Us 5 Stars!"
+                android:key="@string/prefRateUs"
+            android:summary="@string/prefRateUs"/>
+        
+        <Preference android:title="Feedback"
+                android:key="@string/prefFeedBack"
+                android:summary="@string/prefFeedBack"/>
+        
+        <Preference android:title="Acknowledgement"
+                android:key="@string/prefAcknowledgement"/>
+        
+        <Preference android:title="Version"
+                android:key="@string/prefVersionNumber"
+            android:summary="@string/prefVersionNumber"/>
+        
+        <Preference android:title="Check Updates"
+                android:key="@string/prefCheckUpdates"/>
+        
+        
+    </PreferenceCategory>
+    <Preference android:title="Logout"
+                android:key="@string/prefLogoutButton"/>
+
+</PreferenceScreen>

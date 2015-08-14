@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">KnoWell</string>
+    <string name="qr_scanner_activity">QR_Scanner</string>
+    <string name="action_settings">Settings</string>
+    <string name="logout">Logout</string>
+    <string name="action_qr">QRcode</string>
+    <string name="edit_item">Edit</string>
+    <string name="sort_results">Sort</string>
+    <string name="refresh">Refresh</string>
+    <string name="row_number">This is row number %d</string>
+    <string name="itemdeleted">Item deleted</string>
+    <string name="taptoundo">Tap to undo</string>
+    <string name="removed_positions">Removed positions: %s</string>
+    <string name="tap_to_insert">Tap on an item to insert a new item</string>
+    <string name="newly_added_item">This is newly added item %d</string>
+    <string name="googlecards">Google cards</string>
+    <string name="parse_app_id">"eXr5eE3ff6vTMkTqsWe373eVZbuOLtafn7mFwlI2"</string>
+    <string name="parse_client_key">"Ud799nz6KKXZNqWS6LBgCZ2QDiKx894SpVcskkfj"</string>
+    <string name="com_parse_ui_name_input_hint">Name: George Washington</string>
+    <string name="base_website_user">https://www.micklestudios.com/search?</string>
+    <string name="edit_notes">Taking Notes</string>
+    <string name="HoldToTalk">Hold to talk</string>
+    <string name="Replay">Replay</string>
+    <string name="date_added">Sometime ...</string>
+	<string name="city_added">Somewhere ...</string>
+	<string name="event_added">Some event ...</string>
+	<string name="manual_sync">Sync Data</string>
+	<string name="settings">Settings</string>
+	<string name="prefLogoutButton">Logout</string>
+	<string name="prefEmailGreeting">My preset email message</string>
+	<string name="prefSMSGreeting">My preset SMS message</string>
+	<string name="prefDocGreeting">My preset document message</string>
+	<string name="prefDocName">Upload document or change document name</string>
+	<string name="prefVersionNumber">1.0</string>
+	<string name="prefRateUs">Thank you so much!</string>
+	<string name="prefFeedBack">Please tell us how can KnoWell work better for you!</string>
+	<string name="prefAcknowledgement">Acknowledgement</string>
+	<string name="prefCheckUpdates">Check Updates</string>
+	<string name="prefPushNotifications">Enable/disable notifications</string>
+	<string name="prefFeedbackEmail">knowell@micklestudios.com</string>
+	<string name="prefAckList">Brian Spencer</string>
+</resources>
