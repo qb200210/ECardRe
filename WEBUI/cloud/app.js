@@ -49,26 +49,96 @@ app.get('/search', function(req, res) {
 	var query = new Parse.Query(ecardInfoClass);
 	query.get(sess.id, {
 		success: function(object) {
-			var collectedData = { 
-				ecardId: sess.id,
-				firstName: (typeof object.get("firstName") === 'undefined') ? "(Undisclosed Name)" : object.get("firstName"),
-				lastName: (typeof object.get("lastName") === 'undefined') ? "" : object.get("lastName"),
-				company: (typeof object.get("company") === 'undefined') ? "(Undisclosed Company)" : object.get("company"),
-				title: (typeof object.get("title") === 'undefined') ? "(Undisclosed Position)" : object.get("title"),
-				city: (typeof object.get("city") === 'undefined') ? "(Undisclosed Location)" : object.get("city"),
-				portrait_url: object.get("portrait").url(),
-				flagHasPrev: sess.flagHasPrev,
-			};
-			if(sess.flagHasPrev == 1) {
-				// if this /search comes from notification, do not persist the collecting card page.
-				sess.id = '';
-			}
-			if(Parse.User.current()) {
-				// If the user has already login, don't offer login/signup
-				res.render('ecardloggedin.ejs', collectedData);
-			} else {
-				// If the user has not login, show login/signup as well
-				res.render('ecardgrow.ejs', collectedData);
+			console.log(sess.id);
+			var targetCompany = (typeof object.get("company") === 'undefined') ? "" : object.get("company").toLowerCase().replace(/^[ ]+|[ ]+$/g,'');
+			if(targetCompany != ""){
+				// if the user has specified a company, display logo as well
+				var ecardTemplateClass = Parse.Object.extend("ECardTemplate");
+				var queryLogo = new Parse.Query(ecardTemplateClass);
+				queryLogo.equalTo("companyNameLC", targetCompany);
+				queryLogo.find({
+					success: function(resultsLogo) {
+						var logoURL = "http://www.micklestudios.com/assets/img/emptylogo.png";
+						if(!(typeof resultsLogo === 'undefined') && resultsLogo.length != 0){
+							console.log('found logo!');
+							logoURL = resultsLogo[0].get("companyLogo").url();
+						}								
+						var collectedData = { 
+							ecardId: sess.id,
+							flagHasPrev: sess.flagHasPrev,
+							firstName: (typeof object.get("firstName") === 'undefined') ? "(Undisclosed Name)" : object.get("firstName"),
+							lastName: (typeof object.get("lastName") === 'undefined') ? "" : object.get("lastName"),
+							company: (typeof object.get("company") === 'undefined') ? "(Undisclosed Company)" : object.get("company"),
+							title: (typeof object.get("title") === 'undefined') ? "(Undisclosed Position)" : object.get("title"),
+							city: (typeof object.get("city") === 'undefined') ? "(Undisclosed Location)" : object.get("city"),
+							portrait_url: object.get("portrait").url(),
+							companyLogo_url: logoURL,
+						};					
+						if(sess.flagHasPrev == 1) {
+							// if this /search comes from notification, do not persist the collecting card page.
+							sess.id = '';
+						}
+						if(Parse.User.current()) {
+							// If the user has already login, don't offer login/signup
+							res.render('ecardloggedin.ejs', collectedData);
+						} else {
+							// If the user has not login, show login/signup as well
+							res.render('ecardgrow.ejs', collectedData);
+						}		
+					},
+					error: function(error) {
+						console.log('error finding logo, display default');
+						var logoURL = "http://www.micklestudios.com/assets/img/emptylogo.png";														
+						var collectedData = { 
+							ecardId: sess.id,
+							flagHasPrev: sess.flagHasPrev,
+							firstName: (typeof object.get("firstName") === 'undefined') ? "(Undisclosed Name)" : object.get("firstName"),
+							lastName: (typeof object.get("lastName") === 'undefined') ? "" : object.get("lastName"),
+							company: (typeof object.get("company") === 'undefined') ? "(Undisclosed Company)" : object.get("company"),
+							title: (typeof object.get("title") === 'undefined') ? "(Undisclosed Position)" : object.get("title"),
+							city: (typeof object.get("city") === 'undefined') ? "(Undisclosed Location)" : object.get("city"),
+							portrait_url: object.get("portrait").url(),
+							companyLogo_url: logoURL,
+						};					
+						if(sess.flagHasPrev == 1) {
+							// if this /search comes from notification, do not persist the collecting card page.
+							sess.id = '';
+						}
+						if(Parse.User.current()) {
+							// If the user has already login, don't offer login/signup
+							res.render('ecardloggedin.ejs', collectedData);
+						} else {
+							// If the user has not login, show login/signup as well
+							res.render('ecardgrow.ejs', collectedData);
+						}
+					}
+				});
+			} else{
+				console.log('user has not specified company name');
+				// if the user has not specified a log, display default
+				var logoURL = "http://www.micklestudios.com/assets/img/emptylogo.png";	
+				var collectedData = { 
+					ecardId: sess.id,
+					flagHasPrev: sess.flagHasPrev,
+					firstName: (typeof object.get("firstName") === 'undefined') ? "(Undisclosed Name)" : object.get("firstName"),
+					lastName: (typeof object.get("lastName") === 'undefined') ? "" : object.get("lastName"),
+					company: (typeof object.get("company") === 'undefined') ? "(Undisclosed Company)" : object.get("company"),
+					title: (typeof object.get("title") === 'undefined') ? "(Undisclosed Position)" : object.get("title"),
+					city: (typeof object.get("city") === 'undefined') ? "(Undisclosed Location)" : object.get("city"),
+					portrait_url: object.get("portrait").url(),
+					companyLogo_url: logoURL,
+				};					
+				if(sess.flagHasPrev == 1) {
+					// if this /search comes from notification, do not persist the collecting card page.
+					sess.id = '';
+				}
+				if(Parse.User.current()) {
+					// If the user has already login, don't offer login/signup
+					res.render('ecardloggedin.ejs', collectedData);
+				} else {
+					// If the user has not login, show login/signup as well
+					res.render('ecardgrow.ejs', collectedData);
+				}	
 			}
 		},
 		error: function(error) {
@@ -143,29 +213,112 @@ app.get('/note', function(req, res){
 							splitDate = whenMet.split(" ");
 							whenMet= splitDate[1] + " "+ splitDate[2] + " " + splitDate[3];
 						}
-						res.render('notedetails.ejs', { 
-							noteId: noteId,
-							firstName: (typeof infoObj.get("firstName") === 'undefined') ? "(Undisclosed Name)" : infoObj.get("firstName"),
-							lastName: (typeof infoObj.get("lastName") === 'undefined') ? "" : infoObj.get("lastName"),
-							company: (typeof infoObj.get("company") === 'undefined') ? "(Undisclosed Company)" : infoObj.get("company"),
-							title: (typeof infoObj.get("title") === 'undefined') ? "(Undisclosed Position)" : infoObj.get("title"),
-							city: (typeof infoObj.get("city") === 'undefined') ? "(Undisclosed Location)" : infoObj.get("city"),
-							about: infoObj.get("about"),
-							phone: infoObj.get("phone"),
-							message: infoObj.get("message"),
-							email: infoObj.get("email"),
-							linkedin: infoObj.get("linkedin"),
-							facebook: infoObj.get("facebook"),
-							twitter: infoObj.get("twitter"),
-							googleplus: infoObj.get("googleplus"),
-							web: infoObj.get("web"),
-							portrait_url: infoObj.get("portrait").url(),
-							updatedAt: updatedAt,
-							whenMet: whenMet,
-							whereMet: (typeof noteObj.get("event_met") === 'undefined') ? "" : noteObj.get("where_met"),
-							eventMet: (typeof noteObj.get("event_met") === 'undefined') ? "" : noteObj.get("event_met"),
-							notes: (typeof noteObj.get("notes") === 'undefined') ? "" : noteObj.get("notes"),
-						});
+						
+						
+						var targetCompany = (typeof infoObj.get("company") === 'undefined') ? "" : infoObj.get("company").toLowerCase().replace(/^[ ]+|[ ]+$/g,'');
+						if(targetCompany != ""){
+							// if the user has specified a company, display logo as well
+							var ecardTemplateClass = Parse.Object.extend("ECardTemplate");
+							var queryLogo = new Parse.Query(ecardTemplateClass);
+							queryLogo.equalTo("companyNameLC", targetCompany);
+							queryLogo.find({
+								success: function(resultsLogo) {
+									var logoURL;
+									if(!(typeof resultsLogo === 'undefined') && resultsLogo.length != 0){
+										console.log('found logo!');
+										logoURL = resultsLogo[0].get("companyLogo").url();
+										console.log(logoURL);
+									} else {
+										console.log('no logo!');
+										logoURL = "http://www.micklestudios.com/assets/img/emptylogo.png";
+									}				
+									var collectedData = { 
+										noteId: noteId,
+										firstName: (typeof infoObj.get("firstName") === 'undefined') ? "(Undisclosed Name)" : infoObj.get("firstName"),
+										lastName: (typeof infoObj.get("lastName") === 'undefined') ? "" : infoObj.get("lastName"),
+										company: (typeof infoObj.get("company") === 'undefined') ? "(Undisclosed Company)" : infoObj.get("company"),
+										title: (typeof infoObj.get("title") === 'undefined') ? "(Undisclosed Position)" : infoObj.get("title"),
+										city: (typeof infoObj.get("city") === 'undefined') ? "(Undisclosed Location)" : infoObj.get("city"),
+										about: infoObj.get("about"),
+										phone: infoObj.get("phone"),
+										message: infoObj.get("message"),
+										email: infoObj.get("email"),
+										linkedin: infoObj.get("linkedin"),
+										facebook: infoObj.get("facebook"),
+										twitter: infoObj.get("twitter"),
+										googleplus: infoObj.get("googleplus"),
+										web: infoObj.get("web"),
+										portrait_url: infoObj.get("portrait").url(),
+										updatedAt: updatedAt,
+										whenMet: whenMet,
+										whereMet: (typeof noteObj.get("event_met") === 'undefined') ? "" : noteObj.get("where_met"),
+										eventMet: (typeof noteObj.get("event_met") === 'undefined') ? "" : noteObj.get("event_met"),
+										notes: (typeof noteObj.get("notes") === 'undefined') ? "" : noteObj.get("notes"),
+										companyLogo_url: logoURL,
+									};	
+									console.log('before rendering');							
+									res.render('notedetails.ejs', collectedData);
+								},
+								error: function(error) {
+									console.log('error finding logo, display default');
+									var logoURL = "http://www.micklestudios.com/assets/img/emptylogo.png";														
+									var collectedData = { 
+										noteId: noteId,
+										firstName: (typeof infoObj.get("firstName") === 'undefined') ? "(Undisclosed Name)" : infoObj.get("firstName"),
+										lastName: (typeof infoObj.get("lastName") === 'undefined') ? "" : infoObj.get("lastName"),
+										company: (typeof infoObj.get("company") === 'undefined') ? "(Undisclosed Company)" : infoObj.get("company"),
+										title: (typeof infoObj.get("title") === 'undefined') ? "(Undisclosed Position)" : infoObj.get("title"),
+										city: (typeof infoObj.get("city") === 'undefined') ? "(Undisclosed Location)" : infoObj.get("city"),
+										about: infoObj.get("about"),
+										phone: infoObj.get("phone"),
+										message: infoObj.get("message"),
+										email: infoObj.get("email"),
+										linkedin: infoObj.get("linkedin"),
+										facebook: infoObj.get("facebook"),
+										twitter: infoObj.get("twitter"),
+										googleplus: infoObj.get("googleplus"),
+										web: infoObj.get("web"),
+										portrait_url: infoObj.get("portrait").url(),
+										updatedAt: updatedAt,
+										whenMet: whenMet,
+										whereMet: (typeof noteObj.get("event_met") === 'undefined') ? "" : noteObj.get("where_met"),
+										eventMet: (typeof noteObj.get("event_met") === 'undefined') ? "" : noteObj.get("event_met"),
+										notes: (typeof noteObj.get("notes") === 'undefined') ? "" : noteObj.get("notes"),
+										companyLogo_url: logoURL,
+									};					
+									res.render('notedetails.ejs', collectedData);
+								}
+							});
+						} else{
+							console.log('user has not specified company name');
+							// if the user has not specified a log, display default
+							var logoURL = "http://www.micklestudios.com/assets/img/emptylogo.png";	
+							var collectedData = { 
+								noteId: noteId,
+								firstName: (typeof infoObj.get("firstName") === 'undefined') ? "(Undisclosed Name)" : infoObj.get("firstName"),
+								lastName: (typeof infoObj.get("lastName") === 'undefined') ? "" : infoObj.get("lastName"),
+								company: (typeof infoObj.get("company") === 'undefined') ? "(Undisclosed Company)" : infoObj.get("company"),
+								title: (typeof infoObj.get("title") === 'undefined') ? "(Undisclosed Position)" : infoObj.get("title"),
+								city: (typeof infoObj.get("city") === 'undefined') ? "(Undisclosed Location)" : infoObj.get("city"),
+								about: infoObj.get("about"),
+								phone: infoObj.get("phone"),
+								message: infoObj.get("message"),
+								email: infoObj.get("email"),
+								linkedin: infoObj.get("linkedin"),
+								facebook: infoObj.get("facebook"),
+								twitter: infoObj.get("twitter"),
+								googleplus: infoObj.get("googleplus"),
+								web: infoObj.get("web"),
+								portrait_url: infoObj.get("portrait").url(),
+								updatedAt: updatedAt,
+								whenMet: whenMet,
+								whereMet: (typeof noteObj.get("event_met") === 'undefined') ? "" : noteObj.get("where_met"),
+								eventMet: (typeof noteObj.get("event_met") === 'undefined') ? "" : noteObj.get("event_met"),
+								notes: (typeof noteObj.get("notes") === 'undefined') ? "" : noteObj.get("notes"),
+								companyLogo_url: logoURL,
+							};					
+							res.render('notedetails.ejs', collectedData);
+						}
 					},
 					error: function(error){
 						console.log(error)
@@ -938,6 +1091,23 @@ app.post('/deletenote', function(req, res){
 	
 })
 
+app.post('/retrievepass', function(req, res){
+	// This is to respond to user's save Ecard action
+	console.log("retrievepass");
+	var email = req.body.email;
+	Parse.User.requestPasswordReset(email , {
+            success: function () {
+				console.log('retrieve successful');
+                res.json({successful : true, msg: ''});
+            },
+            error: function (error) {
+                console.log('retrieve fails');
+                res.json({successful : false, msg: 'fail:'+ error.message});
+            }
+        });
+	
+})
+
 app.post('/signup', function(req, res){
 	if(Parse.User.current()){
 		// this is necessary, otherwise signup while a session is on-going will fail
@@ -1068,18 +1238,69 @@ app.get('/', function(req, res){
 			query.get(sess.id, {
 				success: function(object) {
 					console.log(sess.id);
-					var collectedData = { 
-						ecardId: sess.id,
-						flagHasPrev: 0,
-						firstName: (typeof object.get("firstName") === 'undefined') ? "(Undisclosed Name)" : object.get("firstName"),
-						lastName: (typeof object.get("lastName") === 'undefined') ? "" : object.get("lastName"),
-						company: (typeof object.get("company") === 'undefined') ? "(Undisclosed Company)" : object.get("company"),
-						title: (typeof object.get("title") === 'undefined') ? "(Undisclosed Position)" : object.get("title"),
-						city: (typeof object.get("city") === 'undefined') ? "(Undisclosed Location)" : object.get("city"),
-						portrait_url: object.get("portrait").url(),
-					};					
-					// The user has already login, don't offer login/signup
-					res.render('ecardloggedin.ejs', collectedData);					
+					var targetCompany = (typeof object.get("company") === 'undefined') ? "" : object.get("company").toLowerCase().replace(/^[ ]+|[ ]+$/g,'');
+					if(targetCompany != ""){
+						// if the user has specified a company, display logo as well
+						var ecardTemplateClass = Parse.Object.extend("ECardTemplate");
+						var queryLogo = new Parse.Query(ecardTemplateClass);
+						queryLogo.equalTo("companyNameLC", targetCompany);
+						queryLogo.find({
+							success: function(resultsLogo) {
+								var logoURL = "http://www.micklestudios.com/assets/img/emptylogo.png";
+								if(!(typeof resultsLogo === 'undefined') && resultsLogo.length != 0){
+									console.log('found logo!');
+									logoURL = resultsLogo[0].get("companyLogo").url();
+								}								
+								var collectedData = { 
+									ecardId: sess.id,
+									flagHasPrev: 0,
+									firstName: (typeof object.get("firstName") === 'undefined') ? "(Undisclosed Name)" : object.get("firstName"),
+									lastName: (typeof object.get("lastName") === 'undefined') ? "" : object.get("lastName"),
+									company: (typeof object.get("company") === 'undefined') ? "(Undisclosed Company)" : object.get("company"),
+									title: (typeof object.get("title") === 'undefined') ? "(Undisclosed Position)" : object.get("title"),
+									city: (typeof object.get("city") === 'undefined') ? "(Undisclosed Location)" : object.get("city"),
+									portrait_url: object.get("portrait").url(),
+									companyLogo_url: logoURL,
+								};					
+								// The user has already login, don't offer login/signup
+								res.render('ecardloggedin.ejs', collectedData);			
+							},
+							error: function(error) {
+								console.log('error finding logo, display default');
+								var logoURL = "http://www.micklestudios.com/assets/img/emptylogo.png";														
+								var collectedData = { 
+									ecardId: sess.id,
+									flagHasPrev: 0,
+									firstName: (typeof object.get("firstName") === 'undefined') ? "(Undisclosed Name)" : object.get("firstName"),
+									lastName: (typeof object.get("lastName") === 'undefined') ? "" : object.get("lastName"),
+									company: (typeof object.get("company") === 'undefined') ? "(Undisclosed Company)" : object.get("company"),
+									title: (typeof object.get("title") === 'undefined') ? "(Undisclosed Position)" : object.get("title"),
+									city: (typeof object.get("city") === 'undefined') ? "(Undisclosed Location)" : object.get("city"),
+									portrait_url: object.get("portrait").url(),
+									companyLogo_url: logoURL,
+								};					
+								// The user has already login, don't offer login/signup
+								res.render('ecardloggedin.ejs', collectedData);
+							}
+						});
+					} else{
+						console.log('user has not specified company name');
+						// if the user has not specified a log, display default
+						var logoURL = "http://www.micklestudios.com/assets/img/emptylogo.png";	
+						var collectedData = { 
+							ecardId: sess.id,
+							flagHasPrev: 0,
+							firstName: (typeof object.get("firstName") === 'undefined') ? "(Undisclosed Name)" : object.get("firstName"),
+							lastName: (typeof object.get("lastName") === 'undefined') ? "" : object.get("lastName"),
+							company: (typeof object.get("company") === 'undefined') ? "(Undisclosed Company)" : object.get("company"),
+							title: (typeof object.get("title") === 'undefined') ? "(Undisclosed Position)" : object.get("title"),
+							city: (typeof object.get("city") === 'undefined') ? "(Undisclosed Location)" : object.get("city"),
+							portrait_url: object.get("portrait").url(),
+							companyLogo_url: logoURL,
+						};					
+						// The user has already login, don't offer login/signup
+						res.render('ecardloggedin.ejs', collectedData);			
+					}
 				},
 				error: function(error) {
 					// If the ecard is not found, bring user to login/signup page
@@ -1088,6 +1309,7 @@ app.get('/', function(req, res){
 				}
 			});						
 		} else {
+			// no card to be collected, go to dashboard
 			// Must use fetch(), previously tried current().get("name"), returns null
 			Parse.User.current().fetch().then(function(user){
 				var ecardInfoClass = Parse.Object.extend("ECardInfo");
@@ -1095,23 +1317,80 @@ app.get('/', function(req, res){
 				query.get(user.get("ecardId"), {
 					success: function(object) {
 						// display the current user's ecard
-						res.render('dashboard.ejs', { 
-							ecardId: object.id,
-							firstName: (typeof object.get("firstName") === 'undefined') ? "(Undisclosed Name)" : object.get("firstName"),
-							lastName: (typeof object.get("lastName") === 'undefined') ? "" : object.get("lastName"),
-							company: (typeof object.get("company") === 'undefined') ? "(Undisclosed Company)" : object.get("company"),
-							title: (typeof object.get("title") === 'undefined') ? "(Undisclosed Position)" : object.get("title"),
-							city: (typeof object.get("city") === 'undefined') ? "(Undisclosed Location)" : object.get("city"),
-							username: user.get('username'),
-							portrait_url: object.get("portrait").url(),
-						 });				 
+						var targetCompany = (typeof object.get("company") === 'undefined') ? "" : object.get("company").toLowerCase().replace(/^[ ]+|[ ]+$/g,'');
+						if(targetCompany != ""){
+							// if the user has specified a company, display logo as well
+							var ecardTemplateClass = Parse.Object.extend("ECardTemplate");
+							var queryLogo = new Parse.Query(ecardTemplateClass);
+							queryLogo.equalTo("companyNameLC", targetCompany);
+							queryLogo.find({
+								success: function(resultsLogo) {
+									var logoURL = "http://www.micklestudios.com/assets/img/emptylogo.png";
+									if(!(typeof resultsLogo === 'undefined') && resultsLogo.length != 0){
+										console.log('found logo!');
+										logoURL = resultsLogo[0].get("companyLogo").url();
+									}								
+									var collectedData = { 
+										ecardId: object.id,
+										firstName: (typeof object.get("firstName") === 'undefined') ? "(Undisclosed Name)" : object.get("firstName"),
+										lastName: (typeof object.get("lastName") === 'undefined') ? "" : object.get("lastName"),
+										company: (typeof object.get("company") === 'undefined') ? "(Undisclosed Company)" : object.get("company"),
+										title: (typeof object.get("title") === 'undefined') ? "(Undisclosed Position)" : object.get("title"),
+										city: (typeof object.get("city") === 'undefined') ? "(Undisclosed Location)" : object.get("city"),
+										username: user.get('username'),
+										portrait_url: object.get("portrait").url(),
+										companyLogo_url: logoURL,
+									};					
+									// The user has already login, don't offer login/signup
+									res.render('dashboard.ejs', collectedData);					
+								},
+								error: function(error) {
+									console.log('error finding logo, display default');
+									var logoURL = "http://www.micklestudios.com/assets/img/emptylogo.png";	
+									var collectedData = { 
+										ecardId: object.id,
+										firstName: (typeof object.get("firstName") === 'undefined') ? "(Undisclosed Name)" : object.get("firstName"),
+										lastName: (typeof object.get("lastName") === 'undefined') ? "" : object.get("lastName"),
+										company: (typeof object.get("company") === 'undefined') ? "(Undisclosed Company)" : object.get("company"),
+										title: (typeof object.get("title") === 'undefined') ? "(Undisclosed Position)" : object.get("title"),
+										city: (typeof object.get("city") === 'undefined') ? "(Undisclosed Location)" : object.get("city"),
+										username: user.get('username'),
+										portrait_url: object.get("portrait").url(),
+										companyLogo_url: logoURL,
+									};					
+									// The user has already login, don't offer login/signup
+									res.render('dashboard.ejs', collectedData);			
+								}
+							});
+						} else{
+							console.log('user has not specified company name');
+							// if the user has not specified a log, display default
+							var logoURL = "http://www.micklestudios.com/assets/img/emptylogo.png";	
+							var collectedData = { 
+								ecardId: object.id,
+								firstName: (typeof object.get("firstName") === 'undefined') ? "(Undisclosed Name)" : object.get("firstName"),
+								lastName: (typeof object.get("lastName") === 'undefined') ? "" : object.get("lastName"),
+								company: (typeof object.get("company") === 'undefined') ? "(Undisclosed Company)" : object.get("company"),
+								title: (typeof object.get("title") === 'undefined') ? "(Undisclosed Position)" : object.get("title"),
+								city: (typeof object.get("city") === 'undefined') ? "(Undisclosed Location)" : object.get("city"),
+								username: user.get('username'),
+								portrait_url: object.get("portrait").url(),
+								companyLogo_url: logoURL,
+							};					
+							// The user has already login, don't offer login/signup
+							res.render('dashboard.ejs', collectedData);			
+						}							 
 					},
 					error: function(error) {
 						console.log('error finding my ecardinfo')
 					}
 				});	
 			}, function(error){
-				
+				if(Parse.User.current()){
+					// this is necessary, otherwise signup while a session is on-going will fail
+					Parse.User.logOut();
+					res.redirect('/');
+				}
 			});
 		}
 	} else {

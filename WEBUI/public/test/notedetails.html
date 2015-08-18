@@ -5,16 +5,19 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-		<meta name="description" content="">
+		<meta name="description" content="KnoWell, Not Only Know. By MickleStudios. Electronics Business Cards.">
 		<meta name="author" content="">
 		<link rel="icon" href="../../favicon.ico">
 
-		<title>KnoWell -- Know Your Connections Well</title>
+		<title>KnoWell &mdash; Not Only Know</title>
 
 		<!-- Bootstrap core CSS -->
 		<link href="../dist/css/bootstrap.min.css" rel="stylesheet">
 		<link href="../assets/css/general.css" rel="stylesheet">
 		<link href="../assets/css/bootstrap-datepicker.css" rel="stylesheet">
+		<link href="../assets/css/nav-icon.css" rel="stylesheet">
+		<link href="../assets/css/sticky-footer.css" rel="stylesheet">
+
 		<script src="../assets/js/jquery.min.js"></script>
 
 		<style type="text/css">
@@ -143,7 +146,6 @@
 			}
 
 			.container-card-header {
-				min-width: 260px;
 				max-width: 260px;
 				padding: 10px 0px 10px;
 				margin: 0px auto 20px;
@@ -178,8 +180,25 @@
 				margin: 0 0 0;
 			}
 
+			.logopart{
+				display:table-cell;
+				width: 230px;
+				height: 40px;
+				margin: 0 0 0;
+				position:relative;
+			}
+			
+			.logopart img {
+				position:absolute; 
+				bottom:0; 
+				right: 0;
+				max-width: 220px;
+				max-height: 35px;
+			}
+
 			.botpart{
 				width: 230px;
+				height: 80px;
 				margin: 0 0 0;
 			}
 
@@ -320,11 +339,11 @@
 			function goBack() {
 				window.history.back();
 			}
-			
+
 			function confirmDelete() {
 				$('#confirmDeletion').modal('show');
 			}
-			
+
 			function proceedDeletion(){
 				goBack();
 				$('#phantomDeleteBtn').trigger('click');
@@ -382,7 +401,7 @@
 					},'json');
 					return false;
 				});
-				
+
 			});
 		</script>
 
@@ -394,10 +413,10 @@
 
 		<nav class="navbar navbar-inverse navbar-fixed-top">
 			<div class="container">
-				
+
 				<div class="navbar-header">
-          <a class="navbar-brand" href="javascript:void(0)" onclick="goBack();">KnoWell</a>
-        </div>        
+					<a class="navbar-brand home" href="javascript:void(0)" onclick="goBack();"></a>
+				</div>
 			</div>
 		</nav>
 
@@ -429,7 +448,7 @@
 				</div>
 			</div>
 		</div>
-		
+
 		<div class="modal fade bs-example-modal-sm" id="saveResults1" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" data-backdrop="static">
 			<div class="modal-dialog modal-sm">
 				<div class="modal-content">
@@ -439,7 +458,7 @@
 				</div>
 			</div>
 		</div>
-		
+
 		<div class="modal fade bs-example-modal-sm" id="confirmDeletion" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" data-backdrop="static">
 			<div class="modal-dialog modal-sm">
 				<div class="modal-content">
@@ -468,202 +487,211 @@
 		</div>
 
 		<div class="row">
-			<div class="col-sm-5 col-sm-offset-1 col-md-4 col-md-offset-2 col-lg-3 col-lg-offset-3" style="min-width: 280px">
+			<div class="container">
+				<div class="col-md-6 col-md-offset-3">
+					<div class="row" style="margin-bottom:50px">
+						<div class="col-md-6 "  style="min-width: 280px;">
 
-				<div class="container-card">
-					<div class="maincard">
-						<div class="toppart">
-							<div class="profile">
-								<img src="<%=portrait_url%>">
+							<div class="container-card">
+								<div class="maincard">
+									<div class="toppart">
+										<div class="profile">
+											<img src="<%=portrait_url%>">
+										</div>
+										<div class= "name">
+											<p style="font-size: medium; margin-bottom: 0px"> <b><%= firstName %> <%= lastName %></b> </p>
+										</div>
+									</div>
+									<div class="midpart">
+										<hr class= "hr">
+									</div>
+									<div class="botpart">
+										<address class="ellipsis" style="margin-top: 10px">
+											<p style="font-size: medium; margin-bottom: 0px;"><%= title %></p>
+											<br><p style="font-size: small; margin-bottom: 0px"><%= company %></p>
+											<br><p style="font-size: medium; margin-bottom: 0px"><%= city %></p>
+										</address>
+									</div>
+									<div class="logopart">
+										<img src="<%=companyLogo_url%>">
+									</div>
+								</div>
 							</div>
-							<div class= "name">
-								<p style="font-size: medium; margin-bottom: 0px"> <b><%= firstName %> <%= lastName %></b> </p>
+							<div id="contact" class="container-card-header" style="display : inherit">
+								<div class="maincard">
+									<div class="container-fluid" style="padding: 0px 0px 0px;">
+										<div class="row infoicon">
+											<div id="about_button" class="col-xs-4 col-sm-4 peritem" style="display : none">
+												<img src="../assets/img/me.png"  class="img-responsive" data-toggle="modal" data-target="#myModal" data-backdrop="static" onclick="javascript:fill_content('about');">
+											</div>
+											<div id="email_button" class="col-xs-4 col-sm-4 peritem" style="display : none">
+												<a href="mailto:<%=email%>"><img src="../assets/img/mail.png"  class="img-responsive"></a>
+											</div>
+											<div id="message_button" class="col-xs-4 col-sm-4 peritem" style="display : none">
+												<a href="sms:<%=message%>"><img src="../assets/img/message.png"  class="img-responsive"></a>
+											</div>
+											<div id="phone_button" class="col-xs-4 col-sm-4 peritem" style="display : none">
+												<a href="tel:<%=phone%>"><img src="../assets/img/phone.png"  class="img-responsive"></a>
+											</div>
+											<div id="web_button" class="col-xs-4 col-sm-4 peritem" style="display : none">
+												<a id="web_url" href="#" target="_blank"><img src="../assets/img/web.png"  class="img-responsive"></a>
+												<script>
+													var web_url = "<%=web%>";
+													if(! web_url.startsWith("http://") && !web_url.startsWith("https://") && !web_url.startsWith("ftp://")){
+														web_url= "http://www.google.com/#q="+web_url;
+													}
+													$("#web_url").attr("href", web_url);
+												</script>
+											</div>
+											<div id="linkedin_button" class="col-xs-4 col-sm-4 peritem" style="display : none">
+												<a id="linkedin_url" href="#" target="_blank"><img src="../assets/img/linkedin.png"  class="img-responsive"></a>
+												<script>
+													var linkedin_url = "<%=linkedin%>";
+													if(! linkedin_url.startsWith("http://") && !linkedin_url.startsWith("https://") && !linkedin_url.startsWith("ftp://")){
+														linkedin_url= "http://www.google.com/#q="+linkedin_url;
+													}
+													$("#linkedin_url").attr("href", linkedin_url);
+												</script>
+											</div>
+											<div id="facebook_button" class="col-xs-4 col-sm-4 peritem" style="display : none">
+												<a id="facebook_url" href="#" target="_blank"><img src="../assets/img/facebook.png"  class="img-responsive"></a>
+												<script>
+													var facebook_url = "<%=facebook%>";
+													if(! facebook_url.startsWith("http://") && !facebook_url.startsWith("https://") && !facebook_url.startsWith("ftp://")){
+														facebook_url= "http://www.google.com/#q="+facebook_url;
+													}
+													$("#facebook_url").attr("href", facebook_url);
+												</script>
+											</div>
+											<div id="twitter_button" class="col-xs-4 col-sm-4 peritem" style="display : none">
+												<a id="twitter_url" href="#" target="_blank"><img src="../assets/img/twitter.png"  class="img-responsive"></a>
+												<script>
+													var twitter_url = "<%=twitter%>";
+													if(! twitter_url.startsWith("http://") && !twitter_url.startsWith("https://") && !twitter_url.startsWith("ftp://")){
+														twitter_url= "http://www.google.com/#q="+twitter_url;
+													}
+													$("#twitter_url").attr("href", twitter_url);
+												</script>
+											</div>
+											<div id="googleplus_button" class="col-xs-4 col-sm-4 peritem" style="display : none">
+												<a id="googleplus_url" target="_blank"><img src="../assets/img/googleplus.png"  class="img-responsive"></a>
+												<script>
+													var googleplus_url = "<%=googleplus%>";
+													if(! googleplus_url.startsWith("http://") && !googleplus_url.startsWith("https://") && !googleplus_url.startsWith("ftp://")){
+														googleplus_url= "http://www.google.com/#q="+googleplus_url;
+													}
+													$("#googleplus_url").attr("href", googleplus_url);
+												</script>
+											</div>
+										</div>
+									</div>
+								</div>
 							</div>
 						</div>
-						<div class="midpart">
-							<hr class= "hr">
-						</div>
-						<div class="botpart">
-							<address class="ellipsis" style="margin-top: 10px">
-								<p style="font-size: medium; margin-bottom: 0px;"><%= title %></p>
-								<br><p style="font-size: small; margin-bottom: 0px"><%= company %></p>
-								<br><p style="font-size: medium; margin-bottom: 0px"><%= city %></p>
-							</address>
-						</div>
-					</div>
-				</div>
-				<div id="contact" class="container-card-header" style="display : inherit">
-					<div class="maincard">
-						<div class="container-fluid" style="padding: 0px 0px 0px;">
-							<div class="row infoicon">
-								<div id="about_button" class="col-xs-4 col-sm-4 peritem" style="display : none">
-									<img src="../assets/img/me.png"  class="img-responsive" data-toggle="modal" data-target="#myModal" data-backdrop="static" onclick="javascript:fill_content('about');">
-								</div>
-								<div id="email_button" class="col-xs-4 col-sm-4 peritem" style="display : none">
-									<a href="mailto:<%=email%>"><img src="../assets/img/mail.png"  class="img-responsive"></a>
-								</div>
-								<div id="message_button" class="col-xs-4 col-sm-4 peritem" style="display : none">
-									<a href="sms:<%=message%>"><img src="../assets/img/message.png"  class="img-responsive"></a>
-								</div>
-								<div id="phone_button" class="col-xs-4 col-sm-4 peritem" style="display : none">
-									<a href="tel:<%=phone%>"><img src="../assets/img/phone.png"  class="img-responsive"></a>
-								</div>
-								<div id="web_button" class="col-xs-4 col-sm-4 peritem" style="display : none">
-									<a id="web_url" href="#" target="_blank"><img src="../assets/img/web.png"  class="img-responsive"></a>
-									<script>
-										var web_url = "<%=web%>";
-										if(! web_url.startsWith("http://") && !web_url.startsWith("https://") && !web_url.startsWith("ftp://")){
-											web_url= "http://www.google.com/#q="+web_url;
+
+						<div class="col-md-6 "  style="min-width: 280px;">
+
+							<script>
+								$(function() {
+									$("textarea[maxlength]").bind('input propertychange', function() {
+										var maxLength = $(this).attr('maxlength');
+										$('#textarea_feedback').html((maxLength -$(this).val().length) +' characters remaining');
+										if ($(this).val().length > maxLength) {
+											$(this).val($(this).val().substring(0, maxLength));
 										}
-										$("#web_url").attr("href", web_url);
-									</script>
+									})
+								});
+
+
+							</script>
+
+							<div id="notes_panel" class="container-note" style="display : inherit; min-width: 260px">
+								<div class="panelbar">
+									<div class="media">
+										<div class="media-left">
+											<img src="../assets/img/note.png">
+										</div>
+										<div class="media-body media-text">
+											<font color="white"><%= updatedAt %> <br>
+											<small>Last Modified </small></font>
+											</div>
+										</div>
+									</div>
+
+									<div class="panellower">
+										<form id="noteForm" action='/savenote' method='POST'>
+											<input name="noteId" value="<%=noteId%>" style="display: none">
+											<input type="hidden" name="_csrf" value="<%= csrf_field %>" style="display: none">
+
+											<div class="media" style="margin-left: 10px">
+												<div class="media-left">
+													<img src="../assets/img/clock.png">
+												</div>
+												<div class="media-body media-text">
+													<font color="white">We met on <input style="width: 100px" onkeydown="return false" name="whenMet" type="text" type="text" class="input-small inputstyle" placeholder="when?" id="example1" value="<%= whenMet %>" onchange="offerSave(false);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();"></font>
+												</div>
+											</div>
+											<div class="media" style="margin-left: 10px">
+												<div class="media-left">
+													<img src="../assets/img/location.png">
+												</div>
+												<div class="media-body media-text">
+													<font color="white">At <input name="whereMet" class="input-small inputstyle" placeholder="where?" id="about_dialog" type="text" value="<%= whereMet %>" onchange="offerSave(false);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();"></font>
+												</div>
+											</div>
+											<div class="media" style="margin-left: 10px">
+												<div class="media-left">
+													<img src="../assets/img/event.png">
+												</div>
+												<div class="media-body media-text">
+													<font color="white">In <input name="eventMet" class="input-small inputstyle" placeholder="which event?" id="about_dialog" type="text" value="<%= eventMet %>" onchange="offerSave(false);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();"></font>
+												</div>
+											</div>
+											<textarea name="notes" maxlength="1000" id="textarea" class="form-control notetext" rows="3" placeholder="Context of this conversation or things worth noting" value="<%= notes%>" onchange="offerSave(true);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();"></textarea>
+											<small id="textarea_feedback" style="padding: 0px 5px 0px; display: none"></small>
+											<button id="phatomBtn" type="submit" class="btn btn-success" style="display: none;">Phatom</button>
+										</form>
+									</div>
+
+									<div id="save_div" class="savdiv" style="display: none">
+										<button type="button" class="btn btn-sm btn-success btn-block" onclick="javascript:$('#phatomBtn').trigger('click');">Save Changes</button>
+										<button type="button" class="btn btn-sm btn-default btn-block" onclick="javascript:goBack();">Forget it</button>
+									</div>
 								</div>
-								<div id="linkedin_button" class="col-xs-4 col-sm-4 peritem" style="display : none">
-									<a id="linkedin_url" href="#" target="_blank"><img src="../assets/img/linkedin.png"  class="img-responsive"></a>
-									<script>
-										var linkedin_url = "<%=linkedin%>";
-										if(! linkedin_url.startsWith("http://") && !linkedin_url.startsWith("https://") && !linkedin_url.startsWith("ftp://")){
-											linkedin_url= "http://www.google.com/#q="+linkedin_url;
-										}
-										$("#linkedin_url").attr("href", linkedin_url);
-									</script>
-								</div>
-								<div id="facebook_button" class="col-xs-4 col-sm-4 peritem" style="display : none">
-									<a id="facebook_url" href="#" target="_blank"><img src="../assets/img/facebook.png"  class="img-responsive"></a>
-									<script>
-										var facebook_url = "<%=facebook%>";
-										if(! facebook_url.startsWith("http://") && !facebook_url.startsWith("https://") && !facebook_url.startsWith("ftp://")){
-											facebook_url= "http://www.google.com/#q="+facebook_url;
-										}
-										$("#facebook_url").attr("href", facebook_url);
-									</script>
-								</div>
-								<div id="twitter_button" class="col-xs-4 col-sm-4 peritem" style="display : none">
-									<a id="twitter_url" href="#" target="_blank"><img src="../assets/img/twitter.png"  class="img-responsive"></a>
-									<script>
-										var twitter_url = "<%=twitter%>";
-										if(! twitter_url.startsWith("http://") && !twitter_url.startsWith("https://") && !twitter_url.startsWith("ftp://")){
-											twitter_url= "http://www.google.com/#q="+twitter_url;
-										}
-										$("#twitter_url").attr("href", twitter_url);
-									</script>
-								</div>
-								<div id="googleplus_button" class="col-xs-4 col-sm-4 peritem" style="display : none">
-									<a id="googleplus_url" target="_blank"><img src="../assets/img/googleplus.png"  class="img-responsive"></a>
-									<script>
-										var googleplus_url = "<%=googleplus%>";
-										if(! googleplus_url.startsWith("http://") && !googleplus_url.startsWith("https://") && !googleplus_url.startsWith("ftp://")){
-											googleplus_url= "http://www.google.com/#q="+googleplus_url;
-										}
-										$("#googleplus_url").attr("href", googleplus_url);
-									</script>
-								</div>
+
+
+
 							</div>
 						</div>
 					</div>
 				</div>
 			</div>
 
-			<div class="col-sm-4 col-md-4 col-lg-4">
-
-				<script>
-					$(function() {
-						$("textarea[maxlength]").bind('input propertychange', function() {
-							var maxLength = $(this).attr('maxlength');
-							$('#textarea_feedback').html((maxLength -$(this).val().length) +' characters remaining');
-							if ($(this).val().length > maxLength) {
-								$(this).val($(this).val().substring(0, maxLength));
-							}
-						})
-					});
-
-
-				</script>
-
-				<div id="notes_panel" class="container-note" style="display : inherit; min-width: 260px">
-					<div class="panelbar">
-						<div class="media">
-							<div class="media-left">
-								<img src="../assets/img/note.png">
-							</div>
-							<div class="media-body media-text">
-								<font color="white"><%= updatedAt %> <br>
-							<small>Last Modified </small></font>
-							</div>
-						</div>
-					</div>
-
-					<div class="panellower">
-						<form id="noteForm" action='/savenote' method='POST'>
-							<input name="noteId" value="<%=noteId%>" style="display: none">
-							<input type="hidden" name="_csrf" value="<%= csrf_field %>" style="display: none">
-
-							<div class="media" style="margin-left: 10px">
-								<div class="media-left">
-									<img src="../assets/img/clock.png">
-								</div>
-								<div class="media-body media-text">
-									<font color="white">We met on <input style="width: 100px" onkeydown="return false" name="whenMet" type="text" type="text" class="input-small inputstyle" placeholder="when?" id="example1" value="<%= whenMet %>" onchange="offerSave(false);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();"></font>
-								</div>
-							</div>
-							<div class="media" style="margin-left: 10px">
-								<div class="media-left">
-									<img src="../assets/img/location.png">
-								</div>
-								<div class="media-body media-text">
-									<font color="white">At <input name="whereMet" class="input-small inputstyle" placeholder="where?" id="about_dialog" type="text" value="<%= whereMet %>" onchange="offerSave(false);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();"></font>
-								</div>
-							</div>
-							<div class="media" style="margin-left: 10px">
-								<div class="media-left">
-									<img src="../assets/img/event.png">
-								</div>
-								<div class="media-body media-text">
-									<font color="white">In <input name="eventMet" class="input-small inputstyle" placeholder="which event?" id="about_dialog" type="text" value="<%= eventMet %>" onchange="offerSave(false);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();"></font>
-								</div>
-							</div>
-							<textarea name="notes" maxlength="1000" id="textarea" class="form-control notetext" rows="3" placeholder="Context of this conversation or things worth noting" value="<%= notes%>" onchange="offerSave(true);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();"></textarea>
-							<small id="textarea_feedback" style="padding: 0px 5px 0px; display: none"></small>
-							<button id="phatomBtn" type="submit" class="btn btn-success" style="display: none;">Phatom</button>
-						</form>
-					</div>
-
-					<div id="save_div" class="savdiv" style="display: none">
-						<button type="button" class="btn btn-sm btn-success btn-block" onclick="javascript:$('#phatomBtn').trigger('click');">Save Changes</button>
-						<button type="button" class="btn btn-sm btn-default btn-block" onclick="javascript:goBack();">Forget it</button>
-					</div>
-				</div>
-				
-
-
-			</div>
-		</div>
-
-		<script>
-			var flagHideInfoPanel = true;
-			for(var j=0; j< stringArray.length ; j++){
-				if(document.getElementById(stringArray[j]).value != 'undefined'){
-					flagHideInfoPanel = false;
-					document.getElementById(stringArray[j]+"_button").style.display="inherit";
-					document.getElementById(stringArray[j]+'_dialog').style.display="none";
-				} else{
-					document.getElementById(stringArray[j]).value = "";
-					document.getElementById(stringArray[j]+'_dialog').style.display="none";
+			<script>
+				var flagHideInfoPanel = true;
+				for(var j=0; j< stringArray.length ; j++){
+					if(document.getElementById(stringArray[j]).value != 'undefined'){
+						flagHideInfoPanel = false;
+						document.getElementById(stringArray[j]+"_button").style.display="inherit";
+						document.getElementById(stringArray[j]+'_dialog').style.display="none";
+					} else{
+						document.getElementById(stringArray[j]).value = "";
+						document.getElementById(stringArray[j]+'_dialog').style.display="none";
+					}
 				}
-			}
-			if(flagHideInfoPanel){
-				document.getElementById("contact").style.display="none";
-			}
-		</script>
+				if(flagHideInfoPanel){
+					document.getElementById("contact").style.display="none";
+				}
+			</script>
 
 
 
-		<!-- Bootstrap core JavaScript
-		================================================== -->
-		<!-- Placed at the end of the document so the pages load faster -->
-		<script src="../dist/js/bootstrap.min.js"></script>
-		<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-		<script src="../assets/js/ie10-viewport-bug-workaround.js"></script>
-		<script src="../assets/js/bootstrap-datepicker.js"></script>
-	</body>
-</html>
+			<!-- Bootstrap core JavaScript
+			================================================== -->
+			<!-- Placed at the end of the document so the pages load faster -->
+			<script src="../dist/js/bootstrap.min.js"></script>
+			<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+			<script src="../assets/js/ie10-viewport-bug-workaround.js"></script>
+			<script src="../assets/js/bootstrap-datepicker.js"></script>
+		</body>
+	</html>
