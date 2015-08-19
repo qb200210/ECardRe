@@ -201,7 +201,7 @@
 						for(i = 0 ; i< Math.ceil(foundNumNotes/2); i++){
 							var cardElm = document.createElement("div");
 							cardElm.className = "maincard";
-							cardElm.innerHTML="<a href='/note?id=" + foundNotes[i].noteId + ">\n" + "<div class='media'>\n<div class='media-left'> <img src=" + foundNotes[i].portrait_url + "> </div>\n <div class='media-body minicard'> \n" + "<b>" + foundNotes[i].firstName + " " + foundNotes[i].lastName + "</b> <br> \n" + "<div class='ellipsis'>" + foundNotes[i].title + " at " + foundNotes[i].company + "</div> \n" + foundNotes[i].city + "</div>\n</div>\n</a>\n";
+							cardElm.innerHTML="<input type='checkbox' name='foo' value='" + foundNotes[i].noteId + "' style='display: none; margin: 0px 0px 10px;'><a href='/note?id=" + foundNotes[i].noteId + "'>\n" + "<div class='media'>\n<div class='media-left'> <img src=" + foundNotes[i].portrait_url + "> </div>\n <div class='media-body minicard'> \n" + "<b>" + foundNotes[i].firstName + " " + foundNotes[i].lastName + "</b> <br> \n" + "<div class='ellipsis'>" + foundNotes[i].title + " at " + foundNotes[i].company + "</div> \n" + foundNotes[i].city + "</div>\n</div>\n</a>\n";
 							console.log(cardElm.innerHTML);
 							newLeftColumn.appendChild(cardElm);
 						}
@@ -215,7 +215,7 @@
 						for(i = Math.ceil(foundNumNotes/2) ; i< foundNumNotes; i++){
 							var cardElm = document.createElement("div");
 							cardElm.className = "maincard";
-							cardElm.innerHTML="<a href='/note?id=" + foundNotes[i].noteId + ">\n" + "<div class='media'>\n<div class='media-left'> <img src=" + foundNotes[i].portrait_url + "> </div>\n <div class='media-body minicard'> \n" + "<b>" + foundNotes[i].firstName + " " + foundNotes[i].lastName + "</b> <br> \n" + "<div class='ellipsis'>" + foundNotes[i].title + " at " + foundNotes[i].company + "</div> \n" + foundNotes[i].city + "</div>\n</div>\n</a>\n";
+							cardElm.innerHTML="<input type='checkbox' name='foo' value='" + foundNotes[i].noteId + "' style='display: none; margin: 0px 0px 10px;'><a href='/note?id=" + foundNotes[i].noteId + "'>\n" + "<div class='media'>\n<div class='media-left'> <img src=" + foundNotes[i].portrait_url + "> </div>\n <div class='media-body minicard'> \n" + "<b>" + foundNotes[i].firstName + " " + foundNotes[i].lastName + "</b> <br> \n" + "<div class='ellipsis'>" + foundNotes[i].title + " at " + foundNotes[i].company + "</div> \n" + foundNotes[i].city + "</div>\n</div>\n</a>\n";
 							newRightColumn.appendChild(cardElm);
 						}
 						mainContainer.replaceChild(newRightColumn, rightColumn);
@@ -301,6 +301,15 @@
 
 				<script>
 					var flagShow = false;
+					
+					function clearsearch(){
+						document.getElementById('search_str').value = '';
+						$('#goBtn').trigger('click');
+						flagShow = false;
+						document.getElementById('selector').innerHTML = 'Select Cards'
+						document.getElementById('deletor').style.display = "none";
+					}
+					
 					function showcheckboxes(){
 						if(flagShow != true){
 							flagShow = true;
@@ -356,12 +365,13 @@
 								<div class="input-group" style="margin-bottom: 3px">
 									<input id="search_str" type="text" class="form-control" placeholder="Search for..." value=""/>
 									<span class="input-group-btn">
-										<button class="btn btn-primary" type="button" onclick="mySearch()">Go!</button>
+										<button id="goBtn" class="btn btn-primary" type="button" onclick="mySearch()">Go!</button>
 									</span>
 								</div><!-- /input-group -->
-								<button type="button" id="toggleAdvSearch" class="btn btn-default btn-block" name="clearquery" onclick="javascript:toggleAdvSearch();">Advanced Search</button>
+								<!--<button type="button" id="toggleAdvSearch" class="btn btn-default btn-block" name="clearquery" onclick="javascript:toggleAdvSearch();">Advanced Search</button>-->
+								<button type="button" id="clearor" class="btn btn-default btn-block" onclick="javascript:clearsearch();">Clear searches</button>
 								<button type="button" id="selector" class="btn btn-default btn-block" onclick="javascript:showcheckboxes();">Select cards</button>
-								<button type="button" id="deletor" class="btn btn-default btn-block" onclick="javascript:ab();" style="display: none;">Delete cards</button>
+								<button type="button" id="deletor" class="btn btn-default btn-block" onclick="javascript:ab();" style="display: none;">Delete selected cards</button>
 							</div>
 						</div>
 						<div class="col-sm-6 col-md-6 col-lg-4" id="leftcolumn">
@@ -376,7 +386,7 @@
 							<form>
 								<% for(i=0; i<Math.ceil(numNotes/2) ; i++){ %>
 									<div class="maincard">
-										<input type="checkbox" name="foo" value="<%= usrobjs[i].noteId %>" style="display: none;">
+										<input type="checkbox" name="foo" value="<%= usrobjs[i].noteId %>" style="display: none; margin: 0px 0px 10px;">
 										<a href="/note?id=<%= usrobjs[i].noteId %>">
 											<div class="media">
 												<div class="media-left">
@@ -395,7 +405,7 @@
 								<div class="col-sm-6 col-sm-offset-6 col-md-6 col-md-offset-6 col-lg-4 col-lg-offset-0" id="rightcolumn">
 									<% for(i=Math.ceil(numNotes/2); i<numNotes; i++){ %>
 										<div class="maincard">
-											<input type="checkbox" name="foo" value="<%= usrobjs[i].noteId %>" style="display: none;">
+											<input type="checkbox" name="foo" value="<%= usrobjs[i].noteId %>" style="display: none; margin: 0px 0px 10px;">
 											<a href="/note?id=<%= usrobjs[i].noteId %>">
 												<div class="media">
 													<div class="media-left">

@@ -647,7 +647,7 @@
 													<font color="white">In <input name="eventMet" class="input-small inputstyle" placeholder="which event?" id="about_dialog" type="text" value="<%= eventMet %>" onchange="offerSave(false);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();"></font>
 												</div>
 											</div>
-											<textarea name="notes" maxlength="1000" id="textarea" class="form-control notetext" rows="3" placeholder="Context of this conversation or things worth noting" value="<%= notes%>" onchange="offerSave(true);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();"></textarea>
+											<textarea name="notes" maxlength="1000" id="textarea" class="form-control notetext" rows="3" placeholder="Context of this conversation or things worth noting" onchange="offerSave(true);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();"><%= notes%></textarea>
 											<small id="textarea_feedback" style="padding: 0px 5px 0px; display: none"></small>
 											<button id="phatomBtn" type="submit" class="btn btn-success" style="display: none;">Phatom</button>
 										</form>

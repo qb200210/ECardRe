@@ -214,7 +214,6 @@ app.get('/note', function(req, res){
 							whenMet= splitDate[1] + " "+ splitDate[2] + " " + splitDate[3];
 						}
 						
-						
 						var targetCompany = (typeof infoObj.get("company") === 'undefined') ? "" : infoObj.get("company").toLowerCase().replace(/^[ ]+|[ ]+$/g,'');
 						if(targetCompany != ""){
 							// if the user has specified a company, display logo as well
@@ -406,7 +405,7 @@ app.get('/notif', function(req, res){
 										  if(convobj.get("partyA") === rstcard.id){
 											  tasksToDo = tasksToDo - 1;
 											  // console.log('match: '+ rstcard.id + ' this is '+ tasksToDo); 
-											  var whenMet = rstcard.createdAt.toString();
+											  var whenMet = convobj.createdAt.toString();
 											  splitDate = whenMet.split(" ");
 											  whenMet= splitDate[1] + " "+ splitDate[2];
 											  userinfoObjs[tasksToDo] = {
@@ -636,9 +635,27 @@ app.post('/savedesign', function(req, res){
 				}
 				if(req.body.company != "" && typeof(req.body.company) != "undefined"){
 					object.set("company", req.body.company);
+					
+					// create Ecardtemplate regardless of duplication -- gatekeeper will make sure that part				
+					var templateObject = new Parse.Object('ECardTemplate');
+					var usrACL = new Parse.ACL();
+					usrACL.setPublicReadAccess(true);
+					usrACL.setPublicWriteAccess(false);
+					templateObject.setACL(usrACL);
+					templateObject.set("companyName", req.body.company.replace(/^[ ]+|[ ]+$/g,''));
+					templateObject.set("companyNameLC", req.body.company.toLowerCase().replace(/^[ ]+|[ ]+$/g,''));
+					templateObject.save({}, {
+						success: function(){
+							console.log('Save ecardtemplate successful');
+						},
+						error: function(error){
+							console.log('Save ecardtemplate failed: '+ error.message);
+						}
+					});	
 				} else{
 					object.unset("company");
 				}
+				
 				if(req.body.city != "" && typeof(req.body.city) != "undefined"){
 					object.set("city", req.body.city);
 				} else{
@@ -780,10 +797,10 @@ app.post('/savedesign', function(req, res){
 app.post('/save', function(req, res){
 	// This is to respond to user's save Ecard action
 	if(req.body.saveordiscard === '0'){
-		Parse.User.current().fetch().then(function(user){
+		Parse.User.current().fetch().then(function(currentUser){
 			var ecardNoteClass = Parse.Object.extend("ECardNote");
 			var query = new Parse.Query(ecardNoteClass);
-			query.equalTo("userId", user.id);
+			query.equalTo("userId", currentUser.id);
 			console.log(req.body.ecardId);
 			if(req.body.ecardId != "" && !(typeof req.body.ecardId === 'undefined') ){
 				// if this is a post carrying ecardId, use it
@@ -807,19 +824,31 @@ app.post('/save', function(req, res){
 								usrACL.setPublicReadAccess(false);
 								usrACL.setPublicWriteAccess(false);
 								noteObject.setACL(usrACL);
-								noteObject.set("userId", user.id);
+								noteObject.set("userId", currentUser.id);
 								noteObject.set("whenMet", new Date());
 								noteObject.save({userId: Parse.User.current().id, ecardId: object.id, EcardUpdatedAt: object.updatedAt }, {
 									success: function(){
 										console.log('Save note successful');
 										sess.id='';
 										// sess.userinfoObjs = []; // clear the search results to reflect this change
-										res.json({status : 0});
+										if( typeof(req.body.flagHasPrev) != "undefined" && req.body.flagHasPrev === '1') {
+											// if coming from conversations, delete conversation
+											deleteConv(0, req.body.ecardId, currentUser.get('ecardId'), res);
+										} else{
+											// this is not from conversations, directly return
+											res.json({status : 0});
+										}
 									},
 									error: function(error){
 										console.log('Save note fails');
 										sess.id='';
-										res.json({status : 9});
+										if( typeof(req.body.flagHasPrev) != "undefined" && req.body.flagHasPrev === '1') {
+											// if coming from conversations, delete conversation
+											deleteConv(9, req.body.ecardId, currentUser.get('ecardId'), res);
+										} else{
+											// this is not from conversations, directly return
+											res.json({status : 9});
+										}
 									}
 								});
 							},
@@ -827,15 +856,28 @@ app.post('/save', function(req, res){
 								// If the ecard is not found, bring user to login/signup page
 								console.log('Ecard not found');
 								sess.id='';
-								res.json({status : 9});
+								if( typeof(req.body.flagHasPrev) != "undefined" && req.body.flagHasPrev === '1') {
+									// if coming from conversations, delete conversation
+									deleteConv(9, req.body.ecardId, currentUser.get('ecardId'), res);
+								} else{
+									// this is not from conversations, directly return
+									res.json({status : 9});
+								}
 							}
 						});	
 					} else {
+						// the note exists, now check if it was deleted
 						var foundNoteObj = results[0];
 						if(foundNoteObj.get("isDeleted") == false || foundNoteObj.get("isDeleted") == "" || (typeof foundNoteObj.get("isDeleted") === 'undefined')) {
 							console.log('ecard already collected');
 							sess.id='';
-							res.json({status : 2});
+							if( typeof(req.body.flagHasPrev) != "undefined" && req.body.flagHasPrev === '1') {
+								// if coming from conversations, delete conversation
+								deleteConv(2, req.body.ecardId, currentUser.get('ecardId'), res);
+							} else{
+								// this is not from conversations, directly return
+								res.json({status : 2});
+							}
 						} else {
 							// if the note existed but deleted, flip the flag
 							foundNoteObj.set("isDeleted", false);
@@ -843,12 +885,24 @@ app.post('/save', function(req, res){
 								success: function(){
 									sess.id='';
 									console.log('note revived');
-									res.json({status : 0});
+									if( typeof(req.body.flagHasPrev) != "undefined" && req.body.flagHasPrev === '1') {
+										// if coming from conversations, delete conversation
+										deleteConv(0, req.body.ecardId, currentUser.get('ecardId'), res);
+									} else{
+										// this is not from conversations, directly return
+										res.json({status : 0});
+									}
 								},
 								error: function(error){
 									sess.id='';
 									console.log('Save note fails');
-									res.json({status : 9});
+									if( typeof(req.body.flagHasPrev) != "undefined" && req.body.flagHasPrev === '1') {
+										// if coming from conversations, delete conversation
+										deleteConv(9, req.body.ecardId, currentUser.get('ecardId'), res);
+									} else{
+										// this is not from conversations, directly return
+										res.json({status : 9});
+									}
 								}
 							});
 						}
@@ -857,7 +911,13 @@ app.post('/save', function(req, res){
 				error: function(error) {
 					console.log('error finding my ecardinfo');
 					sess.id='';
-					res.json({status : 9});
+					if( typeof(req.body.flagHasPrev) != "undefined" && req.body.flagHasPrev === '1') {
+						// if coming from conversations, delete conversation
+						deleteConv(9, req.body.ecardId, currentUser.get('ecardId'), res);
+					} else{
+						// this is not from conversations, directly return
+						res.json({status : 9});
+					}
 				}
 			});	
 		}, function(error){
@@ -869,8 +929,103 @@ app.post('/save', function(req, res){
 		// discard
 		sess.id='';
 		console.log('discarded ecard');
-		res.json({status : 3});
+		if( typeof(req.body.flagHasPrev) != "undefined" && req.body.flagHasPrev === '1') {
+			// if coming from conversations, delete conversation, but first need to acquire currentUser
+			Parse.User.current().fetch().then(function(currentUser){
+				sess.id='';
+				deleteConv(3, req.body.ecardId, currentUser.get('ecardId'), res);
+			}, function(error){
+				console.log('current session error');
+				sess.id='';
+				res.json({status : 9});
+			});
+			
+		} else{
+			// this is not from conversations, directly return
+			res.json({status : 3});
+		}
 	}
+});
+
+function deleteConv(statusCode, partyAEcardId, partyBEcardId, res) {
+	console.log('Inside deleteConv');
+	var convClass = Parse.Object.extend("Conversations");
+	var query = new Parse.Query(convClass);
+	query.equalTo("partyA", partyAEcardId);
+	query.equalTo("partyB", partyBEcardId);			
+	query.find({
+		success: function(results) {
+			if(typeof(results) === "undefined" || results.length === 0){
+				// conversation doesn't exist, do nothing				
+				res.json({status : statusCode});
+			} else {
+				// This conversation does exist, delete it
+				for(var i=0 ; i< results.length ; i++) {
+					results[i].set("isDeleted", true);											
+				}
+				Parse.Object.saveAll(results, {
+					success: function(){
+						console.log('Delete conversation successful');
+						res.json({status : statusCode});
+					},
+					error: function(error){
+						console.log('Delete conversation fails: '+ error.message);
+						res.json({status : 9});
+					}
+				});	
+			} 
+		},
+		error: function(error) {
+			// conversation doesn't exist
+			console.log('find conversation fails: '+ error.message);
+			res.json({status : 9});
+		}
+	});	
+	
+}
+
+app.post('/shareback', function(req, res){
+	// create conversation pointing to the recipient	
+	Parse.User.current().fetch().then(function(currentUser){
+		var ecardInfoClass = Parse.Object.extend("ECardInfo");	
+		var query = new Parse.Query(ecardInfoClass);
+		query.get(req.body.ecardId, {
+			success: function(object) {
+				var convObject = new Parse.Object('Conversations');
+				var usrACL = new Parse.ACL();
+				usrACL.setPublicReadAccess(false);
+				usrACL.setPublicWriteAccess(false);
+				usrACL.setReadAccess(currentUser.id, true);
+				usrACL.setWriteAccess(currentUser.id, true);
+				usrACL.setReadAccess(object.get('userId'), true);
+				usrACL.setWriteAccess(object.get('userId'), true);
+				convObject.setACL(usrACL);
+				convObject.set("partyA", currentUser.get('ecardId'));
+				convObject.set("partyB", object.id);
+				convObject.set("read", false);
+				convObject.save({}, {
+					success: function(){
+						console.log('Save conversation successful');
+						res.json({status : 0});
+					},
+					error: function(error){
+						console.log('Save conversation failed: '+ error.message);
+						res.json({status : 9});
+					}
+				});	
+			},
+			error: function(error) {
+				// If the ecard is not found, bring user to login/signup page
+				console.log('shareback fails: '+ error.message);
+				res.json({status : 9});
+			}
+		});			
+	}, function(error){
+		console.log('current session error');
+		res.json({status : 9});
+	});
+				
+	
 });
 
 app.post('/login', function(req, res){
@@ -1135,7 +1290,8 @@ app.post('/signup', function(req, res){
 	user.setACL(usrACL);
 	user.signUp(null).then(function(currentUser){
 		// Signup successful, redirect to homepage, where dashboard will be shown
-		console.log('sign up successful')
+		console.log('sign up successful');
+					
 		// if(flagDefaultPassword) {
 		// 	Parse.User.requestPasswordReset(currentUser.getEmail());
 		// }
@@ -1197,6 +1353,29 @@ app.post('/signup', function(req, res){
 					// somwhow currentUser cannot be used as function(currentUser) or the actual value is not passed down
 					currentUser.save({ecardId : infoObject.id});
 					console.log(sess.id);
+					
+					// create conversation pointing to KnoWell CSR				
+					var convObject = new Parse.Object('Conversations');
+					var usrACL = new Parse.ACL();
+					usrACL.setPublicReadAccess(false);
+					usrACL.setPublicWriteAccess(false);
+					usrACL.setReadAccess(currentUser.id, true);
+					usrACL.setWriteAccess(currentUser.id, true);
+					// hardcoded KnoWell CSR
+					usrACL.setReadAccess('1XROtTdlZK', true);
+					usrACL.setWriteAccess('1XROtTdlZK', true);
+					convObject.setACL(usrACL);
+					convObject.set("partyA", '6jEQUw3iMd');
+					convObject.set("partyB", infoObject.id);
+					convObject.set("read", false);
+					convObject.save({}, {
+						success: function(){
+							console.log('Save CSR conversation successful');
+						},
+						error: function(error){
+							console.log('Save CSR conversation failed: '+ error.message);
+						}
+					});	
 					
 					// if no ecard to collect, redirect to infocollector
 					// this redirect statement must be included here, as save() is non-blocking

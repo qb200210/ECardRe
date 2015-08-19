@@ -4,6 +4,41 @@ require('cloud/app.js');
 Parse.Cloud.define("hello", function(request, response) {
   response.success("Hello world!");
 });
+  
+ 
+Parse.Cloud.define("sendPushToUser", function(request, response) {
+  var senderEcardId = request.params.ecardId;
+  var targetEcardId = request.params.targetEcardId;
+ 
+  // Validate that the sender is allowed to send to the recipient.
+  // For example each user has an array of objectIds of friends
+  var senderFirstName = senderEcardId.get("firstName");
+  var senderLastName = senderEcardId.get("lastName");
+  var senderCompany = senderEcardId.get("company");
+  var alert_msg = "This is " + senderFirstName + " " + senderLastName + " from " + senderCompany;
+  var link_msg = "https://www.micklestudios.com/search?id=" + senderEcardId + "&fn=" + senderFirstName + "&fn=" + senderLastName;
+  var action_msg = "EcardOpenConversation";
+ 
+  // Send the push.
+  // Find devices associated with the recipient user
+  var pushQuery = new Parse.Query(Parse.Installation);
+  pushQuery.equalTo("ecardId", targetEcardId);
+  
+  // Send the push notification to results of the query
+  Parse.Push.send({
+    where: pushQuery,
+    data: {
+      alert: alert_msg,
+      link: link_msg,
+      action: action_msg
+    }
+  }).then(function() {
+      response.success("Push was sent successfully.")
+  }, function(error) {
+      response.error("Push failed to send with error: " + error.message);
+  });
+});
+ 
  
 Parse.Cloud.beforeSave("History", function(request, status) {
          var request_obj_id = request.object.get("objectId");
@@ -36,7 +71,7 @@ Parse.Cloud.beforeSave("History", function(request, status) {
         }
     });
 });
- 
+  
 Parse.Cloud.beforeSave("ECardNote", function(request, status) {
          var request_obj_id = request.object.get("objectId");
          var request_user_id = request.object.get("userId");
@@ -68,8 +103,8 @@ Parse.Cloud.beforeSave("ECardNote", function(request, status) {
         }
     });
 });
- 
- 
+  
+  
 Parse.Cloud.beforeSave("User", function(request, status) {
          var request_obj_id = request.object.get("objectId");
          var max_num_card = request.object.get("maxNumCard");
@@ -80,8 +115,8 @@ Parse.Cloud.beforeSave("User", function(request, status) {
          var auth_data = request.object.get("authData");
          var email_verified = request.object.get("emailVerified");
          var ecard_id = request.object.get("ecardId");
- 
- 
+  
+  
          var noteObject = Parse.Object.extend('User');
          var query = new Parse.Query(noteObject);
          query.equalTo("objectId", request_obj_id);
@@ -118,8 +153,8 @@ Parse.Cloud.beforeSave("User", function(request, status) {
         }
     });
 });
- 
- 
+  
+  
 Parse.Cloud.beforeSave("ECardInfo", function(request, status) {
          var request_obj_id = request.object.get("objectId");
          var request_user_id = request.object.get("userId");
@@ -151,13 +186,13 @@ Parse.Cloud.beforeSave("ECardInfo", function(request, status) {
         }
     });
 });
- 
+  
 Parse.Cloud.beforeSave("ECardTemplate", function(request, status) {
   // Set up to modify user data
   var  company_str = request.object.get("companyName").replace(/^\s+|\s+$/g, '');
   var templateObject = Parse.Object.extend('ECardTemplate');
   var query = new Parse.Query(templateObject);
-  query.equalTo("companyName", company_str);
+  query.equalTo("companyNameLC", company_str.toLowerCase());
   // couting
   var company_existed = 2;
   console.log("before count queries");
@@ -167,7 +202,7 @@ Parse.Cloud.beforeSave("ECardTemplate", function(request, status) {
                 company_existed = 1;
             }
             else{
-                console.log("company not existe");
+                console.log("company not exist");
                 company_existed = 0;
             }
             return company_existed;
@@ -223,6 +258,7 @@ Parse.Cloud.beforeSave("ECardTemplate", function(request, status) {
                         console.log("Done with results " + result);
                         status.success();
                     }, function(nextHttpResponse){
+          console.log("Error in HttpRes: "+ nextHttpResponse.code + " " + nextHttpResponse.message );
                         status.error("Error in HttpRes: " + nextHttpResponse.code + " " + nextHttpResponse.message );
                     });
                 }, 
@@ -238,9 +274,9 @@ Parse.Cloud.beforeSave("ECardTemplate", function(request, status) {
             status.error("ECardTemplate Query Error");
         });
  });
- 
- 
- 
+  
+  
+  
 Parse.Cloud.job("logoSearch", function(request, status) {
   // Set up to modify user data
   //Parse.Cloud.useMasterKey();
@@ -251,7 +287,7 @@ Parse.Cloud.job("logoSearch", function(request, status) {
   query.limit (100);
   query.equalTo("companyLogo", null);
   //query.equalTo("companyName", "NASA");
- 
+  
 query.find(). then(function(list) {
       // need to add counter to enforce the quota of the google query
       console.log("successfully retrieved " + list.length + " entries" );

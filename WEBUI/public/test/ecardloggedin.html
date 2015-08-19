@@ -218,9 +218,25 @@
 					window.location.href='dummypage.html';
 				}
 			}
-
-			function goBack() {
+			
+			function dismiss_content() {
 				window.history.back();
+				setTimeout(function(){
+					redirect();
+				}, 1500)
+			}
+			
+			function share_back() {
+				window.history.back();
+				$('#phatomBtn').trigger('click');
+			}
+			
+			function goBack() {
+				if(!flagRefreshHome){
+					window.history.back();
+				} else {
+					window.history.back();
+				}
 			}
 
 			function discard() {
@@ -246,38 +262,95 @@
 			}
 
 			$(document).ready(function(){
+				
+				$(function(){
+					$('#saveResults').on('show.bs.modal', function(){
+						var myModal = $(this);
+						clearTimeout(myModal.data('hideInterval'));
+						myModal.data('hideInterval', setTimeout(function(){
+							window.history.back();
+						}, 1500));
+					});
+				});
 
+				$(".modal").on("shown.bs.modal", function()  { // any time a modal is shown
+					var urlReplace = "#" + $(this).attr('id'); // make the hash the id of the modal shown
+					history.pushState(null, null, urlReplace); // push state that hash into the url
+				});
 
+				// If a pushstate has previously happened and the back button is clicked, hide any modals.
+				$(window).on('popstate', function() {
+					$(".modal").modal('hide');
+				});
 
-				var $form = $('form');
+				var $form = $('#saveForm');
 				$form.submit(function(e){
 					e.preventDefault();
 					// post to server without refreshing page
 					$.post($(this).attr('action'), $(this).serialize(), function(response){
 						if(response.status == 0){
 							// save note successful
-							$('#saveResults').modal('show');
-							document.getElementById("display_save_results").innerHTML = "Successfully Saved!"
-							flagRefreshHome = true;
+							$('#askShareback').modal('show');
+							flagRefreshHome = true;							
 						} else if (response.status == 2){
 							// note exists
 							$('#saveResults').modal('show');
-							document.getElementById("display_save_results").innerHTML = "Note existed ..."
+							flagRefreshHome = true;		
+							document.getElementById("display_save_results").innerHTML = "You have already collected this card."
+							setTimeout(function(){
+								redirect();
+							}, 1500);
 						} else if (response.status == 3){
 							// note exists
 							$('#saveResults').modal('show');
-							document.getElementById("display_save_results").innerHTML = "Discarded ..."
+							flagRefreshHome = true;		
+							document.getElementById("display_save_results").innerHTML = "Discarded this card."
+							setTimeout(function(){
+								redirect();
+							}, 1500);
 						} else {
 							$('#saveResults').modal('show');
+							flagRefreshHome = false;		
 							document.getElementById("display_save_results").innerHTML = "Something is wrong ..."
+							setTimeout(function(){
+								redirect();
+							}, 1500);
 						}
-						setTimeout(function(){
-							redirect();
-						}, 1500)
+						
 
 					},'json');
 					return false;
 				});
+				
+				
+				var $formS = $('#shareForm');
+				$formS.submit(function(e){
+					e.preventDefault();
+					// post to server without refreshing page
+					$.post($(this).attr('action'), $(this).serialize(), function(response){
+						if(response.status == 0){
+							// shareback successful
+							$('#saveResults').modal('show');
+							flagRefreshHome = true;		
+							document.getElementById("display_save_results").innerHTML = "Shared my card to <%= firstName %>";
+							setTimeout(function(){
+								redirect();
+							}, 1500);
+						} else {
+							// shareback fails
+							$('#saveResults').modal('show');
+							flagRefreshHome = false;		
+							document.getElementById("display_save_results").innerHTML = "Something is wrong ...";
+							setTimeout(function(){
+								redirect();
+							}, 1500);
+						}
+						
+
+					},'json');
+					return false;
+				});
+				
 			});
 		</script>
 	</head>
@@ -300,6 +373,20 @@
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-default" data-dismiss="modal">OK</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="modal fade bs-example-modal-sm" id="askShareback" tabindex="-1" role="dialog" aria-labelledby="sharebackModalLabel" aria-hidden="true" data-backdrop="static">
+			<div class="modal-dialog modal-sm">
+				<div class="modal-content">
+					<div class="modal-body">
+						<p id="display_ask_shareback">Successfully saved! <br>Should I share my card back to <%= firstName %>?</p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" onclick="javascript:dismiss_content();">Forget it</button>
+						<button type="button" class="btn btn-primary" onclick="javascript:share_back();">Sure</button>
 					</div>
 				</div>
 			</div>
@@ -351,9 +438,15 @@
 									<input type="hidden" name="_csrf" value="<%= csrf_field %>" style="display: none;"/>
 									<input type="hidden" name="ecardId" value="<%= ecardId %>"  style="display: none;"/>
 									<input type="hidden" id="saveordiscard" name="saveordiscard" value="0"  style="display: none;"/>
+									<input type="hidden" name="flagHasPrev" value="<%= flagHasPrev %>"  style="display: none;"/>									
 									<button id="save_button" class="btn btn-md btn-primary btn-block" type="submit" name="action ">Sure!</button>
 									<button type="button" class="btn btn-md btn-default btn-block" onclick="javascript:discard();">Nope</button>
-
+								</form>
+								
+								<form id="shareForm" action='/shareback' method='POST' style="display: none;">
+									<input type="hidden" name="_csrf" value="<%= csrf_field %>" style="display: none;"/>
+									<input type="hidden" name="ecardId" value="<%= ecardId %>"  style="display: none;"/>					
+									<button id="phatomBtn" type="submit" class="btn btn-success" style="display: none;">Phatom</button>
 								</form>
 							</div>
 						</div>
