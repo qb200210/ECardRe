@@ -234,7 +234,7 @@
 						var foundNumNotes = 0;
 						var foundNotes = [];
 
-						var strArray= search_val.toLowerCase().split('');
+						var strArray= search_val.toLowerCase().split(' ');
 						var reg_str = '';
 						for (i=0; i<strArray.length; i++){
 							reg_str = reg_str + strArray[i] + ".*";
@@ -249,6 +249,9 @@
 							if (my_reg.test(filteredNotes[i].firstName.toLowerCase()) || my_reg.test(filteredNotes[i].lastName.toLowerCase())
 							|| my_reg.test(filteredNotes[i].firstName.toLowerCase() + filteredNotes[i].lastName.toLowerCase())
 							|| my_reg.test(filteredNotes[i].firstName.toLowerCase() + " " + filteredNotes[i].lastName.toLowerCase())
+							|| my_reg.test(filteredNotes[i].firstName.toLowerCase() + " " + filteredNotes[i].lastName.toLowerCase() +  " " + filteredNotes[i].company.toLowerCase() + " " + filteredNotes[i].city.toLowerCase())
+							|| my_reg.test(filteredNotes[i].company.toLowerCase() + " " + filteredNotes[i].firstName.toLowerCase() + " " + filteredNotes[i].lastName.toLowerCase() +  " " + filteredNotes[i].city.toLowerCase())
+							|| my_reg.test(filteredNotes[i].company.toLowerCase() +  " " + filteredNotes[i].city.toLowerCase() + " " + filteredNotes[i].firstName.toLowerCase() + " " + filteredNotes[i].lastName.toLowerCase())
 							|| my_reg.test(filteredNotes[i].company.toLowerCase()) || my_reg.test(filteredNotes[i].title.toLowerCase())
 							|| my_reg.test(filteredNotes[i].city.toLowerCase()) ){
 								foundNotes[foundNumNotes] = filteredNotes[i];

@@ -39,8 +39,41 @@ Parse.Cloud.define("sendPushToUser", function(request, response) {
   });
 });
  
+
+Parse.Cloud.beforeSave("Conversations", function(request, status) {
+         var party_A = request.object.get("partyA");
+         var party_B = request.object.get("partyB");
+         var conversationObject = Parse.Object.extend('Conversations');
+         var query = new Parse.Query(conversationObject);
+         query.equalTo("partyA", party_A);
+         query.equalTo("partyB", party_B);
+         query.find( {
+      success: function(results) {
+            if (results.length > 0) {
+                console.log("entry already existed");
+                result = results[0];
+                result.set("isDeleted", false);
+                result.save();
+                status.error("No new conversation created\n");
+            }
+            else{
+                console.log("entry not existe");
+                status.success();
+            }
+            },
+    error:  function(){
+                status.error("History Query Error");
+        }
+    });
+});
  
 Parse.Cloud.beforeSave("History", function(request, status) {
+if (request.master)
+{
+    console.log("request has master permission\n");
+    status.success();
+}
+else{
          var request_obj_id = request.object.get("objectId");
          var request_user_id = request.object.get("userId");
          var historyObject = Parse.Object.extend('History');
@@ -70,6 +103,7 @@ Parse.Cloud.beforeSave("History", function(request, status) {
                 status.error("History Query Error");
         }
     });
+   }
 });
   
 Parse.Cloud.beforeSave("ECardNote", function(request, status) {
@@ -106,6 +140,12 @@ Parse.Cloud.beforeSave("ECardNote", function(request, status) {
   
   
 Parse.Cloud.beforeSave("User", function(request, status) {
+if (request.master)
+{
+    console.log("request has master permission\n");
+    status.success();
+}
+else{
          var request_obj_id = request.object.get("objectId");
          var max_num_card = request.object.get("maxNumCard");
          var max_num_notes = request.object.get("maxNotes");
@@ -152,10 +192,17 @@ Parse.Cloud.beforeSave("User", function(request, status) {
                 status.error("ECardNote Query Error");
         }
     });
+ }
 });
   
   
 Parse.Cloud.beforeSave("ECardInfo", function(request, status) {
+if (request.master)
+{
+    console.log("request has master permission\n");
+    status.success();
+}
+else{
          var request_obj_id = request.object.get("objectId");
          var request_user_id = request.object.get("userId");
          var infoObject = Parse.Object.extend('ECardInfo');
@@ -185,9 +232,16 @@ Parse.Cloud.beforeSave("ECardInfo", function(request, status) {
                 status.error("ECardInfo Query Error");
         }
     });
+   }
 });
   
 Parse.Cloud.beforeSave("ECardTemplate", function(request, status) {
+if (request.master)
+{
+    console.log("request has master permission\n");
+    status.success();
+}
+else{
   // Set up to modify user data
   var  company_str = request.object.get("companyName").replace(/^\s+|\s+$/g, '');
   var templateObject = Parse.Object.extend('ECardTemplate');
@@ -273,6 +327,7 @@ Parse.Cloud.beforeSave("ECardTemplate", function(request, status) {
         }, function() {
             status.error("ECardTemplate Query Error");
         });
+   }
  });
   
   
