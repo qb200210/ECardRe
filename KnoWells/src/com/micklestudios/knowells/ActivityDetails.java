@@ -336,7 +336,7 @@ public class ActivityDetails extends ActionBarActivity {
         if (hasFocus) {
           whereMet2.setHint("Eg: Portland, OR");
         } else {
-          whereMet2.setHint("Where did we meet?");
+          whereMet2.setHint("where?");
         }
       }
     });
@@ -352,7 +352,7 @@ public class ActivityDetails extends ActionBarActivity {
         if (hasFocus) {
           eventMet.setHint("Eg: Portland Beer Festival");
         } else {
-          eventMet.setHint("We met in which event?");
+          eventMet.setHint("which event?");
         }
       }
     });

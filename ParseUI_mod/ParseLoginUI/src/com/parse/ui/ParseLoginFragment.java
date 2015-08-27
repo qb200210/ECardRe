@@ -246,6 +246,7 @@ public class ParseLoginFragment extends ParseLoginFragmentBase {
                 prefEditor.putLong("DateSelfSynced", currentDate.getTime());
                 prefEditor.putLong("DateCompanySynced", currentDate.getTime());
                 prefEditor.putLong("DateHistorySynced", currentDate.getTime());
+                prefEditor.putBoolean("KnoWellPushToggle", true);
                 prefEditor.commit();
                 loginSuccess();
               } else {
@@ -540,18 +541,41 @@ public class ParseLoginFragment extends ParseLoginFragmentBase {
       prefEditor.putLong("DateSelfSynced", currentDate.getTime());
       prefEditor.putLong("DateCompanySynced", currentDate.getTime());
       prefEditor.putLong("DateHistorySynced", currentDate.getTime());
+      prefEditor.putBoolean("KnoWellPushToggle", true);
 	    prefEditor.commit();
 		object = new ParseObject("ECardInfo");
 			// objectId is only created after the object is saved.
 			// If use saveInBackground, .getObjectId gets nothing since object not saved yet
 			try {
 				object.put("userId", currentUser.getObjectId());
+				// object.put("linkedin", ??);
+	      
+				
+			// create conversation pointing to KnoWell CSR       
+	      ParseObject convObject = new ParseObject("Conversations");
+	      ParseACL usrACL = new ParseACL();
+	      usrACL.setPublicReadAccess(false);
+	      usrACL.setPublicWriteAccess(false);
+	      usrACL.setReadAccess(currentUser.getObjectId(), true);
+	      usrACL.setWriteAccess(currentUser.getObjectId(), true);
+	      // hardcoded KnoWell CSR
+	      usrACL.setReadAccess(getString(R.string.knowell_csr_userid), true);
+	      usrACL.setWriteAccess(getString(R.string.knowell_csr_userid), true);
+	      convObject.setACL(usrACL);
+	      convObject.put("partyA", getString(R.string.knowell_csr_ecardid));
+	      convObject.put("partyB", object.getObjectId());
+	      convObject.put("read", false);
+	      convObject.save();
+	      
 				object.save();
 				Log.d("ParseSignUp","save EcardInfo successful");
 			} catch (ParseException e) {
 				e.printStackTrace();
 			}
 			currentUser.put("ecardId", object.getObjectId());
+			
+		
+      
 			// get first and last name then upload
 			//String fullName = (String) currentUser.get("name");		
 			String delims = ",";

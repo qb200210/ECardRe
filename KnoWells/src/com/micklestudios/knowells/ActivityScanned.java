@@ -3,6 +3,7 @@ package com.micklestudios.knowells;
 import java.io.File;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import org.json.JSONException;
@@ -47,7 +48,9 @@ import com.micklestudios.knowells.utils.MyViewPager;
 import com.micklestudios.knowells.utils.OfflineDataCachedIds;
 import com.micklestudios.knowells.utils.OfflineDataCachedShares;
 import com.parse.FindCallback;
+import com.parse.FunctionCallback;
 import com.parse.ParseACL;
+import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseInstallation;
 import com.parse.ParseObject;
@@ -490,11 +493,8 @@ public class ActivityScanned extends ActivityDetails implements AsyncResponse {
       if (listConv.size() == 1) {
         // If there is existing notification, check if it has been deleted
         object = listConv.get(0);
-        if ((boolean) object.get("isDeleted") == true
-          || (boolean) object.get("read") == true) {
-          object.put("isDeleted", false);
-          object.put("read", false);
-        }
+        object.put("isDeleted", false);
+        object.put("read", false);
       }
       object.saveEventually(new SaveCallback() {
 
@@ -506,27 +506,22 @@ public class ActivityScanned extends ActivityDetails implements AsyncResponse {
           // is sent
           // Send push to the other party according to their ecardId recorded in
           // an installation
-          ParseQuery pushQuery = ParseInstallation.getQuery();
-          pushQuery.whereEqualTo("ecardId", targetEcardId);
-          JSONObject jsonObject = new JSONObject();
-          try {
-            jsonObject.put("alert",
-              "This is " + ActivityMain.myselfUserInfo.getFirstName() + " "
-                + ActivityMain.myselfUserInfo.getLastName() + " from "
-                + ActivityMain.myselfUserInfo.getCompany());
-            jsonObject.put("link", "https://www.micklestudios.com/search?id="
-              + currentUser.get("ecardId").toString() + "&fn="
-              + ActivityMain.myselfUserInfo.getFirstName() + "&ln="
-              + ActivityMain.myselfUserInfo.getLastName());
-            jsonObject.put("action", "EcardOpenConversations");
-          } catch (JSONException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-          }
-          ParsePush push = new ParsePush();
-          push.setQuery(pushQuery);
-          push.setData(jsonObject);
-          push.sendInBackground();
+          // send push after flipping the flag
+          HashMap<String, Object> params = new HashMap<String, Object>();
+          params.put("targetEcardId", targetEcardId);
+          String message = "Hi, this is " + ActivityMain.myselfUserInfo.getFirstName() + " "
+              + ActivityMain.myselfUserInfo.getLastName()
+              + ", please save my card.";
+          params.put("message", message);
+          ParseCloud.callFunctionInBackground("sendPushToUser", params, new FunctionCallback<String>() {
+
+            @Override
+            public void done(String success, ParseException e) {
+              
+            }
+             
+          });   
+          
         }
 
       });
@@ -535,30 +530,25 @@ public class ActivityScanned extends ActivityDetails implements AsyncResponse {
       // mark that notification as unread no matter it's read or not
       // By construction, the list should only have 1 record
       listConv.get(0).put("read", false);
+      
+   
       try {
         listConv.get(0).save();
         // send push after flipping the flag
-        ParseQuery pushQuery = ParseInstallation.getQuery();
-        pushQuery.whereEqualTo("ecardId", targetEcardId);
-        JSONObject jsonObject = new JSONObject();
-        try {
-          jsonObject.put("alert",
-            "Hi, this is " + ActivityMain.myselfUserInfo.getFirstName() + " "
-              + ActivityMain.myselfUserInfo.getLastName()
-              + ", please save my card.");
-          jsonObject.put("link", "https://www.micklestudios.com/search?id="
-            + currentUser.get("ecardId").toString() + "&fn="
-            + ActivityMain.myselfUserInfo.getFirstName() + "&ln="
-            + ActivityMain.myselfUserInfo.getLastName());
-          jsonObject.put("action", "EcardOpenConversations");
-        } catch (JSONException e) {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
-        }
-        ParsePush push = new ParsePush();
-        push.setQuery(pushQuery);
-        push.setData(jsonObject);
-        push.sendInBackground();
+        HashMap<String, Object> params = new HashMap<String, Object>();
+        params.put("recipientId", targetEcardId);
+        String message = "Hi, this is " + ActivityMain.myselfUserInfo.getFirstName() + " "
+            + ActivityMain.myselfUserInfo.getLastName()
+            + ", please save my card.";
+        params.put("message", message);
+        ParseCloud.callFunctionInBackground("sendPushToUser", params, new FunctionCallback<String>() {
+
+          @Override
+          public void done(String success, ParseException e) {
+            
+          }
+           
+        });       
       } catch (ParseException e) {
         // TODO Auto-generated catch block
         e.printStackTrace();

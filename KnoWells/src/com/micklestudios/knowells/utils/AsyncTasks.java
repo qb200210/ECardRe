@@ -1241,6 +1241,7 @@ public class AsyncTasks {
         try {
           ecardNote = queryNote.get(deletedNoteId);
           saveNote(ecardNote);
+          deleteConversation();
         } catch (ParseException e) {
           // TODO Auto-generated catch block
           e.printStackTrace();
@@ -1248,12 +1249,34 @@ public class AsyncTasks {
       } else {
         // if the note didn't exist, create note and save note changes
         createNote();
+        deleteConversation();
       }
 
       // Refresh the collection for ActivitySearch
       AppGlobals.initializeAllContactsBlocking();
 
       return null;
+    }
+    
+    private void deleteConversation(){
+      
+      // upon successful collection of card, remove the originating notification
+      Log.d("deleteConv", "conv deleted");
+      ParseQuery<ParseObject> queryConvToDelete = ParseQuery.getQuery("Conversations");
+      queryConvToDelete.whereEqualTo("partyA", scannedId);
+      queryConvToDelete.whereEqualTo("partyB", currentUser.get("ecardId").toString());
+      List<ParseObject> listConvToDelete = null;
+      try {
+        listConvToDelete = queryConvToDelete.find();
+      } catch (ParseException e1) {
+        // TODO Auto-generated catch block
+        e1.printStackTrace();
+      }
+      if(listConvToDelete != null && listConvToDelete.size()!=0){
+        ParseObject convObj = listConvToDelete.get(0);
+        convObj.put("isDeleted", true);
+        convObj.saveEventually();
+      }
     }
 
     private void saveNote(final ParseObject ecardNote) {

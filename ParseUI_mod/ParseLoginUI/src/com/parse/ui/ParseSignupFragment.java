@@ -249,6 +249,7 @@ public class ParseSignupFragment extends ParseLoginFragmentBase implements OnCli
     prefEditor.putLong("DateSelfSynced", currentDate.getTime());
     prefEditor.putLong("DateCompanySynced", currentDate.getTime());
     prefEditor.putLong("DateHistorySynced", currentDate.getTime());
+    prefEditor.putBoolean("KnoWellPushToggle", true);
     prefEditor.commit();
 	  ParseObject object = new ParseObject("ECardInfo");
 		// objectId is only created after the object is saved.
@@ -256,39 +257,38 @@ public class ParseSignupFragment extends ParseLoginFragmentBase implements OnCli
 		try {
 			object.save();
 			Log.d("ParseSignUp","save EcardInfo successful");
+			currentUser.put("ecardId", object.getObjectId());
+      // Create notification from KnoWell CSR
+			
+		  // create conversation pointing to KnoWell CSR       
+      ParseObject convObject = new ParseObject("Conversations");
+      ParseACL usrACL = new ParseACL();
+      usrACL.setPublicReadAccess(false);
+      usrACL.setPublicWriteAccess(false);
+      usrACL.setReadAccess(currentUser.getObjectId(), true);
+      usrACL.setWriteAccess(currentUser.getObjectId(), true);
+      // hardcoded KnoWell CSR
+      usrACL.setReadAccess(getString(R.string.knowell_csr_userid), true);
+      usrACL.setWriteAccess(getString(R.string.knowell_csr_userid), true);
+      convObject.setACL(usrACL);
+      convObject.put("partyA", getString(R.string.knowell_csr_ecardid));
+      convObject.put("partyB", object.getObjectId());
+      convObject.put("read", false);
+      convObject.save();
+      
+      // initialize portrait with blank one
+      putBlankPortrait(object);
+      object.put("userId", currentUser.getObjectId().toString());
+      object.put("email", currentUser.getEmail().toString());
+      // createQRCode(object); // the EcardInfo and QR code both created
+      object.saveInBackground();
+      // If new on the server, should not have exist locally. So should make a local copy
+      object.pinInBackground();
+      currentUser.saveInBackground();
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
-		currentUser.put("ecardId", object.getObjectId());
-//		// get first and last name then upload
-//		String fullName = (String) currentUser.get("name");		
-//		String delims = "[ ,]";
-//		String firstName= "";
-//		String lastName= "";
-//		String[] tokens = fullName.split(delims);
-//		Integer size = tokens.length;
-//		Integer i =0;
-//		if(size == 1){
-//			firstName = tokens[0];
-//		} else{
-//			firstName = tokens[0];
-//			for(i=1;i< size-1; i++){
-//				firstName = firstName + " " + tokens[i];
-//			}
-//			lastName = tokens[size -1];
-//		}
-//		object.put("firstName", firstName);
-//		object.put("lastName", lastName);
-//		object.put("fullName", fullName.toLowerCase(Locale.ENGLISH));
-		// initialize portrait with blank one
-		putBlankPortrait(object);
-		object.put("userId", currentUser.getObjectId().toString());
-		object.put("email", currentUser.getEmail().toString());
-		// createQRCode(object); // the EcardInfo and QR code both created
-		object.saveInBackground();
-		// If new on the server, should not have exist locally. So should make a local copy
-		object.pinInBackground();
-		currentUser.saveInBackground();
+		
 	}
 
 	public void putBlankPortrait(ParseObject object) {

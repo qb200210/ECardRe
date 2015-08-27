@@ -220,6 +220,16 @@
                         android:padding="2dp"
                         android:src="@drawable/ic_location" >
                     </ImageView>
+                    
+                    <TextView
+                        android:layout_width="18dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:background="@null"
+                        android:textColor="@color/white"
+                        android:textSize="16sp"
+                        android:textStyle="normal"
+                        android:text="At" />
 
                     <EditText
                         android:id="@+id/PlaceAdded2"
@@ -231,7 +241,8 @@
                         android:maxLines="1"
                         android:singleLine="true"
                         android:background="@null"
-                        android:hint="Where did we meet?"
+                        android:inputType="textFilter|textNoSuggestions"
+                        android:hint="where?"
                         android:textColor="@color/white"
                         android:textSize="16sp"
                         android:textStyle="normal"
@@ -253,6 +264,16 @@
                         android:padding="2dp"
                         android:src="@drawable/ic_event" >
                     </ImageView>
+                    
+                    <TextView
+                        android:layout_width="18dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:background="@null"
+                        android:textColor="@color/white"
+                        android:textSize="16sp"
+                        android:textStyle="normal"
+                        android:text="In" />
 
                     <EditText
                         android:id="@+id/EventAdded2"
@@ -262,7 +283,8 @@
                         android:background="@null"
                         android:maxLines="1"
                         android:singleLine="true"
-                        android:hint="We met in which event?"
+                        android:inputType="textFilter|textNoSuggestions"
+                        android:hint="which event?"
                         android:textColor="@color/white"
                         android:textSize="16sp"
                         android:textStyle="normal"

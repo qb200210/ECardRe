@@ -81,6 +81,15 @@ public class ActivityConversations extends ActionBarActivity {
 
     initializeContactList();
     Log.e("conv", "" + AppGlobals.potentialUsers.size());
+    
+    // if called from push notification
+    Bundle b = getIntent().getExtras();
+    if(b!= null){
+      boolean flagRefreshList = b.getBoolean("refreshList");
+      if(flagRefreshList){
+        manualSync();
+      }
+    }
   }
 
   private void retrieveAllViews() {

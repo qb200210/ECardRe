@@ -39,7 +39,7 @@ import android.widget.Toast;
 import android.view.View;
 import android.view.View.OnClickListener;
 
-//import com.micklestudios.knowell.R;
+//import com.micklestudios.knowells.R;
 import com.parse.Parse;
 
 import com.linkedin.platform.LISessionManager;

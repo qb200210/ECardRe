@@ -10,6 +10,9 @@ import org.json.JSONObject;
 
 import com.micklestudios.knowells.ActivityBufferOpening;
 import com.micklestudios.knowells.ActivityConversations;
+import com.micklestudios.knowells.R;
+import com.micklestudios.knowells.infrastructure.ConversationsListAdapter;
+import com.nhaarman.listviewanimations.appearance.simple.AlphaInAnimationAdapter;
 import com.parse.FindCallback;
 import com.parse.ParseAnalytics;
 import com.parse.ParseException;
@@ -26,16 +29,21 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
+import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 public class MyPushReceiver extends ParsePushBroadcastReceiver {
 
   ParseUser currentUser;
+  private Context context;
   private static final long CONVERSATIONS_TIMEOUT = 3000;
 
   @Override
   public void onPushReceive(final Context context, Intent intent) {
+    this.context = context;
     super.onPushReceive(context, intent);
     Log.i("pushReceiver", "Received push");
     currentUser = ParseUser.getCurrentUser();
@@ -65,6 +73,7 @@ public class MyPushReceiver extends ParsePushBroadcastReceiver {
         }
       }
     }, CONVERSATIONS_TIMEOUT);
+    
   }
 
   @Override
@@ -77,7 +86,7 @@ public class MyPushReceiver extends ParsePushBroadcastReceiver {
     Log.i("push", intent.getExtras().getString("com.parse.Data"));
 
     Intent i = new Intent(context, ActivityConversations.class);
-    i.putExtras(intent.getExtras());
+    i.putExtra("refreshList", true);
     i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
     context.startActivity(i);
   }
