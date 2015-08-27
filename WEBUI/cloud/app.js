@@ -991,6 +991,39 @@ app.post('/shareback', function(req, res){
 		var query = new Parse.Query(ecardInfoClass);
 		query.get(req.body.ecardId, {
 			success: function(object) {
+				// upon finding the targetCard
+				
+				  
+				  
+				  var ecardInfoClass = Parse.Object.extend("ECardInfo");	
+				var querySelf = new Parse.Query(ecardInfoClass);
+				querySelf.get(currentUser.get('ecardId'), {
+					success: function(objectSelf) {
+						// send push 
+						var str1 = "Hi, this is ";
+						var str2 = objectSelf.get("firstName");
+						var str3 = objectSelf.get("lastName");
+						var str4 = ", please save my card.";
+						str1 = str1.concat(str2);
+						str1 = str1.concat(" ");
+						str1 = str1.concat(str3);
+						var message = str1.concat(str4);
+					  Parse.Cloud.run('sendPushToUser', {targetEcardId: object.id, message: message}, {
+						  success: function(ratings) {
+							// 
+						  },
+						  error: function(error) {
+						  }
+						});
+					  
+					  
+					},
+					error: function(error){				
+						
+					}
+				});
+				  
+				// create the conversation pointing to the targetCard
 				var convObject = new Parse.Object('Conversations');
 				var usrACL = new Parse.ACL();
 				usrACL.setPublicReadAccess(false);
@@ -1008,9 +1041,21 @@ app.post('/shareback', function(req, res){
 						console.log('Save conversation successful');
 						res.json({status : 0});
 					},
-					error: function(error){
-						console.log('Save conversation failed: '+ error.message);
-						res.json({status : 9});
+					error: function(error){				
+						// When duplication is cured and this create is rejected, somehow the object is returned as "error"
+						if(  typeof(error) != "undefined" ) {
+							console.log(error.get("partyA"));
+							if(typeof(error.get("partyA")) != "undefined"){
+								// when the returned is an object, it means it's from the duplication cure. let through
+								res.json({status : 0});
+							} else {
+								// else it's a real error
+								res.json({status : 9});
+							}
+						} else {
+							// real error
+							res.json({status : 9});
+						}
 					}
 				});	
 			},
@@ -1167,6 +1212,30 @@ app.post('/linkedinSignin', function(req, res){
 					// somwhow currentUser cannot be used as function(currentUser) or the actual value is not passed down
 					currentUser.save({ecardId : infoObject.id});
 					console.log(sess.id);
+					
+					// create conversation pointing to KnoWell CSR				
+					var convObject = new Parse.Object('Conversations');
+					var usrACL = new Parse.ACL();
+					usrACL.setPublicReadAccess(false);
+					usrACL.setPublicWriteAccess(false);
+					usrACL.setReadAccess(currentUser.id, true);
+					usrACL.setWriteAccess(currentUser.id, true);
+					// hardcoded KnoWell CSR
+					usrACL.setReadAccess('1XROtTdlZK', true);
+					usrACL.setWriteAccess('1XROtTdlZK', true);
+					convObject.setACL(usrACL);
+					convObject.set("partyA", '6jEQUw3iMd');
+					convObject.set("partyB", infoObject.id);
+					convObject.set("read", false);
+					convObject.save({}, {
+						success: function(){
+							console.log('Save CSR conversation successful');
+						},
+						error: function(error){
+							console.log('Save CSR conversation failed: '+ error.message);
+						}
+					});	
+					
 					// if no ecard to collect, redirect to dashboard
 					res.redirect('/');
 				},

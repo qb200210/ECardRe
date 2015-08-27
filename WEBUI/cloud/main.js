@@ -4,32 +4,28 @@ require('cloud/app.js');
 Parse.Cloud.define("hello", function(request, response) {
   response.success("Hello world!");
 });
+   
   
- 
 Parse.Cloud.define("sendPushToUser", function(request, response) {
-  var senderEcardId = request.params.ecardId;
+  // var senderEcardId = request.params.ecardId;
   var targetEcardId = request.params.targetEcardId;
- 
+  
   // Validate that the sender is allowed to send to the recipient.
   // For example each user has an array of objectIds of friends
-  var senderFirstName = senderEcardId.get("firstName");
-  var senderLastName = senderEcardId.get("lastName");
-  var senderCompany = senderEcardId.get("company");
-  var alert_msg = "This is " + senderFirstName + " " + senderLastName + " from " + senderCompany;
-  var link_msg = "https://www.micklestudios.com/search?id=" + senderEcardId + "&fn=" + senderFirstName + "&fn=" + senderLastName;
+  var alert_msg = request.params.message;
+  // var link_msg = "https://www.micklestudios.com/search?id=" + senderEcardId + "&fn=" + senderFirstName + "&fn=" + senderLastName;
   var action_msg = "EcardOpenConversation";
- 
+  
   // Send the push.
   // Find devices associated with the recipient user
   var pushQuery = new Parse.Query(Parse.Installation);
   pushQuery.equalTo("ecardId", targetEcardId);
-  
+  pushQuery.equalTo("channels", "KnoWellPush");
   // Send the push notification to results of the query
   Parse.Push.send({
     where: pushQuery,
     data: {
       alert: alert_msg,
-      link: link_msg,
       action: action_msg
     }
   }).then(function() {
@@ -38,35 +34,47 @@ Parse.Cloud.define("sendPushToUser", function(request, response) {
       response.error("Push failed to send with error: " + error.message);
   });
 });
- 
 
-Parse.Cloud.beforeSave("Conversations", function(request, status) {
-         var party_A = request.object.get("partyA");
-         var party_B = request.object.get("partyB");
-         var conversationObject = Parse.Object.extend('Conversations');
-         var query = new Parse.Query(conversationObject);
-         query.equalTo("partyA", party_A);
-         query.equalTo("partyB", party_B);
-         query.find( {
-      success: function(results) {
-            if (results.length > 0) {
-                console.log("entry already existed");
-                result = results[0];
-                result.set("isDeleted", false);
-                result.save();
-                status.error("No new conversation created\n");
-            }
-            else{
-                console.log("entry not existe");
-                status.success();
-            }
-            },
-    error:  function(){
-                status.error("History Query Error");
-        }
+Parse.Cloud.beforeSave("Conversations", function(request, response) {
+    if (!request.object.isNew()) {
+      // Let existing object updates go through
+      response.success();
+    }     
+	var party_A = request.object.get("partyA");
+	var party_B = request.object.get("partyB");
+	var conversationClass = Parse.Object.extend('Conversations');
+    var query = new Parse.Query(conversationClass);
+    // Add query filters to check for uniqueness
+    query.equalTo("partyA", party_A);
+    query.equalTo("partyB", party_B);
+    query.first().then(function(existingObject) {
+      if (existingObject) {
+        // Update existing object
+        existingObject.set("isDeleted", false);
+        existingObject.set("read", false);
+		// console.log("before existingobject.save");
+        return existingObject.save();
+      } else {
+        // Pass a flag that this is not an existing object
+		// console.log("false promise");
+        return Parse.Promise.as(false);
+      }
+    }).then(function(existingObject) {
+      if (existingObject) {
+        // Existing object, stop initial save
+		// console.log("before error existing obj");
+        response.error("Existing object, not duplicating");
+      } else {
+        // New object, let the save go through
+		// console.log("response success");
+        response.success();
+      }
+    }, function (error) {
+		// console.log("error checking/saving");
+		response.error("Error performing checks or saves.");
     });
 });
- 
+  
 Parse.Cloud.beforeSave("History", function(request, status) {
 if (request.master)
 {
@@ -105,7 +113,7 @@ else{
     });
    }
 });
-  
+   
 Parse.Cloud.beforeSave("ECardNote", function(request, status) {
          var request_obj_id = request.object.get("objectId");
          var request_user_id = request.object.get("userId");
@@ -137,8 +145,8 @@ Parse.Cloud.beforeSave("ECardNote", function(request, status) {
         }
     });
 });
-  
-  
+   
+   
 Parse.Cloud.beforeSave("User", function(request, status) {
 if (request.master)
 {
@@ -155,8 +163,8 @@ else{
          var auth_data = request.object.get("authData");
          var email_verified = request.object.get("emailVerified");
          var ecard_id = request.object.get("ecardId");
-  
-  
+   
+   
          var noteObject = Parse.Object.extend('User');
          var query = new Parse.Query(noteObject);
          query.equalTo("objectId", request_obj_id);
@@ -194,8 +202,8 @@ else{
     });
  }
 });
-  
-  
+   
+   
 Parse.Cloud.beforeSave("ECardInfo", function(request, status) {
 if (request.master)
 {
@@ -234,7 +242,7 @@ else{
     });
    }
 });
-  
+   
 Parse.Cloud.beforeSave("ECardTemplate", function(request, status) {
 if (request.master)
 {
@@ -329,9 +337,9 @@ else{
         });
    }
  });
-  
-  
-  
+   
+   
+   
 Parse.Cloud.job("logoSearch", function(request, status) {
   // Set up to modify user data
   //Parse.Cloud.useMasterKey();
@@ -342,7 +350,7 @@ Parse.Cloud.job("logoSearch", function(request, status) {
   query.limit (100);
   query.equalTo("companyLogo", null);
   //query.equalTo("companyName", "NASA");
-  
+   
 query.find(). then(function(list) {
       // need to add counter to enforce the quota of the google query
       console.log("successfully retrieved " + list.length + " entries" );
