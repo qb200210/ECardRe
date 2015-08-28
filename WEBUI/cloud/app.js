@@ -1112,6 +1112,7 @@ app.post('/linkedinSignin', function(req, res){
 	companyStr = splitStr[5];
 	titleStr = splitStr[6];
 	linkedinID = splitStr[7];
+	publicURL = splitStr[8];
 	console.log(linkedinID);
 
 	var password = linkedinID + "jsdj32RIfd28UFaf2";
@@ -1163,6 +1164,11 @@ app.post('/linkedinSignin', function(req, res){
 			infoObject.set("title", titleStr);
 		} else {						
 			infoObject.unset("title");
+		}
+		if(publicURL != ""){
+			infoObject.set("linkedin", publicURL);
+		} else {						
+			infoObject.unset("linkedin");
 		}
 		
 		// initiate default profile portrait
