@@ -106,7 +106,7 @@ public class ParseLoginFragment extends ParseLoginFragmentBase {
   
   public static final String PACKAGE_MOBILE_ECARD_APP = "com.micklestudios.knowell";
   private static final String host = "api.linkedin.com";
-  private static final String topCardUrl = "https://" + host + "/v1/people/~:(id,first-name,last-name,email-address,positions,location,picture-url)";
+  private static final String topCardUrl = "https://" + host + "/v1/people/~:(id,first-name,last-name,email-address,positions,location,picture-url,public-profile-url)";
   private ParseObject object = null;
 	
 
@@ -385,7 +385,8 @@ public class ParseLoginFragment extends ParseLoginFragmentBase {
 								String location = responseData.getJSONObject("location").getString("name");
 								String linkedin_id = responseData.getString("id");
 								String emailAddress = responseData.getString("emailAddress");
-								//Log.v("email: ", emailAddress);
+								String publicProfileURL = responseData.getString("publicProfileUrl");
+								//Log.v("public url: ", publicProfileURL);
 								
 								JSONArray companyArray = responseData.getJSONObject("positions").getJSONArray("values");
 								//Log.v("json String", firstName + " " + lastName + " " + picURL);
@@ -404,7 +405,7 @@ public class ParseLoginFragment extends ParseLoginFragmentBase {
 									    user.setPassword(password);
 									    user.setEmail(emailAddress);
 
-									    g_json_str = firstName + "," + lastName + "," + companyName + "," + title + "," + location + "," + picURL;
+									    g_json_str = firstName + "," + lastName + "," + companyName + "," + title + "," + location + "," + picURL + "," + publicProfileURL;
 										user.put(USER_OBJECT_NAME_FIELD, firstName + " " + lastName);
 										
 									    user.signUpInBackground(new SignUpCallback() {
@@ -719,6 +720,7 @@ public class ParseLoginFragment extends ParseLoginFragmentBase {
 			String company = tokens[2];
 			String title = tokens[3];		
 			String location = tokens[4];
+			String profileURL = tokens[7];
 			
 			// restore the name field
 			object.put("firstName", firstName);
@@ -727,7 +729,7 @@ public class ParseLoginFragment extends ParseLoginFragmentBase {
 			object.put("company", company);
 			object.put("title", title);
 			object.put("city", location);
-			object.put("linkedin", fullName);
+			object.put("linkedin", profileURL);
 			object.put("portrait", file);
 			Log.v("here", "portrait file done");
 			/*
