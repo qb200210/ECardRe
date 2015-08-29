@@ -5,6 +5,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.StringTokenizer;
 
 import android.app.Activity;
@@ -122,7 +123,7 @@ public class ECardUtils {
     String companyName, boolean checkOnline) {
     Log.i("find", companyName);
     ParseQuery<ParseObject> queryLocal = ParseQuery.getQuery("ECardTemplate");
-    queryLocal.whereEqualTo("companyName", companyName);
+    queryLocal.whereEqualTo("companyNameLC", companyName.toLowerCase(Locale.ENGLISH).trim());
     queryLocal.fromLocalDatastore();
     List<ParseObject> listTemplateObjectsLocal = null;
     try {
@@ -134,7 +135,7 @@ public class ECardUtils {
       && listTemplateObjectsLocal.size() != 0) {
       ParseFile logoFile = (ParseFile) listTemplateObjectsLocal.get(0).get(
         "companyLogo");
-      if (logoFile != null) {
+      if (logoFile != null && logoFile.isDataAvailable()) {
         byte[] data;
         try {
           data = logoFile.getData();
@@ -157,7 +158,7 @@ public class ECardUtils {
         if (isNetworkAvailable(activity)) {
           ParseQuery<ParseObject> queryOnline = ParseQuery
             .getQuery("ECardTemplate");
-          queryOnline.whereEqualTo("companyName", companyName);
+          queryOnline.whereEqualTo("companyNameLC", companyName.toLowerCase(Locale.ENGLISH).trim());
           queryOnline.findInBackground(new FindCallback<ParseObject>() {
 
             @Override

@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -223,6 +224,7 @@ public class AsyncTasks {
       }
 
       if (infoObjects != null && infoObjects.size() != 0) {
+        Log.e("selfInfo", "updated!");
         flagShouldSync = true;
         // if there is a newer version on server, then sync it to local
         final ParseObject infoObjectTmp = infoObjects.get(0);
@@ -272,9 +274,9 @@ public class AsyncTasks {
 
   }
 
-  // sync local copy of notes and corresponding ecards
+  // sync only those company names that are referred (in collected cards or self)
   // this one is not critically depended on, so it doesn't have to be blocking
-  // upon opening
+  // upon opening. However, it does depend on all ecardinfo sync being complete
   public static class SyncDataCompanyNames extends
       AsyncTask<String, Void, String> {
 
@@ -299,40 +301,12 @@ public class AsyncTasks {
       // this will be used to populate autocomplete box
       ActivityDesign.companyNames = new ArrayList<String>();
       Set<String> tmpCompanyNames = new HashSet<String>();
-      Set<String> fetchedCompanyList = prefs.getStringSet("listOfCompanyNames",
-        null);
-      if (fetchedCompanyList != null) {
-        tmpCompanyNames.addAll(fetchedCompanyList);
-      }
-
+      
       long start = System.nanoTime();
 
       // get the stored shared last sync date, if null, default to 1969
       long millis = prefs.getLong("DateCompanySynced", 0L);
       Date lastSyncedDate = new Date(millis);
-      ParseQuery<ParseObject> queryTemplate = ParseQuery
-        .getQuery("ECardTemplate");
-      queryTemplate.whereGreaterThan("updatedAt", lastSyncedDate);
-      List<ParseObject> templateObjs = null;
-      try {
-        templateObjs = queryTemplate.find();
-      } catch (ParseException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      }
-      if (templateObjs != null && templateObjs.size() != 0) {
-        for (Iterator<ParseObject> iter = templateObjs.iterator(); iter
-          .hasNext();) {
-          ParseObject templateObj = iter.next();
-          tmpCompanyNames.add(templateObj.get("companyName").toString());
-        }
-        // Set the values
-        prefEditor.putStringSet("listOfCompanyNames", tmpCompanyNames);
-        prefEditor.commit();
-      }
-      if (tmpCompanyNames != null) {
-        ActivityDesign.companyNames.addAll(tmpCompanyNames);
-      }
 
       long elapsedTime = System.nanoTime() - start;
       Log.d("timer", "updtprefcmpnames: " + elapsedTime * 1e-9);
@@ -349,79 +323,125 @@ public class AsyncTasks {
         e.printStackTrace();
       }
       if (infoObjs != null && infoObjs.size() != 0) {
-        HashSet<String> companyNames = new HashSet<String>();
+        HashSet<String> companyNamesLC = new HashSet<String>();
         Object tmpString;
         for (ParseObject infoObj : infoObjs) {
           tmpString = infoObj.get("company");
           if (tmpString != null) {
-            companyNames.add(tmpString.toString());
+            companyNamesLC.add(tmpString.toString().toLowerCase(Locale.ENGLISH).trim());
+            tmpCompanyNames.add(tmpString.toString().trim());
           }
         }
-        // find the templates for local ecards
-        ParseQuery<ParseObject> queryTemplate1 = ParseQuery
-          .getQuery("ECardTemplate");
-        queryTemplate1.whereContainedIn("companyName", companyNames);
-        List<ParseObject> templateObjs1 = null;
+        // Add all company names to autocomplete box regardless whether is ecardtemplate
+        ActivityDesign.companyNames.addAll(tmpCompanyNames);
+        
+        // syncing ecardtemplate
+        ParseQuery<ParseObject> queryTemplate = ParseQuery
+            .getQuery("ECardTemplate");
+        queryTemplate.whereGreaterThan("updatedAt", lastSyncedDate);
+        queryTemplate.whereContainedIn("companyNameLC", companyNamesLC);
+        List<ParseObject> templateObjs = null;
         try {
-          // found online template list satisfying collected ecards
-          templateObjs1 = queryTemplate1.find();
+          templateObjs = queryTemplate.find();
         } catch (ParseException e) {
+          // TODO Auto-generated catch block
           e.printStackTrace();
         }
-        if (templateObjs1 != null && templateObjs1.size() != 0) {
-          // loop over the found templates and pin those not yet in
-          // localdatastore
-          // loop over found templates and record objId
-          ArrayList<String> objIds = new ArrayList<String>();
-          for (Iterator<ParseObject> iter = templateObjs1.iterator(); iter
+        if(templateObjs!=null && templateObjs.size()!=0 ){
+          // found those either new templates or those been updated
+          for (Iterator<ParseObject> iter = templateObjs.iterator(); iter
             .hasNext();) {
             ParseObject templateObj = iter.next();
-            objIds.add(templateObj.getObjectId().toString());
-          }
-          // figure out what templates are already in localdatastore
-          ParseQuery<ParseObject> queryTemplateLocal = ParseQuery
-            .getQuery("ECardTemplate");
-          queryTemplateLocal.fromLocalDatastore();
-          queryTemplateLocal.whereContainedIn("objectId", objIds);
-          List<ParseObject> templateObjs2 = null;
-          try {
-            // those template list already exist in localdatastore
-            templateObjs2 = queryTemplateLocal.find();
-          } catch (ParseException e1) {
-            e1.printStackTrace();
-          }
-          if (templateObjs2 != null && templateObjs2.size() != 0) {
-            for (Iterator<ParseObject> iter1 = templateObjs1.iterator(); iter1
-              .hasNext();) {
-              ParseObject objOnline = iter1.next();
-              // remove already existed local records from found online list
-              for (Iterator<ParseObject> iter2 = templateObjs2.iterator(); iter2
-                .hasNext();) {
-                ParseObject objOffline = iter2.next();
-                if (objOnline.getObjectId() == objOffline.getObjectId()) {
-                  // duplicate record found
-                  if (!objOnline.getUpdatedAt()
-                    .after(objOffline.getUpdatedAt())) {
-                    // if offline record is latest, remove this duplicate online
-                    // record
-                    iter1.remove();
-                    break;
-                  }
-                }
+            // force caching the actual data
+            ParseFile logoImg = (ParseFile) templateObj.get("companyLogo");
+            if (logoImg != null) {
+              try {
+                logoImg.getData();
+              } catch (ParseException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
               }
             }
-          }
+          }          
           try {
-            // pin down the template list
-            if (templateObjs1 != null && templateObjs1.size() != 0) {
-              ParseObject.pinAll(templateObjs1);
-            }
+            ParseObject.pinAll(templateObjs);
           } catch (ParseException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
           }
         }
-
+            
+        
+//        // find the templates for local ecards
+//        ParseQuery<ParseObject> queryTemplate1 = ParseQuery
+//          .getQuery("ECardTemplate");
+//        queryTemplate1.whereContainedIn("companyNameLC", companyNamesLC);
+//        List<ParseObject> templateObjs1 = null;
+//        try {
+//          // found online template list satisfying collected ecards
+//          templateObjs1 = queryTemplate1.find();
+//        } catch (ParseException e) {
+//          e.printStackTrace();
+//        }
+//        if (templateObjs1 != null && templateObjs1.size() != 0) {
+//          // loop over the found templates and pin those not yet in
+//          // localdatastore
+//          // loop over found templates and record objId
+//          ArrayList<String> objIds = new ArrayList<String>();
+//          for (Iterator<ParseObject> iter = templateObjs1.iterator(); iter
+//            .hasNext();) {
+//            ParseObject templateObj = iter.next();
+//            objIds.add(templateObj.getObjectId().toString());
+//          }
+//          // figure out what templates are already in localdatastore
+//          ParseQuery<ParseObject> queryTemplateLocal = ParseQuery
+//            .getQuery("ECardTemplate");
+//          queryTemplateLocal.fromLocalDatastore();
+//          queryTemplateLocal.whereContainedIn("objectId", objIds);
+//          List<ParseObject> templateObjs2 = null;
+//          try {
+//            // those template list already exist in localdatastore
+//            templateObjs2 = queryTemplateLocal.find();
+//          } catch (ParseException e1) {
+//            e1.printStackTrace();
+//          }
+//          if (templateObjs2 != null && templateObjs2.size() != 0) {
+//            for (Iterator<ParseObject> iter1 = templateObjs1.iterator(); iter1
+//              .hasNext();) {
+//              ParseObject objOnline = iter1.next();
+//              // remove already existed local records from found online list
+//              for (Iterator<ParseObject> iter2 = templateObjs2.iterator(); iter2
+//                .hasNext();) {
+//                ParseObject objOffline = iter2.next();
+//                if (objOnline.getObjectId() == objOffline.getObjectId()) {
+//                  // duplicate record found
+//                  if (!objOnline.getUpdatedAt()
+//                    .after(objOffline.getUpdatedAt())) {
+//                    // if offline record is latest, remove this duplicate online
+//                    // record
+//                    iter1.remove();
+//                    break;
+//                  }
+//                }
+//              }
+//            }
+//          }
+//          try {
+//            // pin down the template list
+//            if (templateObjs1 != null && templateObjs1.size() != 0) {
+//              for (Iterator<ParseObject> iter = templateObjs1.iterator(); iter
+//                  .hasNext();) {
+//                  ParseObject templateObj = iter.next();
+//                  tmpCompanyNames.add(templateObj.get("companyName").toString().trim());
+//                }
+//              ActivityDesign.companyNames.addAll(tmpCompanyNames);
+//              ParseObject.pinAll(templateObjs1);
+//            }
+//          } catch (ParseException e) {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//          }
+//        }
       }
 
       elapsedTime = System.nanoTime() - start;

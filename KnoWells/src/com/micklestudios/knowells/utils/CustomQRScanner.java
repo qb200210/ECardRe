@@ -33,7 +33,7 @@ import com.parse.ParseUser;
 import com.micklestudios.knowells.R;
 
 public class CustomQRScanner extends CaptureActivity {
-  private static final long SCAN_TIMEOUT = 5000;
+  private static final long SCAN_TIMEOUT = 60000;
   private static final int OPEN_WEB = 3001;
   private Dialog dialog;
 

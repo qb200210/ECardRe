@@ -117,6 +117,13 @@ public class ActivityMain extends ActionBarActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
+    
+    if (myselfUserInfo == null) {      
+      Log.e("myselfUserInfo", "BEGIN null, recreated");
+    } else {
+      Log.e("myselfUserInfo", "BEGIN self NOT null: " + myselfUserInfo.getFirstName() );
+    }
+    
     applicationContext = getApplicationContext();
     Bundle b = getIntent().getExtras();
     if (b != null) {
@@ -125,9 +132,9 @@ public class ActivityMain extends ActionBarActivity {
         imgFromTmpData = (boolean) b.get("imgFromTmpData");
       }
     }
-
     // This fixes the lost data/ crash issues upon restoring from resume
     if (savedInstanceState != null) {
+      Log.e("actMain", "savedInstance NOT null");
       currentUser = ParseUser.getCurrentUser();
       if (myselfUserInfo == null) {
         myselfUserInfo = savedInstanceState.getParcelable("myself");
@@ -135,10 +142,14 @@ public class ActivityMain extends ActionBarActivity {
       }
       Log.e("main", "getting savedisntance");
     } else {
+      Log.e("actMain", "savedInstance null");
       currentUser = ParseUser.getCurrentUser();
       if (myselfUserInfo == null) {
         myselfUserInfo = new UserInfo(currentUser.get("ecardId").toString(),
           "", "", true, false, imgFromTmpData);
+        Log.e("myselfUserInfo", "null, recreated");
+      } else {
+        Log.e("myselfUserInfo", "self NOT null: " + myselfUserInfo.getFirstName() );
       }
     }
 
@@ -179,6 +190,8 @@ public class ActivityMain extends ActionBarActivity {
   @Override
   public void onDestroy() {
     super.onDestroy();
+    // hack, otherwise myselfUserInfo not null upon open
+    myselfUserInfo = null;
     LocalBroadcastManager.getInstance(this).unregisterReceiver(logoutNotifier);
   }
 

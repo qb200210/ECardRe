@@ -113,9 +113,17 @@ public class ActivityUserSetting extends ActionBarActivity {
     public void onCreate(Bundle savedInstanceState) {
       // TODO Auto-generated method stub
       super.onCreate(savedInstanceState);
-
+            
       // Load the preferences from an XML resource
       addPreferencesFromResource(R.xml.user_settings);
+      
+      // disable rating in beta
+      Preference prefRateUs = (Preference) findPreference(getString(R.string.prefRateUs));
+      prefRateUs.setEnabled(false);
+      // disable check update in beta
+      Preference prefCheckUpdates = (Preference) findPreference(getString(R.string.prefCheckUpdates));
+      prefCheckUpdates.setEnabled(false);
+      
       Preference button = (Preference) findPreference(getString(R.string.prefLogoutButton));
       button
         .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {

@@ -9,8 +9,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 import com.parse.GetCallback;
+import com.parse.ParseACL;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
@@ -179,8 +181,21 @@ public class ActivityInfoCollector extends ActionBarActivity {
     object.put("lastName", lastName);
 
     EditText cmpName = (EditText) findViewById(R.id.collect_company);
+ 
+    
+    
     if(cmpName!=null){
       object.put("company", cmpName.getText().toString());
+      
+      // Testing beforeSave for ECardTemplate Objects
+      ParseObject newTemplateObj = new ParseObject("ECardTemplate");
+      newTemplateObj.put("companyName", cmpName.getText().toString().trim());
+      newTemplateObj.put("companyNameLC", cmpName.getText().toString().toLowerCase(Locale.ENGLISH).trim());
+      ParseACL defaultACL = new ParseACL();
+      defaultACL.setPublicReadAccess(true);
+      defaultACL.setPublicWriteAccess(false);
+      newTemplateObj.setACL(defaultACL);
+      newTemplateObj.saveEventually();
     }
     name = (EditText) findViewById(R.id.collect_position);
     if(cmpName!=null){

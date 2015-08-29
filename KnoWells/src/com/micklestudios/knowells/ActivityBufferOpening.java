@@ -10,6 +10,7 @@ import java.util.TimerTask;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -34,9 +35,9 @@ import com.parse.SaveCallback;
 
 public class ActivityBufferOpening extends Activity {
 
-  private static final long CREATE_SELF_COPY_TIMEOUT = 30000;
-  private static final long CACHEIDS_TIMEOUT = 30000;
-  private static final long NOTES_TIMEOUT = 30000;
+  private static final long CREATE_SELF_COPY_TIMEOUT = 60000;
+  private static final long CACHEIDS_TIMEOUT = 60000;
+  private static final long NOTES_TIMEOUT = 60000;
   private static final long CONVERSATIONS_TIMEOUT = 60000;
   private static final long COMPANYNAME_TIMEOUT = 60000;
   private static final long HISTORY_TIMEOUT = 60000;
@@ -64,6 +65,8 @@ public class ActivityBufferOpening extends Activity {
 
   private ProgressButton progressButton1;
   private TextView progressText;
+  private SharedPreferences prefs;
+  private Editor prefEditor;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -151,8 +154,9 @@ public class ActivityBufferOpening extends Activity {
     }
   }
 
-  private void syncAllDataUponOpening(SharedPreferences prefs,
-    SharedPreferences.Editor prefEditor) {
+  private void syncAllDataUponOpening(final SharedPreferences prefs,
+    final SharedPreferences.Editor prefEditor) {
+    
 
     // sync history, Supposely not critical, so don't need to wait on it
     final AsyncTasks.SyncDataTaskHistory syncHistory = new AsyncTasks.SyncDataTaskHistory(
@@ -189,25 +193,6 @@ public class ActivityBufferOpening extends Activity {
         }
       }
     }, CREATE_SELF_COPY_TIMEOUT);
-
-    // update the local string list for available company templates -- only the
-    // names, not the actual object
-    final AsyncTasks.SyncDataCompanyNames syncCompanyNames = new AsyncTasks.SyncDataCompanyNames(
-      this, prefs, prefEditor, false);
-    syncCompanyNames.execute();
-    Handler handlerCompanyNames = new Handler();
-    handlerCompanyNames.postDelayed(new Runnable() {
-
-      @Override
-      public void run() {
-        if (syncCompanyNames.getStatus() == AsyncTask.Status.RUNNING) {
-          Toast.makeText(getApplicationContext(),
-            "Sync Company List Timed Out", Toast.LENGTH_SHORT).show();
-          timeoutFlagCompany = true;
-          syncCompanyNames.cancel(true);
-        }
-      }
-    }, COMPANYNAME_TIMEOUT);
 
     // upon opening, pin online conversations to local
     final AsyncTasks.SyncDataTaskConversations syncConversations = new AsyncTasks.SyncDataTaskConversations(
@@ -277,6 +262,28 @@ public class ActivityBufferOpening extends Activity {
             Log.i("msg", "all others complete");
             // when all other syncs complete, generate UserInfo objects from
             // LocalDataStore
+            
+            // update the local string list for available company templates -- only the
+            // names, not the actual object
+            final AsyncTasks.SyncDataCompanyNames syncCompanyNames = new AsyncTasks.SyncDataCompanyNames(
+              ActivityBufferOpening.this, prefs, prefEditor, false);
+            syncCompanyNames.execute();
+//            Handler handlerCompanyNames = new Handler();
+//            handlerCompanyNames.postDelayed(new Runnable() {
+//
+//              @Override
+//              public void run() {
+//                if (syncCompanyNames.getStatus() == AsyncTask.Status.RUNNING) {
+//                  Toast.makeText(getApplicationContext(),
+//                    "Sync Company List Timed Out", Toast.LENGTH_SHORT).show();
+//                  timeoutFlagCompany = true;
+//                  syncCompanyNames.cancel(true);
+//                }
+//              }
+//            }, COMPANYNAME_TIMEOUT);
+            
+            
+            
             AppGlobals.initializeAllContactsBlocking();
             AppGlobals.initializePotentialUsersBlocking();
             totalProgress = 100;

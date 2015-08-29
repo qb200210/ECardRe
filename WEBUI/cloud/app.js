@@ -727,7 +727,7 @@ app.post('/savedesign', function(req, res){
 					  }).then(function(image) {
 						// Make sure it's a JPEG to save disk space and bandwidth.
 						//console.log("format img");
-						return image.setFormat("JPEG");
+						return image.setFormat("PNG");
 					 
 					  }).then(function(image) {
 						// Get the image data in a Buffer.
@@ -1408,7 +1408,7 @@ app.post('/signup', function(req, res){
 		 
 		  }).then(function(image) {
 			// Make sure it's a JPEG to save disk space and bandwidth.
-			return image.setFormat("JPEG");
+			return image.setFormat("PNG");
 		 
 		  }).then(function(image) {
 			// Get the image data in a Buffer.
@@ -1636,7 +1636,9 @@ app.get('/', function(req, res){
 						}							 
 					},
 					error: function(error) {
-						console.log('error finding my ecardinfo')
+						console.log('error finding my ecardinfo');
+						Parse.User.logOut();
+						res.redirect('/');
 					}
 				});	
 			}, function(error){

@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.TreeSet;
 
 import android.annotation.SuppressLint;
@@ -411,7 +412,8 @@ public class ActivityDesign extends ActionBarActivity {
             AutoCompleteTextView cmpName = (AutoCompleteTextView) findViewById(R.id.design_com);
             // Testing beforeSave for ECardTemplate Objects
             ParseObject newTemplateObj = new ParseObject("ECardTemplate");
-            newTemplateObj.put("companyName", cmpName.getText().toString());
+            newTemplateObj.put("companyName", cmpName.getText().toString().trim());
+            newTemplateObj.put("companyNameLC", cmpName.getText().toString().toLowerCase(Locale.ENGLISH).trim());
             ParseACL defaultACL = new ParseACL();
             defaultACL.setPublicReadAccess(true);
             defaultACL.setPublicWriteAccess(false);
@@ -749,6 +751,7 @@ public class ActivityDesign extends ActionBarActivity {
       .toString(), true);
 
     if (companyNames != null) {
+      Log.e("cmpNames", companyNames.toString());
       ArrayAdapter<String> adapterCompanyNames = new ArrayAdapter<String>(this,
         android.R.layout.select_dialog_item, companyNames);
       cmpName.setAdapter(adapterCompanyNames);
