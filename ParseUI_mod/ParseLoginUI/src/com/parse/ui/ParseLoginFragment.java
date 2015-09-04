@@ -551,25 +551,24 @@ public class ParseLoginFragment extends ParseLoginFragmentBase {
 				object.put("userId", currentUser.getObjectId());
 				// object.put("linkedin", ??);
 	      
-				
-			// create conversation pointing to KnoWell CSR       
-	      ParseObject convObject = new ParseObject("Conversations");
-	      ParseACL usrACL = new ParseACL();
-	      usrACL.setPublicReadAccess(false);
-	      usrACL.setPublicWriteAccess(false);
-	      usrACL.setReadAccess(currentUser.getObjectId(), true);
-	      usrACL.setWriteAccess(currentUser.getObjectId(), true);
-	      // hardcoded KnoWell CSR
-	      usrACL.setReadAccess(getString(R.string.knowell_csr_userid), true);
-	      usrACL.setWriteAccess(getString(R.string.knowell_csr_userid), true);
-	      convObject.setACL(usrACL);
-	      convObject.put("partyA", getString(R.string.knowell_csr_ecardid));
-	      convObject.put("partyB", object.getObjectId());
-	      convObject.put("read", false);
-	      convObject.save();
-	      
 				object.save();
 				Log.d("ParseSignUp","save EcardInfo successful");
+				
+			// create conversation pointing to KnoWell CSR       
+        ParseObject convObject = new ParseObject("Conversations");
+        ParseACL usrACL = new ParseACL();
+        usrACL.setPublicReadAccess(false);
+        usrACL.setPublicWriteAccess(false);
+        usrACL.setReadAccess(currentUser.getObjectId(), true);
+        usrACL.setWriteAccess(currentUser.getObjectId(), true);
+        // hardcoded KnoWell CSR
+        usrACL.setReadAccess(getString(R.string.knowell_csr_userid), true);
+        usrACL.setWriteAccess(getString(R.string.knowell_csr_userid), true);
+        convObject.setACL(usrACL);
+        convObject.put("partyA", getString(R.string.knowell_csr_ecardid));
+        convObject.put("partyB", object.getObjectId());
+        convObject.put("read", false);
+        convObject.save();
 			} catch (ParseException e) {
 				e.printStackTrace();
 			}

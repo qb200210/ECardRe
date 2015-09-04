@@ -557,6 +557,7 @@ public class ActivityDetails extends ActionBarActivity {
               saveChangesToParse(object);
             }
           }
+          AppGlobals.initializeAllContacts(true);
         } else {
           e.printStackTrace();
         }

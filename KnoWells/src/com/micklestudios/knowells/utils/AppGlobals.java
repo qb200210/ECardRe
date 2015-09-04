@@ -140,7 +140,6 @@ public class AppGlobals {
     }
 
     if (forced || allUsers.size() == 0) {
-      allUsers.clear();
 
       /* A map of all the ECardNote objects to the noteID */
       final HashMap<String, ParseObject> noteIdToNoteObjectMap = new HashMap<String, ParseObject>();
@@ -194,6 +193,8 @@ public class AppGlobals {
                     ActivitySearch.autoCompleteListEvent = new ArrayList<String>();
                     ActivitySearch.autoCompleteListWhere = new ArrayList<String>();
 
+                    allUsers.clear();
+                    
                     // Iterate over the list.
                     for (Iterator<ParseObject> iter = objectInfoList.iterator(); iter
                       .hasNext();) {
@@ -239,8 +240,6 @@ public class AppGlobals {
     if (allUsers == null) {
       allUsers = new ArrayList<UserInfo>();
     }
-
-    allUsers.clear();
 
     currentUser = ParseUser.getCurrentUser();
 
@@ -296,6 +295,8 @@ public class AppGlobals {
         ActivitySearch.autoCompleteListCompany = new ArrayList<String>();
         ActivitySearch.autoCompleteListEvent = new ArrayList<String>();
         ActivitySearch.autoCompleteListWhere = new ArrayList<String>();
+        
+        allUsers.clear();
 
         // Iterate over the list.
         for (Iterator<ParseObject> iter = objectInfoList.iterator(); iter

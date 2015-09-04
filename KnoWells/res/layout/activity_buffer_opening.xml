@@ -45,4 +45,19 @@
 
     </LinearLayout>
 
+    <Button
+            android:id="@+id/cancel_sync_button"
+            style="@style/ParseLoginUI.Button"
+	        android:layout_width="match_parent"
+	        android:layout_height="24dp"
+	        android:layout_alignParentBottom="true"
+	        android:layout_centerHorizontal="true"
+	        android:layout_marginBottom="16dp"
+	        android:paddingTop="0dp"
+	        android:paddingLeft="16dp"
+	        android:paddingRight="16dp"
+            android:text="Skip Sync"
+            android:textSize="12dp" />
+    
+
 </RelativeLayout>

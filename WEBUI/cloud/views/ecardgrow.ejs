@@ -16,6 +16,7 @@
 		<link href="../assets/css/general.css" rel="stylesheet">
 		<link href="../assets/css/nav-icon.css" rel="stylesheet">
 		<link href="../assets/css/sticky-footer.css" rel="stylesheet">
+    <link href="../assets/css/maincards.css" rel="stylesheet">
 
 		<script type="text/javascript" src="https://platform.linkedin.com/in.js">
 			api_key: 75x21kb6ah0nxy
@@ -88,139 +89,6 @@
 				margin-bottom: 0px;  
 			}
 
-			.container-card-header {
-				max-width: 260px;
-				padding: 10px 0px 10px;
-				margin: 0px auto 20px;
-				background-color: #fff;
-				border: 1px solid #e5e5e5;
-				-webkit-border-radius: 2px;
-				-moz-border-radius: 2px;
-				border-radius: 2px;
-				-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.05);
-				-moz-box-shadow: 0 1px 2px rgba(0,0,0,.05);
-				box-shadow: 0 1px 2px rgba(0,0,0,.05);
-			}
-
-			.container-card {
-				max-width: 260px;
-				min-height: 250px;
-				max-height: 260px;
-				padding: 10px 0px 10px;
-				margin: 0px auto 20px;
-				background-color: #fff;
-				border: 1px solid #e5e5e5;
-				-webkit-border-radius: 2px;
-				-moz-border-radius: 2px;
-				border-radius: 2px;
-				-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.05);
-				-moz-box-shadow: 0 1px 2px rgba(0,0,0,.05);
-				box-shadow: 0 1px 2px rgba(0,0,0,.05);
-			}
-
-			.maincard {
-				width: 240px;
-				vertical-align: top;
-				padding: 0 3px 0;
-				margin:0px auto 0px;
-				background-color: #ffffff;
-				overflow: auto
-			}
-
-			.toppart{
-				display:table-cell;
-				width: 230px;
-				height: 100px;
-				margin: 0 0 0;
-				vertical-align: middle;
-			}
-			.midpart{
-				width: 230px;
-				margin: 0 0 0;
-			}
-
-			.logopart{
-				display:table-cell;
-				width: 230px;
-				height: 40px;
-				margin: 0 0 0;
-				position:relative;
-			}
-			
-			.logopart img {
-				position:absolute; 
-				bottom:0; 
-				right: 0;
-				max-width: 220px;
-				max-height: 35px;
-			}
-
-			.botpart{
-				width: 230px;
-				height: 80px;
-				margin: 0 0 0;
-			}
-
-			.botpart p{
-				display: inline;
-				height: 100px;
-				vertical-align: middle;
-
-			}
-
-
-			.profile {
-				float: left;
-				width: 100px;
-				height: 100px;
-				margin: 0px 0 0px;
-			}
-
-			.profile_header {
-				text-align: center;
-				float: middle;
-				width: 180px;
-				margin: 0px auto 0px;
-				padding: 0px 0px 0px;
-			}
-
-			.profile img {
-				width: 100px;
-				height: 100px;
-			}
-
-			.toppart .name {
-				display:table-cell;
-				vertical-align: middle;
-				float: right;
-				text-align:center;
-				margin-left: 10px;
-				padding-left: 0px;
-				padding-bottom: 0px;
-				width: 120px;
-				height:100px;
-				max-width: 120px;
-				max-height: 100px;
-				overflow: hidden;
-			}
-
-			.toppart p{
-				width: 120px;
-				height: 100px;
-				display:table-cell;
-				vertical-align: middle;
-
-			}
-
-			.hr {
-				width: 100%;
-				margin : 10px 0px 0px;
-			}
-
-			.indicator{
-				margin: 0px auto 0px;
-			}
-
 			.inputdiv{
 				width: 230px;
 				height: 40px;
@@ -238,25 +106,6 @@
 				float: right;
 				width: 195px;
 				height: 40px;
-			}
-
-			.logo {
-				position:absolute;
-				width: 50px;
-				height: 50px;
-				bottom: 10px;
-				right: 10px;
-			}
-
-			.margintop {
-				margin-top: 10px
-			}
-
-			.ellipsis {
-				white-space: nowrap;
-				text-overflow: ellipsis;
-				width: 235px;
-				overflow: hidden;
 			}
 
 		</style>
@@ -299,11 +148,9 @@
 										<hr class= "hr">
 									</div>
 									<div class="botpart">
-										<address class="ellipsis" style="margin-top: 10px">
 											<p style="font-size: medium; margin-bottom: 0px;"><%= title %></p>
 											<br><p style="font-size: small; margin-bottom: 0px"><%= company %></p>
 											<br><p style="font-size: medium; margin-bottom: 0px"><%= city %></p>
-										</address>
 									</div>
 									<div class="logopart">
 										<img src="<%=companyLogo_url%>">
@@ -352,70 +199,114 @@
 			
 		</div>
 
-		<div class="jumbotron fixright" style="background: #0064c8;">
+		<div class="jumbotron" style="margin: 0 0 0; background: #0064c8">
 			<div class="container">
 				<div class="row">
-					<div class="col-md-12" style="margin: 50px auto 50px">
-						<font color="#ffffff"><h1 style="text-align: center;">KnoWell, Not Only Know</h1></font>
-						<a href="https://play.google.com/apps/testing/com.micklestudios.knowells"><img class="media-object img-responsive" src="../assets/img/play_store_logo.png" alt="..."  style="margin: 100px auto 10px; height:80px"></a>
+					<div class="col-md-12" style="margin: 100px auto 100px">
+						<font color="#ffffff"><h1 style="text-align: center;"><b>KnoWell, Not Only Know</b></h1></font>
+						<a href="https://play.google.com/apps/testing/com.micklestudios.knowells"><img class="media-object img-responsive" src="../assets/img/play_store_logo.png" alt="..."  style="margin: 100px auto 10px; height:60px"></a>
 					</div>
 				</div>
 			</div>
 		</div>
 
-		<div class="jumbotron fixright" style="background: #067b82">
+		<div class="jumbotron" style="margin: 0 0 0; padding-bottom: 0px; background: #f19a1b">
 			<div class="container">
 				<div class="row">
-					<div class="col-md-5">
-						<img class="media-object img-responsive" src="../assets/img/simple.png" alt="...">
+					<div class="col-md-12">
+						<font color="#ffffff"><h1>Connect Instantly</h1></font>
+
 					</div>
-					<div class="col-md-6 col-md-offset-1">
-						<font color="#ffffff"><h1>Simple</h1></font>
-						<font color="#ffffff"><p>Clean design showing you only the info you need most.</p></font>
+					
+				</div>
+				<div class="row">
+					<div class="col-md-12">
+						<font color="#ffffff"><p>Step 1: Scan QR code. <br>Step 2: Save it. <br>Step 3: There is no Step 3!</p></font>
 					</div>
 				</div>
+				<div class="row">
+					<div class="col-md-12">
+						<img class="media-object img-responsive" src="../assets/img/scanned_mod.png" alt="...">
+					</div>
+
+				</div>
+				
+
 			</div>
 		</div>
 
-		<div class="jumbotron fixright" style="background: #363f48">
+		<div class="jumbotron" style="margin: 0 0 0; padding-bottom: 0px; background: #00b0f0">
 			<div class="container">
 				<div class="row">
-					<div class="col-md-5 col-md-push-6">
-						<img class="media-object img-responsive" src="../assets/img/fast.png" alt="...">
+					<div class="col-md-12">
+						<font color="#ffffff"><h1>Reach out<br>Anywhere, anytime</h1></font>
+
 					</div>
-					<div class="col-md-6 col-md-pull-5">
-						<font color="#ffffff"><h1>Fast</h1></font>
-						<font color="#ffffff"><p>Rapidly share and collect electronic cards through QR codes &mdash; no more typing names and scrolling through search results.</p></font>
+
+				</div>
+				<div class="row">
+					<div class="col-md-12">
+						<font color="#ffffff"><p>Send your documents on-the-go, right away</p></font>
 					</div>
 				</div>
+				<div class="row">
+					<div class="col-md-12">
+						<img class="media-object img-responsive" src="../assets/img/share.png" alt="...">
+					</div>
+
+				</div>
+				
+
 			</div>
 		</div>
-
-		<div class="jumbotron fixright" style="background: #75606f">
+		
+		<div class="jumbotron" style="margin: 0 0 0; padding-bottom: 0px; background: #e74c3c">
 			<div class="container">
 				<div class="row">
-					<div class="col-md-5">
-						<img class="media-object img-responsive" src="../assets/img/real.png" alt="...">
+					<div class="col-md-12">
+						<font color="#ffffff"><h1>Know Well</h1></h1></font>
+
 					</div>
-					<div class="col-md-6 col-md-offset-1">
-						<font color="#ffffff"><h1>Real</h1></font>
-						<font color="#ffffff"><p>Accumulating electronic cards that belong to people who you have actually met, who are the real connections that you can count on.</p></font>
+
+				</div>
+				<div class="row">
+					<div class="col-md-12">
+						<font color="#ffffff"><p>Jot down the notes unique to your relationship</p></font>
 					</div>
 				</div>
+				<div class="row">
+					<div class="col-md-12">
+						<img class="media-object img-responsive" src="../assets/img/note_m.png" alt="...">
+					</div>
+
+				</div>
+				
+
 			</div>
 		</div>
-
-		<div class="jumbotron fixright" style="background: #eb866a">
+		
+		<div class="jumbotron" style="margin: 0 0 0; padding-bottom: 0px; background: #00b050">
 			<div class="container">
 				<div class="row">
-					<div class="col-md-5 col-md-push-6">
-						<img class="media-object img-responsive" src="../assets/img/knowell.png" alt="...">
+					<div class="col-md-12">
+						<font color="#ffffff"><h1>Stay Organized</h1></font>
+
 					</div>
-					<div class="col-md-6 col-md-pull-5">
-						<font color="#ffffff"><h1>Know Well</h1></font>
-						<font color="#ffffff"><p>Taking notes about your connections to always know them well and keep conversations alive!</p></font>
+
+				</div>
+				<div class="row">
+					<div class="col-md-12">
+						<font color="#ffffff"><p>Never get lost in piles of business cards</p></font>
 					</div>
 				</div>
+				<div class="row">
+					<div class="col-md-12">
+						<img class="media-object img-responsive" src="../assets/img/search.png" alt="...">
+					</div>
+
+				</div>
+				
+
 			</div>
 		</div>
 

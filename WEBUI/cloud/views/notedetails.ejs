@@ -17,16 +17,11 @@
 		<link href="../assets/css/bootstrap-datepicker.css" rel="stylesheet">
 		<link href="../assets/css/nav-icon.css" rel="stylesheet">
 		<link href="../assets/css/sticky-footer.css" rel="stylesheet">
+    <link href="../assets/css/maincards.css" rel="stylesheet">
 
 		<script src="../assets/js/jquery.min.js"></script>
 
 		<style type="text/css">
-
-			.switcher {
-				max-width: 300px;
-				margin-bottom: auto;
-				margin-top: 10px;
-			}
 
 			.infoicon{
 				margin: 0px 0px 0px;
@@ -45,7 +40,6 @@
 				padding: 10px 10px 10px;
 				background-color:#00ffffff;
 			}
-
 
 			.media-text {
 				vertical-align: middle;
@@ -129,131 +123,6 @@
 				margin: 10px 0px 0px;
 			}
 
-			.container-card {
-				max-width: 260px;
-				min-height: 250px;
-				max-height: 260px;
-				padding: 10px 0px 10px;
-				margin: 0px auto 20px;
-				background-color: #fff;
-				border: 1px solid #e5e5e5;
-				-webkit-border-radius: 2px;
-				-moz-border-radius: 2px;
-				border-radius: 2px;
-				-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.05);
-				-moz-box-shadow: 0 1px 2px rgba(0,0,0,.05);
-				box-shadow: 0 1px 2px rgba(0,0,0,.05);
-			}
-
-			.container-card-header {
-				max-width: 260px;
-				padding: 10px 0px 10px;
-				margin: 0px auto 20px;
-				background-color: #fff;
-				border: 1px solid #e5e5e5;
-				-webkit-border-radius: 2px;
-				-moz-border-radius: 2px;
-				border-radius: 2px;
-				-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.05);
-				-moz-box-shadow: 0 1px 2px rgba(0,0,0,.05);
-				box-shadow: 0 1px 2px rgba(0,0,0,.05);
-			}
-
-			.maincard {
-				width: 240px;
-				vertical-align: top;
-				padding: 0 3px 0;
-				margin:0px auto 0px;
-				background-color: #ffffff;
-				overflow: auto
-			}
-
-			.toppart{
-				display:table-cell;
-				width: 230px;
-				height: 100px;
-				margin: 0 0 0;
-				vertical-align: middle;
-			}
-			.midpart{
-				width: 230px;
-				margin: 0 0 0;
-			}
-
-			.logopart{
-				display:table-cell;
-				width: 230px;
-				height: 40px;
-				margin: 0 0 0;
-				position:relative;
-			}
-			
-			.logopart img {
-				position:absolute; 
-				bottom:0; 
-				right: 0;
-				max-width: 220px;
-				max-height: 35px;
-			}
-
-			.botpart{
-				width: 230px;
-				height: 80px;
-				margin: 0 0 0;
-			}
-
-			.botpart p{
-				display: inline;
-				height: 100px;
-				vertical-align: middle;
-
-			}
-
-
-			.profile {
-				float: left;
-				width: 100px;
-				height: 100px;
-				margin: 0px 0 0px;
-			}
-
-			.profile img {
-				width: 100px;
-				height: 100px;
-			}
-
-			.toppart .name {
-				display:table-cell;
-				vertical-align: middle;
-				float: right;
-				text-align:center;
-				margin-left: 10px;
-				padding-top: 20px;
-				padding-left: 0px;
-				padding-bottom: 0px;
-				width: 120px;
-				height:100px;
-				max-width: 120px;
-				max-height: 100px;
-				overflow: hidden;
-			}
-
-			.toppart nameinput{
-				width: 120px;
-				height: 100px;
-				display:table-cell;
-				vertical-align: middle;
-
-			}
-
-			.hr {
-				width: 100%;
-				margin : 10px 0px 0px;
-			}
-
-
-
-
 			.inputstyle {
 				background: transparent;
 				border: none;
@@ -275,19 +144,6 @@
 			}
 
 		</style>
-
-		<!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
-		<!--[if lt IE 9]>
-		<script src="../js/html5shiv.js"></script>
-		<![endif]-->
-
-		<!-- Fav and touch icons -->
-		<link rel="apple-touch-icon-precomposed" sizes="144x144" href="../ico/apple-touch-icon-144-precomposed.png">
-		<link rel="apple-touch-icon-precomposed" sizes="114x114" href="../ico/apple-touch-icon-114-precomposed.png">
-		<link rel="apple-touch-icon-precomposed" sizes="72x72" href="../ico/apple-touch-icon-72-precomposed.png">
-		<link rel="apple-touch-icon-precomposed" href="../ico/apple-touch-icon-57-precomposed.png">
-		<link rel="shortcut icon" href="../ico/favicon.png">
-
 
 		<script>
 			var flagCropPanel = false;
@@ -506,11 +362,9 @@
 										<hr class= "hr">
 									</div>
 									<div class="botpart">
-										<address class="ellipsis" style="margin-top: 10px">
 											<p style="font-size: medium; margin-bottom: 0px;"><%= title %></p>
 											<br><p style="font-size: small; margin-bottom: 0px"><%= company %></p>
 											<br><p style="font-size: medium; margin-bottom: 0px"><%= city %></p>
-										</address>
 									</div>
 									<div class="logopart">
 										<img src="<%=companyLogo_url%>">

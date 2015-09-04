@@ -17,7 +17,10 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.Window;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,6 +28,11 @@ import com.f2prateek.progressbutton.ProgressButton;
 import com.micklestudios.knowells.R;
 import com.micklestudios.knowells.utils.AppGlobals;
 import com.micklestudios.knowells.utils.AsyncTasks;
+import com.micklestudios.knowells.utils.AsyncTasks.SyncDataTaskCachedIds;
+import com.micklestudios.knowells.utils.AsyncTasks.SyncDataTaskConversations;
+import com.micklestudios.knowells.utils.AsyncTasks.SyncDataTaskHistory;
+import com.micklestudios.knowells.utils.AsyncTasks.SyncDataTaskNotes;
+import com.micklestudios.knowells.utils.AsyncTasks.SyncDataTaskSelfCopy;
 import com.micklestudios.knowells.utils.ECardUtils;
 import com.parse.ParseException;
 import com.parse.ParseInstallation;
@@ -67,6 +75,12 @@ public class ActivityBufferOpening extends Activity {
   private TextView progressText;
   private SharedPreferences prefs;
   private Editor prefEditor;
+  protected boolean timeoutFlagHistory = false;
+  private SyncDataTaskHistory syncHistory;
+  private SyncDataTaskSelfCopy createSelfCopy;
+  private SyncDataTaskConversations syncConversations;
+  private SyncDataTaskNotes syncNotes;
+  private SyncDataTaskCachedIds syncCachedIds;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +96,8 @@ public class ActivityBufferOpening extends Activity {
 
     progressText = (TextView) findViewById(R.id.loading_progress);
     progressText.setText("Working on it ...");
+    
+    
 
     // if tmpImgByteArray not null, need to convert to img file regardless
     // of network
@@ -89,9 +105,9 @@ public class ActivityBufferOpening extends Activity {
     checkFolders();
 
     // check sharedpreferences
-    final SharedPreferences prefs = getSharedPreferences(
+    prefs = getSharedPreferences(
       AppGlobals.MY_PREFS_NAME, MODE_PRIVATE);
-    SharedPreferences.Editor prefEditor = prefs.edit();
+    prefEditor = prefs.edit();
 
     if (ECardUtils.isNetworkAvailable(this)) {
       // Below is for the sake of push notification
@@ -107,7 +123,8 @@ public class ActivityBufferOpening extends Activity {
 
       // syncing data within given timeout
       // when self sync done, transition
-      syncAllDataUponOpening(prefs, prefEditor);
+      InitializeAsyncTasks();
+      syncAllDataUponOpening();
     } else {
       // no network, jump into ActivityMain
 
@@ -135,6 +152,38 @@ public class ActivityBufferOpening extends Activity {
 
   }
 
+  private void InitializeAsyncTasks() {
+    // TODO Auto-generated method stub
+    syncHistory = new AsyncTasks.SyncDataTaskHistory(
+      this, AppGlobals.currentUser, prefs, prefEditor, false);
+    createSelfCopy = new AsyncTasks.SyncDataTaskSelfCopy(
+      this, AppGlobals.currentUser, prefs, prefEditor, false);
+    syncConversations = new AsyncTasks.SyncDataTaskConversations(
+      this, AppGlobals.currentUser, prefs, prefEditor, false);
+    syncNotes = new AsyncTasks.SyncDataTaskNotes(
+      this, AppGlobals.currentUser, prefs, prefEditor, false);
+    syncCachedIds = new AsyncTasks.SyncDataTaskCachedIds(
+      this, AppGlobals.currentUser, prefs, prefEditor, false);
+    
+    // set cancel button
+    Button skipSync = (Button) findViewById(R.id.cancel_sync_button);
+    skipSync.setOnClickListener(new OnClickListener(){
+
+      @Override
+      public void onClick(View v) {
+        syncCachedIds.cancel(true);
+        syncNotes.cancel(true);
+        syncConversations.cancel(true);
+        createSelfCopy.cancel(true);
+        timeoutFlagConv = true;
+        timeoutFlagCachedIds = true;
+        timeoutFlagNotes = true;
+        timeoutFlagSelf = true;
+      }
+      
+    });
+  }
+
   private void checkFolders() {
     String filepath = Environment.getExternalStorageDirectory().getPath();
     File file = new File(filepath, KNOWELL_ROOT);
@@ -154,13 +203,11 @@ public class ActivityBufferOpening extends Activity {
     }
   }
 
-  private void syncAllDataUponOpening(final SharedPreferences prefs,
-    final SharedPreferences.Editor prefEditor) {
+  private void syncAllDataUponOpening() {
     
 
     // sync history, Supposely not critical, so don't need to wait on it
-    final AsyncTasks.SyncDataTaskHistory syncHistory = new AsyncTasks.SyncDataTaskHistory(
-      this, AppGlobals.currentUser, prefs, prefEditor, false);
+    
     syncHistory.execute();
     Handler handlerHistory = new Handler();
     handlerHistory.postDelayed(new Runnable() {
@@ -170,15 +217,14 @@ public class ActivityBufferOpening extends Activity {
         if (syncHistory.getStatus() == AsyncTask.Status.RUNNING) {
           Toast.makeText(getApplicationContext(), "Sync History Timed Out",
             Toast.LENGTH_SHORT).show();
-          timeoutFlagConv = true;
+          timeoutFlagHistory  = true;
           syncHistory.cancel(true);
         }
       }
     }, HISTORY_TIMEOUT);
 
     // Create/refresh local copy every time app opens
-    final AsyncTasks.SyncDataTaskSelfCopy createSelfCopy = new AsyncTasks.SyncDataTaskSelfCopy(
-      this, AppGlobals.currentUser, prefs, prefEditor, false);
+    
     createSelfCopy.execute();
     Handler handler = new Handler();
     handler.postDelayed(new Runnable() {
@@ -195,8 +241,7 @@ public class ActivityBufferOpening extends Activity {
     }, CREATE_SELF_COPY_TIMEOUT);
 
     // upon opening, pin online conversations to local
-    final AsyncTasks.SyncDataTaskConversations syncConversations = new AsyncTasks.SyncDataTaskConversations(
-      this, AppGlobals.currentUser, prefs, prefEditor, false);
+    
     syncConversations.execute();
     Handler handlerConversations = new Handler();
     handlerConversations.postDelayed(new Runnable() {
@@ -213,8 +258,7 @@ public class ActivityBufferOpening extends Activity {
     }, CONVERSATIONS_TIMEOUT);
 
     // upon opening, pin online notes to local
-    final AsyncTasks.SyncDataTaskNotes syncNotes = new AsyncTasks.SyncDataTaskNotes(
-      this, AppGlobals.currentUser, prefs, prefEditor, false);
+    
     syncNotes.execute();
     Handler handlerNotes = new Handler();
     handlerNotes.postDelayed(new Runnable() {
@@ -231,8 +275,7 @@ public class ActivityBufferOpening extends Activity {
     }, NOTES_TIMEOUT);
 
     // check ecardIds that were scanned/cached offline
-    final AsyncTasks.SyncDataTaskCachedIds syncCachedIds = new AsyncTasks.SyncDataTaskCachedIds(
-      this, AppGlobals.currentUser, prefs, prefEditor, false);
+    
     syncCachedIds.execute();
     Handler handlerCachedIds = new Handler();
     handlerCachedIds.postDelayed(new Runnable() {
@@ -247,6 +290,8 @@ public class ActivityBufferOpening extends Activity {
         }
       }
     }, CACHEIDS_TIMEOUT);
+    
+    
 
     Thread timerThread = new Thread() {
 
@@ -267,22 +312,7 @@ public class ActivityBufferOpening extends Activity {
             // names, not the actual object
             final AsyncTasks.SyncDataCompanyNames syncCompanyNames = new AsyncTasks.SyncDataCompanyNames(
               ActivityBufferOpening.this, prefs, prefEditor, false);
-            syncCompanyNames.execute();
-//            Handler handlerCompanyNames = new Handler();
-//            handlerCompanyNames.postDelayed(new Runnable() {
-//
-//              @Override
-//              public void run() {
-//                if (syncCompanyNames.getStatus() == AsyncTask.Status.RUNNING) {
-//                  Toast.makeText(getApplicationContext(),
-//                    "Sync Company List Timed Out", Toast.LENGTH_SHORT).show();
-//                  timeoutFlagCompany = true;
-//                  syncCompanyNames.cancel(true);
-//                }
-//              }
-//            }, COMPANYNAME_TIMEOUT);
-            
-            
+            syncCompanyNames.execute();  
             
             AppGlobals.initializeAllContactsBlocking();
             AppGlobals.initializePotentialUsersBlocking();
