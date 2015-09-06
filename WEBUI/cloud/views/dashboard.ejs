@@ -8,6 +8,24 @@
 		<meta name="description" content="KnoWell, Not Only Know. By MickleStudios. Electronics Business Cards.">
 		<meta name="author" content="">
 		<link rel="icon" href="../../favicon.ico">
+
+		<script type="text/javascript" src="https://platform.linkedin.com/in.js">
+			api_key: 75x21kb6ah0nxy
+		</script>
+		
+		<script type="text/javascript">
+			// Setup an event listener to make an API call once auth is complete
+			function onLogout() {
+				// remove required input file
+				if (IN.User.isAuthorized()) {
+				//	alert("logging out");
+					IN.User.logout();
+				}
+				//IN.User.logout();
+				window.location="/logout"; 
+			}
+		</script>
+
 		<script src="../assets/js/jquery.min.js"></script>
 		<script src="../dist/js/jquery.qrcode.min.js"></script>
 		<script>
@@ -45,7 +63,7 @@
 					<ul class="nav navbar-nav">
 						<li><a href="/notif" class="notif">Notifications</a></li>
 						<li><a href="/design" class="edit">Edit My Card</a></li>
-						<li><a href="/logout" class="logout">Logout</a></li>
+						<li><a href="javascript:onLogout();" class="logout">Logout</a></li>
 					</ul>
 				</div><!--/.navbar-collapse -->
 			</div>

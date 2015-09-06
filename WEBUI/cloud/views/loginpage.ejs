@@ -19,6 +19,7 @@
 
 		<script type="text/javascript" src="https://platform.linkedin.com/in.js">
 			api_key: 75x21kb6ah0nxy
+			authorize: false
 		</script>
 
 		<script type="text/javascript">
@@ -41,7 +42,8 @@
 				// remove required input file
 				$('#email').removeAttr('required');
 				$('#password').removeAttr('required');
-				IN.UI.Authorize().place();
+				//IN.UI.Authorize().place();
+				IN.User.authorize();
 				IN.Event.on(IN, "auth", getProfileData);
 			}
 
