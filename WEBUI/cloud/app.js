@@ -1101,7 +1101,6 @@ app.post('/linkedinSignin', function(req, res){
 	if(Parse.User.current()){
 		// this is necessary, otherwise signup while a session is on-going will fail
 		Parse.User.logOut();
-		IN.User.logout();
 	}
 	var user = new Parse.User();
 	splitStr = req.body.linkedinObj.split(/,,/);
@@ -1479,7 +1478,6 @@ app.post('/signup', function(req, res){
 app.get('/logout', function(req, res){
 	Parse.User.logOut();
 	sess.userinfoObjs = []; // clean the search results from session upon exit
-	//IN.User.logout();
 	res.redirect('dummypage');
 })
 
