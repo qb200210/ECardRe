@@ -10,6 +10,7 @@ import org.json.JSONObject;
 
 import com.micklestudios.knowells.ActivityBufferOpening;
 import com.micklestudios.knowells.ActivityConversations;
+import com.micklestudios.knowells.ActivityMain;
 import com.micklestudios.knowells.R;
 import com.micklestudios.knowells.infrastructure.ConversationsListAdapter;
 import com.nhaarman.listviewanimations.appearance.simple.AlphaInAnimationAdapter;
@@ -84,7 +85,7 @@ public class MyPushReceiver extends ParsePushBroadcastReceiver {
 
     // Here is data you sent
     Log.i("push", intent.getExtras().getString("com.parse.Data"));
-
+    
     Intent i = new Intent(context, ActivityConversations.class);
     i.putExtra("refreshList", true);
     i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

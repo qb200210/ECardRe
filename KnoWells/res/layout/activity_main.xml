@@ -101,7 +101,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Scan QR"
+                            android:text=" Add Card\n(Scan QR)"
                             android:textColor="#ffffff"
                             android:textSize="14sp" />
                     </LinearLayout>

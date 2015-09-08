@@ -1,5 +1,12 @@
 package com.micklestudios.knowells;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -11,14 +18,18 @@ import java.util.regex.Pattern;
 
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.ActionBar;
@@ -46,6 +57,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -82,6 +94,11 @@ public class ActivitySearch extends ActionBarActivity {
   static final int SCROLL_ANIMATION_SPEED_MS_SLOW = 1000;
   static final int SCROLL_ANIMATION_SPEED_MS_NORMAL = 500;
   static final int SCROLL_ANIMATION_SPEED_MS_FAST = 250;
+  
+  private AlertDialog uploadDialog;
+  protected static final int UPLOAD_DOC = 1001;
+  protected static final int SHARE_DOC = 1004;
+  private static final String KNOWELL_ROOT = "KnoWell";
 
   View mainView;
   RelativeLayout searchWidget;
@@ -158,6 +175,7 @@ public class ActivitySearch extends ActionBarActivity {
   private ImageView btnDeleteSel;
   private boolean isSelectAllChecked;
   private ArrayList<Integer> sortIconList;
+  private ImageView btnDocSel;
 
   // Needed for static functions requiring context
   private static Context currentContext;
@@ -249,6 +267,7 @@ public class ActivitySearch extends ActionBarActivity {
     btnClearEventMet = (ImageView) findViewById(R.id.clear_eventmet);
 
     btnEmailSel = (ImageView) findViewById(R.id.btn_email_sel);
+    btnDocSel = (ImageView) findViewById(R.id.btn_doc_sel);
     btnDeleteSel = (ImageView) findViewById(R.id.btn_delete_sel);
   }
 
@@ -657,8 +676,8 @@ public class ActivitySearch extends ActionBarActivity {
       public void onClick(View v) {
         selectedUsers.clear();
         if (isSelectAllChecked) {
-          for (int i = 0; i < filteredUsers.size() - 1; i++, selectedUsers
-            .add(AppGlobals.allUsers.get(filteredUsers.get(i))))
+          for (int i = 0; i < filteredUsers.size(); selectedUsers
+            .add(AppGlobals.allUsers.get(filteredUsers.get(i))), i++)
             ;
           isSelectAllChecked = false;
         } else {
@@ -676,118 +695,342 @@ public class ActivitySearch extends ActionBarActivity {
         int failedEmailCount = 0;
 
         ArrayList<String> TO = new ArrayList<String>();
+        ArrayList<String> failedList = new ArrayList<String>();
 
         // Get the selected users.
         for (UserInfo uInfoSelected : selectedUsers) {
           String email = uInfoSelected.getEmail();
           if (email == null || ECardUtils.isValidEmail(email) == false) {
             failedEmailCount++;
-            Log.e("Knowell", "The failed email is " + email);
+            failedList.add(uInfoSelected.getFirstName());
           } else {
             TO.add(email);
           }
         }
 
         if (failedEmailCount != 0) {
-          Toast.makeText(getApplicationContext(),
-            failedEmailCount + " selected users have invalid emails",
-            Toast.LENGTH_LONG).show();
-        }
-
-        if (TO.size() == 0) {
-          return;
-        }
-
-        // Send e-mail to selected users.
-        Intent emailIntent = new Intent(Intent.ACTION_SEND);
-        emailIntent.setData(Uri.parse("mailto:"));
-        emailIntent.setType("message/rfc822");
-        emailIntent.putExtra(Intent.EXTRA_EMAIL,
-          TO.toArray(new String[TO.size()]));
-        String msgSubject;
-        if (ActivityMain.currentUser.get("emailSubject") != null
-          && !ActivityMain.currentUser.get("emailSubject").toString().isEmpty()) {
-          msgSubject = ActivityMain.currentUser.get("emailSubject").toString();
-          String processedSubject = msgSubject
-            .replaceAll("#r[a-zA-Z0-9]*#", "");
-          processedSubject = processedSubject.replaceAll("#m[a-zA-Z0-9]*#",
-            ActivityMain.myselfUserInfo.getFirstName() + " "
-              + ActivityMain.myselfUserInfo.getLastName());
-          processedSubject = processedSubject.replaceAll("#c[a-zA-Z0-9]*#",
-            ActivityMain.myselfUserInfo.getCompany());
-          msgSubject = processedSubject
-            .replaceAll("#k[a-zA-Z0-9]*#", getLink());
-
+          // alert some contacts are invalid
+          alertInvalidContact(TO, failedList, 0, null, null);
         } else {
-          msgSubject = "Greetings from "
-            + ActivityMain.myselfUserInfo.getFirstName() + " "
-            + ActivityMain.myselfUserInfo.getLastName();
+          // if all selected have valid emails
+          sendGroupEmail(TO);
         }
 
-        emailIntent.putExtra(Intent.EXTRA_SUBJECT, msgSubject);
-
-        String msgBody;
-
-        if (ActivityMain.currentUser.get("emailBody") != null
-          && !ActivityMain.currentUser.get("emailBody").toString().isEmpty()) {
-          msgBody = ActivityMain.currentUser.get("emailBody").toString();
-          String processedBody = msgBody.replaceAll("#r[a-zA-Z0-9]*#", "");
-          processedBody = processedBody.replaceAll("#m[a-zA-Z0-9]*#",
-            ActivityMain.myselfUserInfo.getFirstName() + " "
-              + ActivityMain.myselfUserInfo.getLastName());
-          processedBody = processedBody.replaceAll("#c[a-zA-Z0-9]*#",
-            ActivityMain.myselfUserInfo.getCompany());
-          msgBody = processedBody.replaceAll("#k[a-zA-Z0-9]*#", getLink());
-        } else {
-          msgBody = "Hi " + ",\n\nThis is "
-            + ActivityMain.myselfUserInfo.getFirstName() + " "
-            + ActivityMain.myselfUserInfo.getLastName() + " from "
-            + ActivityMain.myselfUserInfo.getCompany()
-            + ".\n\nIt was great to meet you! Keep in touch! \n\nBest,\n"
-            + ActivityMain.myselfUserInfo.getFirstName()
-            + "\n\nPlease accept my business card here: " + getLink();
-        }
-        emailIntent.putExtra(Intent.EXTRA_TEXT, msgBody);
-
-        try {
-          startActivity(emailIntent);
-        } catch (android.content.ActivityNotFoundException ex) {
-          Toast.makeText(ActivitySearch.this,
-            "There is no email client installed.", Toast.LENGTH_SHORT).show();
-        }
       }
+    });
+    
+    btnDocSel.setOnClickListener(new OnClickListener(){
+
+      @Override
+      public void onClick(View v) {
+        // check if doc exists
+        String docName = "";
+        String docPath = "";
+        if (ActivityMain.currentUser.get("docName") != null
+          && !ActivityMain.currentUser.get("docName").toString().isEmpty()) {
+          docName = ActivityMain.currentUser.get("docName").toString();
+        }
+        if (ActivityMain.currentUser.get("docPath") != null
+          && !ActivityMain.currentUser.get("docPath").toString().isEmpty()) {
+          docPath = ActivityMain.currentUser.get("docPath").toString();
+        }
+
+        File file = new File(docPath);
+
+        if (file.exists()) {
+          // if file exists, check available emails
+          int failedEmailCount = 0;
+
+          ArrayList<String> TO = new ArrayList<String>();
+          ArrayList<String> failedList = new ArrayList<String>();
+
+          // Get the selected users.
+          for (UserInfo uInfoSelected : selectedUsers) {
+            String email = uInfoSelected.getEmail();
+            if (email == null || ECardUtils.isValidEmail(email) == false) {
+              failedEmailCount++;
+              failedList.add(uInfoSelected.getFirstName());
+            } else {
+              TO.add(email);
+            }
+          }
+
+          Uri uri = Uri.fromFile(file);
+          if (failedEmailCount != 0) {
+            // alert some contacts are invalid
+            // mark 1 for doc
+            alertInvalidContact(TO, failedList, 1, docName, uri);
+          } else {
+            // if all selected have valid emails
+            sendGroupDoc(TO, docName, uri);
+          }          
+          
+        } else {
+          // if no, pop up dialog for selecting file
+          uploadDoc();
+        }
+        
+      }
+      
     });
 
     btnDeleteSel.setOnClickListener(new OnClickListener() {
 
       @Override
       public void onClick(View v) {
-        AppGlobals.allUsers.removeAll(selectedUsers);
-        List<String> toBeDeleted = new ArrayList<String>();
-        for (UserInfo selectedUser : selectedUsers) {
-          toBeDeleted.add(selectedUser.getObjId());
-        }
-        ParseQuery<ParseObject> queryNotes = ParseQuery.getQuery("ECardNote");
-        queryNotes.whereEqualTo("userId", currentUser.getObjectId());
-        queryNotes.whereContainedIn("ecardId", toBeDeleted);
-        queryNotes.fromLocalDatastore();
-        queryNotes.findInBackground(new FindCallback<ParseObject>() {
-
-          @Override
-          public void done(List<ParseObject> objects, ParseException e) {
-            if (e == null) {
-              for (ParseObject obj : objects) {
-                obj.put("isDeleted", true);
-                obj.saveEventually();
-              }
-              performSearch();// clear current selection
-            }
-          }
-
-        });
+        confirmDelete();
       }
     });
 
+  }
+  
+  @SuppressLint("NewApi")
+  private void uploadDoc() {
+    // Get the layout inflater
+    LayoutInflater inflater = getLayoutInflater();
+    final View dialogView = inflater.inflate(R.layout.layout_upload_doc, null);
+    LinearLayout dialogHeader = (LinearLayout) dialogView
+      .findViewById(R.id.dialog_header);
+    final TextView dialogText = (TextView) dialogView
+      .findViewById(R.id.dialog_text);
+    TextView dialogTitle = (TextView) dialogView
+      .findViewById(R.id.dialog_title);
+    // // Set dialog header background with rounded corner
+    // Bitmap bm = BitmapFactory
+    // .decodeResource(getResources(), R.drawable.striped);
+    // BitmapDrawable bmDrawable = new BitmapDrawable(getResources(), bm);
+    // dialogHeader.setBackground(new CurvedAndTiled(bmDrawable.getBitmap(),
+    // 5)); \n vvvvvvvv
+    dialogHeader
+      .setBackgroundColor(getResources().getColor(R.color.blue_extra));
+    // Set dialog title and main EditText
+    dialogTitle.setText("You have no document yet ...");
+
+    LinearLayout uploadButton = (LinearLayout) dialogView
+      .findViewById(R.id.upload_button);
+    uploadButton.setOnClickListener(new OnClickListener() {
+
+      @Override
+      public void onClick(View v) {
+        showFileChooser();
+      }
+
+      private void showFileChooser() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("*/*");
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+
+        try {
+          startActivityForResult(
+            Intent.createChooser(intent, "Select a File to Upload"), UPLOAD_DOC);
+        } catch (android.content.ActivityNotFoundException ex) {
+          // Potentially direct the user to the Market with a Dialog
+        }
+      }
+
+    });
+
+    uploadDialog = new AlertDialog.Builder(this).setView(dialogView)
+      .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        public void onClick(DialogInterface dialog, int whichButton) {
+
+        }
+      }).setCancelable(true).show();
+
+  }
+  
+  protected void sendGroupDoc(final ArrayList<String> TO, final String docName, final Uri uri) {
+    String link = getLink();
+
+    Intent sendIntent = new Intent(Intent.ACTION_SEND);
+    sendIntent.setType("message/rfc822");
+    sendIntent.putExtra(Intent.EXTRA_EMAIL,
+      TO.toArray(new String[TO.size()]));
+    String msgSubject;
+    if (ActivityMain.currentUser.get("docMsgSubject") != null
+      && !ActivityMain.currentUser.get("docMsgSubject").toString()
+        .isEmpty()) {
+      msgSubject = ActivityMain.currentUser.get("docMsgSubject")
+        .toString();
+      String processedSubject = msgSubject.replaceAll("#m[a-zA-Z0-9]*#",
+        ActivityMain.myselfUserInfo.getFirstName() + " "
+          + ActivityMain.myselfUserInfo.getLastName());
+      processedSubject = processedSubject.replaceAll("#d[a-zA-Z0-9]*#",
+        docName);
+      processedSubject = processedSubject.replaceAll("#c[a-zA-Z0-9]*#",
+        ActivityMain.myselfUserInfo.getCompany());
+      msgSubject = processedSubject.replaceAll("#k[a-zA-Z0-9]*#",
+        getLink());
+
+    } else {
+      msgSubject = "Greetings from "
+        + ActivityMain.myselfUserInfo.getFirstName() + " "
+        + ActivityMain.myselfUserInfo.getLastName();
+    }
+
+    sendIntent.putExtra(Intent.EXTRA_SUBJECT, msgSubject);
+
+    String msgBody;
+
+    if (ActivityMain.currentUser.get("docMsgBody") != null
+      && !ActivityMain.currentUser.get("docMsgBody").toString().isEmpty()) {
+      msgBody = ActivityMain.currentUser.get("docMsgBody").toString();
+      String processedBody = msgBody.replaceAll("#m[a-zA-Z0-9]*#",
+        ActivityMain.myselfUserInfo.getFirstName() + " "
+          + ActivityMain.myselfUserInfo.getLastName());
+      processedBody = processedBody
+        .replaceAll("#d[a-zA-Z0-9]*#", docName);
+      processedBody = processedBody.replaceAll("#c[a-zA-Z0-9]*#",
+        ActivityMain.myselfUserInfo.getCompany());
+      msgBody = processedBody.replaceAll("#k[a-zA-Z0-9]*#", getLink());
+    } else {
+      msgBody = "Hi,\n\nThis is "
+        + ActivityMain.myselfUserInfo.getFirstName()
+        + " "
+        + ActivityMain.myselfUserInfo.getLastName()
+        + " from "
+        + ActivityMain.myselfUserInfo.getCompany()
+        + ". Please find my "
+        + docName
+        + " in attachment. \n\nIt was great to meet you! Keep in touch! \n\nBest,\n"
+        + ActivityMain.myselfUserInfo.getFirstName()
+        + "\n\nPlease accept my business card here: " + link;
+    }
+
+    sendIntent.putExtra(Intent.EXTRA_TEXT, msgBody);
+
+    sendIntent.putExtra(Intent.EXTRA_STREAM, uri);
+    startActivityForResult(sendIntent, SHARE_DOC);
+  }
+
+  private void alertInvalidContact(final ArrayList<String> TO,ArrayList<String> failedList, final int emailDoc, final String docName, final Uri uri) {
+
+    LayoutInflater inflater = getLayoutInflater();
+    final View dialogView = inflater.inflate(R.layout.layout_missing, null);
+    LinearLayout dialogHeader = (LinearLayout) dialogView
+      .findViewById(R.id.dialog_header);
+    final TextView dialogText = (TextView) dialogView
+      .findViewById(R.id.dialog_text);
+    TextView dialogTitle = (TextView) dialogView
+      .findViewById(R.id.dialog_title);
+    dialogHeader
+      .setBackgroundColor(getResources().getColor(R.color.blue_extra));
+    // Set dialog title and main EditText
+
+    switch(emailDoc){
+    case 0:
+      dialogTitle.setText("Missing emails");
+      break;
+    case 1:
+      dialogTitle.setText("Missing emails");
+      break;
+    }
+    
+
+    final TextView missingNameView = (TextView) dialogView
+      .findViewById(R.id.missing_names);
+    
+    String alertText = "";
+    if(failedList.size()>1){
+      // more than one: a, b, and c has no email
+      for(int i=0; i< failedList.size()-1; i++){
+        alertText = alertText + failedList.get(i) + ", ";
+      }
+      alertText = alertText + "and " + failedList.get(failedList.size()-1) + " have no ";
+    } else {
+      // only one: a has no email
+      alertText = failedList.get(0) + " has no ";
+    }
+    switch(emailDoc){
+    case 0:
+      alertText = alertText + "email";
+      break;
+    case 1:
+      alertText = alertText + "email";
+      break;
+    }
+    
+    missingNameView.setText(alertText);
+
+    new AlertDialog.Builder(this).setView(dialogView)
+      .setPositiveButton("That's fine", new DialogInterface.OnClickListener() {
+        public void onClick(DialogInterface dialog, int whichButton) {
+          
+          switch(emailDoc){
+          case 0:
+            sendGroupEmail(TO);
+            break;
+          case 1:
+            sendGroupDoc(TO, docName, uri);
+            break;
+          }
+        }
+      }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        public void onClick(DialogInterface dialog, int whichButton) {
+
+        }
+      }).setCancelable(false).show();
+  }
+
+  protected void sendGroupEmail(ArrayList<String> TO) {
+ // Send e-mail to selected users.
+    Intent emailIntent = new Intent(Intent.ACTION_SEND);
+    emailIntent.setData(Uri.parse("mailto:"));
+    emailIntent.setType("message/rfc822");
+    emailIntent.putExtra(Intent.EXTRA_EMAIL,
+      TO.toArray(new String[TO.size()]));
+    String msgSubject;
+    if (ActivityMain.currentUser.get("emailSubject") != null
+      && !ActivityMain.currentUser.get("emailSubject").toString().isEmpty()) {
+      msgSubject = ActivityMain.currentUser.get("emailSubject").toString();
+      String processedSubject = msgSubject
+        .replaceAll("#r[a-zA-Z0-9]*#", "");
+      processedSubject = processedSubject.replaceAll("#m[a-zA-Z0-9]*#",
+        ActivityMain.myselfUserInfo.getFirstName() + " "
+          + ActivityMain.myselfUserInfo.getLastName());
+      processedSubject = processedSubject.replaceAll("#c[a-zA-Z0-9]*#",
+        ActivityMain.myselfUserInfo.getCompany());
+      msgSubject = processedSubject
+        .replaceAll("#k[a-zA-Z0-9]*#", getLink());
+
+    } else {
+      msgSubject = "Greetings from "
+        + ActivityMain.myselfUserInfo.getFirstName() + " "
+        + ActivityMain.myselfUserInfo.getLastName();
+    }
+
+    emailIntent.putExtra(Intent.EXTRA_SUBJECT, msgSubject);
+
+    String msgBody;
+
+    if (ActivityMain.currentUser.get("emailBody") != null
+      && !ActivityMain.currentUser.get("emailBody").toString().isEmpty()) {
+      msgBody = ActivityMain.currentUser.get("emailBody").toString();
+      String processedBody = msgBody.replaceAll("#r[a-zA-Z0-9]*#", "");
+      processedBody = processedBody.replaceAll("#m[a-zA-Z0-9]*#",
+        ActivityMain.myselfUserInfo.getFirstName() + " "
+          + ActivityMain.myselfUserInfo.getLastName());
+      processedBody = processedBody.replaceAll("#c[a-zA-Z0-9]*#",
+        ActivityMain.myselfUserInfo.getCompany());
+      msgBody = processedBody.replaceAll("#k[a-zA-Z0-9]*#", getLink());
+    } else {
+      msgBody = "Hi " + ",\n\nThis is "
+        + ActivityMain.myselfUserInfo.getFirstName() + " "
+        + ActivityMain.myselfUserInfo.getLastName() + " from "
+        + ActivityMain.myselfUserInfo.getCompany()
+        + ".\n\nIt was great to meet you! Keep in touch! \n\nBest,\n"
+        + ActivityMain.myselfUserInfo.getFirstName()
+        + "\n\nPlease accept my business card here: " + getLink();
+    }
+    emailIntent.putExtra(Intent.EXTRA_TEXT, msgBody);
+
+    try {
+      startActivity(emailIntent);
+    } catch (android.content.ActivityNotFoundException ex) {
+      Toast.makeText(ActivitySearch.this,
+        "There is no email client installed.", Toast.LENGTH_SHORT).show();
+    }
+    
   }
 
   // Hide all the filter text views
@@ -1240,5 +1483,193 @@ public class ActivitySearch extends ActionBarActivity {
     qrString.append("id=");
     qrString.append(ActivityMain.myselfUserInfo.getObjId());
     return qrString.toString();
+  }
+  
+  @Override
+  public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+    switch (requestCode) {
+    
+    case UPLOAD_DOC:
+      if (resultCode == Activity.RESULT_OK) {
+        uploadDialog.dismiss();
+        // Get the Uri of the selected file
+        Uri uri = data.getData();
+        Log.d("uri", "File Uri: " + uri.toString());
+        // Get the path
+        String path;
+        try {
+          String srcPath = getPath(this, uri);
+          File srcFile = new File(srcPath);
+          String dstPath = Environment.getExternalStorageDirectory().getPath()
+            + "/" + KNOWELL_ROOT + "/" + srcFile.getName();
+          Log.i("asdf", dstPath);
+          File dstFile = new File(dstPath);
+          try {
+            copyFile(srcFile, dstFile);
+            ActivityMain.currentUser.put("docPath", dstPath);
+          } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+          }
+          // Get the file instance
+          //
+          // Initiate the upload
+          addDocDescription(srcFile.getName());
+        } catch (URISyntaxException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        }
+      }
+      break;    
+    case SHARE_DOC:
+      
+      break;
+    
+    }
+
+    super.onActivityResult(requestCode, resultCode, data);
+  }
+  
+  public void copyFile(File src, File dst) throws IOException {
+    InputStream in = new FileInputStream(src);
+    OutputStream out = new FileOutputStream(dst);
+
+    // Transfer bytes from in to out
+    byte[] buf = new byte[1024];
+    int len;
+    while ((len = in.read(buf)) > 0) {
+      out.write(buf, 0, len);
+    }
+    in.close();
+    out.close();
+  }
+
+  public static String getPath(Context context, Uri uri)
+    throws URISyntaxException {
+    if ("content".equalsIgnoreCase(uri.getScheme())) {
+      String[] projection = { "_data" };
+      Cursor cursor = null;
+
+      try {
+        cursor = context.getContentResolver().query(uri, projection, null,
+          null, null);
+        int column_index = cursor.getColumnIndexOrThrow("_data");
+        if (cursor.moveToFirst()) {
+          return cursor.getString(column_index);
+        }
+      } catch (Exception e) {
+        // Eat it
+      }
+    } else if ("file".equalsIgnoreCase(uri.getScheme())) {
+      return uri.getPath();
+    }
+
+    return null;
+  }
+
+  @SuppressLint("NewApi")
+  private void addDocDescription(final String filename) {
+    // Get the layout inflater
+    LayoutInflater inflater = getLayoutInflater();
+    final View dialogView = inflater.inflate(R.layout.layout_upload_doc_done,
+      null);
+    LinearLayout dialogHeader = (LinearLayout) dialogView
+      .findViewById(R.id.dialog_header);
+    final TextView dialogText = (TextView) dialogView
+      .findViewById(R.id.dialog_text);
+    TextView dialogTitle = (TextView) dialogView
+      .findViewById(R.id.dialog_title);
+    // // Set dialog header background with rounded corner
+    // Bitmap bm = BitmapFactory
+    // .decodeResource(getResources(), R.drawable.striped);
+    // BitmapDrawable bmDrawable = new BitmapDrawable(getResources(), bm);
+    // dialogHeader.setBackground(new CurvedAndTiled(bmDrawable.getBitmap(),
+    // 5)); \n vvvvvvvv
+    dialogHeader
+      .setBackgroundColor(getResources().getColor(R.color.blue_extra));
+    // Set dialog title and main EditText
+    dialogTitle.setText("Rename Uploaded File");
+    EditText docFilenameView = (EditText) dialogView
+      .findViewById(R.id.doc_filename);
+    docFilenameView.setText(filename);
+
+    new AlertDialog.Builder(this).setView(dialogView)
+      .setPositiveButton("Done", new DialogInterface.OnClickListener() {
+        public void onClick(DialogInterface dialog, int whichButton) {
+
+          EditText docFilenameView = (EditText) dialogView
+            .findViewById(R.id.doc_filename);
+          String docFilename = docFilenameView.getText().toString();
+          if (docFilename == null || docFilename.isEmpty()) {
+            ActivityMain.currentUser.put("docName", filename);
+          } else {
+            // filename not null, save it to sharedpreference
+            ActivityMain.currentUser.put("docName", docFilename);
+          }
+          ActivityMain.currentUser.saveEventually(null);
+        }
+      }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        public void onClick(DialogInterface dialog, int whichButton) {
+
+        }
+      }).setCancelable(false).show();
+
+  }
+  
+  @SuppressLint("NewApi")
+  private void confirmDelete() {
+    // Get the layout inflater
+    LayoutInflater inflater = getLayoutInflater();
+    View dialogView = inflater.inflate(R.layout.layout_empty, null);
+    LinearLayout dialogHeader = (LinearLayout) dialogView
+      .findViewById(R.id.dialog_header);
+    final TextView dialogText = (TextView) dialogView
+      .findViewById(R.id.dialog_text);
+    TextView dialogTitle = (TextView) dialogView
+      .findViewById(R.id.dialog_title);
+    dialogHeader
+      .setBackgroundColor(getResources().getColor(R.color.blue_extra));
+    // Set dialog title and main EditText
+    dialogTitle.setText("Should I delete them?");
+
+    new AlertDialog.Builder(this).setView(dialogView)
+      .setPositiveButton("Sure", new DialogInterface.OnClickListener() {
+        public void onClick(DialogInterface dialog, int whichButton) {
+          AppGlobals.allUsers.removeAll(selectedUsers);
+          List<String> toBeDeleted = new ArrayList<String>();
+          for (UserInfo selectedUser : selectedUsers) {
+            toBeDeleted.add(selectedUser.getObjId());
+          }
+          ParseQuery<ParseObject> queryNotes = ParseQuery.getQuery("ECardNote");
+          queryNotes.whereEqualTo("userId", currentUser.getObjectId());
+          queryNotes.whereContainedIn("ecardId", toBeDeleted);
+          queryNotes.fromLocalDatastore();
+          queryNotes.findInBackground(new FindCallback<ParseObject>() {
+
+            @Override
+            public void done(List<ParseObject> objects, ParseException e) {
+              if (e == null) {
+                for (ParseObject obj : objects) {
+                  obj.put("isDeleted", true);
+                  obj.saveEventually();
+                }
+                performSearch();// clear current selection
+              }
+            }
+
+          });
+        }
+
+      }).setNegativeButton("Nope", new DialogInterface.OnClickListener() {
+
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+          // TODO Auto-generated method stub
+          
+        }
+        
+      }).setCancelable(true).show();
+
   }
 }

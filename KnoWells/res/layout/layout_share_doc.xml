@@ -17,7 +17,7 @@
         <ImageView
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:src="@drawable/doc_button" />
+            android:src="@drawable/doc_button_sm" />
 
         <TextView
             android:id="@+id/dialog_title"

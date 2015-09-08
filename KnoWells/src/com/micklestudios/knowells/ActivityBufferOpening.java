@@ -174,6 +174,7 @@ public class ActivityBufferOpening extends Activity {
         syncCachedIds.cancel(true);
         syncNotes.cancel(true);
         syncConversations.cancel(true);
+        syncHistory.cancel(true);
         createSelfCopy.cancel(true);
         timeoutFlagConv = true;
         timeoutFlagCachedIds = true;
@@ -249,8 +250,10 @@ public class ActivityBufferOpening extends Activity {
       @Override
       public void run() {
         if (syncConversations.getStatus() == AsyncTask.Status.RUNNING) {
-          Toast.makeText(getApplicationContext(),
-            "Sync Notifications Timed Out", Toast.LENGTH_SHORT).show();
+          if(flagSyncConvDone != true){
+            Toast.makeText(getApplicationContext(),
+              "Sync Notifications Timed Out", Toast.LENGTH_SHORT).show();
+          }
           timeoutFlagConv = true;
           syncConversations.cancel(true);
         }

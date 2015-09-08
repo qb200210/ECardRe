@@ -304,21 +304,21 @@
 
                 <ImageView
                     android:id="@+id/btn_email_sel"
-                    android:layout_width="35dp"
-                    android:layout_height="35dp"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
                     android:layout_weight="1"
                     android:background="@null"
                     android:padding="0dp"
-                    android:src="@drawable/ic_action_email" />
+                    android:src="@drawable/mail_sm" />
                 
                 <ImageView
-                    android:id="@+id/btn_sms_sel"
-                    android:layout_width="35dp"
-                    android:layout_height="35dp"
+                    android:id="@+id/btn_doc_sel"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
                     android:layout_weight="1"
                     android:background="@null"
                     android:padding="0dp"
-                    android:src="@drawable/message_lite" />
+                    android:src="@drawable/doc_button_sm" />
 
                 <ImageView
                     android:id="@+id/btn_delete_sel"
