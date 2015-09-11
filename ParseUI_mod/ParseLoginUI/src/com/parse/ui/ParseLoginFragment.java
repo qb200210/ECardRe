@@ -104,7 +104,7 @@ public class ParseLoginFragment extends ParseLoginFragmentBase {
   public static int exception_flag = 1;
   private static String g_json_str = "";
   
-  public static final String PACKAGE_MOBILE_ECARD_APP = "com.micklestudios.knowell";
+  public static final String PACKAGE_MOBILE_ECARD_APP = "com.micklestudios.knowells";
   private static final String host = "api.linkedin.com";
   private static final String topCardUrl = "https://" + host + "/v1/people/~:(id,first-name,last-name,email-address,positions,location,picture-url,public-profile-url)";
   private ParseObject object = null;
@@ -687,8 +687,10 @@ public class ParseLoginFragment extends ParseLoginFragmentBase {
 			FileOutputStream out = null;		
 			ByteArrayOutputStream stream = new ByteArrayOutputStream();
 			Log.v("post exe", "portrait file done");
-	        try {        	        	
-	        	results.compress(Bitmap.CompressFormat.PNG, 100, stream);
+	        try {
+	        	Bitmap scaledImg = Bitmap.createScaledBitmap(results, 200, 200, false);
+	        	scaledImg.compress(Bitmap.CompressFormat.PNG, 100, stream);
+	            //results.compress(Bitmap.CompressFormat.PNG, 100, stream);
 	            imgData = stream.toByteArray();         
 	            Log.v("compress", "portrait file converted");
 	            file = new ParseFile("portrait.jpg", imgData);
