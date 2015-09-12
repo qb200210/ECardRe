@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.micklestudios.knowells.R;
 import com.micklestudios.knowells.infrastructure.UserInfo;
@@ -83,6 +84,7 @@ public class FragmentMaincard extends Fragment implements UpdateableFragment {
       ImageView logoImg = (ImageView) rootView.findViewById(R.id.my_logo);
       // display logo
       ECardUtils.findAndSetLogo(getActivity(), logoImg, tmpString, true);
+      Log.e("comlogo","accessed"+ tmpString);
     }
     name = (TextView) rootView.findViewById(R.id.my_job_title);
     tmpString = newUser.getTitle();

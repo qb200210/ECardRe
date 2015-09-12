@@ -3,6 +3,7 @@ package com.micklestudios.knowells.utils;
 import java.util.ArrayList;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,13 +19,22 @@ public class MySimpleListViewAdapter extends BaseAdapter {
   private Context context;
   private String listValues[];
   private ArrayList<Integer> gridResources;
+  private ArrayList<Bitmap> gridBitmapResources;
+  private boolean flag = false;
 
   public MySimpleListViewAdapter(Context context, String listValues[],
     ArrayList<Integer> gridResources) {
     this.context = context;
     this.listValues = listValues;
     this.gridResources = gridResources;
-    Log.i("adapter", gridResources.toString());
+  }
+
+  public MySimpleListViewAdapter(Context context, String listValues[],
+    ArrayList<Bitmap> gridBitmapResources, boolean flag) {
+    this.context = context;
+    this.listValues = listValues;
+    this.gridBitmapResources = gridBitmapResources;
+    this.flag  = flag;
   }
 
   public View getView(int position, View convertView, ViewGroup parent) {
@@ -50,8 +60,19 @@ public class MySimpleListViewAdapter extends BaseAdapter {
     // Log.i("adapter", position + "  "+ listValues[position]+ "  " +
     // listValues.length);
     holder.tv.setText(listValues[position]);
-    holder.icon.setImageResource(gridResources.get(position));
-
+    
+    if(flag){
+      // this is for company list. Bitmap is supplied
+      if(gridBitmapResources!=null){
+        if(gridBitmapResources.get(position) !=null){
+          holder.icon.setImageBitmap(gridBitmapResources.get(position));
+        }
+      }
+    } else{
+      if(gridResources != null){
+        holder.icon.setImageResource(gridResources.get(position));
+      }
+    }
     return row;
   }
 

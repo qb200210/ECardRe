@@ -14,6 +14,7 @@ import java.util.TreeSet;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -24,8 +25,10 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
@@ -35,6 +38,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.view.View.OnFocusChangeListener;
 import android.view.WindowManager;
 import android.widget.AdapterView;
@@ -108,6 +112,9 @@ public class ActivityDesign extends ActionBarActivity {
   public static ArrayList<String> companyNames;
   ParseObject templateToBePinned = null;
   protected boolean flagLogoSet = false;
+  private AlertDialog actionCC;
+  private boolean flagCompanyNameExactMatch = false;
+  private long SAVE_DESIGN_TIMEOUT=60000;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -321,95 +328,113 @@ public class ActivityDesign extends ActionBarActivity {
       this.finish();
       return true;
     case R.id.design_save:
-      // construct the updatedUserInfo to be sent back to ActivityMain
-      saveChangesToUserInfo();
+      // if online, check company names and suggest replacement
+      if(ECardUtils.isNetworkAvailable(ActivityDesign.this)){
+        checkCompanyNamesOnline();
+      } else {
+        proceedSaving();
+      }
+      
+      return true;
+    default:
+      return super.onOptionsItemSelected(item);
+    }
+  }
 
-      ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardInfo");
-      query.fromLocalDatastore();
-      query.getInBackground(currentUser.get("ecardId").toString(),
-        new GetCallback<ParseObject>() {
+  private void proceedSaving() {
+ // construct the updatedUserInfo to be sent back to ActivityMain
+    
+    saveChangesToUserInfo();
 
-          @Override
-          public void done(final ParseObject object, ParseException e) {
-            if (e == null) {
-              if (object != null) {
-                // the file should not be empty
-                if (!portraitChanged) {
+    ParseQuery<ParseObject> query = ParseQuery.getQuery("ECardInfo");
+    query.fromLocalDatastore();
+    query.getInBackground(currentUser.get("ecardId").toString(),
+      new GetCallback<ParseObject>() {
+
+        @Override
+        public void done(final ParseObject object, ParseException e) {
+          if (e == null) {
+            if (object != null) {
+              // the file should not be empty
+              if (!portraitChanged) {
+                saveChangesToParse(object);
+              } else {
+                // If no internet, save portrait to parse as byte array, then
+                // later convert to parse file
+                if (!ECardUtils.isNetworkAvailable(ActivityDesign.this)) {
+                  Toast.makeText(ActivityDesign.this,
+                    "No network, caching img", Toast.LENGTH_SHORT).show();
+                  object.put("tmpImgByteArray", tmpImgData);
+                  // flush sharedpreferences to 1969 so next time app opens
+                  // with internet, convert the file
+                  Date currentDate = new Date(0);
+                  SharedPreferences prefs = getSharedPreferences(
+                    AppGlobals.MY_PREFS_NAME, MODE_PRIVATE);
+                  SharedPreferences.Editor prefEditor = prefs.edit();
+                  prefEditor.putLong("DateSelfSynced", currentDate.getTime());
+                  prefEditor.commit();
                   saveChangesToParse(object);
                 } else {
-                  // If no internet, save portrait to parse as byte array, then
-                  // later convert to parse file
-                  if (!ECardUtils.isNetworkAvailable(ActivityDesign.this)) {
-                    Toast.makeText(ActivityDesign.this,
-                      "No network, caching img", Toast.LENGTH_SHORT).show();
-                    object.put("tmpImgByteArray", tmpImgData);
-                    // flush sharedpreferences to 1969 so next time app opens
-                    // with internet, convert the file
-                    Date currentDate = new Date(0);
-                    SharedPreferences prefs = getSharedPreferences(
-                      AppGlobals.MY_PREFS_NAME, MODE_PRIVATE);
-                    SharedPreferences.Editor prefEditor = prefs.edit();
-                    prefEditor.putLong("DateSelfSynced", currentDate.getTime());
-                    prefEditor.commit();
-                    saveChangesToParse(object);
-                  } else {
-                    // with network, can save parsefile like normal
-                    // have to do saveInBackground, otherwise hang and crash in
-                    // poor networks
-                    file = new ParseFile("portrait.jpg", tmpImgData);
-                    file.saveInBackground(new SaveCallback() {
+                  // with network, can save parsefile like normal
+                  // have to do saveInBackground, otherwise hang and crash in
+                  // poor networks
+                  file = new ParseFile("portrait.jpg", tmpImgData);
+                  file.saveInBackground(new SaveCallback() {
 
-                      @Override
-                      public void done(ParseException arg0) {
-                        object.put("portrait", file);
-                        saveChangesToParse(object);
-                      }
+                    @Override
+                    public void done(ParseException arg0) {
+                      object.put("portrait", file);
+                      saveChangesToParse(object);
+                    }
 
-                    });
-                  }
+                  });
                 }
-
               }
+
+            }
+          }
+        }
+
+        private void saveChangesToParse(ParseObject object) {
+          if (!ECardUtils.isNetworkAvailable(ActivityDesign.this)) {
+            // if there is network, pin the ECardTemplate object to local
+            if (templateToBePinned != null) {
+              templateToBePinned.pinInBackground();
             }
           }
 
-          private void saveChangesToParse(ParseObject object) {
-            if (!ECardUtils.isNetworkAvailable(ActivityDesign.this)) {
-              // if there is network, pin the ECardTemplate object to local
-              if (templateToBePinned != null) {
-                templateToBePinned.pinInBackground();
-              }
+          EditText name = (EditText) findViewById(R.id.design_name);
+          String fullName = name.getText().toString();
+          String[] splitName = fullName.split(" ");
+          String firstName = "";
+          String lastName = "";
+          if (splitName.length == 1) {
+            // first name only
+            firstName = splitName[0];
+            lastName = "";
+          } else {
+            // at least 2 segments
+            for (int i = 0; i < splitName.length - 2; i++) {
+              firstName = firstName + splitName[i] + " ";
             }
+            for (int i = splitName.length - 2; i < splitName.length - 1; i++) {
+              firstName = firstName + splitName[i];
+            }
+            lastName = splitName[splitName.length - 1];
+          }
+          if (firstName == null || firstName.isEmpty()) {
+            firstName = "";
+          }
+          if (lastName == null || lastName.isEmpty()) {
+            lastName = "";
+          }
+          object.put("firstName", firstName);
+          object.put("lastName", lastName);
 
-            EditText name = (EditText) findViewById(R.id.design_name);
-            String fullName = name.getText().toString();
-            String[] splitName = fullName.split(" ");
-            String firstName = "";
-            String lastName = "";
-            if (splitName.length == 1) {
-              // first name only
-              firstName = splitName[0];
-              lastName = "";
-            } else {
-              // at least 2 segments
-              for (int i = 0; i < splitName.length - 2; i++) {
-                firstName = firstName + splitName[i] + " ";
-              }
-              for (int i = splitName.length - 2; i < splitName.length - 1; i++) {
-                firstName = firstName + splitName[i];
-              }
-              lastName = splitName[splitName.length - 1];
-            }
-            if (firstName == null || firstName.isEmpty()) {
-              firstName = "";
-            }
-            if (lastName == null || lastName.isEmpty()) {
-              lastName = "";
-            }
-            object.put("firstName", firstName);
-            object.put("lastName", lastName);
-
-            AutoCompleteTextView cmpName = (AutoCompleteTextView) findViewById(R.id.design_com);
+          AutoCompleteTextView cmpName = (AutoCompleteTextView) findViewById(R.id.design_com);
+          
+          // if exact match was found, no need to create template again
+          if(!flagCompanyNameExactMatch){
             // Testing beforeSave for ECardTemplate Objects
             ParseObject newTemplateObj = new ParseObject("ECardTemplate");
             newTemplateObj.put("companyName", cmpName.getText().toString().trim());
@@ -419,50 +444,97 @@ public class ActivityDesign extends ActionBarActivity {
             defaultACL.setPublicWriteAccess(false);
             newTemplateObj.setACL(defaultACL);
             newTemplateObj.saveEventually();
-
-            object.put("company", cmpName.getText().toString());
-            name = (EditText) findViewById(R.id.design_job_title);
-            object.put("title", name.getText().toString());
-            name = (EditText) findViewById(R.id.design_address);
-            object.put("city", name.getText().toString());
-            name = (EditText) findViewById(R.id.design_motto);
-            object.put("motto", name.getText().toString());
-
-            ArrayList<String> remainedList = new ArrayList<String>();
-            int numBtns = gridView.getChildCount() - 1;
-            for (int i = 0; i < numBtns; i++) {
-              View view = gridView.getChildAt(i);
-              // Log.d("buttons:" , ((MyTag) view.getTag()).getKey() +
-              // "   "+ ((MyTag) view.getTag()).getValue());
-              object.put(((MyTag) view.getTag()).getKey(),
-                ((MyTag) view.getTag()).getValue());
-              remainedList.add(((MyTag) view.getTag()).getKey());
-            }
-            allowedArrayList.removeAll(remainedList);
-            for (Iterator<String> iter = allowedArrayList.iterator(); iter
-              .hasNext();) {
-              String nullItem = iter.next();
-              object.remove(nullItem);
-            }
-            object.saveEventually();
-            Toast.makeText(getBaseContext(), "Save successful",
-              Toast.LENGTH_SHORT).show();
-
           }
 
-        });
+          object.put("company", cmpName.getText().toString());
+          name = (EditText) findViewById(R.id.design_job_title);
+          object.put("title", name.getText().toString());
+          name = (EditText) findViewById(R.id.design_address);
+          object.put("city", name.getText().toString());
+          name = (EditText) findViewById(R.id.design_motto);
+          object.put("motto", name.getText().toString());
 
-      // need to pass this new UserInfo back to ActivityMain. Cannot wait for
-      // object.saveinbackground.
-      Intent intent = new Intent();
-      // here myselfUserInfo has been updated
-      setResult(RESULT_OK, intent);
-      this.finish();
-      return true;
-    default:
-      return super.onOptionsItemSelected(item);
-    }
+          ArrayList<String> remainedList = new ArrayList<String>();
+          int numBtns = gridView.getChildCount() - 1;
+          for (int i = 0; i < numBtns; i++) {
+            View view = gridView.getChildAt(i);
+            // Log.d("buttons:" , ((MyTag) view.getTag()).getKey() +
+            // "   "+ ((MyTag) view.getTag()).getValue());
+            object.put(((MyTag) view.getTag()).getKey(),
+              ((MyTag) view.getTag()).getValue());
+            remainedList.add(((MyTag) view.getTag()).getKey());
+          }
+          allowedArrayList.removeAll(remainedList);
+          for (Iterator<String> iter = allowedArrayList.iterator(); iter
+            .hasNext();) {
+            String nullItem = iter.next();
+            object.remove(nullItem);
+          }
+          object.saveEventually();
+          Toast.makeText(getBaseContext(), "Save successful",
+            Toast.LENGTH_SHORT).show();
+
+        }
+
+      });
+
+    // need to pass this new UserInfo back to ActivityMain. Cannot wait for
+    // object.saveinbackground.
+    Intent intent = new Intent();
+    // here myselfUserInfo has been updated
+    setResult(RESULT_OK, intent);
+    this.finish();
   }
+
+  private void checkCompanyNamesOnline() {
+    
+    final Dialog dialogProg = new Dialog(this);
+    dialogProg.requestWindowFeature(Window.FEATURE_NO_TITLE);
+    dialogProg.setContentView(R.layout.layout_dialog_scanned_process);
+    TextView dialog_text = (TextView) dialogProg.findViewById(R.id.dialog_status);
+        
+    final SyncDataTaskCompanyName chkCompanyName = new SyncDataTaskCompanyName(this, dialogProg);
+    chkCompanyName.execute();
+    final Runnable myCancellable = new Runnable() {
+
+      @Override
+      public void run() {
+        if (chkCompanyName.getStatus() == AsyncTask.Status.RUNNING) {
+          Toast.makeText(getApplicationContext(), "Save Design Timed Out",
+            Toast.LENGTH_SHORT).show();
+          // upon failed network, dismiss dialog
+          if (dialogProg.isShowing()) {
+            dialogProg.dismiss();
+          }          
+          chkCompanyName.cancel(true);
+        }
+      }
+    };
+    final Handler handlerScanQR = new Handler();
+    handlerScanQR.postDelayed(myCancellable, SAVE_DESIGN_TIMEOUT);
+
+    // upon back button press, cancel both the scanQR AsyncTask and the
+    // timed handler
+    // progress_image.setBackgroundResource(R.drawable.progress);
+    dialog_text.setText("Saving ... ");
+    dialogProg.setOnCancelListener(new DialogInterface.OnCancelListener() {
+      @Override
+      public void onCancel(DialogInterface dialog) {
+        Toast.makeText(getApplicationContext(), "canceled",
+          Toast.LENGTH_SHORT).show();
+        chkCompanyName.cancel(true);
+        handlerScanQR.removeCallbacks(myCancellable);
+        onPause();
+        onResume();
+      }
+    });
+    // QB: Need fix! Window leaked
+    dialogProg.show();
+    
+  }
+  
+  
+
 
   private void saveChangesToUserInfo() {
     if (portraitChanged) {
@@ -500,6 +572,7 @@ public class ActivityDesign extends ActionBarActivity {
 
     AutoCompleteTextView cmpName = (AutoCompleteTextView) findViewById(R.id.design_com);
     ActivityMain.myselfUserInfo.setCompany(cmpName.getText().toString());
+    
     name = (EditText) findViewById(R.id.design_job_title);
     ActivityMain.myselfUserInfo.setTitle(name.getText().toString());
     name = (EditText) findViewById(R.id.design_address);
@@ -918,6 +991,73 @@ public class ActivityDesign extends ActionBarActivity {
       }
     }
   }
+  
+  OnItemClickListener dialogCompanyCandidateListItemClickListenerBuilder(final String[] results) {
+    OnItemClickListener listener = new OnItemClickListener() {
+      // This is the Listener that listens to the item selection in
+      // dialogAddMore
+      // Upon selection, pop up a new dialog to edit initial info of the to be
+      // added item
+
+      @SuppressLint("NewApi")
+      @Override
+      public void onItemClick(AdapterView<?> parent, View view,
+        final int position, long id) {
+        // Upon dialogAddMore item selection, it can be closed
+        actionCC.dismiss();
+        AutoCompleteTextView cmpName = (AutoCompleteTextView) findViewById(R.id.design_com);
+        cmpName.setText(results[position]);
+        proceedSaving();
+      }
+
+    };
+
+    return listener;
+  }
+  
+  @SuppressLint("NewApi")
+  private void buildCompanyCandidateDialog(ArrayList<String> companyCandidates,
+    ArrayList<Bitmap> companyCandidateLogos) {
+    // Get the layout inflater
+    LayoutInflater inflater = getLayoutInflater();
+    View dialogCompanyCandidateView = inflater.inflate(R.layout.layout_dialog_addmore,
+      null);
+    LinearLayout dialogHeader = (LinearLayout) dialogCompanyCandidateView
+      .findViewById(R.id.dialog_header);
+    TextView dialogTitle = (TextView) dialogCompanyCandidateView
+      .findViewById(R.id.dialog_title);
+    // // Set dialog header background with rounded corner
+    // Bitmap bm = BitmapFactory
+    // .decodeResource(getResources(), R.drawable.striped);
+    // BitmapDrawable bmDrawable = new BitmapDrawable(getResources(), bm);
+    // dialogHeader.setBackgroundDrawable(new CurvedAndTiled(bmDrawable
+    // .getBitmap(), 5));
+    dialogHeader
+      .setBackgroundColor(getResources().getColor(R.color.blue_extra));
+    // Set dialog title and main EditText
+    dialogTitle.setText("Do you mean ...");
+
+    AlertDialog.Builder builder = new AlertDialog.Builder(ActivityDesign.this);
+    builder.setView(dialogCompanyCandidateView);
+    builder.setNegativeButton("Keep what I wrote", new DialogInterface.OnClickListener() {
+      public void onClick(DialogInterface dialog, int whichButton) {
+        // Do nothing.
+        proceedSaving();
+      }
+    });
+    // actions now links to the dialog
+    actionCC = builder.create();
+    
+    // Below is to build the listener for items listed inside the poped up
+    // "addmorebutton dialog"
+    ListView listViewInDialog = (ListView) dialogCompanyCandidateView
+      .findViewById(R.id.dialog_listview);
+    String[] candidates = companyCandidates.toArray(new String[companyCandidates.size()]);
+    listViewInDialog.setAdapter(new MySimpleListViewAdapter(
+      ActivityDesign.this, candidates, companyCandidateLogos, true));
+    listViewInDialog
+      .setOnItemClickListener(dialogCompanyCandidateListItemClickListenerBuilder(candidates));
+  }
 
   @SuppressLint("NewApi")
   private void buildAddMoreButtonDialog() {
@@ -970,5 +1110,90 @@ public class ActivityDesign extends ActionBarActivity {
       ActivityDesign.this, selectionDisplayArray, iconListForAddMoreDialog));
     listViewInDialog
       .setOnItemClickListener(dialogAddMoreListItemClickListenerBuilder());
+  }
+  
+  private class SyncDataTaskCompanyName extends AsyncTask<String, Void, UserInfo> {
+
+    private Context context;
+    List<ParseObject> tempObjs = null;
+    private AutoCompleteTextView cmpName;
+    private Dialog dialogProg;
+
+    public SyncDataTaskCompanyName(Context context, Dialog dialogProg) {
+      this.context = context;
+      this.dialogProg = dialogProg;
+    }
+
+    @Override
+    protected UserInfo doInBackground(String... url) {
+      cmpName = (AutoCompleteTextView) findViewById(R.id.design_com);
+      // cannot trust offline list, otherwise stays faulty
+      
+      ParseQuery query = ParseQuery.getQuery("ECardTemplate");
+      query.whereContains("companyNameLC", cmpName.getText().toString().toLowerCase(Locale.ENGLISH).trim());
+      
+      try {
+        // have to block process
+        tempObjs = query.find();
+      } catch (ParseException e1) {
+        e1.printStackTrace();
+      }
+      return null;
+      
+
+    }
+
+    @Override
+    protected void onPostExecute(UserInfo newUser) {
+      dialogProg.dismiss();
+      if (tempObjs != null && tempObjs.size() != 0) {
+        // if there are indeed existing templates matching input, check if exact match
+        for(ParseObject tempObj : tempObjs){
+          if (tempObj.get("companyName").toString().equals(cmpName.getText().toString())) {
+            // there is exact match. do nothing, proceed with saving
+            flagCompanyNameExactMatch  = true;
+          }
+        }
+        
+        if(flagCompanyNameExactMatch){
+          // if there is exact match, continue saving without showing dialog
+          proceedSaving();
+        } else {      
+          // if there is match but not exact, show candidates in a dialog
+          ArrayList<String> companyCandidates = new ArrayList();
+          ArrayList<Bitmap> companyCandidateLogos = new ArrayList();
+          for(ParseObject tempObj : tempObjs){
+            companyCandidates.add(tempObj.get("companyName").toString());
+            // force caching the actual data
+            ParseFile logoImg = (ParseFile) tempObj.get("companyLogo");
+            if (logoImg != null) {
+              byte[] data;
+              try {
+                data = logoImg.getData();
+                if (data != null) {
+                  Bitmap logo = BitmapFactory.decodeByteArray(data, 0,
+                    data.length);
+                  companyCandidateLogos.add(logo);
+                } else {
+                  Bitmap emptyLogo = BitmapFactory.decodeResource(getResources(), R.drawable.emptylogo);
+                  companyCandidateLogos.add(emptyLogo);
+                }
+              } catch (ParseException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+              }
+            }
+            
+          }
+          buildCompanyCandidateDialog(companyCandidates, companyCandidateLogos);
+          actionCC.show();
+        }
+        
+      } else {
+        // if there is no match, without prompt, return to save design process and create template
+        proceedSaving();
+      }
+    }
+
   }
 }

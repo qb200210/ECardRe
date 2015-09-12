@@ -35,22 +35,30 @@ public class ActivityOpenLink extends ActionBarActivity{
   protected void onCreate(final Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     // setContentView(R.layout.activity_qrscanner);
-    AppGlobals.initializeAllContactsBlocking();
-    AppGlobals.initializePotentialUsersBlocking(); 
-    // handleDecode();
-    final Intent intent = getIntent();
-    final String action = intent.getAction();
-    if(intent.getData()!=null){
-      // Toast.makeText(this, intent.getDataString(), Toast.LENGTH_SHORT).show();
-      Intent intent1 = new Intent(this,
-        ActivityMain.class);
-      startActivity(intent1);
-      handleDecode(intent.getData().toString());
-    } else{
-      Intent intent1 = new Intent(this,
-        ActivityMain.class);
-      startActivity(intent1);
+    ParseUser currentUser = ParseUser.getCurrentUser();
+    if(currentUser == null){
+      // if there is no user session, bring to login page
+      Intent intent = new Intent(this, ActivityPreLogin.class);
+      startActivity(intent);
       this.finish();
+    } else{
+      AppGlobals.initializeAllContactsBlocking();
+      AppGlobals.initializePotentialUsersBlocking(); 
+      // handleDecode();
+      final Intent intent = getIntent();
+      final String action = intent.getAction();
+      if(intent.getData()!=null){
+        // Toast.makeText(this, intent.getDataString(), Toast.LENGTH_SHORT).show();
+        Intent intent1 = new Intent(this,
+          ActivityMain.class);
+        startActivity(intent1);
+        handleDecode(intent.getData().toString());
+      } else{
+        Intent intent1 = new Intent(this,
+          ActivityMain.class);
+        startActivity(intent1);
+        this.finish();
+      }
     }
   }
   
