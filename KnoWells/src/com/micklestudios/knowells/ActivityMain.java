@@ -7,6 +7,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
+import java.text.DateFormat;
+import java.util.Date;
+import java.util.TimeZone;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -59,11 +62,13 @@ import com.micklestudios.knowells.utils.CustomQRScanner;
 import com.micklestudios.knowells.utils.MyPagerAdapter;
 import com.micklestudios.knowells.utils.MyViewPager;
 import com.parse.ParseACL;
+import com.parse.ParseException;
 import com.parse.ParseInstallation;
 import com.parse.ParseObject;
 import com.parse.ParsePush;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 import com.micklestudios.knowells.R;
 
 public class ActivityMain extends ActionBarActivity {
@@ -116,7 +121,6 @@ public class ActivityMain extends ActionBarActivity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-
     
     if (myselfUserInfo == null) {      
       Log.e("myselfUserInfo", "BEGIN null, recreated");
