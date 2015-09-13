@@ -710,8 +710,9 @@ public class AsyncTasks {
       if (flagToast) {
         Toast.makeText(context, "Card Collection Up to Date",
           Toast.LENGTH_SHORT).show();
-        AppGlobals.initializeAllContactsBlocking();
       }
+      AppGlobals.initializeAllContactsBlocking();
+      
     }
 
   }

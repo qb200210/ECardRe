@@ -70,6 +70,7 @@ public class ActivityBufferOpening extends Activity {
   private boolean flagSyncNotesDone = false;
   private boolean flagSyncConvDone = false;
   private boolean flagSyncCachedIdsDone = false;
+  protected boolean flagSyncHistoryDone = false;
 
   private ProgressButton progressButton1;
   private TextView progressText;
@@ -180,6 +181,7 @@ public class ActivityBufferOpening extends Activity {
         timeoutFlagCachedIds = true;
         timeoutFlagNotes = true;
         timeoutFlagSelf = true;
+        timeoutFlagHistory = true;
       }
       
     });
@@ -216,8 +218,10 @@ public class ActivityBufferOpening extends Activity {
       @Override
       public void run() {
         if (syncHistory.getStatus() == AsyncTask.Status.RUNNING) {
-          Toast.makeText(getApplicationContext(), "Sync History Timed Out",
-            Toast.LENGTH_SHORT).show();
+          if(flagSyncHistoryDone != true){
+            Toast.makeText(getApplicationContext(), "Sync History Timed Out",
+              Toast.LENGTH_SHORT).show();
+          }
           timeoutFlagHistory  = true;
           syncHistory.cancel(true);
         }
@@ -233,8 +237,10 @@ public class ActivityBufferOpening extends Activity {
       @Override
       public void run() {
         if (createSelfCopy.getStatus() == AsyncTask.Status.RUNNING) {
-          Toast.makeText(getApplicationContext(), "Sync My Card Timed Out",
-            Toast.LENGTH_SHORT).show();
+          if(flagSyncSelfDone != true){
+            Toast.makeText(getApplicationContext(), "Sync My Card Timed Out",
+              Toast.LENGTH_SHORT).show();
+          }
           timeoutFlagSelf = true;
           createSelfCopy.cancel(true);
         }
@@ -269,8 +275,10 @@ public class ActivityBufferOpening extends Activity {
       @Override
       public void run() {
         if (syncNotes.getStatus() == AsyncTask.Status.RUNNING) {
-          Toast.makeText(getApplicationContext(),
-            "Sync Card Collection Timed Out", Toast.LENGTH_SHORT).show();
+          if(flagSyncNotesDone != true){
+            Toast.makeText(getApplicationContext(),
+              "Sync Card Collection Timed Out", Toast.LENGTH_SHORT).show();
+          }
           timeoutFlagNotes = true;
           syncNotes.cancel(true);
         }
@@ -286,8 +294,10 @@ public class ActivityBufferOpening extends Activity {
       @Override
       public void run() {
         if (syncCachedIds.getStatus() == AsyncTask.Status.RUNNING) {
-          Toast.makeText(getApplicationContext(),
-            "Sync Offline Collection Timed Out", Toast.LENGTH_SHORT).show();
+          if(flagSyncCachedIdsDone != true){
+            Toast.makeText(getApplicationContext(),
+              "Sync Offline Collection Timed Out", Toast.LENGTH_SHORT).show();
+          }
           timeoutFlagCachedIds = true;
           syncCachedIds.cancel(true);
         }
