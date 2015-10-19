@@ -2,6 +2,7 @@ package com.micklestudios.knowells;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,7 +11,9 @@ import java.net.URISyntaxException;
 
 import com.micklestudios.knowells.R;
 import com.micklestudios.knowells.utils.AppGlobals;
+import com.micklestudios.knowells.utils.ECardUtils;
 import com.parse.ParseException;
+import com.parse.ParseFile;
 import com.parse.ParsePush;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
@@ -47,12 +50,14 @@ import android.view.View.OnClickListener;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class ActivityUserSetting extends ActionBarActivity {
   private ParseUser currentUser;
   private AlertDialog uploadDialog;
   private AlertDialog feedbackDialog;
   private PrefsFragment newPrefFrag;
+  private int FILE_SIZE_LIMIT = 1200000;
   protected static final int UPLOAD_DOC = 1001;
   protected static final int SEND_FEEDBACK = 1002;
   private static final String KNOWELL_ROOT = "KnoWell";
@@ -446,17 +451,11 @@ public class ActivityUserSetting extends ActionBarActivity {
 
       // set default doc greeting
       Preference prefDocGreeting = (Preference) findPreference(getString(R.string.prefDocGreeting));
-      if (currentUser.getString("docPath") == null
-        || currentUser.getString("docPath").isEmpty()) {
+      if (currentUser.get("docAtServer") == null) {
         prefDocGreeting.setEnabled(false);
       } else {
-        File file = new File(currentUser.getString("docPath"));
-        if (!file.exists()) {
-          prefDocGreeting.setEnabled(false);
-        } else {
-          // If the docPath points to a valid file on device
-          prefDocGreeting.setEnabled(true);
-        }
+        // If the doc file exists at server
+        prefDocGreeting.setEnabled(true);
       }
       prefDocGreeting
         .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -486,12 +485,19 @@ public class ActivityUserSetting extends ActionBarActivity {
               .findViewById(R.id.preview);
 
             final String docName;
+            final String docPath;
             if (currentUser.getString("docName") != null
               && !currentUser.getString("docName").isEmpty()) {
               docName = currentUser.getString("docName");
             } else {
               docName = "Document Name";
-            }
+            } 
+            if (currentUser.getString("docServerLink") != null
+                && !currentUser.getString("docServerLink").isEmpty()) {
+                docPath = currentUser.getString("docServerLink");
+              } else {
+                docPath = "";
+              }
 
             helpBtn.setOnClickListener(new OnClickListener() {
 
@@ -508,6 +514,7 @@ public class ActivityUserSetting extends ActionBarActivity {
                   + ActivityMain.myselfUserInfo.getLastName()
                   + "\n#document# or #d#:\n"
                   + docName
+                  + "\n#linktodoc# or #l#:\nLink to my document."
                   + "\n#company# or #c#:\n"
                   + ActivityMain.myselfUserInfo.getCompany()
                   + "\n#recipient# or #r#:\nThe name of recipient\n#knowell# or #k#:\nLink to my card.";
@@ -516,6 +523,8 @@ public class ActivityUserSetting extends ActionBarActivity {
                 setColor(helpBody, rawString, "#myname# or #m#:",
                   Color.parseColor(getString(R.color.indigo_extra)), str);
                 setColor(helpBody, rawString, "#document# or #d#:",
+                  Color.parseColor(getString(R.color.indigo_extra)), str);
+                setColor(helpBody, rawString, "#linktodoc# or #l#:",
                   Color.parseColor(getString(R.color.indigo_extra)), str);
                 setColor(helpBody, rawString, "#company# or #c#:",
                   Color.parseColor(getString(R.color.indigo_extra)), str);
@@ -558,6 +567,8 @@ public class ActivityUserSetting extends ActionBarActivity {
                 processedSubject = processedSubject.replaceAll(
                   "#d[a-zA-Z0-9]*#", docName);
                 processedSubject = processedSubject.replaceAll(
+                  "#l[a-zA-Z0-9]*#", docPath);
+                processedSubject = processedSubject.replaceAll(
                   "#c[a-zA-Z0-9]*#", ActivityMain.myselfUserInfo.getCompany());
                 processedSubject = processedSubject.replaceAll(
                   "#k[a-zA-Z0-9]*#", getLink());
@@ -568,6 +579,8 @@ public class ActivityUserSetting extends ActionBarActivity {
                     + ActivityMain.myselfUserInfo.getLastName());
                 processedBody = processedBody.replaceAll("#d[a-zA-Z0-9]*#",
                   docName);
+                processedBody = processedBody.replaceAll(
+                  "#l[a-zA-Z0-9]*#", docPath);
                 processedBody = processedBody.replaceAll("#c[a-zA-Z0-9]*#",
                   ActivityMain.myselfUserInfo.getCompany());
                 processedBody = processedBody.replaceAll("#k[a-zA-Z0-9]*#",
@@ -598,7 +611,7 @@ public class ActivityUserSetting extends ActionBarActivity {
             }
             if (body == null || body.isEmpty()) {
               messageView
-                .setText("Hi #recipient#,\n\nThis is #myname# from #company#.\n\nIt was great to meet you! Please find my #document# in the attachment.\n\nKeep in touch! \n\nBest,\n#myname#\n\nPlease accept my business card here: #knowell#");
+                .setText("Hi #recipient#,\n\nThis is #myname# from #company#.\n\nIt was great to meet you! Please find my #document# here:\n\n#linktodoc#\n\nKeep in touch! \n\nBest,\n#myname#\n\nPlease accept my business card here: #knowell#");
             } else {
               messageView.setText(body);
             }
@@ -633,66 +646,61 @@ public class ActivityUserSetting extends ActionBarActivity {
           @Override
           public boolean onPreferenceClick(Preference preference) {
 
-            if (currentUser.getString("docPath") == null
-              || currentUser.getString("docPath").isEmpty()) {
+            if (currentUser.get("docAtServer") == null) {
+              // when the doc doesn't exist on server
               uploadDoc();
             } else {
-              File file = new File(currentUser.getString("docPath"));
-              if (!file.exists()) {
-                uploadDoc();
+              // when the doc exists on server
+              LayoutInflater inflater = getLayoutInflater();
+              final View dialogView = inflater.inflate(
+                R.layout.layout_change_docname, null);
+              LinearLayout dialogHeader = (LinearLayout) dialogView
+                .findViewById(R.id.dialog_header);
+              final TextView dialogText = (TextView) dialogView
+                .findViewById(R.id.dialog_text);
+              TextView dialogTitle = (TextView) dialogView
+                .findViewById(R.id.dialog_title);
+              dialogHeader.setBackgroundColor(getResources().getColor(
+                R.color.blue_extra));
+              dialogTitle.setText("Change Uploaded Document Name");
+              final EditText docNameView = (EditText) dialogView
+                .findViewById(R.id.doc_name);
+
+              final String docName;
+              if (currentUser.getString("docName") != null
+                && !currentUser.getString("docName").isEmpty()) {
+                docName = currentUser.getString("docName");
+                docNameView.setText(docName);
               } else {
-                // when the docPath points to a valid file on device
-                LayoutInflater inflater = getLayoutInflater();
-                final View dialogView = inflater.inflate(
-                  R.layout.layout_change_docname, null);
-                LinearLayout dialogHeader = (LinearLayout) dialogView
-                  .findViewById(R.id.dialog_header);
-                final TextView dialogText = (TextView) dialogView
-                  .findViewById(R.id.dialog_text);
-                TextView dialogTitle = (TextView) dialogView
-                  .findViewById(R.id.dialog_title);
-                dialogHeader.setBackgroundColor(getResources().getColor(
-                  R.color.blue_extra));
-                dialogTitle.setText("Change Uploaded Document Name");
-                final EditText docNameView = (EditText) dialogView
-                  .findViewById(R.id.doc_name);
-
-                final String docName;
-                if (currentUser.getString("docName") != null
-                  && !currentUser.getString("docName").isEmpty()) {
-                  docName = currentUser.getString("docName");
-                  docNameView.setText(docName);
-                } else {
-                  docName = "Document Name";
-                }
-
-                new AlertDialog.Builder(ActivityUserSetting.this)
-                  .setView(dialogView)
-                  .setPositiveButton("Save",
-                    new DialogInterface.OnClickListener() {
-                      public void onClick(DialogInterface dialog,
-                        int whichButton) {
-
-                        currentUser.put("docName", docNameView.getText()
-                          .toString());
-                        currentUser.saveEventually();
-                      }
-                    })
-                  .setNeutralButton("Replace",
-                    new DialogInterface.OnClickListener() {
-                      public void onClick(DialogInterface dialog,
-                        int whichButton) {
-                        uploadDoc();
-                      }
-                    })
-                  .setNegativeButton("Cancel",
-                    new DialogInterface.OnClickListener() {
-                      public void onClick(DialogInterface dialog,
-                        int whichButton) {
-
-                      }
-                    }).setCancelable(false).show();
+                docName = "Document Name";
               }
+
+              new AlertDialog.Builder(ActivityUserSetting.this)
+                .setView(dialogView)
+                .setPositiveButton("Save",
+                  new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog,
+                      int whichButton) {
+
+                      currentUser.put("docName", docNameView.getText()
+                        .toString());
+                      currentUser.saveEventually();
+                    }
+                  })
+                .setNeutralButton("Replace",
+                  new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog,
+                      int whichButton) {
+                      uploadDoc();
+                    }
+                  })
+                .setNegativeButton("Cancel",
+                  new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog,
+                      int whichButton) {
+
+                    }
+                  }).setCancelable(false).show();
             }
             return true;
           }
@@ -901,23 +909,56 @@ public class ActivityUserSetting extends ActionBarActivity {
         // Get the path
         String path;
         try {
-          String srcPath = getPath(ActivityUserSetting.this, uri);
-          File srcFile = new File(srcPath);
-          String dstPath = Environment.getExternalStorageDirectory().getPath()
-            + "/" + KNOWELL_ROOT + "/" + srcFile.getName();
-          Log.i("asdf", dstPath);
-          File dstFile = new File(dstPath);
-          try {
-            copyFile(srcFile, dstFile);
-            ActivityMain.currentUser.put("docPath", dstPath);
-          } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+          String srcPath = getPath(this, uri);
+          if(srcPath == null){
+            // Likely file selected from Google Drive, no real file so no uri
+            Toast.makeText(this, "Invalid file... please choose from another location", Toast.LENGTH_SHORT).show();
+          } else {
+            // There is file on local disk, proceed
+            FileInputStream fileInputStream = null;
+            File file = new File(srcPath);            
+            byte[] bFile = new byte[(int) file.length()];
+            // convert file into array of bytes
+            try {
+              fileInputStream = new FileInputStream(file);
+              int sizeOfFile = fileInputStream.available();
+              if(sizeOfFile > FILE_SIZE_LIMIT ){
+                // If the file is exceeding limit, report error and reinitiate upload
+                Toast.makeText(this, "File exceeding 1MB, please choose smaller one", Toast.LENGTH_SHORT).show();
+                uploadDoc();
+              } else {
+                // if the file size is okay, proceed with upload
+                fileInputStream.read(bFile);
+                fileInputStream.close();
+                if (ECardUtils.isNetworkAvailable(this)) {
+                  final ParseFile docFile = new ParseFile(file.getName(),
+                    bFile);
+                  docFile.saveInBackground(new SaveCallback() {
+
+                    @Override
+                    public void done(ParseException arg0) {
+                      currentUser.put("docAtServer", docFile);
+                      currentUser.put("docServerLink", docFile.getUrl());
+                      Toast.makeText(ActivityUserSetting.this, "Doc uploaded!",
+                        Toast.LENGTH_SHORT).show();
+                    }
+
+                  });
+                }
+                
+                // Initiate the upload
+                addDocDescription(file.getName());
+              }
+              
+            } catch (FileNotFoundException e1) {
+              // TODO Auto-generated catch block
+              e1.printStackTrace();
+            } catch (IOException e1) {
+              // TODO Auto-generated catch block
+              e1.printStackTrace();
+            }
+            
           }
-          // Get the file instance
-          //
-          // Initiate the upload
-          addDocDescription(srcFile.getName());
         } catch (URISyntaxException e) {
           // TODO Auto-generated catch block
           e.printStackTrace();
@@ -988,10 +1029,6 @@ public class ActivityUserSetting extends ActionBarActivity {
           }
           ActivityMain.currentUser.saveEventually(null);
           newPrefFrag.setprefDocGreeting(true);
-        }
-      }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-        public void onClick(DialogInterface dialog, int whichButton) {
-
         }
       }).setCancelable(false).show();
 

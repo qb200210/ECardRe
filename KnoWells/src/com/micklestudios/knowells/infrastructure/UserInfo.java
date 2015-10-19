@@ -42,6 +42,7 @@ public class UserInfo implements Parcelable {
   String title;
   String city;
   String motto;
+  String docServerLink;
   Bitmap portrait;
   String whereMet;
   String eventMet;
@@ -64,6 +65,7 @@ public class UserInfo implements Parcelable {
     public static final int TYPE_WHENMET = 10;
     public static final int TYPE_UPDATEDAT = 11;
     public static final int TYPE_MOTTO = 12;
+    public static final int TYPE_DOCSERVERLINK = 13;
   }
 
   ArrayList<String> shownArrayList = new ArrayList<String>();
@@ -85,12 +87,13 @@ public class UserInfo implements Parcelable {
     this.city = (this.city == null || this.city.isEmpty()) ? "(Undisclosed Location)"
       : this.city;
     this.motto = this.motto == null ? "" : this.motto;
+    this.docServerLink = this.docServerLink == null ? "" : this.docServerLink;
 
     this.whereMet = this.whereMet == null ? "" : this.whereMet;
     this.eventMet = this.eventMet == null ? "" : this.eventMet;
     this.notes = this.notes == null ? "" : this.notes;
     this.whenMet = this.whenMet == null ? (new Date()) : this.whenMet;
-    this.updatedAt = this.updatedAt == null ? (new Date()) : this.whenMet;
+    this.updatedAt = this.updatedAt == null ? (new Date()) : this.updatedAt;
   }
 
   /*
@@ -213,6 +216,7 @@ public class UserInfo implements Parcelable {
       title = parseObj.getString("title");
       city = parseObj.getString("city");
       motto = parseObj.getString("motto");
+      docServerLink = parseObj.getString("docServerLink");
       email = parseObj.getString("email");
 
       // extra info
@@ -277,6 +281,7 @@ public class UserInfo implements Parcelable {
       title = parseObj.getString("title");
       city = parseObj.getString("city");
       motto = parseObj.getString("motto");
+      docServerLink = parseObj.getString("docServerLink");
 
       // extra info
       infoIcon.clear();
@@ -309,6 +314,7 @@ public class UserInfo implements Parcelable {
     this.title = source.readString();
     this.city = source.readString();
     this.motto = source.readString();
+    this.docServerLink = source.readString();
     this.portrait = (Bitmap) source.readParcelable(getClass().getClassLoader());
     source.readStringList(this.shownArrayList);
     source.readStringList(this.infoLink);
@@ -334,6 +340,7 @@ public class UserInfo implements Parcelable {
     dest.writeString(title);
     dest.writeString(city);
     dest.writeString(motto);
+    dest.writeString(docServerLink);
     dest.writeParcelable(portrait, flags);
     dest.writeStringList(shownArrayList);
     dest.writeStringList(infoLink);
@@ -482,6 +489,14 @@ public class UserInfo implements Parcelable {
 
   public void setMotto(String motto) {
     this.motto = motto;
+  }
+
+  public String getDocServerLink() {
+    return docServerLink;
+  }
+
+  public void setDocServerLink(String docServerLink) {
+    this.docServerLink = docServerLink;
   }
 
   public ArrayList<String> getShownArrayList() {

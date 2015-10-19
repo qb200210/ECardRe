@@ -2,6 +2,7 @@ package com.micklestudios.knowells;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -59,10 +60,12 @@ import com.google.zxing.client.android.Intents;
 import com.micklestudios.knowells.infrastructure.UserInfo;
 import com.micklestudios.knowells.utils.CurvedAndTiled;
 import com.micklestudios.knowells.utils.CustomQRScanner;
+import com.micklestudios.knowells.utils.ECardUtils;
 import com.micklestudios.knowells.utils.MyPagerAdapter;
 import com.micklestudios.knowells.utils.MyViewPager;
 import com.parse.ParseACL;
 import com.parse.ParseException;
+import com.parse.ParseFile;
 import com.parse.ParseInstallation;
 import com.parse.ParseObject;
 import com.parse.ParsePush;
@@ -98,6 +101,7 @@ public class ActivityMain extends ActionBarActivity {
   private String targetName = null;
   protected String targetSMS = null;
   private BroadcastReceiver logoutNotifier;
+  private int FILE_SIZE_LIMIT = 1200000;
 
   public static Context applicationContext;
 
@@ -248,21 +252,12 @@ public class ActivityMain extends ActionBarActivity {
           && !ActivityMain.currentUser.get("docName").toString().isEmpty()) {
           docName = ActivityMain.currentUser.get("docName").toString();
         }
-        if (ActivityMain.currentUser.get("docPath") != null
-          && !ActivityMain.currentUser.get("docPath").toString().isEmpty()) {
-          docPath = ActivityMain.currentUser.get("docPath").toString();
-        }
-
-        File file = new File(docPath);
-
-        if (file.exists()) {
-          // if yes, pop up dialog for sharing
-          Uri uri = Uri.fromFile(file);
-          shareDoc(docName, uri);
+        if (ActivityMain.currentUser.get("docAtServer") != null) {
+          docPath = ActivityMain.currentUser.getString("docServerLink");
+          shareDoc(docName, docPath);
         } else {
           // if no, pop up dialog for selecting file
           uploadDoc();
-
         }
       }
 
@@ -289,7 +284,7 @@ public class ActivityMain extends ActionBarActivity {
     dialogHeader
       .setBackgroundColor(getResources().getColor(R.color.blue_extra));
     // Set dialog title and main EditText
-    dialogTitle.setText("You have no document yet ...");
+    dialogTitle.setText("I have no document yet ...");
 
     LinearLayout uploadButton = (LinearLayout) dialogView
       .findViewById(R.id.upload_button);
@@ -325,7 +320,7 @@ public class ActivityMain extends ActionBarActivity {
   }
 
   @SuppressLint("NewApi")
-  private void shareDoc(final String docName, final Uri uri) {
+  private void shareDoc(final String docName, final String docPath) {
     // Get the layout inflater
     LayoutInflater inflater = getLayoutInflater();
     final View dialogView = inflater.inflate(R.layout.layout_share_doc, null);
@@ -375,6 +370,8 @@ public class ActivityMain extends ActionBarActivity {
                 + ActivityMain.myselfUserInfo.getLastName());
             processedSubject = processedSubject.replaceAll("#d[a-zA-Z0-9]*#",
               docName);
+            processedSubject = processedSubject.replaceAll("#l[a-zA-Z0-9]*#",
+              docPath);
             processedSubject = processedSubject.replaceAll("#c[a-zA-Z0-9]*#",
               ActivityMain.myselfUserInfo.getCompany());
             msgSubject = processedSubject.replaceAll("#k[a-zA-Z0-9]*#",
@@ -400,6 +397,8 @@ public class ActivityMain extends ActionBarActivity {
                 + ActivityMain.myselfUserInfo.getLastName());
             processedBody = processedBody
               .replaceAll("#d[a-zA-Z0-9]*#", docName);
+            processedBody = processedBody
+                .replaceAll("#l[a-zA-Z0-9]*#", docPath);
             processedBody = processedBody.replaceAll("#c[a-zA-Z0-9]*#",
               ActivityMain.myselfUserInfo.getCompany());
             msgBody = processedBody.replaceAll("#k[a-zA-Z0-9]*#", getLink());
@@ -414,14 +413,15 @@ public class ActivityMain extends ActionBarActivity {
               + ActivityMain.myselfUserInfo.getCompany()
               + ". Please find my "
               + docName
-              + " in attachment. \n\nIt was great to meet you! Keep in touch! \n\nBest,\n"
+              + " here:\n\n"
+              + docPath
+              + "\n\nIt was great to meet you! Keep in touch! \n\nBest,\n"
               + ActivityMain.myselfUserInfo.getFirstName()
               + "\n\nPlease accept my business card here: " + link;
           }
 
           sendIntent.putExtra(Intent.EXTRA_TEXT, msgBody);
 
-          sendIntent.putExtra(Intent.EXTRA_STREAM, uri);
           startActivityForResult(sendIntent, SHARE_DOC);
 
         }
@@ -453,7 +453,7 @@ public class ActivityMain extends ActionBarActivity {
     dialogHeader
       .setBackgroundColor(getResources().getColor(R.color.blue_extra));
     // Set dialog title and main EditText
-    dialogTitle.setText("Share QR code");
+    dialogTitle.setText("Share My Card");
 
     flagShareEmail = true;
     ImageView switch2message = (ImageView) dialogView
@@ -722,10 +722,6 @@ public class ActivityMain extends ActionBarActivity {
           }
           ActivityMain.currentUser.saveEventually(null);
         }
-      }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-        public void onClick(DialogInterface dialog, int whichButton) {
-
-        }
       }).setCancelable(false).show();
 
   }
@@ -778,22 +774,55 @@ public class ActivityMain extends ActionBarActivity {
         String path;
         try {
           String srcPath = getPath(this, uri);
-          File srcFile = new File(srcPath);
-          String dstPath = Environment.getExternalStorageDirectory().getPath()
-            + "/" + KNOWELL_ROOT + "/" + srcFile.getName();
-          Log.i("asdf", dstPath);
-          File dstFile = new File(dstPath);
-          try {
-            copyFile(srcFile, dstFile);
-            ActivityMain.currentUser.put("docPath", dstPath);
-          } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+          if(srcPath == null){
+            // Likely file selected from Google Drive, no real file so no uri
+            Toast.makeText(this, "Invalid file... please choose from another location", Toast.LENGTH_SHORT).show();
+          } else {
+            // There is file on local disk, proceed
+            FileInputStream fileInputStream = null;
+            File file = new File(srcPath);            
+            byte[] bFile = new byte[(int) file.length()];
+            // convert file into array of bytes
+            try {
+              fileInputStream = new FileInputStream(file);
+              int sizeOfFile = fileInputStream.available();
+              if(sizeOfFile > FILE_SIZE_LIMIT ){
+                // If the file is exceeding limit, report error and reinitiate upload
+                Toast.makeText(this, "File exceeding 1MB, please choose smaller one", Toast.LENGTH_SHORT).show();
+                uploadDoc();
+              } else {
+                // if the file size is okay, proceed with upload
+                fileInputStream.read(bFile);
+                fileInputStream.close();
+                if (ECardUtils.isNetworkAvailable(this)) {
+                  final ParseFile docFile = new ParseFile(file.getName(),
+                    bFile);
+                  docFile.saveInBackground(new SaveCallback() {
+
+                    @Override
+                    public void done(ParseException arg0) {
+                      currentUser.put("docAtServer", docFile);
+                      currentUser.put("docServerLink", docFile.getUrl());
+                      Toast.makeText(ActivityMain.this, "Doc uploaded!",
+                        Toast.LENGTH_SHORT).show();
+                    }
+
+                  });
+                }
+                
+                // Initiate the upload
+                addDocDescription(file.getName());
+              }
+              
+            } catch (FileNotFoundException e1) {
+              // TODO Auto-generated catch block
+              e1.printStackTrace();
+            } catch (IOException e1) {
+              // TODO Auto-generated catch block
+              e1.printStackTrace();
+            }
+            
           }
-          // Get the file instance
-          //
-          // Initiate the upload
-          addDocDescription(srcFile.getName());
         } catch (URISyntaxException e) {
           // TODO Auto-generated catch block
           e.printStackTrace();

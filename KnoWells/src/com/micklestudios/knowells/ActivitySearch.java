@@ -2,6 +2,7 @@ package com.micklestudios.knowells;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -77,9 +78,11 @@ import com.nhaarman.listviewanimations.appearance.simple.AlphaInAnimationAdapter
 import com.nhaarman.listviewanimations.util.StickyListHeadersListViewWrapper;
 import com.parse.FindCallback;
 import com.parse.ParseException;
+import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 public class ActivitySearch extends ActionBarActivity {
 
@@ -94,6 +97,7 @@ public class ActivitySearch extends ActionBarActivity {
   static final int SCROLL_ANIMATION_SPEED_MS_SLOW = 1000;
   static final int SCROLL_ANIMATION_SPEED_MS_NORMAL = 500;
   static final int SCROLL_ANIMATION_SPEED_MS_FAST = 250;
+  private int FILE_SIZE_LIMIT = 1200000;
   
   private AlertDialog uploadDialog;
   protected static final int UPLOAD_DOC = 1001;
@@ -730,14 +734,8 @@ public class ActivitySearch extends ActionBarActivity {
           && !ActivityMain.currentUser.get("docName").toString().isEmpty()) {
           docName = ActivityMain.currentUser.get("docName").toString();
         }
-        if (ActivityMain.currentUser.get("docPath") != null
-          && !ActivityMain.currentUser.get("docPath").toString().isEmpty()) {
-          docPath = ActivityMain.currentUser.get("docPath").toString();
-        }
-
-        File file = new File(docPath);
-
-        if (file.exists()) {
+        if (ActivityMain.currentUser.get("docAtServer") != null) {
+          docPath = ActivityMain.currentUser.getString("docServerLink");
           // if file exists, check available emails
           int failedEmailCount = 0;
 
@@ -755,14 +753,13 @@ public class ActivitySearch extends ActionBarActivity {
             }
           }
 
-          Uri uri = Uri.fromFile(file);
           if (failedEmailCount != 0) {
             // alert some contacts are invalid
             // mark 1 for doc
-            alertInvalidContact(TO, failedList, 1, docName, uri);
+            alertInvalidContact(TO, failedList, 1, docName, docPath);
           } else {
             // if all selected have valid emails
-            sendGroupDoc(TO, docName, uri);
+            sendGroupDoc(TO, docName, docPath);
           }          
           
         } else {
@@ -839,7 +836,7 @@ public class ActivitySearch extends ActionBarActivity {
 
   }
   
-  protected void sendGroupDoc(final ArrayList<String> TO, final String docName, final Uri uri) {
+  protected void sendGroupDoc(final ArrayList<String> TO, final String docName, final String docPath) {
     String link = getLink();
 
     Intent sendIntent = new Intent(Intent.ACTION_SEND);
@@ -852,11 +849,15 @@ public class ActivitySearch extends ActionBarActivity {
         .isEmpty()) {
       msgSubject = ActivityMain.currentUser.get("docMsgSubject")
         .toString();
-      String processedSubject = msgSubject.replaceAll("#m[a-zA-Z0-9]*#",
+      String processedSubject = msgSubject
+          .replaceAll("#r[a-zA-Z0-9]*#", "");
+      processedSubject = processedSubject.replaceAll("#m[a-zA-Z0-9]*#",
         ActivityMain.myselfUserInfo.getFirstName() + " "
           + ActivityMain.myselfUserInfo.getLastName());
       processedSubject = processedSubject.replaceAll("#d[a-zA-Z0-9]*#",
         docName);
+      processedSubject = processedSubject.replaceAll("#l[a-zA-Z0-9]*#",
+        docPath);
       processedSubject = processedSubject.replaceAll("#c[a-zA-Z0-9]*#",
         ActivityMain.myselfUserInfo.getCompany());
       msgSubject = processedSubject.replaceAll("#k[a-zA-Z0-9]*#",
@@ -875,11 +876,15 @@ public class ActivitySearch extends ActionBarActivity {
     if (ActivityMain.currentUser.get("docMsgBody") != null
       && !ActivityMain.currentUser.get("docMsgBody").toString().isEmpty()) {
       msgBody = ActivityMain.currentUser.get("docMsgBody").toString();
-      String processedBody = msgBody.replaceAll("#m[a-zA-Z0-9]*#",
+      String processedBody = msgBody
+          .replaceAll("#r[a-zA-Z0-9]*#", "");
+      processedBody = processedBody.replaceAll("#m[a-zA-Z0-9]*#",
         ActivityMain.myselfUserInfo.getFirstName() + " "
           + ActivityMain.myselfUserInfo.getLastName());
       processedBody = processedBody
         .replaceAll("#d[a-zA-Z0-9]*#", docName);
+      processedBody = processedBody
+          .replaceAll("#l[a-zA-Z0-9]*#", docPath);
       processedBody = processedBody.replaceAll("#c[a-zA-Z0-9]*#",
         ActivityMain.myselfUserInfo.getCompany());
       msgBody = processedBody.replaceAll("#k[a-zA-Z0-9]*#", getLink());
@@ -892,18 +897,19 @@ public class ActivitySearch extends ActionBarActivity {
         + ActivityMain.myselfUserInfo.getCompany()
         + ". Please find my "
         + docName
-        + " in attachment. \n\nIt was great to meet you! Keep in touch! \n\nBest,\n"
+        + " here:\n\n"
+        + docPath
+        + "\n\nIt was great to meet you! Keep in touch! \n\nBest,\n"
         + ActivityMain.myselfUserInfo.getFirstName()
         + "\n\nPlease accept my business card here: " + link;
     }
 
     sendIntent.putExtra(Intent.EXTRA_TEXT, msgBody);
 
-    sendIntent.putExtra(Intent.EXTRA_STREAM, uri);
     startActivityForResult(sendIntent, SHARE_DOC);
   }
 
-  private void alertInvalidContact(final ArrayList<String> TO,ArrayList<String> failedList, final int emailDoc, final String docName, final Uri uri) {
+  private void alertInvalidContact(final ArrayList<String> TO,ArrayList<String> failedList, final int emailDoc, final String docName, final String docPath) {
 
     LayoutInflater inflater = getLayoutInflater();
     final View dialogView = inflater.inflate(R.layout.layout_missing, null);
@@ -961,7 +967,7 @@ public class ActivitySearch extends ActionBarActivity {
             sendGroupEmail(TO);
             break;
           case 1:
-            sendGroupDoc(TO, docName, uri);
+            sendGroupDoc(TO, docName, docPath);
             break;
           }
         }
@@ -1500,22 +1506,55 @@ public class ActivitySearch extends ActionBarActivity {
         String path;
         try {
           String srcPath = getPath(this, uri);
-          File srcFile = new File(srcPath);
-          String dstPath = Environment.getExternalStorageDirectory().getPath()
-            + "/" + KNOWELL_ROOT + "/" + srcFile.getName();
-          Log.i("asdf", dstPath);
-          File dstFile = new File(dstPath);
-          try {
-            copyFile(srcFile, dstFile);
-            ActivityMain.currentUser.put("docPath", dstPath);
-          } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+          if(srcPath == null){
+            // Likely file selected from Google Drive, no real file so no uri
+            Toast.makeText(this, "Invalid file... please choose from another location", Toast.LENGTH_SHORT).show();
+          } else {
+            // There is file on local disk, proceed
+            FileInputStream fileInputStream = null;
+            File file = new File(srcPath);            
+            byte[] bFile = new byte[(int) file.length()];
+            // convert file into array of bytes
+            try {
+              fileInputStream = new FileInputStream(file);
+              int sizeOfFile = fileInputStream.available();
+              if(sizeOfFile > FILE_SIZE_LIMIT ){
+                // If the file is exceeding limit, report error and reinitiate upload
+                Toast.makeText(this, "File exceeding 1MB, please choose smaller one", Toast.LENGTH_SHORT).show();
+                uploadDoc();
+              } else {
+                // if the file size is okay, proceed with upload
+                fileInputStream.read(bFile);
+                fileInputStream.close();
+                if (ECardUtils.isNetworkAvailable(this)) {
+                  final ParseFile docFile = new ParseFile(file.getName(),
+                    bFile);
+                  docFile.saveInBackground(new SaveCallback() {
+
+                    @Override
+                    public void done(ParseException arg0) {
+                      currentUser.put("docAtServer", docFile);
+                      currentUser.put("docServerLink", docFile.getUrl());
+                      Toast.makeText(ActivitySearch.this, "Doc uploaded!",
+                        Toast.LENGTH_SHORT).show();
+                    }
+
+                  });
+                }
+                
+                // Initiate the upload
+                addDocDescription(file.getName());
+              }
+              
+            } catch (FileNotFoundException e1) {
+              // TODO Auto-generated catch block
+              e1.printStackTrace();
+            } catch (IOException e1) {
+              // TODO Auto-generated catch block
+              e1.printStackTrace();
+            }
+            
           }
-          // Get the file instance
-          //
-          // Initiate the upload
-          addDocDescription(srcFile.getName());
         } catch (URISyntaxException e) {
           // TODO Auto-generated catch block
           e.printStackTrace();
@@ -1608,10 +1647,6 @@ public class ActivitySearch extends ActionBarActivity {
             ActivityMain.currentUser.put("docName", docFilename);
           }
           ActivityMain.currentUser.saveEventually(null);
-        }
-      }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-        public void onClick(DialogInterface dialog, int whichButton) {
-
         }
       }).setCancelable(false).show();
 
